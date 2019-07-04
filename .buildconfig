@@ -1,0 +1,10 @@
+[default]
+name=Default
+runtime=host
+config-opts=
+run-opts=
+prefix=/home/sixpounder/.cache/gnome-builder/install/write/host
+app-id=com.github.sixpounder.manuscript
+postbuild=
+prebuild=
+default=true
