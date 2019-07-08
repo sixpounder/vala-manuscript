@@ -51,5 +51,10 @@
 	    <summary>The last opened document</summary>
 	    <description>The absolute path to the last opened document</description>
 	  </key>
+	  <key name="zen" type="b">
+	    <default>false</default>
+	    <summary>Zen (focus) mode on or off</summary>
+	    <description>Determines if focus mode is activated or not</description>
+	  </key>
 	</schema>
 </schemalist>

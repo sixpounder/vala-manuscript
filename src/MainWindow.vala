@@ -3,38 +3,38 @@ public class MainWindow : Gtk.ApplicationWindow {
   protected AppSettings settings;
   protected Gtk.Box layout;
   protected WelcomeView welcome_view;
+  protected Header header;
   public Editor current_editor;
 
   public MainWindow (Gtk.Application app) {
     Object(
-      application: app
+      application: app,
+      default_height: settings.window_height,
+      default_width: settings.window_width
     );
 
-    this.set_titlebar(new Header(this));
-
+    this.layout = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
     this.settings = AppSettings.get_instance();
 
-    this.default_width = settings.window_width;
-    this.default_height = settings.window_height;
-
-    this.layout = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-    this.layout.add.connect(widget => {
-      if (widget is WelcomeView) {
-        this.layout.remove(this.welcome_view);
-      }
+    this.header = new Header(this);
+    this.header.open_file.connect(() => {
+      this.open_file_dialog();
     });
+    this.set_titlebar(header);
+
 
     this.welcome_view = new WelcomeView();
     this.welcome_view.should_open_file.connect(this.open_file_dialog);
 
     this.add(this.layout);
 
-
     if (settings.last_opened_document != "") {
       this.open_file_at_path(settings.last_opened_document);
     } else {
       this.layout.pack_start(this.welcome_view);
     }
+
+    this.layout.pack_end(new StatusBar(), false, true, 0);
   }
 
   public override bool configure_event (Gdk.EventConfigure event) {
@@ -94,7 +94,20 @@ public class MainWindow : Gtk.ApplicationWindow {
   }
 
   public void open_file_at_path (string path) {
-    this.layout.pack_start(this.current_editor = new Editor(path));
+    if (this.current_editor != null) {
+      this.cleanup_layout();
+    }
+    this.current_editor = new Editor(path);
+    this.layout.pack_start(this.current_editor);
+  }
+
+  protected void cleanup_layout () {
+    GLib.List<weak Gtk.Widget> children = this.layout.get_children();
+    foreach (Gtk.Widget element in children) {
+      if (element is Editor || element is WelcomeView) {
+        this.layout.remove(element);
+      }
+    }
   }
 
   protected void message (string message, Gtk.MessageType level = Gtk.MessageType.ERROR) {

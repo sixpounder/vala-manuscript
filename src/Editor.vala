@@ -2,7 +2,9 @@ public class Editor : Gtk.Box {
   public string file_path { get; construct; }
   public string raw { get; set; }
   public Gtk.TextView text_view;
+
   protected Document document;
+  protected Stack changes = new Stack<DocumentChange>(false);
 
   protected AppSettings settings = AppSettings.get_instance();
 
@@ -27,12 +29,16 @@ public class Editor : Gtk.Box {
     Gtk.CssProvider provider = new Gtk.CssProvider();
     provider.load_from_data(
       """textview {
-        font: 16px iA Writer Duospace;
+        font: 18px iA Writer Duospace;
         color: #333;
       }"""
     );
     this.text_view.get_style_context().add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-    this.text_view.pixels_below_lines = 5;
+    this.text_view.pixels_below_lines = 0;
+    this.text_view.right_margin = 100;
+    this.text_view.left_margin = 100;
+    this.text_view.top_margin = 50;
+    this.text_view.bottom_margin = 50;
     this.text_view.wrap_mode = Gtk.WrapMode.WORD;
     this.text_view.input_hints = Gtk.InputHints.SPELLCHECK | Gtk.InputHints.NO_EMOJI;
     this.text_view.buffer = this.document.text_buffer;

@@ -21,7 +21,7 @@ public class Store : Object {
   public Document load_document (string file_path) throws GLib.Error {
     Document target = Document.from_file(file_path);
     this.switch_document(this.current_document, target);
-    this.current_document = Document.from_file(file_path);
+    this.current_document = target;
 
     return this.current_document;
   }

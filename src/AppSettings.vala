@@ -4,6 +4,7 @@ public class AppSettings : Object {
   public int window_x { get; set; }
   public int window_y { get; set; }
   public string last_opened_document { get; set; }
+  public bool zen { get; set; }
 
   private GLib.Settings settings = null;
 
@@ -16,6 +17,7 @@ public class AppSettings : Object {
     settings.bind("window-x", this, "window_x", GLib.SettingsBindFlags.DEFAULT);
     settings.bind("window-y", this, "window_y", GLib.SettingsBindFlags.DEFAULT);
     settings.bind("last-opened-document", this, "last_opened_document", GLib.SettingsBindFlags.DEFAULT);
+    settings.bind("zen", this, "zen", GLib.SettingsBindFlags.DEFAULT);
   }
 
   public static AppSettings get_instance () {
