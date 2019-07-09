@@ -4,13 +4,12 @@ public class MainWindow : Gtk.ApplicationWindow {
   protected Gtk.Box layout;
   protected WelcomeView welcome_view;
   protected Header header;
+  protected Document document;
   public Editor current_editor;
 
   public MainWindow (Gtk.Application app) {
     Object(
-      application: app,
-      default_height: settings.window_height,
-      default_width: settings.window_width
+      application: app
     );
 
     this.layout = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -94,11 +93,16 @@ public class MainWindow : Gtk.ApplicationWindow {
   }
 
   public void open_file_at_path (string path) {
-    if (this.current_editor != null) {
-      this.cleanup_layout();
+    try {
+      this.document = Store.get_instance().load_document(path);
+      if (this.current_editor != null) {
+        this.cleanup_layout();
+      }
+      this.current_editor = new Editor(this.document);
+      this.layout.pack_start(this.current_editor, true, true, 0);
+    } catch (GLib.Error error) {
+      this.message(_("Unable to open document at " + path));
     }
-    this.current_editor = new Editor(path);
-    this.layout.pack_start(this.current_editor);
   }
 
   protected void cleanup_layout () {

@@ -15,26 +15,16 @@ public class Document : Object {
   public double estimate_reading_time { get; private set; }
 
   public string file_path { get; construct; }
-  public string raw_content {
-    get {
-      return this._raw_content;
-    }
-    set {
-      this._raw_content = value;
-      this.words_count = Utils.Strings.count_words (this._raw_content);
-      this.estimate_reading_time = Utils.Strings.estimate_reading_time(this.words_count);
-      if (this._buffer != null) {
-          this._buffer.disconnect(buffer_change_handler_id);
-      }
-      this._buffer = new Gtk.TextBuffer(null);
-      this._buffer.set_text(this._raw_content, this._raw_content.length);
-      this.buffer_change_handler_id = this._buffer.changed.connect(this.on_content_changed);
-    }
-  }
 
   public Gtk.TextBuffer text_buffer {
     get {
       return this._buffer;
+    }
+  }
+
+  public string text {
+    owned get {
+      return this.text_buffer != null ? this.text_buffer.text : null;
     }
   }
 
@@ -47,7 +37,12 @@ public class Document : Object {
   }
 
   protected void build_document (string content) {
-    this.raw_content = content;
+    // this.raw_content = content;
+    this._buffer = new Gtk.TextBuffer(null);
+    this._buffer.set_text(content, content.length);
+    this.words_count = Utils.Strings.count_words (this._buffer.text);
+    this.estimate_reading_time = Utils.Strings.estimate_reading_time(this.words_count);
+    this.buffer_change_handler_id = this._buffer.changed.connect(this.on_content_changed);
     this.text_buffer.insert_text.connect(this.text_inserted);
     this.text_buffer.delete_range.connect(this.range_deleted);
     this.load();
@@ -58,6 +53,9 @@ public class Document : Object {
   }
 
   public void unload () {
+    if (this._buffer != null) {
+      this._buffer.disconnect(buffer_change_handler_id);
+    }
     this.text_buffer.dispose();
   }
 

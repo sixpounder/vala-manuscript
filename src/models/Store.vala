@@ -1,6 +1,7 @@
 public class Store : Object {
 
   public signal void switch_document (Document from, Document to);
+  public signal void load (Document document);
 
   private Document _current_document = null;
   private static Store instance;
@@ -15,6 +16,7 @@ public class Store : Object {
         this._current_document.unload();
       }
       this._current_document = value;
+      this.load(this._current_document);
     }
   }
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.write\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-05 23:39+0200\n"
+"POT-Creation-Date: 2019-07-09 14:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,10 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: src/MainWindow.vala:104
+msgid "Unable to open document at "
+msgstr ""
 
 #: src/StatusBar.vala:30 src/StatusBar.vala:55
 msgid "words"
@@ -33,6 +37,6 @@ msgstr ""
 msgid "minutes"
 msgstr ""
 
-#: src/Header.vala:13
+#: src/Header.vala:16
 msgid "Open file"
 msgstr ""

@@ -1,20 +1,20 @@
 public class Editor : Gtk.Box {
-  public string file_path { get; construct; }
-  public string raw { get; set; }
+  public Document document { get; construct; }
   public Gtk.TextView text_view;
 
-  protected Document document;
+  public bool has_changes { get; private set; }
+
   protected Stack changes = new Stack<DocumentChange>(false);
 
   protected AppSettings settings = AppSettings.get_instance();
 
-  public Editor (string file_path) {
+  public Editor (Document document) {
     Object(
       orientation: Gtk.Orientation.VERTICAL,
-      file_path: file_path
+      document: document
     );
 
-    if (this.file_path != null) {
+    if (this.document != null) {
       try {
         this.init_editor();
       } catch (GLib.Error err) {
@@ -24,7 +24,6 @@ public class Editor : Gtk.Box {
   }
 
   protected void init_editor () throws GLib.Error {
-    this.document = Store.get_instance().load_document(this.file_path);
     this.text_view = new Gtk.TextView();
     Gtk.CssProvider provider = new Gtk.CssProvider();
     provider.load_from_data(
@@ -42,9 +41,24 @@ public class Editor : Gtk.Box {
     this.text_view.wrap_mode = Gtk.WrapMode.WORD;
     this.text_view.input_hints = Gtk.InputHints.SPELLCHECK | Gtk.InputHints.NO_EMOJI;
     this.text_view.buffer = this.document.text_buffer;
+
     Gtk.ScrolledWindow scrollContainer = new Gtk.ScrolledWindow(null, null);
     scrollContainer.add(this.text_view);
+
+    this.settings.last_opened_document = this.document.file_path;
+
+    this.document.change.connect(this.on_document_change);
+
+    this.document.saved.connect(this.on_document_saved);
+
     this.pack_start(scrollContainer);
-    this.settings.last_opened_document = this.file_path;
+  }
+
+  protected void on_document_change () {
+    this.has_changes = true;
+  }
+
+  protected void on_document_saved (string to_path) {
+    this.has_changes = false;
   }
 }

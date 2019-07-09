@@ -31,5 +31,11 @@ public class Header : Gtk.HeaderBar {
         this.subtitle = to.file_path;
       }
     });
+
+    store.load.connect((document) => {
+      if (document is Document) {
+        this.subtitle = document.file_path;
+      }
+    });
   }
 }
