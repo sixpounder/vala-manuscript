@@ -3,6 +3,7 @@ public class Document : Object {
   public signal void saved (string target_path);
   public signal void load ();
   public signal void change ();
+  public signal void analyze ();
 
   protected Gtk.TextBuffer _buffer;
   protected string _raw_content;
@@ -73,9 +74,11 @@ public class Document : Object {
       this.words_counter_timer = 0;
       this.words_count = Utils.Strings.count_words (this.text_buffer.text);
       this.estimate_reading_time = Utils.Strings.estimate_reading_time(this.words_count);
-      this.change();
+      this.analyze();
       return false;
     });
+
+    this.change();
   }
 
   private void text_inserted () {}

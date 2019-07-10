@@ -41,7 +41,7 @@ public class StatusBar : Gtk.ActionBar {
 
     this.words = this.document.words_count;
 
-    this.document.change.connect(() => {
+    this.document.analyze.connect(() => {
       this.words = this.document.words_count;
     });
   }
