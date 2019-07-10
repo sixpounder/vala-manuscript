@@ -34,6 +34,8 @@ public class MainWindow : Gtk.ApplicationWindow {
     }
 
     this.layout.pack_end(new StatusBar(), false, true, 0);
+
+    this.key_press_event.connect(this.on_key_press);
   }
 
   public override bool configure_event (Gdk.EventConfigure event) {
@@ -95,11 +97,12 @@ public class MainWindow : Gtk.ApplicationWindow {
   public void open_file_at_path (string path) {
     try {
       this.document = Store.get_instance().load_document(path);
-      if (this.current_editor != null) {
-        this.cleanup_layout();
+      if (this.current_editor == null) {
+        this.current_editor = new Editor(this.document);
+        this.layout.pack_start(this.current_editor, true, true, 0);
+      } else {
+        this.current_editor.document = this.document;
       }
-      this.current_editor = new Editor(this.document);
-      this.layout.pack_start(this.current_editor, true, true, 0);
     } catch (GLib.Error error) {
       this.message(_("Unable to open document at " + path));
     }
@@ -112,6 +115,14 @@ public class MainWindow : Gtk.ApplicationWindow {
         this.layout.remove(element);
       }
     }
+  }
+
+  protected bool on_key_press (Gdk.EventKey event) {
+    if (event.state == Gdk.ModifierType.CONTROL_MASK && event.keyval == 115) {
+      debug("Saving");
+    }
+
+    return false;
   }
 
   protected void message (string message, Gtk.MessageType level = Gtk.MessageType.ERROR) {
