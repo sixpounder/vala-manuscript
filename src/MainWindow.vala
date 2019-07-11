@@ -1,3 +1,22 @@
+/*-
+ * Copyright (c) 2019 Andrea Coronese
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Authored by: Andrea Coronese <sixpounder@protonmail.com>
+ */
+
 public class MainWindow : Gtk.ApplicationWindow {
   protected uint configure_id = 0;
   protected AppSettings settings;
@@ -119,7 +138,7 @@ public class MainWindow : Gtk.ApplicationWindow {
 
   protected bool on_key_press (Gdk.EventKey event) {
     if (event.state == Gdk.ModifierType.CONTROL_MASK && event.keyval == 115) {
-      debug("Saving");
+      this.document.save();
     }
 
     return false;

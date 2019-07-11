@@ -4,6 +4,7 @@ public class Document : Object {
   public signal void load ();
   public signal void change ();
   public signal void analyze ();
+  public signal void save_error (Error e);
 
   protected Gtk.TextBuffer _buffer;
   protected string _raw_content;
@@ -34,37 +35,42 @@ public class Document : Object {
       file_path: file_path
     );
 
-    this.build_document(this.file_path != null ? FileUtils.read(this.file_path) : "");
+    this.build_document (this.file_path != null ? FileUtils.read (this.file_path) : "");
   }
 
   protected void build_document (string content) {
     // this.raw_content = content;
-    this._buffer = new Gtk.TextBuffer(null);
-    this._buffer.set_text(content, content.length);
+    this._buffer = new Gtk.TextBuffer (null);
+    this._buffer.set_text (content, content.length);
     this.words_count = Utils.Strings.count_words (this._buffer.text);
-    this.estimate_reading_time = Utils.Strings.estimate_reading_time(this.words_count);
-    this.buffer_change_handler_id = this._buffer.changed.connect(this.on_content_changed);
-    this.text_buffer.insert_text.connect(this.text_inserted);
-    this.text_buffer.delete_range.connect(this.range_deleted);
-    this.load();
+    this.estimate_reading_time = Utils.Strings.estimate_reading_time (this.words_count);
+    this.buffer_change_handler_id = this._buffer.changed.connect (this.on_content_changed);
+    this.text_buffer.insert_text.connect (this.text_inserted);
+    this.text_buffer.delete_range.connect (this.range_deleted);
+    this.load ();
   }
 
   public void save () {
-    this.saved(this.file_path);
+    try {
+      FileUtils.save_buffer (this._buffer, this.file_path);
+      this.saved (this.file_path);
+    } catch (Error e) {
+      this.save_error (e);
+    }
   }
 
   public void unload () {
     if (this._buffer != null) {
-      this._buffer.disconnect(buffer_change_handler_id);
+      this._buffer.disconnect (buffer_change_handler_id);
     }
-    this.text_buffer.dispose();
+    this.text_buffer.dispose ();
   }
 
   /**
    * Emit content_changed event to listeners
    */
   private void on_content_changed () {
-    debug("Changed");
+    debug ("Changed");
     if (this.words_counter_timer != 0) {
       GLib.Source.remove (this.words_counter_timer);
     }
@@ -73,12 +79,12 @@ public class Document : Object {
     this.words_counter_timer = Timeout.add (200, () => {
       this.words_counter_timer = 0;
       this.words_count = Utils.Strings.count_words (this.text_buffer.text);
-      this.estimate_reading_time = Utils.Strings.estimate_reading_time(this.words_count);
-      this.analyze();
+      this.estimate_reading_time = Utils.Strings.estimate_reading_time (this.words_count);
+      this.analyze ();
       return false;
     });
 
-    this.change();
+    this.change ();
   }
 
   private void text_inserted () {}
@@ -86,10 +92,10 @@ public class Document : Object {
   private void range_deleted () {}
 
   public static Document from_file (string path) throws GLib.Error {
-    return new Document(path);
+    return new Document (path);
   }
 
   public static Document empty () throws GLib.Error {
-    return new Document(null);
+    return new Document (null);
   }
 }

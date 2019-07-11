@@ -4,6 +4,36 @@ public class Header : Gtk.HeaderBar {
 
   public signal void open_file ();
 
+  protected Document document {
+    get {
+      return this._document;
+    }
+
+    set {
+      this._document = value;
+      if (this._document != null) {
+        this.has_changes = false;
+        this.update_subtitle();
+        this._document.change.connect(this.on_document_change);
+        this._document.saved.connect(this.on_document_saved);
+      }
+    }
+  }
+
+  protected bool has_changes {
+    get {
+      return this._has_changes;
+    }
+
+    set {
+      this._has_changes = value;
+      this.update_subtitle();
+    }
+  }
+
+  protected Document _document = null;
+  protected bool _has_changes = false;
+
   public Header (Gtk.Window parent) {
     Object(
       title: "Write",
@@ -28,14 +58,26 @@ public class Header : Gtk.HeaderBar {
 
     store.switch_document.connect((from, to) => {
       if (to is Document) {
-        this.subtitle = to.file_path;
+        this.document = to;
       }
     });
 
     store.load.connect((document) => {
       if (document is Document) {
-        this.subtitle = document.file_path;
+        this.document = document;
       }
     });
+  }
+
+  protected void update_subtitle () {
+    this.subtitle = this.document.file_path + (this.has_changes ? " (" + _("modified") + ")" : "");
+  }
+
+  protected void on_document_change () {
+    this.has_changes = true;
+  }
+
+  protected void on_document_saved (string to_path) {
+    this.has_changes = false;
   }
 }
