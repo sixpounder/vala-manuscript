@@ -1,5 +1,6 @@
 executable(
 	meson.project_name(),
+	'Constants.vala',
 	'main.vala',
 	'AppSettings.vala',
 	'MainWindow.vala',

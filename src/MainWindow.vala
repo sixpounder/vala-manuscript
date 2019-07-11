@@ -24,7 +24,7 @@ public class MainWindow : Gtk.ApplicationWindow {
   protected WelcomeView welcome_view;
   protected Header header;
   protected Document document;
-  public Editor current_editor;
+  public Editor current_editor = null;
 
   public MainWindow (Gtk.Application app) {
     Object(
@@ -117,6 +117,7 @@ public class MainWindow : Gtk.ApplicationWindow {
     try {
       this.document = Store.get_instance().load_document(path);
       if (this.current_editor == null) {
+        this.layout.remove(this.welcome_view);
         this.current_editor = new Editor(this.document);
         this.layout.pack_start(this.current_editor, true, true, 0);
       } else {
@@ -130,7 +131,7 @@ public class MainWindow : Gtk.ApplicationWindow {
   protected void cleanup_layout () {
     GLib.List<weak Gtk.Widget> children = this.layout.get_children();
     foreach (Gtk.Widget element in children) {
-      if (element is Editor || element is WelcomeView) {
+      if (element is WelcomeView) {
         this.layout.remove(element);
       }
     }

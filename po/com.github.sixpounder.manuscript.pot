@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the com.github.sixpounder.write package.
+# This file is distributed under the same license as the com.github.sixpounder.manuscript package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: com.github.sixpounder.write\n"
+"Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-11 12:49+0200\n"
+"POT-Creation-Date: 2019-07-11 18:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,10 +37,10 @@ msgstr ""
 msgid "minutes"
 msgstr ""
 
-#: src/Header.vala:45
+#: src/Header.vala:46
 msgid "Open file"
 msgstr ""
 
-#: src/Header.vala:72
+#: src/Header.vala:73
 msgid "modified"
 msgstr ""

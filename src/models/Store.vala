@@ -1,6 +1,6 @@
 public class Store : Object {
 
-  public signal void switch_document (Document from, Document to);
+  public signal void switch_document (Document? from, Document to);
   public signal void load (Document document);
 
   private Document _current_document = null;

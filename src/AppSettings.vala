@@ -11,7 +11,7 @@ public class AppSettings : Object {
   private static AppSettings instance = null;
 
   private AppSettings () {
-    this.settings = new GLib.Settings("com.github.sixpounder.write");
+    this.settings = new GLib.Settings(Constants.APP_ID);
     settings.bind("window-width", this, "window_width", GLib.SettingsBindFlags.DEFAULT);
     settings.bind("window-height", this, "window_height", GLib.SettingsBindFlags.DEFAULT);
     settings.bind("window-x", this, "window_x", GLib.SettingsBindFlags.DEFAULT);

@@ -1,13 +1,13 @@
-# Italian translations for com.github.sixpounder.write package.
-# Copyright (C) 2019 THE com.github.sixpounder.write'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the com.github.sixpounder.write package.
+# Italian translations for com.github.sixpounder.manuscript package.
+# Copyright (C) 2019 THE com.github.sixpounder.manuscript'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the com.github.sixpounder.manuscript package.
 # Automatically generated, 2019.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: com.github.sixpounder.write\n"
+"Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-11 12:49+0200\n"
+"POT-Creation-Date: 2019-07-11 18:25+0200\n"
 "PO-Revision-Date: 2019-07-05 11:20+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -37,10 +37,10 @@ msgstr "minuto"
 msgid "minutes"
 msgstr "minuti"
 
-#: src/Header.vala:45
+#: src/Header.vala:46
 msgid "Open file"
 msgstr "Apri documento"
 
-#: src/Header.vala:72
+#: src/Header.vala:73
 msgid "modified"
 msgstr "modificato"

@@ -8,7 +8,7 @@ public class Editor : Gtk.Box {
   protected Stack changes = new Stack<DocumentChange>(false);
   protected AppSettings settings = AppSettings.get_instance();
 
-  public Editor (Document document) {
+  public Editor (Document document) throws Error {
     Object(
       orientation: Gtk.Orientation.VERTICAL
     );
@@ -26,10 +26,14 @@ public class Editor : Gtk.Box {
       //  Skip this
     }
 
-    this.init_editor();
-
-    if (document != null) {
-      this.document = document;
+    try {
+      this.init_editor();
+      if (document != null) {
+        this.document = document;
+      }
+    } catch (Error e) {
+      error("Cannot instantiate editor view: " + e.message);
+      throw e;
     }
   }
 
@@ -39,7 +43,10 @@ public class Editor : Gtk.Box {
     }
     set {
       this._document = value;
+      this.document.change.connect(this.on_document_change);
+      this.document.saved.connect(this.on_document_saved);
       this.load_buffer(this._document.text_buffer);
+      this.settings.last_opened_document = this._document.file_path;
     }
   }
 
@@ -57,12 +64,6 @@ public class Editor : Gtk.Box {
 
     Gtk.ScrolledWindow scrollContainer = new Gtk.ScrolledWindow(null, null);
     scrollContainer.add(this.text_view);
-
-    this.settings.last_opened_document = this.document.file_path;
-
-    this.document.change.connect(this.on_document_change);
-
-    this.document.saved.connect(this.on_document_saved);
 
     this.pack_start(scrollContainer);
   }

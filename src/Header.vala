@@ -36,7 +36,7 @@ public class Header : Gtk.HeaderBar {
 
   public Header (Gtk.Window parent) {
     Object(
-      title: "Write",
+      title: Constants.APP_NAME,
       parent_window: parent,
       has_subtitle: true,
       show_close_button: true

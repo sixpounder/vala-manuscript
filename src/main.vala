@@ -1,8 +1,8 @@
-public class Write : Gtk.Application {
+public class Manuscript : Gtk.Application {
   private AppSettings settings = AppSettings.get_instance();
-  public Write () {
+  public Manuscript () {
     Object (
-      application_id: "com.github.sixpounder.write",
+      application_id: Constants.APP_ID,
       flags: ApplicationFlags.FLAGS_NONE
     );
   }
@@ -25,12 +25,12 @@ public class Write : Gtk.Application {
       main_window.move (x, y);
     }
 
-    main_window.title = "Write";
+    main_window.title = Constants.APP_NAME;
     main_window.show_all ();
   }
 
   public static int main (string[] args) {
-    var app = new Write ();
+    var app = new Manuscript ();
     return app.run (args);
   }
 }

@@ -39,11 +39,24 @@ public class StatusBar : Gtk.ActionBar {
     this.reading_time_icon.pixel_size = 16;
     this.pack_end (reading_time_icon);
 
-    this.words = this.document.words_count;
+    this.init ();
 
-    this.document.analyze.connect(() => {
-      this.words = this.document.words_count;
+    Store.get_instance().switch_document.connect ((from, to) => {
+      if (to is Document) {
+        this.document = to;
+        this.init();
+      }
     });
+  }
+
+  protected void init () {
+    if (this.document != null) {
+      this.words = this.document.words_count;
+
+      this.document.analyze.connect (() => {
+        this.words = this.document.words_count;
+      });
+    }
   }
 
   public uint words {

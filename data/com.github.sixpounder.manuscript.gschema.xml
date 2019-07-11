@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-	<schema id="com.github.sixpounder.write" path="/com/github/sixpounder/write/" gettext-domain="write">
+	<schema id="com.github.sixpounder.manuscript" path="/com/github/sixpounder/manuscript/" gettext-domain="manuscript">
 		<key name="mime-types" type="as">
 			<default>[]</default>
 			<summary>Supported mime types</summary>
