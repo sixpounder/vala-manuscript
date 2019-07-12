@@ -6,7 +6,7 @@ public class Document : Object {
   public signal void analyze ();
   public signal void save_error (Error e);
 
-  protected Gtk.TextBuffer _buffer;
+  protected Gtk.SourceBuffer _buffer;
   protected string _raw_content;
 
   private ulong buffer_change_handler_id;
@@ -18,7 +18,7 @@ public class Document : Object {
 
   public string file_path { get; construct; }
 
-  public Gtk.TextBuffer text_buffer {
+  public Gtk.SourceBuffer text_buffer {
     get {
       return this._buffer;
     }
@@ -40,7 +40,7 @@ public class Document : Object {
 
   protected void build_document (string content) {
     // this.raw_content = content;
-    this._buffer = new Gtk.TextBuffer (null);
+    this._buffer = new Gtk.SourceBuffer (null);
     this._buffer.set_text (content, content.length);
     this.words_count = Utils.Strings.count_words (this._buffer.text);
     this.estimate_reading_time = Utils.Strings.estimate_reading_time (this.words_count);

@@ -55,6 +55,8 @@ public class MainWindow : Gtk.ApplicationWindow {
     this.layout.pack_end(new StatusBar(), false, true, 0);
 
     this.key_press_event.connect(this.on_key_press);
+
+    this.delete_event.connect(this.on_destroy);
   }
 
   public override bool configure_event (Gdk.EventConfigure event) {
@@ -145,6 +147,14 @@ public class MainWindow : Gtk.ApplicationWindow {
     return false;
   }
 
+  protected bool on_destroy () {
+    if (this.current_editor.has_changes) {
+      return !this.quit_dialog();
+    } else {
+      return false;
+    }
+  }
+
   protected void message (string message, Gtk.MessageType level = Gtk.MessageType.ERROR) {
 		var messagedialog = new Gtk.MessageDialog (this,
                             Gtk.DialogFlags.MODAL,
@@ -152,5 +162,14 @@ public class MainWindow : Gtk.ApplicationWindow {
                             Gtk.ButtonsType.OK,
                             message);
 		messagedialog.show ();
+	}
+
+	protected bool quit_dialog () {
+	  var confirm_dialog = new QuitDialog(this);
+
+    int outcome = confirm_dialog.run ();
+    confirm_dialog.destroy ();
+
+    return outcome == 1;
 	}
 }

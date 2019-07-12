@@ -1,3 +1,4 @@
 src/MainWindow.vala
 src/StatusBar.vala
 src/Header.vala
+src/dialogs/QuitDialog.vala

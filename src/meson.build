@@ -14,8 +14,10 @@ executable(
 	'models/Store.vala',
 	'utils/StringUtils.vala',
 	'utils/Stack.vala',
+	'dialogs/QuitDialog.vala',
 	dependencies: [
 		dependency('gtk+-3.0'),
+		dependency('gtksourceview-3.0'),
 		dependency('granite')
 	],
 	install: true

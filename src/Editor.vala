@@ -1,5 +1,5 @@
 public class Editor : Gtk.Box {
-  public Gtk.TextView text_view;
+  public Gtk.SourceView text_view;
 
   public bool has_changes { get; private set; }
 
@@ -33,7 +33,6 @@ public class Editor : Gtk.Box {
       }
     } catch (Error e) {
       error("Cannot instantiate editor view: " + e.message);
-      throw e;
     }
   }
 
@@ -45,6 +44,7 @@ public class Editor : Gtk.Box {
       this._document = value;
       this.document.change.connect(this.on_document_change);
       this.document.saved.connect(this.on_document_saved);
+      // this.text_view = new Gtk.SourceView.with_buffer (this._document.text_buffer);
       this.load_buffer(this._document.text_buffer);
       this.settings.last_opened_document = this._document.file_path;
     }
@@ -52,7 +52,7 @@ public class Editor : Gtk.Box {
 
   protected void init_editor () throws GLib.Error {
 
-    this.text_view = new Gtk.TextView();
+    this.text_view = new Gtk.SourceView ();
     this.text_view.get_style_context().add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
     this.text_view.pixels_below_lines = 0;
     this.text_view.right_margin = 100;
@@ -68,8 +68,10 @@ public class Editor : Gtk.Box {
     this.pack_start(scrollContainer);
   }
 
-  protected void load_buffer (Gtk.TextBuffer buffer) {
-    this.text_view.buffer = this.document.text_buffer;
+  protected void load_buffer (Gtk.SourceBuffer buffer) {
+    buffer.begin_not_undoable_action ();
+    this.text_view.buffer = buffer;
+    buffer.end_not_undoable_action ();
   }
 
   protected void on_document_change () {
