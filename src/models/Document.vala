@@ -11,12 +11,11 @@ public class Document : Object {
 
   private ulong buffer_change_handler_id;
   private uint words_counter_timer = 0;
-  private DocumentChange[] edit_stack;
 
   public uint words_count { get; private set; }
   public double estimate_reading_time { get; private set; }
-
   public string file_path { get; construct; }
+  public bool has_changes { get; private set; }
 
   public Gtk.SourceBuffer text_buffer {
     get {
@@ -41,12 +40,28 @@ public class Document : Object {
   protected void build_document (string content) {
     // this.raw_content = content;
     this._buffer = new Gtk.SourceBuffer (null);
+    this._buffer.highlight_matching_brackets = false;
+    this._buffer.max_undo_levels = -1;
     this._buffer.set_text (content, content.length);
+
     this.words_count = Utils.Strings.count_words (this._buffer.text);
     this.estimate_reading_time = Utils.Strings.estimate_reading_time (this.words_count);
     this.buffer_change_handler_id = this._buffer.changed.connect (this.on_content_changed);
+
     this.text_buffer.insert_text.connect (this.text_inserted);
     this.text_buffer.delete_range.connect (this.range_deleted);
+    this.text_buffer.undo_manager.can_undo_changed.connect (() => {
+      if (this.text_buffer.can_undo) {
+        this.change ();
+      } else {
+        this.has_changes = false;
+      }
+    });
+
+    this.text_buffer.undo_manager.can_redo_changed.connect (() => {
+      this.change ();
+    });
+
     this.load ();
   }
 

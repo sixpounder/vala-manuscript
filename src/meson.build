@@ -10,11 +10,11 @@ executable(
 	'StatusBar.vala',
 	'FileUtils.vala',
 	'models/Document.vala',
-	'models/DocumentChange.vala',
 	'models/Store.vala',
 	'utils/StringUtils.vala',
-	'utils/Stack.vala',
+	'utils/StyleProvider.vala',
 	'dialogs/QuitDialog.vala',
+	'dialogs/InfoBar.vala',
 	dependencies: [
 		dependency('gtk+-3.0'),
 		dependency('gtksourceview-3.0'),

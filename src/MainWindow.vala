@@ -31,8 +31,24 @@ public class MainWindow : Gtk.ApplicationWindow {
       application: app
     );
 
-    this.layout = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
     this.settings = AppSettings.get_instance();
+
+    int x = settings.window_x;
+    int y = settings.window_y;
+    if (settings.window_width != -1 || settings.window_height != -1) {
+      debug (@"Initializing with size $(settings.window_width)x$(settings.window_height)");
+      var rect = Gtk.Allocation ();
+      rect.height = settings.window_height;
+      rect.width = settings.window_width;
+      this.resize(rect.width, rect.height);
+    }
+
+    if (x != -1 && y != -1) {
+      debug (@"Initializing at $(x) $(y)");
+      this.move (x, y);
+    }
+
+    this.layout = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 
     this.header = new Header(this);
     this.header.open_file.connect(() => {
@@ -42,9 +58,9 @@ public class MainWindow : Gtk.ApplicationWindow {
 
 
     this.welcome_view = new WelcomeView();
-    this.welcome_view.should_open_file.connect(this.open_file_dialog);
+    this.welcome_view.should_open_file.connect (this.open_file_dialog);
 
-    this.add(this.layout);
+    this.add (this.layout);
 
     if (settings.last_opened_document != "") {
       this.open_file_at_path(settings.last_opened_document);

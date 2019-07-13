@@ -5,26 +5,12 @@ public class Editor : Gtk.Box {
 
   protected Gtk.CssProvider provider;
   protected Document _document;
-  protected Stack changes = new Stack<DocumentChange>(false);
   protected AppSettings settings = AppSettings.get_instance();
 
   public Editor (Document document) throws Error {
     Object(
       orientation: Gtk.Orientation.VERTICAL
     );
-
-    this.provider = new Gtk.CssProvider();
-
-    try {
-      provider.load_from_data(
-        """textview {
-          font: 18px iA Writer Duospace;
-          color: #333;
-        }"""
-      );
-    } catch {
-      //  Skip this
-    }
 
     try {
       this.init_editor();
@@ -53,7 +39,7 @@ public class Editor : Gtk.Box {
   protected void init_editor () throws GLib.Error {
 
     this.text_view = new Gtk.SourceView ();
-    this.text_view.get_style_context().add_provider(provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+    this.text_view.get_style_context().add_provider(get_editor_style (), Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
     this.text_view.pixels_below_lines = 0;
     this.text_view.right_margin = 100;
     this.text_view.left_margin = 100;
