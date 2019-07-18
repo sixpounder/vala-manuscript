@@ -1,5 +1,4 @@
 public class Manuscript : Gtk.Application {
-  private AppSettings settings = AppSettings.get_instance();
   public Manuscript () {
     Object (
       application_id: Constants.APP_ID,
@@ -18,3 +17,4 @@ public class Manuscript : Gtk.Application {
     return app.run (args);
   }
 }
+

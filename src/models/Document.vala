@@ -3,6 +3,9 @@ public class Document : Object {
   public signal void saved (string target_path);
   public signal void load ();
   public signal void change ();
+  public signal void undo_queue_drain ();
+  public signal void undo ();
+  public signal void redo ();
   public signal void analyze ();
   public signal void save_error (Error e);
 
@@ -47,11 +50,14 @@ public class Document : Object {
     this.words_count = Utils.Strings.count_words (this._buffer.text);
     this.estimate_reading_time = Utils.Strings.estimate_reading_time (this.words_count);
     this.buffer_change_handler_id = this._buffer.changed.connect (this.on_content_changed);
+    this._buffer.undo.connect(this.on_buffer_undo);
+    this._buffer.redo.connect(this.on_buffer_redo);
 
     this.text_buffer.insert_text.connect (this.text_inserted);
     this.text_buffer.delete_range.connect (this.range_deleted);
     this.text_buffer.undo_manager.can_undo_changed.connect (() => {
       if (this.text_buffer.can_undo) {
+        this.has_changes = true;
         this.change ();
       } else {
         this.has_changes = false;
@@ -105,6 +111,20 @@ public class Document : Object {
   private void text_inserted () {}
 
   private void range_deleted () {}
+
+  private void on_buffer_redo () {
+    debug ("Document buffer redo");
+    this.redo ();
+  }
+
+  private void on_buffer_undo () {
+    debug ("Document buffer undo");
+    this.undo ();
+    if (!this.text_buffer.undo_manager.can_undo ()) {
+      debug ("Undo queue drain");
+      undo_queue_drain ();
+    }
+  }
 
   public static Document from_file (string path) throws GLib.Error {
     return new Document (path);

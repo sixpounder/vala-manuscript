@@ -4,9 +4,9 @@
     <g transform="matrix(1,0,0,1,-128,-1121)">
         <g id="exports" transform="matrix(1,0,0,1,0,865)">
             <rect x="0" y="0" width="1280" height="800" style="fill:none;"/>
-            <g id="base" transform="matrix(0.862488,0,0,0.784483,-368.467,49.6379)">
+            <g id="base" transform="matrix(0.875,0,0,0.784483,-377.6,38.6379)">
                 <g>
-                    <g id="drop-shadow" serif:id="drop shadow" transform="matrix(1.14286,0,0,1.14286,430.571,130.571)">
+                    <g id="drop-shadow" serif:id="drop shadow" transform="matrix(1.10599,0,0,1.14286,437.65,145.868)">
                         <g id="left" transform="matrix(-1.25,0,0,1.125,424,-30.375)">
                             <rect x="136" y="243" width="24" height="8" style="fill:url(#_Radial1);"/>
                         </g>
@@ -17,21 +17,18 @@
                             <rect x="160" y="240" width="64" height="12" style="fill:url(#_Linear3);"/>
                         </g>
                     </g>
-                    <g id="background" transform="matrix(0.256,0,0,0.256,483.6,260.4)">
-                        <g id="outer-stroke" serif:id="outer stroke" transform="matrix(1,0,0,1,1.13687e-13,-100)">
-                            <path d="M900,254.154C900,224.266 877.929,200 850.744,200L449.256,200C422.071,200 400,224.266 400,254.154L400,645.846C400,675.734 422.071,700 449.256,700L850.744,700C877.929,700 900,675.734 900,645.846L900,254.154Z" style="fill:rgb(240,242,235);fill-opacity:0.6;stroke:url(#_Linear4);stroke-width:4.74px;"/>
+                    <g id="background" transform="matrix(0.259714,0,0,0.285538,482.115,257.446)">
+                        <g transform="matrix(0.985701,0,0,1,9.2945,-100)">
+                            <path d="M900,254.154C900,224.266 875.734,200 845.846,200L454.154,200C424.266,200 400,224.266 400,254.154L400,645.846C400,675.734 424.266,700 454.154,700L845.846,700C875.734,700 900,675.734 900,645.846L900,254.154Z" style="fill:url(#_Linear4);"/>
                         </g>
-                        <g transform="matrix(1,0,0,1,2.13163e-14,-100)">
-                            <path d="M900,254.154C900,224.266 877.929,200 850.744,200L449.256,200C422.071,200 400,224.266 400,254.154L400,645.846C400,675.734 422.071,700 449.256,700L850.744,700C877.929,700 900,675.734 900,645.846L900,254.154Z" style="fill:rgb(240,242,235);"/>
+                        <g id="border" transform="matrix(0.9769,0,0,0.991071,15.0151,-95.9821)">
+                            <path d="M900,254.154C900.368,223.844 876.152,199.522 845.846,200L454.154,200C423.371,199.773 399.124,224.043 400,254.154L400,645.846C398.676,676.312 422.891,700.599 454.154,700L845.846,700C876.318,700 900.733,675.734 900,645.846L900,254.154Z" style="fill:none;stroke:rgb(194,203,174);stroke-opacity:0.6;stroke-width:4.5px;"/>
                         </g>
-                        <g id="inner-stroke" serif:id="inner stroke" transform="matrix(0.991071,0,0,0.991071,5.80357,-95.9821)">
-                            <path d="M900,254.154C900,224.266 877.929,200 850.744,200L449.256,200C422.071,200 400,224.266 400,254.154L400,645.846C400,675.734 422.071,700 449.256,700L850.744,700C877.929,700 900,675.734 900,645.846L900,254.154Z" style="fill:rgb(240,242,235);fill-opacity:0.5;stroke:rgb(224,224,224);stroke-opacity:0.5;stroke-width:4.78px;"/>
-                        </g>
-                        <g id="shade" transform="matrix(0.982143,0,0,0.982143,11.6071,-91.9643)">
-                            <path d="M900,254.154C900,224.266 877.929,200 850.744,200L449.256,200C422.071,200 400,224.266 400,254.154L400,645.846C400,675.734 422.071,700 449.256,700L850.744,700C877.929,700 900,675.734 900,645.846L900,254.154Z" style="fill:rgb(240,242,235);fill-opacity:0.25;stroke:url(#_Linear5);stroke-width:4.82px;"/>
+                        <g id="outer-stroke" serif:id="outer stroke" transform="matrix(0.985701,0,0,1,9.2945,-100)">
+                            <path d="M900,254.154C900,224.266 875.734,200 845.846,200L454.154,200C424.266,200 400,224.266 400,254.154L400,645.846C400,675.734 424.266,700 454.154,700L845.846,700C875.734,700 900,675.734 900,645.846L900,254.154Z" style="fill:none;stroke:url(#_Linear5);stroke-width:4.46px;"/>
                         </g>
                     </g>
-                    <g id="lettering" transform="matrix(0.256,0,0,0.256,483.6,260.4)">
+                    <g id="lettering" transform="matrix(0.256,0,0,0.256,483.6,268.048)">
                         <g transform="matrix(0.913007,0,0,1.20998,32.4852,-109.044)">
                             <g id="lettering1" serif:id="lettering">
                                 <g transform="matrix(335.051,0,0,335.051,493.08,500)">
@@ -49,40 +46,34 @@
                     </g>
                 </g>
             </g>
-            <g id="base1" serif:id="base" transform="matrix(0.451613,0,0,0.410768,26.4516,204.915)">
+            <g id="base1" serif:id="base" transform="matrix(0.466667,0,0,0.418391,15.224,170.407)">
                 <g id="drop-shadow1" serif:id="drop shadow">
                 </g>
                 <g id="background1" serif:id="background">
                 </g>
             </g>
-            <g id="base2" serif:id="base" transform="matrix(0.331726,0,0,0.301724,209.446,248.601)">
+            <g id="base2" serif:id="base" transform="matrix(0.35,0,0,0.313793,221.192,208.055)">
                 <g id="drop-shadow2" serif:id="drop shadow">
                 </g>
                 <g id="background2" serif:id="background">
                 </g>
             </g>
-            <g id="inverted" transform="matrix(0.875,0,0,0.875,-376.75,141.75)">
+            <g id="base3" serif:id="base" transform="matrix(0.175,0,0,0.156897,461.062,264.528)">
                 <g id="drop-shadow3" serif:id="drop shadow">
                 </g>
                 <g id="background3" serif:id="background">
                 </g>
             </g>
-            <g id="inverted1" serif:id="inverted" transform="matrix(0.451613,0,0,0.451613,24.4516,317.29)">
+            <g id="base4" serif:id="base" transform="matrix(0.116667,0,0,0.104598,633.067,283.601)">
                 <g id="drop-shadow4" serif:id="drop shadow">
                 </g>
                 <g id="background4" serif:id="background">
                 </g>
             </g>
-            <g id="inverted2" serif:id="inverted" transform="matrix(0.331653,0,0,0.331653,208.925,366.599)">
+            <g id="inverted" transform="matrix(0.875,0,0,0.875,-376.75,141.75)">
                 <g id="drop-shadow5" serif:id="drop shadow">
                 </g>
                 <g id="background5" serif:id="background">
-                </g>
-            </g>
-            <g id="sketch" transform="matrix(0.875,0,0,0.875,-376.75,-114.25)">
-                <g id="drop-shadow6" serif:id="drop shadow">
-                </g>
-                <g id="background6" serif:id="background">
                 </g>
             </g>
         </g>
@@ -91,7 +82,7 @@
         <radialGradient id="_Radial1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-24,9.0537e-14,-2.11975e-14,-3.84,160,247.16)"><stop offset="0" style="stop-color:rgb(224,224,224);stop-opacity:0.6"/><stop offset="1" style="stop-color:rgb(179,179,179);stop-opacity:0"/></radialGradient>
         <radialGradient id="_Radial2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-24,9.0537e-14,-2.11975e-14,-3.84,160,247.16)"><stop offset="0" style="stop-color:rgb(224,224,224);stop-opacity:0.6"/><stop offset="1" style="stop-color:rgb(179,179,179);stop-opacity:0"/></radialGradient>
         <linearGradient id="_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(5.51091e-16,12,-9,7.34788e-16,192,240)"><stop offset="0" style="stop-color:white;stop-opacity:0"/><stop offset="0.5" style="stop-color:rgb(224,224,224);stop-opacity:0.6"/><stop offset="1" style="stop-color:rgb(179,179,179);stop-opacity:0"/></linearGradient>
-        <linearGradient id="_Linear4" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(3.03428e-14,495.536,-495.536,3.03428e-14,658.929,200)"><stop offset="0" style="stop-color:rgb(240,242,235);stop-opacity:0.6"/><stop offset="1" style="stop-color:rgb(167,167,167);stop-opacity:0.6"/></linearGradient>
-        <linearGradient id="_Linear5" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(3.08945e-14,504.545,-504.545,3.08945e-14,645.455,200)"><stop offset="0" style="stop-color:white;stop-opacity:0.09"/><stop offset="1" style="stop-color:rgb(228,228,228);stop-opacity:0.13"/></linearGradient>
+        <linearGradient id="_Linear4" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(3.06162e-14,500,-500,3.06162e-14,645.756,200)"><stop offset="0" style="stop-color:rgb(240,242,235);stop-opacity:1"/><stop offset="0.64" style="stop-color:rgb(236,239,230);stop-opacity:1"/><stop offset="0.84" style="stop-color:rgb(227,231,217);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(216,221,203);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_Linear5" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(3.03428e-14,495.536,-495.536,3.03428e-14,658.929,200)"><stop offset="0" style="stop-color:rgb(169,170,168);stop-opacity:0.6"/><stop offset="1" style="stop-color:rgb(151,151,151);stop-opacity:0.6"/></linearGradient>
     </defs>
 </svg>

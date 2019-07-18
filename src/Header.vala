@@ -3,6 +3,9 @@ public class Header : Gtk.HeaderBar {
   public Store store = Store.get_instance();
 
   public signal void open_file ();
+  public signal void save_file ();
+
+  protected Gtk.Button save_file_button;
 
   protected Document document {
     get {
@@ -14,8 +17,10 @@ public class Header : Gtk.HeaderBar {
       if (this._document != null) {
         this.has_changes = false;
         this.update_subtitle();
-        this._document.change.connect(this.on_document_change);
-        this._document.saved.connect(this.on_document_saved);
+        this._document.change.connect (this.on_document_change);
+        this._document.saved.connect (this.on_document_saved);
+        this._document.undo.connect (this.on_document_change);
+        this._document.redo.connect (this.on_document_change);
       }
     }
   }
@@ -28,6 +33,7 @@ public class Header : Gtk.HeaderBar {
     set {
       this._has_changes = value;
       this.update_subtitle();
+      this.update_icons();
     }
   }
 
@@ -45,9 +51,17 @@ public class Header : Gtk.HeaderBar {
     Gtk.Button open_file_button = new Gtk.Button.from_icon_name("document-open");
     open_file_button.tooltip_text = _("Open file");
     open_file_button.clicked.connect(() => {
-      open_file();
+      open_file ();
     });
-    this.pack_start(open_file_button);
+    this.pack_start (open_file_button);
+
+    save_file_button = new Gtk.Button.from_icon_name ("document-save");
+    save_file_button.tooltip_text = _("Save file");
+    save_file_button.clicked.connect(() => {
+      save_file ();
+    });
+    save_file_button.visible = this.document != null ? this.has_changes : false;
+    this.pack_start (save_file_button);
 
     Gtk.Switch zen_switch = new Gtk.Switch();
     zen_switch.set_vexpand(false);
@@ -73,11 +87,16 @@ public class Header : Gtk.HeaderBar {
     this.subtitle = this.document.file_path + (this.has_changes ? " (" + _("modified") + ")" : "");
   }
 
+  protected void update_icons () {
+    this.save_file_button.visible = this.has_changes;
+  }
+
   protected void on_document_change () {
-    this.has_changes = true;
+    this.has_changes = this.document.text_buffer.undo_manager.can_undo ();
   }
 
   protected void on_document_saved (string to_path) {
     this.has_changes = false;
   }
 }
+
