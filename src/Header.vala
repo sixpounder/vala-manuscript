@@ -15,8 +15,8 @@ public class Header : Gtk.HeaderBar {
     set {
       this._document = value;
       if (this._document != null) {
-        this.has_changes = false;
         this.update_subtitle();
+        this.update_icons();
         this._document.change.connect (this.on_document_change);
         this._document.saved.connect (this.on_document_saved);
         this._document.undo.connect (this.on_document_change);
@@ -27,13 +27,7 @@ public class Header : Gtk.HeaderBar {
 
   protected bool has_changes {
     get {
-      return this._has_changes;
-    }
-
-    set {
-      this._has_changes = value;
-      this.update_subtitle();
-      this.update_icons();
+      return this.document.has_changes;
     }
   }
 
@@ -60,8 +54,9 @@ public class Header : Gtk.HeaderBar {
     save_file_button.clicked.connect(() => {
       save_file ();
     });
-    save_file_button.visible = this.document != null ? this.has_changes : false;
+    save_file_button.sensitive = this.document != null ? this.has_changes : false;
     this.pack_start (save_file_button);
+    update_icons ();
 
     Gtk.Switch zen_switch = new Gtk.Switch();
     zen_switch.set_vexpand(false);
@@ -74,12 +69,14 @@ public class Header : Gtk.HeaderBar {
       if (to is Document) {
         this.document = to;
       }
+      update_icons ();
     });
 
     store.load.connect((document) => {
       if (document is Document) {
         this.document = document;
       }
+      update_icons ();
     });
   }
 
@@ -88,15 +85,18 @@ public class Header : Gtk.HeaderBar {
   }
 
   protected void update_icons () {
-    this.save_file_button.visible = this.has_changes;
+    this.save_file_button.sensitive = this.has_changes;
   }
 
   protected void on_document_change () {
-    this.has_changes = this.document.text_buffer.undo_manager.can_undo ();
+    // this.has_changes = this.document.text_buffer.undo_manager.can_undo ();
+    this.update_subtitle();
+    this.update_icons();
   }
 
   protected void on_document_saved (string to_path) {
-    this.has_changes = false;
+    this.update_subtitle();
+    this.update_icons();
   }
 }
 

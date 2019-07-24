@@ -164,7 +164,7 @@ public class MainWindow : Gtk.ApplicationWindow {
   }
 
   protected bool on_destroy () {
-    if (this.current_editor.has_changes) {
+    if (this.current_editor != null && this.current_editor.has_changes) {
       return !this.quit_dialog();
     } else {
       return false;
