@@ -24,7 +24,18 @@ public class StatusBar : Gtk.ActionBar {
   protected Gtk.Label words_label;
   protected Gtk.Label reading_time_label;
   protected Gtk.Image reading_time_icon;
-  protected Document document = Store.get_instance().current_document;
+  protected Document _document;
+  public Document document {
+    get {
+      return this._document;
+    }
+    set {
+      this._document = value;
+      if (this._document != null) {
+        this.init ();
+      }
+    }
+  }
 
   construct {
     this.words_label = new Gtk.Label ("0 " + _("words"));
@@ -40,13 +51,6 @@ public class StatusBar : Gtk.ActionBar {
     this.pack_end (reading_time_icon);
 
     this.init ();
-
-    Store.get_instance().switch_document.connect ((from, to) => {
-      if (to is Document) {
-        this.document = to;
-        this.init();
-      }
-    });
   }
 
   protected void init () {
@@ -82,7 +86,7 @@ public class StatusBar : Gtk.ActionBar {
   }
 
   private string format_reading_time (double minutes) {
-    return minutes == 0
+    return minutes <= 1
       ?
       "< 1 " + _("minute")
       :

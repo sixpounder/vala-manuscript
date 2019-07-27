@@ -12,6 +12,8 @@ public class Editor : Gtk.Box {
       orientation: Gtk.Orientation.VERTICAL
     );
 
+    this.destroy.connect (this.on_destroy);
+
     try {
       this.init_editor();
       if (document != null) {
@@ -66,5 +68,12 @@ public class Editor : Gtk.Box {
 
   protected void on_document_saved (string to_path) {
     this.has_changes = false;
+  }
+
+  protected void on_destroy () {
+    if (this.document != null) {
+      this.document.change.disconnect (this.on_document_change);
+      this.document.saved.disconnect (this.on_document_saved);
+    }
   }
 }

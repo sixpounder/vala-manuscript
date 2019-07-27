@@ -1,13 +1,12 @@
 public class Header : Gtk.HeaderBar {
   public weak Gtk.Window parent_window { get; construct; }
-  public Store store = Store.get_instance();
 
   public signal void open_file ();
   public signal void save_file ();
 
   protected Gtk.Button save_file_button;
 
-  protected Document document {
+  public weak Document document {
     get {
       return this._document;
     }
@@ -15,13 +14,14 @@ public class Header : Gtk.HeaderBar {
     set {
       this._document = value;
       if (this._document != null) {
-        this.update_subtitle();
-        this.update_icons();
+        debug (this._document.file_path);
         this._document.change.connect (this.on_document_change);
         this._document.saved.connect (this.on_document_saved);
         this._document.undo.connect (this.on_document_change);
         this._document.redo.connect (this.on_document_change);
       }
+      this.update_subtitle();
+      this.update_icons();
     }
   }
 
@@ -64,20 +64,6 @@ public class Header : Gtk.HeaderBar {
     zen_switch.halign = Gtk.Align.CENTER;
     zen_switch.valign = Gtk.Align.CENTER;
     this.pack_end(zen_switch);
-
-    store.switch_document.connect((from, to) => {
-      if (to is Document) {
-        this.document = to;
-      }
-      update_icons ();
-    });
-
-    store.load.connect((document) => {
-      if (document is Document) {
-        this.document = document;
-      }
-      update_icons ();
-    });
   }
 
   protected void update_subtitle () {

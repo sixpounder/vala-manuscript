@@ -1,5 +1,5 @@
 public class QuitDialog : Granite.MessageDialog {
-  public QuitDialog (MainWindow parent) {
+  public QuitDialog (EditorWindow parent) {
     Object (
       buttons: Gtk.ButtonsType.NONE,
       transient_for: parent

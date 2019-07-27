@@ -17,20 +17,38 @@
  * Authored by: Andrea Coronese <sixpounder@protonmail.com>
  */
 
-public class MainWindow : Gtk.ApplicationWindow {
+public class EditorWindow : Gtk.ApplicationWindow {
   protected uint configure_id = 0;
   protected AppSettings settings;
   protected Gtk.Box layout;
   protected WelcomeView welcome_view;
   protected Header header;
+  protected StatusBar status_bar;
   protected Document document;
+  protected string initial_document_path { get; set; }
+
   public Editor current_editor = null;
 
-  public MainWindow (Gtk.Application app) {
+  public EditorWindow.with_document (Gtk.Application app, string document_path) {
+    Object(
+      application: app,
+      initial_document_path: document_path
+    );
+
+    if (this.initial_document_path != null && this.initial_document_path != "") {
+      this.open_file_at_path (this.initial_document_path);
+    } else {
+      this.layout.pack_start (this.welcome_view);
+    }
+  }
+
+  public EditorWindow (Gtk.Application app) {
     Object(
       application: app
     );
+  }
 
+  construct {
     this.settings = AppSettings.get_instance();
 
     int x = settings.window_x;
@@ -48,31 +66,23 @@ public class MainWindow : Gtk.ApplicationWindow {
       this.move (x, y);
     }
 
-    this.layout = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+    this.layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
 
-    this.header = new Header(this);
+    this.header = new Header (this);
     this.header.open_file.connect(() => {
-      this.open_file_dialog();
+      this.open_file_dialog ();
     });
-    this.set_titlebar(header);
-
+    this.set_titlebar (header);
 
     this.welcome_view = new WelcomeView();
     this.welcome_view.should_open_file.connect (this.open_file_dialog);
 
     this.add (this.layout);
 
-    if (settings.last_opened_document != "") {
-      this.open_file_at_path(settings.last_opened_document);
-    } else {
-      this.layout.pack_start(this.welcome_view);
-    }
+    this.layout.pack_end (this.status_bar = new StatusBar (), false, true, 0);
 
-    this.layout.pack_end(new StatusBar(), false, true, 0);
-
-    this.key_press_event.connect(this.on_key_press);
-
-    this.delete_event.connect(this.on_destroy);
+    this.key_press_event.connect (this.on_key_press);
+    this.delete_event.connect (this.on_destroy);
   }
 
   public override bool configure_event (Gdk.EventConfigure event) {
@@ -133,13 +143,17 @@ public class MainWindow : Gtk.ApplicationWindow {
 
   public void open_file_at_path (string path) {
     try {
-      this.document = Store.get_instance().load_document(path);
+      this.document = Document.from_file (path);
       if (this.current_editor == null) {
         this.layout.remove(this.welcome_view);
-        this.current_editor = new Editor(this.document);
+        this.current_editor = new Editor (this.document);
+        this.header.document = this.document;
+        this.status_bar.document = this.document;
         this.layout.pack_start(this.current_editor, true, true, 0);
       } else {
         this.current_editor.document = this.document;
+        this.header.document = this.document;
+        this.status_bar.document = this.document;
       }
     } catch (GLib.Error error) {
       this.message(_("Unable to open document at " + path));
@@ -164,7 +178,7 @@ public class MainWindow : Gtk.ApplicationWindow {
   }
 
   protected bool on_destroy () {
-    if (this.current_editor != null && this.current_editor.has_changes) {
+    if (this.current_editor != null && this.document.has_changes) {
       return !this.quit_dialog();
     } else {
       return false;
@@ -181,7 +195,7 @@ public class MainWindow : Gtk.ApplicationWindow {
 	}
 
 	protected bool quit_dialog () {
-	  var confirm_dialog = new QuitDialog(this);
+	  var confirm_dialog = new QuitDialog (this);
 
     int outcome = confirm_dialog.run ();
     confirm_dialog.destroy ();
