@@ -93,13 +93,13 @@ public class EditorWindow : Gtk.ApplicationWindow {
     configure_id = Timeout.add (100, () => {
       configure_id = 0;
 
-      Gtk.Allocation rect;
-      get_allocation(out rect);
-      settings.window_width = rect.width;
-      settings.window_height = rect.height;
+      int height, width;
+      this.get_size (out width, out height);
+      settings.window_width = width;
+      settings.window_height = height;
 
       int root_x, root_y;
-      get_position(out root_x, out root_y);
+      this.get_position (out root_x, out root_y);
       settings.window_x = root_x;
       settings.window_y = root_y;
 
