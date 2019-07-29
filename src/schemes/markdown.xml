@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language id="md" name="Markdown" version="2.0" _section="Source">
+  <metadata>
+    <property name="mimetypes">text/plain;application/markdown</property>
+    <property name="globs">*.md;*.txt</property>
+  </metadata>
+  <styles>
+    <style id="headline" name="Headline" map-to="def:headline"></style>
+    <style id="bold" name="Bold" map-to="def:bold-text"></style>
+    <style id="italic" name="Italic" map-to="def:italic-text"></style>
+  </styles>
+
+  <context id="markdown">
+    <include>
+      <context id="headline">
+        <start>#{1,6}</start>
+        <end>$</end>
+      </context>
+
+      <context id="bold">
+        <start>\*\*</start>
+        <end>\*\*</end>
+      </context>
+
+      <context id="italic">
+        <start>_</start>
+        <end>_</end>
+      </context>
+    </include>
+  </context>
+</language>

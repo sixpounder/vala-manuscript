@@ -77,4 +77,18 @@ namespace Utils.Strings {
 
         return wc;
     }
+
+    public static string join (string[] a, string separator = ", ") {
+      string o = "";
+
+      for (int i = 0; i < a.length; i++) {
+        string s = a[i];
+        o += s;
+        if (i < a.length - 1) {
+          o += separator;
+        }
+      }
+
+      return o;
+    }
 }

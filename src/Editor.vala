@@ -5,7 +5,7 @@ public class Editor : Gtk.Box {
 
   protected Gtk.CssProvider provider;
   protected Document _document;
-  protected AppSettings settings = AppSettings.get_instance();
+  protected Gtk.SourceLanguageManager manager = Gtk.SourceLanguageManager.get_default ();
 
   public Editor (Document document) throws Error {
     Object(
@@ -34,7 +34,6 @@ public class Editor : Gtk.Box {
       this.document.saved.connect(this.on_document_saved);
       // this.text_view = new Gtk.SourceView.with_buffer (this._document.text_buffer);
       this.load_buffer(this._document.text_buffer);
-      this.settings.last_opened_document = this._document.file_path;
     }
   }
 
@@ -58,8 +57,44 @@ public class Editor : Gtk.Box {
 
   protected void load_buffer (Gtk.SourceBuffer buffer) {
     buffer.begin_not_undoable_action ();
+    buffer.highlight_syntax = true;
+    buffer.highlight_matching_brackets = false;
+    buffer.language = manager.guess_language (this.document.file_path, null);
     this.text_view.buffer = buffer;
     buffer.end_not_undoable_action ();
+
+    update_settings ();
+  }
+
+  protected void update_settings () {
+    AppSettings settings = AppSettings.get_instance ();
+    if (settings.zen) {
+      this.text_view.buffer.notify["cursor-position"].connect (set_focused_paragraph);
+    } else {
+      this.text_view.buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
+    }
+  }
+
+  protected void set_focused_paragraph () {
+    Gtk.TextIter cursor_iter;
+    Gtk.TextIter start, end;
+
+    this.text_view.buffer.get_bounds (out start, out end);
+
+    var cursor = this.text_view.buffer.get_insert ();
+    this.text_view.buffer.get_iter_at_mark (out cursor_iter, cursor);
+
+    if (cursor != null) {
+      Gtk.TextIter sentence_start = cursor_iter;
+      if (cursor_iter != start) {
+        sentence_start.backward_sentence_start ();
+      }
+
+      Gtk.TextIter sentence_end = cursor_iter;
+      if (cursor_iter != end) {
+        sentence_end.forward_sentence_end ();
+      }
+    }
   }
 
   protected void on_document_change () {

@@ -25,18 +25,16 @@ public class EditorWindow : Gtk.ApplicationWindow {
   protected Header header;
   protected StatusBar status_bar;
   protected Document document;
-  protected string initial_document_path { get; set; }
 
   public Editor current_editor = null;
 
   public EditorWindow.with_document (Gtk.Application app, string document_path) {
     Object(
-      application: app,
-      initial_document_path: document_path
+      application: app
     );
 
-    if (this.initial_document_path != null && this.initial_document_path != "") {
-      this.open_file_at_path (this.initial_document_path);
+    if (document_path != null && document_path != "") {
+      this.open_file_at_path (document_path);
     } else {
       this.layout.pack_start (this.welcome_view);
     }
@@ -58,7 +56,7 @@ public class EditorWindow : Gtk.ApplicationWindow {
       var rect = Gtk.Allocation ();
       rect.height = settings.window_height;
       rect.width = settings.window_width;
-      this.resize(rect.width, rect.height);
+      this.resize (rect.width, rect.height);
     }
 
     if (x != -1 && y != -1) {
@@ -155,6 +153,7 @@ public class EditorWindow : Gtk.ApplicationWindow {
         this.header.document = this.document;
         this.status_bar.document = this.document;
       }
+      settings.last_opened_document = this.document.file_path;
     } catch (GLib.Error error) {
       this.message(_("Unable to open document at " + path));
     }

@@ -37,7 +37,15 @@ public class Document : Object {
       file_path: file_path
     );
 
-    this.build_document (this.file_path != null ? FileUtils.read (this.file_path) : "");
+    if (this.file_path != null) {
+      string? content = FileUtils.read (this.file_path);
+
+      if (content != null) {
+        this.build_document (content);
+      } else {
+        this.build_document ("");
+      }
+    }
   }
 
   protected void build_document (string content) {
