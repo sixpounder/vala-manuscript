@@ -4,6 +4,8 @@ public class Header : Gtk.HeaderBar {
   public signal void open_file ();
   public signal void save_file ();
 
+  protected Gtk.Switch zen_switch;
+
   protected Gtk.Button save_file_button;
 
   public weak Document document {
@@ -42,6 +44,11 @@ public class Header : Gtk.HeaderBar {
       show_close_button: true
     );
 
+  }
+
+  construct {
+    AppSettings settings = AppSettings.get_instance();
+
     Gtk.Button open_file_button = new Gtk.Button.from_icon_name("document-open");
     open_file_button.tooltip_text = _("Open file");
     open_file_button.clicked.connect(() => {
@@ -58,11 +65,13 @@ public class Header : Gtk.HeaderBar {
     this.pack_start (save_file_button);
     update_icons ();
 
-    Gtk.Switch zen_switch = new Gtk.Switch();
+    zen_switch = new Gtk.Switch();
     zen_switch.set_vexpand(false);
     zen_switch.set_hexpand(false);
     zen_switch.halign = Gtk.Align.CENTER;
     zen_switch.valign = Gtk.Align.CENTER;
+    zen_switch.active = settings.zen;
+    zen_switch.activate.connect(this.update_settings);
     this.pack_end(zen_switch);
   }
 
@@ -75,7 +84,6 @@ public class Header : Gtk.HeaderBar {
   }
 
   protected void on_document_change () {
-    // this.has_changes = this.document.text_buffer.undo_manager.can_undo ();
     this.update_subtitle();
     this.update_icons();
   }
@@ -83,6 +91,11 @@ public class Header : Gtk.HeaderBar {
   protected void on_document_saved (string to_path) {
     this.update_subtitle();
     this.update_icons();
+  }
+
+  protected void update_settings () {
+    AppSettings settings = AppSettings.get_instance();
+    settings.zen = this.zen_switch.active;
   }
 }
 

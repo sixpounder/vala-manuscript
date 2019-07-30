@@ -1,4 +1,6 @@
 public class AppSettings : Object {
+
+  public signal void change (string key);
   public int window_width { get; set; }
   public int window_height { get; set; }
   public int window_x { get; set; }
@@ -18,6 +20,8 @@ public class AppSettings : Object {
     settings.bind("window-y", this, "window_y", GLib.SettingsBindFlags.DEFAULT);
     settings.bind("last-opened-document", this, "last_opened_document", GLib.SettingsBindFlags.DEFAULT);
     settings.bind("zen", this, "zen", GLib.SettingsBindFlags.DEFAULT);
+
+    settings.changed.connect(this.on_change);
   }
 
   public static AppSettings get_instance () {
@@ -26,5 +30,9 @@ public class AppSettings : Object {
     }
 
     return instance;
+  }
+
+  protected void on_change (string key) {
+    this.change (key);
   }
 }

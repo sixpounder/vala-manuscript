@@ -6,12 +6,15 @@ public class Editor : Gtk.Box {
   protected Gtk.CssProvider provider;
   protected Document _document;
   protected Gtk.SourceLanguageManager manager = Gtk.SourceLanguageManager.get_default ();
+  protected AppSettings settings = AppSettings.get_instance ();
 
   public Editor (Document document) throws Error {
     Object(
       orientation: Gtk.Orientation.VERTICAL
     );
+  }
 
+  construct {
     this.destroy.connect (this.on_destroy);
 
     try {
@@ -22,6 +25,8 @@ public class Editor : Gtk.Box {
     } catch (Error e) {
       error("Cannot instantiate editor view: " + e.message);
     }
+
+    settings.change.connect(this.on_setting_change);
   }
 
   public Document document {
@@ -70,6 +75,7 @@ public class Editor : Gtk.Box {
     AppSettings settings = AppSettings.get_instance ();
     if (settings.zen) {
       this.text_view.buffer.notify["cursor-position"].connect (set_focused_paragraph);
+      // TODO: add styles
     } else {
       this.text_view.buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
     }
@@ -89,12 +95,15 @@ public class Editor : Gtk.Box {
       if (cursor_iter != start) {
         sentence_start.backward_sentence_start ();
       }
-
       Gtk.TextIter sentence_end = cursor_iter;
       if (cursor_iter != end) {
         sentence_end.forward_sentence_end ();
       }
     }
+  }
+
+  protected void on_setting_change (string key) {
+    this.update_settings ();
   }
 
   protected void on_document_change () {
