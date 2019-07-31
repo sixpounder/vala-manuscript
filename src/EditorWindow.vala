@@ -24,6 +24,7 @@ public class EditorWindow : Gtk.ApplicationWindow {
   protected WelcomeView welcome_view;
   protected Header header;
   protected StatusBar status_bar;
+  protected Gtk.ScrolledWindow scrollContainer;
   protected Document document;
 
   public Editor current_editor = null;
@@ -66,12 +67,14 @@ public class EditorWindow : Gtk.ApplicationWindow {
 
     this.layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
 
+    // HEADER
     this.header = new Header (this);
     this.header.open_file.connect(() => {
       this.open_file_dialog ();
     });
     this.set_titlebar (header);
 
+    // WELCOME VIEW
     this.welcome_view = new WelcomeView();
     this.welcome_view.should_open_file.connect (this.open_file_dialog);
 
@@ -144,10 +147,13 @@ public class EditorWindow : Gtk.ApplicationWindow {
       this.document = Document.from_file (path);
       if (this.current_editor == null) {
         this.layout.remove(this.welcome_view);
-        this.current_editor = new Editor (this.document);
+        this.scrollContainer = new Gtk.ScrolledWindow(null, null);
+        this.current_editor = new Editor ();
+        this.current_editor.document = document;
+        this.scrollContainer.add (this.current_editor);
         this.header.document = this.document;
         this.status_bar.document = this.document;
-        this.layout.pack_start(this.current_editor, true, true, 0);
+        this.layout.pack_start(this.scrollContainer, true, true, 0);
       } else {
         this.current_editor.document = this.document;
         this.header.document = this.document;

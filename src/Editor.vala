@@ -1,6 +1,4 @@
-public class Editor : Gtk.Box {
-  public Gtk.SourceView text_view;
-
+public class Editor : Gtk.SourceView {
   public bool has_changes { get; private set; }
 
   protected Gtk.CssProvider provider;
@@ -8,15 +6,7 @@ public class Editor : Gtk.Box {
   protected Gtk.SourceLanguageManager manager = Gtk.SourceLanguageManager.get_default ();
   protected AppSettings settings = AppSettings.get_instance ();
 
-  public Editor (Document document) throws Error {
-    Object(
-      orientation: Gtk.Orientation.VERTICAL
-    );
-  }
-
   construct {
-    this.destroy.connect (this.on_destroy);
-
     try {
       this.init_editor();
       if (document != null) {
@@ -27,6 +17,8 @@ public class Editor : Gtk.Box {
     }
 
     settings.change.connect(this.on_setting_change);
+
+    destroy.connect (this.on_destroy);
   }
 
   public Document document {
@@ -37,47 +29,36 @@ public class Editor : Gtk.Box {
       this._document = value;
       this.document.change.connect(this.on_document_change);
       this.document.saved.connect(this.on_document_saved);
-      // this.text_view = new Gtk.SourceView.with_buffer (this._document.text_buffer);
-      this.load_buffer(this._document.text_buffer);
+      this.load_buffer(this._document.buffer);
     }
   }
 
   protected void init_editor () throws GLib.Error {
 
-    this.text_view = new Gtk.SourceView ();
-    this.text_view.get_style_context().add_provider(get_editor_style (), Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-    this.text_view.pixels_below_lines = 0;
-    this.text_view.right_margin = 100;
-    this.text_view.left_margin = 100;
-    this.text_view.top_margin = 50;
-    this.text_view.bottom_margin = 50;
-    this.text_view.wrap_mode = Gtk.WrapMode.WORD;
-    this.text_view.input_hints = Gtk.InputHints.SPELLCHECK | Gtk.InputHints.NO_EMOJI;
-
-    Gtk.ScrolledWindow scrollContainer = new Gtk.ScrolledWindow(null, null);
-    scrollContainer.add(this.text_view);
-
-    this.pack_start(scrollContainer);
+    this.get_style_context().add_provider(get_editor_style (), Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+    this.pixels_below_lines = 0;
+    this.right_margin = 100;
+    this.left_margin = 100;
+    this.top_margin = 50;
+    this.bottom_margin = 50;
+    this.wrap_mode = Gtk.WrapMode.WORD;
+    this.input_hints = Gtk.InputHints.SPELLCHECK | Gtk.InputHints.NO_EMOJI;
   }
 
-  protected void load_buffer (Gtk.SourceBuffer buffer) {
-    buffer.begin_not_undoable_action ();
+  protected void load_buffer (Gtk.SourceBuffer newBuffer) {
+    buffer = newBuffer;
     buffer.highlight_syntax = true;
     buffer.highlight_matching_brackets = false;
     buffer.language = manager.guess_language (this.document.file_path, null);
-    this.text_view.buffer = buffer;
-    buffer.end_not_undoable_action ();
-
     update_settings ();
   }
 
   protected void update_settings () {
     AppSettings settings = AppSettings.get_instance ();
     if (settings.zen) {
-      this.text_view.buffer.notify["cursor-position"].connect (set_focused_paragraph);
-      // TODO: add styles
+      buffer.notify["cursor-position"].connect (set_focused_paragraph);
     } else {
-      this.text_view.buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
+      buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
     }
   }
 
@@ -85,10 +66,10 @@ public class Editor : Gtk.Box {
     Gtk.TextIter cursor_iter;
     Gtk.TextIter start, end;
 
-    this.text_view.buffer.get_bounds (out start, out end);
+    this.buffer.get_bounds (out start, out end);
 
-    var cursor = this.text_view.buffer.get_insert ();
-    this.text_view.buffer.get_iter_at_mark (out cursor_iter, cursor);
+    var cursor = this.buffer.get_insert ();
+    this.buffer.get_iter_at_mark (out cursor_iter, cursor);
 
     if (cursor != null) {
       Gtk.TextIter sentence_start = cursor_iter;

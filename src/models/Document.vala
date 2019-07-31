@@ -20,7 +20,7 @@ public class Document : Object {
   public string file_path { get; construct; }
   public bool has_changes { get; private set; }
 
-  public Gtk.SourceBuffer text_buffer {
+  public Gtk.SourceBuffer buffer {
     get {
       return this._buffer;
     }
@@ -28,7 +28,7 @@ public class Document : Object {
 
   public string text {
     owned get {
-      return this.text_buffer != null ? this.text_buffer.text : null;
+      return this.buffer != null ? this.buffer.text : null;
     }
   }
 
@@ -61,10 +61,10 @@ public class Document : Object {
     this._buffer.undo.connect(this.on_buffer_undo);
     this._buffer.redo.connect(this.on_buffer_redo);
 
-    this.text_buffer.insert_text.connect (this.text_inserted);
-    this.text_buffer.delete_range.connect (this.range_deleted);
-    this.text_buffer.undo_manager.can_undo_changed.connect (() => {
-      if (this.text_buffer.can_undo) {
+    this.buffer.insert_text.connect (this.text_inserted);
+    this.buffer.delete_range.connect (this.range_deleted);
+    this.buffer.undo_manager.can_undo_changed.connect (() => {
+      if (this.buffer.can_undo) {
         this.has_changes = true;
         this.change ();
       } else {
@@ -72,7 +72,7 @@ public class Document : Object {
       }
     });
 
-    this.text_buffer.undo_manager.can_redo_changed.connect (() => {
+    this.buffer.undo_manager.can_redo_changed.connect (() => {
       this.change ();
     });
 
@@ -92,7 +92,7 @@ public class Document : Object {
     if (this._buffer != null) {
       this._buffer.disconnect (buffer_change_handler_id);
     }
-    this.text_buffer.dispose ();
+    this.buffer.dispose ();
   }
 
   /**
@@ -107,7 +107,7 @@ public class Document : Object {
     // Count words every 200 milliseconds to avoid thrashing the CPU
     this.words_counter_timer = Timeout.add (200, () => {
       this.words_counter_timer = 0;
-      this.words_count = Utils.Strings.count_words (this.text_buffer.text);
+      this.words_count = Utils.Strings.count_words (this.buffer.text);
       this.estimate_reading_time = Utils.Strings.estimate_reading_time (this.words_count);
       this.analyze ();
       return false;
@@ -128,7 +128,7 @@ public class Document : Object {
   private void on_buffer_undo () {
     debug ("Document buffer undo");
     this.undo ();
-    if (!this.text_buffer.undo_manager.can_undo ()) {
+    if (!this.buffer.undo_manager.can_undo ()) {
       debug ("Undo queue drain");
       undo_queue_drain ();
     }
