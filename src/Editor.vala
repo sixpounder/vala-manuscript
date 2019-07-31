@@ -3,7 +3,6 @@ public class Editor : Gtk.SourceView {
 
   protected Gtk.CssProvider provider;
   protected Document _document;
-  protected Gtk.SourceLanguageManager manager = Gtk.SourceLanguageManager.get_default ();
   protected AppSettings settings = AppSettings.get_instance ();
 
   construct {
@@ -47,9 +46,6 @@ public class Editor : Gtk.SourceView {
 
   protected void load_buffer (Gtk.SourceBuffer newBuffer) {
     buffer = newBuffer;
-    buffer.highlight_syntax = true;
-    buffer.highlight_matching_brackets = false;
-    buffer.language = manager.guess_language (this.document.file_path, null);
     update_settings ();
   }
 

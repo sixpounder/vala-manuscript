@@ -144,22 +144,21 @@ public class EditorWindow : Gtk.ApplicationWindow {
 
   public void open_file_at_path (string path) {
     try {
-      this.document = Document.from_file (path);
-      if (this.current_editor == null) {
-        this.layout.remove(this.welcome_view);
-        this.scrollContainer = new Gtk.ScrolledWindow(null, null);
-        this.current_editor = new Editor ();
-        this.current_editor.document = document;
-        this.scrollContainer.add (this.current_editor);
-        this.header.document = this.document;
-        this.status_bar.document = this.document;
-        this.layout.pack_start(this.scrollContainer, true, true, 0);
-      } else {
-        this.current_editor.document = this.document;
-        this.header.document = this.document;
-        this.status_bar.document = this.document;
+      document = Document.from_file (path);
+      if (current_editor == null) {
+        layout.remove (welcome_view);
+
+        current_editor = new Editor ();
+        current_editor.document = document;
+        scrollContainer = new Gtk.ScrolledWindow(null, null);
+        scrollContainer.add (current_editor);
+        layout.pack_start (scrollContainer, true, true, 0);
       }
+      current_editor.document = document;
+      header.document = document;
+      status_bar.document = document;
       settings.last_opened_document = this.document.file_path;
+
     } catch (GLib.Error error) {
       this.message(_("Unable to open document at " + path));
     }

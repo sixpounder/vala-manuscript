@@ -11,8 +11,6 @@ public class Document : Object {
 
   protected Gtk.SourceBuffer _buffer;
   protected string _raw_content;
-
-  private ulong buffer_change_handler_id;
   private uint words_counter_timer = 0;
 
   public uint words_count { get; private set; }
@@ -24,6 +22,10 @@ public class Document : Object {
     get {
       return this._buffer;
     }
+
+    set {
+      this._buffer = value;
+    }
   }
 
   public string text {
@@ -32,49 +34,54 @@ public class Document : Object {
     }
   }
 
-  protected Document (string? file_path) throws GLib.Error {
+  protected Document (string? file_path) {
     Object(
       file_path: file_path
     );
+  }
 
+  construct {
     if (this.file_path != null) {
-      string? content = FileUtils.read (this.file_path);
-
-      if (content != null) {
-        this.build_document (content);
-      } else {
+      try {
+        string? content = FileUtils.read (this.file_path);
+        if (content != null) {
+          this.build_document (content);
+        } else {
+          this.build_document ("");
+        }
+      } catch (Error err) {
         this.build_document ("");
       }
     }
   }
 
+  ~Document () {
+    unload ();
+  }
+
   protected void build_document (string content) {
-    // this.raw_content = content;
-    this._buffer = new Gtk.SourceBuffer (null);
-    this._buffer.highlight_matching_brackets = false;
-    this._buffer.max_undo_levels = -1;
-    this._buffer.set_text (content, content.length);
+    Gtk.SourceLanguageManager manager = Gtk.SourceLanguageManager.get_default ();
+    buffer = new Gtk.SourceBuffer (null);
+    buffer.highlight_matching_brackets = false;
+    buffer.max_undo_levels = -1;
+    buffer.highlight_syntax = true;
+    buffer.language = manager.guess_language (this.file_path, null);
+    buffer.begin_not_undoable_action ();
+    buffer.set_text (content, content.length);
+    buffer.end_not_undoable_action ();
 
-    this.words_count = Utils.Strings.count_words (this._buffer.text);
-    this.estimate_reading_time = Utils.Strings.estimate_reading_time (this.words_count);
-    this.buffer_change_handler_id = this._buffer.changed.connect (this.on_content_changed);
-    this._buffer.undo.connect(this.on_buffer_undo);
-    this._buffer.redo.connect(this.on_buffer_redo);
+    words_count = Utils.Strings.count_words (this._buffer.text);
+    estimate_reading_time = Utils.Strings.estimate_reading_time (this.words_count);
 
-    this.buffer.insert_text.connect (this.text_inserted);
-    this.buffer.delete_range.connect (this.range_deleted);
-    this.buffer.undo_manager.can_undo_changed.connect (() => {
-      if (this.buffer.can_undo) {
-        this.has_changes = true;
-        this.change ();
-      } else {
-        this.has_changes = false;
-      }
-    });
+    buffer.changed.connect (on_content_changed);
+    buffer.undo.connect(on_buffer_undo);
+    buffer.redo.connect(on_buffer_redo);
 
-    this.buffer.undo_manager.can_redo_changed.connect (() => {
-      this.change ();
-    });
+    buffer.insert_text.connect (text_inserted);
+    buffer.delete_range.connect (range_deleted);
+
+    buffer.undo_manager.can_undo_changed.connect (on_can_undo_changed);
+    buffer.undo_manager.can_redo_changed.connect (on_can_redo_changed);
 
     this.load ();
   }
@@ -89,10 +96,18 @@ public class Document : Object {
   }
 
   public void unload () {
-    if (this._buffer != null) {
-      this._buffer.disconnect (buffer_change_handler_id);
+    if (buffer != null) {
+      buffer.changed.disconnect (on_content_changed);
+      buffer.undo.disconnect(on_buffer_undo);
+      buffer.redo.disconnect(on_buffer_redo);
+
+      buffer.insert_text.disconnect (text_inserted);
+      buffer.delete_range.disconnect (range_deleted);
+
+      buffer.undo_manager.can_undo_changed.disconnect (on_can_undo_changed);
+      buffer.undo_manager.can_redo_changed.disconnect (on_can_redo_changed);
+      buffer.dispose ();
     }
-    this.buffer.dispose ();
   }
 
   /**
@@ -120,16 +135,27 @@ public class Document : Object {
 
   private void range_deleted () {}
 
+  private void on_can_undo_changed () {
+    if (buffer.can_undo) {
+      has_changes = true;
+      this.change ();
+    } else {
+      has_changes = false;
+    }
+  }
+
+  private void on_can_redo_changed () {
+    this.change ();
+  }
+
   private void on_buffer_redo () {
     debug ("Document buffer redo");
     this.redo ();
   }
 
   private void on_buffer_undo () {
-    debug ("Document buffer undo");
-    this.undo ();
-    if (!this.buffer.undo_manager.can_undo ()) {
-      debug ("Undo queue drain");
+    undo ();
+    if (!buffer.undo_manager.can_undo ()) {
       undo_queue_drain ();
     }
   }
