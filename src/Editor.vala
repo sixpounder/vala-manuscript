@@ -7,7 +7,9 @@ public class Editor : Gtk.SourceView {
 
   public Editor () {
     Object (
-      has_focus: true
+      has_focus: true,
+      pixels_inside_wrap: 0,
+      pixels_below_lines: 20
     );
   }
 
