@@ -106,7 +106,6 @@ public class Editor : Gtk.SourceView {
   }
 
   protected void set_focused_paragraph () {
-    debug ("....");
     Gtk.TextIter cursor_iter;
     Gtk.TextIter start, end;
 
