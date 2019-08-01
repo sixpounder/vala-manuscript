@@ -53,7 +53,6 @@ public class EditorWindow : Gtk.ApplicationWindow {
     int x = settings.window_x;
     int y = settings.window_y;
     if (settings.window_width != -1 || settings.window_height != -1) {
-      debug (@"Initializing with size $(settings.window_width)x$(settings.window_height)");
       var rect = Gtk.Allocation ();
       rect.height = settings.window_height;
       rect.width = settings.window_width;
@@ -61,7 +60,6 @@ public class EditorWindow : Gtk.ApplicationWindow {
     }
 
     if (x != -1 && y != -1) {
-      debug (@"Initializing at $(x) $(y)");
       this.move (x, y);
     }
 

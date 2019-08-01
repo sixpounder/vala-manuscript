@@ -15,6 +15,7 @@ executable(
 	'StatusBar.vala',
 	'FileUtils.vala',
 	'Palettes.vala',
+	'DocumentTagTable.vala',
 	'models/Document.vala',
 	'models/LoadState.vala',
 	'utils/StringUtils.vala',

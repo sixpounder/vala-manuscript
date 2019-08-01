@@ -5,7 +5,6 @@ public Gtk.CssProvider get_editor_style () {
     provider.load_from_data (
       """textview {
         font: 18px iA Writer Duospace;
-        color: #333;
       }"""
     );
   } catch {

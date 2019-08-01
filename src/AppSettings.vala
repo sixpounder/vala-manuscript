@@ -33,6 +33,7 @@ public class AppSettings : Object {
   }
 
   protected void on_change (string key) {
+    debug (key + " changed");
     this.change (key);
   }
 }

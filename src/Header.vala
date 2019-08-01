@@ -67,7 +67,10 @@ public class Header : Gtk.HeaderBar {
     zen_switch.halign = Gtk.Align.CENTER;
     zen_switch.valign = Gtk.Align.CENTER;
     zen_switch.active = settings.zen;
-    zen_switch.activate.connect (update_settings);
+    zen_switch.state_set.connect (() => {
+      update_settings ();
+      return false;
+    });
     pack_end (zen_switch);
   }
 
@@ -90,7 +93,7 @@ public class Header : Gtk.HeaderBar {
   }
 
   protected void update_settings () {
-    AppSettings settings = AppSettings.get_instance();
+    AppSettings settings = AppSettings.get_instance ();
     settings.zen = zen_switch.active;
   }
 

@@ -74,7 +74,7 @@ public class Document : Object {
 
   protected void build_document (string content) {
     // Gtk.SourceLanguageManager manager = Gtk.SourceLanguageManager.get_default ();
-    buffer = new Gtk.SourceBuffer (null);
+    buffer = new Gtk.SourceBuffer (new DocumentTagTable ());
     buffer.highlight_matching_brackets = false;
     buffer.max_undo_levels = -1;
     buffer.highlight_syntax = false;

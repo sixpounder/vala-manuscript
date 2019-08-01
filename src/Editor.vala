@@ -5,6 +5,12 @@ public class Editor : Gtk.SourceView {
   protected Document _document;
   protected AppSettings settings = AppSettings.get_instance ();
 
+  public Editor () {
+    Object (
+      has_focus: true
+    );
+  }
+
   construct {
     try {
       this.init_editor();
@@ -58,6 +64,7 @@ public class Editor : Gtk.SourceView {
   protected void update_settings () {
     AppSettings settings = AppSettings.get_instance ();
     if (settings.zen) {
+      set_focused_paragraph ();
       buffer.notify["cursor-position"].connect (set_focused_paragraph);
     } else {
       buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
@@ -65,6 +72,7 @@ public class Editor : Gtk.SourceView {
   }
 
   protected void set_focused_paragraph () {
+    debug ("....");
     Gtk.TextIter cursor_iter;
     Gtk.TextIter start, end;
 
@@ -82,11 +90,15 @@ public class Editor : Gtk.SourceView {
       if (cursor_iter != end) {
         sentence_end.forward_sentence_end ();
       }
+
+      buffer.remove_tag (buffer.tag_table.lookup("light-focused"), start, end);
+      buffer.apply_tag (buffer.tag_table.lookup("light-dimmed"), start, end);
+      buffer.apply_tag (buffer.tag_table.lookup("light-focused"), sentence_start, sentence_end);
     }
   }
 
   protected void on_setting_change (string key) {
-    this.update_settings ();
+    update_settings ();
   }
 
   protected void on_document_change () {
