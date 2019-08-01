@@ -12,11 +12,21 @@ public class Document : Object {
   protected Gtk.SourceBuffer _buffer;
   protected string _raw_content;
   private uint words_counter_timer = 0;
+  private uint _load_state = DocumentLoadState.EMPTY;
 
   public uint words_count { get; private set; }
   public double estimate_reading_time { get; private set; }
   public string file_path { get; construct; }
   public bool has_changes { get; private set; }
+  public uint load_state {
+    get {
+      return _load_state;
+    }
+
+    private set {
+      _load_state = value;
+    }
+  }
 
   public Gtk.SourceBuffer buffer {
     get {
@@ -43,12 +53,15 @@ public class Document : Object {
   construct {
     if (this.file_path != null) {
       try {
-        string? content = FileUtils.read (this.file_path);
-        if (content != null) {
-          this.build_document (content);
-        } else {
-          this.build_document ("");
-        }
+        FileUtils.read_async.begin (File.new_for_path(this.file_path), (obj, res) => {
+          string? content = FileUtils.read_async.end (res);
+          if (content != null) {
+            this.build_document (content);
+          } else {
+            this.build_document ("");
+          }
+          this.load ();
+        });
       } catch (Error err) {
         this.build_document ("");
       }
@@ -60,18 +73,18 @@ public class Document : Object {
   }
 
   protected void build_document (string content) {
-    Gtk.SourceLanguageManager manager = Gtk.SourceLanguageManager.get_default ();
+    // Gtk.SourceLanguageManager manager = Gtk.SourceLanguageManager.get_default ();
     buffer = new Gtk.SourceBuffer (null);
     buffer.highlight_matching_brackets = false;
     buffer.max_undo_levels = -1;
-    buffer.highlight_syntax = true;
-    buffer.language = manager.guess_language (this.file_path, null);
+    buffer.highlight_syntax = false;
+    // buffer.language = manager.guess_language (this.file_path, null);
     buffer.begin_not_undoable_action ();
     buffer.set_text (content, content.length);
     buffer.end_not_undoable_action ();
 
-    words_count = Utils.Strings.count_words (this._buffer.text);
-    estimate_reading_time = Utils.Strings.estimate_reading_time (this.words_count);
+    words_count = Utils.Strings.count_words (buffer.text);
+    estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
 
     buffer.changed.connect (on_content_changed);
     buffer.undo.connect(on_buffer_undo);
@@ -82,8 +95,6 @@ public class Document : Object {
 
     buffer.undo_manager.can_undo_changed.connect (on_can_undo_changed);
     buffer.undo_manager.can_redo_changed.connect (on_can_redo_changed);
-
-    this.load ();
   }
 
   public void save () {
@@ -114,21 +125,20 @@ public class Document : Object {
    * Emit content_changed event to listeners
    */
   private void on_content_changed () {
-    debug ("Changed");
     if (this.words_counter_timer != 0) {
-      GLib.Source.remove (this.words_counter_timer);
+      GLib.Source.remove (words_counter_timer);
     }
 
     // Count words every 200 milliseconds to avoid thrashing the CPU
     this.words_counter_timer = Timeout.add (200, () => {
-      this.words_counter_timer = 0;
-      this.words_count = Utils.Strings.count_words (this.buffer.text);
-      this.estimate_reading_time = Utils.Strings.estimate_reading_time (this.words_count);
-      this.analyze ();
+      words_counter_timer = 0;
+      words_count = Utils.Strings.count_words (this.buffer.text);
+      estimate_reading_time = Utils.Strings.estimate_reading_time (this.words_count);
+      analyze ();
       return false;
     });
 
-    this.change ();
+    change ();
   }
 
   private void text_inserted () {}
@@ -149,7 +159,6 @@ public class Document : Object {
   }
 
   private void on_buffer_redo () {
-    debug ("Document buffer redo");
     this.redo ();
   }
 

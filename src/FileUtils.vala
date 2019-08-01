@@ -21,6 +21,25 @@ public class FileUtils : Object {
     }
   }
 
+  public static async string? read_async (File file) {
+    var text = new StringBuilder ();
+
+    try {
+      var dis = new DataInputStream (file.read ());
+      string line = null;
+      while ((line = yield dis.read_line_async (Priority.DEFAULT)) != null) {
+        if (text.len != 0)
+          text.append_c ('\n');
+
+        text.append (line);
+      }
+      return text.str;
+    } catch (Error e) {
+      warning ("Cannot read \"%s\": %s", file.get_basename (), e.message);
+      return null;
+    }
+  }
+
   public static void save_buffer (Gtk.TextBuffer buffer, string path) throws Error {
     FileUtils.save(buffer.text, path);
   }

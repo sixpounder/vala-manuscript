@@ -16,6 +16,7 @@ executable(
 	'FileUtils.vala',
 	'Palettes.vala',
 	'models/Document.vala',
+	'models/LoadState.vala',
 	'utils/StringUtils.vala',
 	'utils/StyleProvider.vala',
 	'dialogs/QuitDialog.vala',

@@ -55,11 +55,11 @@ public class StatusBar : Gtk.ActionBar {
 
   protected void init () {
     if (this.document != null) {
-      this.words = this.document.words_count;
-
-      this.document.analyze.connect (() => {
-        this.words = this.document.words_count;
-      });
+      if (this.document.load_state == DocumentLoadState.LOADED) {
+        load_document ();
+      } else {
+        this.document.load.connect (load_document);
+      }
     }
   }
 
@@ -72,6 +72,14 @@ public class StatusBar : Gtk.ActionBar {
       this.words_label.label = "" + _words_count.to_string () + " " + _("words");
       this.reading_time = this.document.estimate_reading_time;
     }
+  }
+
+  protected void load_document () {
+    this.words = this.document.words_count;
+
+    this.document.analyze.connect (() => {
+      this.words = this.document.words_count;
+    });
   }
 
   public double reading_time {
@@ -93,3 +101,4 @@ public class StatusBar : Gtk.ActionBar {
       minutes.to_string () + " " + _("minutes");
   }
 }
+

@@ -15,9 +15,9 @@ public class Editor : Gtk.SourceView {
       error("Cannot instantiate editor view: " + e.message);
     }
 
-    settings.change.connect(this.on_setting_change);
+    settings.change.connect (on_setting_change);
 
-    destroy.connect (this.on_destroy);
+    destroy.connect (on_destroy);
   }
 
   public Document document {
@@ -25,10 +25,16 @@ public class Editor : Gtk.SourceView {
       return this._document;
     }
     set {
-      this._document = value;
-      this.document.change.connect(this.on_document_change);
-      this.document.saved.connect(this.on_document_saved);
-      this.load_buffer(this._document.buffer);
+      _document = value;
+      _document.change.connect (this.on_document_change);
+      _document.saved.connect (this.on_document_saved);
+      if (_document.buffer != null) {
+        load_buffer(_document.buffer);
+      } else {
+        _document.load.connect(() => {
+          load_buffer (_document.buffer);
+        });
+      }
     }
   }
 
@@ -62,10 +68,10 @@ public class Editor : Gtk.SourceView {
     Gtk.TextIter cursor_iter;
     Gtk.TextIter start, end;
 
-    this.buffer.get_bounds (out start, out end);
+    buffer.get_bounds (out start, out end);
 
     var cursor = this.buffer.get_insert ();
-    this.buffer.get_iter_at_mark (out cursor_iter, cursor);
+    buffer.get_iter_at_mark (out cursor_iter, cursor);
 
     if (cursor != null) {
       Gtk.TextIter sentence_start = cursor_iter;
@@ -84,17 +90,18 @@ public class Editor : Gtk.SourceView {
   }
 
   protected void on_document_change () {
-    this.has_changes = true;
+    has_changes = true;
   }
 
   protected void on_document_saved (string to_path) {
-    this.has_changes = false;
+    has_changes = false;
   }
 
   protected void on_destroy () {
+    settings.change.disconnect (on_setting_change);
     if (this.document != null) {
-      this.document.change.disconnect (this.on_document_change);
-      this.document.saved.disconnect (this.on_document_saved);
+      this.document.change.disconnect (on_document_change);
+      this.document.saved.disconnect (on_document_saved);
     }
   }
 }
