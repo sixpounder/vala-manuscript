@@ -46,6 +46,34 @@ public class Editor : Gtk.SourceView {
     }
   }
 
+  public void scroll_down () {
+    var clock = get_frame_clock ();
+    var duration = 200;
+
+    var start = vadjustment.get_value ();
+    var end = vadjustment.get_upper () - vadjustment.get_page_size ();
+    var start_time = clock.get_frame_time ();
+    var end_time = start_time + 1000 * duration;
+
+    add_tick_callback ((widget, frame_clock) => {
+      var now = frame_clock.get_frame_time ();
+      if (now < end_time && vadjustment.get_value () != end) {
+        double t = (now - start_time) / (end_time - start_time);
+        t = ease_out_cubic (t);
+        vadjustment.set_value (start + t * (end - start));
+        return true;
+      } else {
+        vadjustment.set_value (end);
+        return false;
+      }
+    });
+  }
+
+  public bool scroll_to_cursor () {
+    scroll_to_mark (buffer.get_insert (), 0.0, true, 0.0, 0.5);
+    return settings.zen;
+  }
+
   protected void init_editor () throws GLib.Error {
 
     this.get_style_context().add_provider(get_editor_style (), Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
@@ -69,6 +97,10 @@ public class Editor : Gtk.SourceView {
       set_focused_paragraph ();
       buffer.notify["cursor-position"].connect (set_focused_paragraph);
     } else {
+      Gtk.TextIter start, end;
+      buffer.get_bounds (out start, out end);
+      buffer.remove_tag (buffer.tag_table.lookup("light-focused"), start, end);
+      buffer.remove_tag (buffer.tag_table.lookup("light-dimmed"), start, end);
       buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
     }
   }
@@ -96,6 +128,8 @@ public class Editor : Gtk.SourceView {
       buffer.remove_tag (buffer.tag_table.lookup("light-focused"), start, end);
       buffer.apply_tag (buffer.tag_table.lookup("light-dimmed"), start, end);
       buffer.apply_tag (buffer.tag_table.lookup("light-focused"), sentence_start, sentence_end);
+
+      scroll_to_cursor ();
     }
   }
 

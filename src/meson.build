@@ -20,6 +20,7 @@ executable(
 	'models/LoadState.vala',
 	'utils/StringUtils.vala',
 	'utils/StyleProvider.vala',
+	'utils/Easing.vala',
 	'dialogs/QuitDialog.vala',
 	'dialogs/InfoBar.vala',
 	asresources,
