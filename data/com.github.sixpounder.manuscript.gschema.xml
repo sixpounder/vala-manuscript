@@ -56,5 +56,10 @@
 	    <summary>Zen (focus) mode on or off</summary>
 	    <description>Determines if focus mode is activated or not</description>
 	  </key>
+	  <key name="prefer-dark-style" type="b">
+	    <default>false</default>
+	    <summary>Dark variant</summary>
+	    <description>Wheter to use dark theme or not</description>
+	  </key>
 	</schema>
 </schemalist>

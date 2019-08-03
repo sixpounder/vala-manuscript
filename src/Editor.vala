@@ -98,9 +98,10 @@ public class Editor : Gtk.SourceView {
       buffer.notify["cursor-position"].connect (set_focused_paragraph);
     } else {
       Gtk.TextIter start, end;
+      Gtk.TextTag[] tags = (buffer.tag_table as DocumentTagTable).for_theme (settings.prefer_dark_style ? "dark" : "light");
       buffer.get_bounds (out start, out end);
-      buffer.remove_tag (buffer.tag_table.lookup("light-focused"), start, end);
-      buffer.remove_tag (buffer.tag_table.lookup("light-dimmed"), start, end);
+      buffer.remove_tag (tags[1], start, end);
+      buffer.remove_tag (tags[0], start, end);
       buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
     }
   }

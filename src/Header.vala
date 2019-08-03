@@ -5,7 +5,7 @@ public class Header : Gtk.HeaderBar {
   public signal void save_file ();
 
   protected Gtk.Switch zen_switch;
-
+  protected Gtk.Button settings_button;
   protected Gtk.Button save_file_button;
 
   public weak Document document {
@@ -60,6 +60,9 @@ public class Header : Gtk.HeaderBar {
     save_file_button.sensitive = document != null ? has_changes : false;
     pack_start (save_file_button);
     update_icons ();
+
+    settings_button = new Gtk.Button.from_icon_name ("preferences-system-symbolic");
+    pack_end (settings_button);
 
     zen_switch = new Gtk.Switch();
     zen_switch.set_vexpand (false);

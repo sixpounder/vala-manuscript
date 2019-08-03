@@ -20,5 +20,15 @@ public class DocumentTagTable : Gtk.TextTagTable {
     add (darkDimmed);
     add (darkFocused);
   }
+
+  public Gtk.TextTag[] for_theme (string? theme) {
+    switch (theme) {
+      case "light":
+      default:
+        return { lightDimmed, lightFocused };
+      case "dark":
+        return { darkDimmed, darkFocused };
+    }
+  }
 }
 

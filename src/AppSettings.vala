@@ -7,6 +7,7 @@ public class AppSettings : Object {
   public int window_y { get; set; }
   public string last_opened_document { get; set; }
   public bool zen { get; set; }
+  public bool prefer_dark_style { get; set; }
 
   private GLib.Settings settings = null;
 
@@ -20,6 +21,7 @@ public class AppSettings : Object {
     settings.bind("window-y", this, "window_y", GLib.SettingsBindFlags.DEFAULT);
     settings.bind("last-opened-document", this, "last_opened_document", GLib.SettingsBindFlags.DEFAULT);
     settings.bind("zen", this, "zen", GLib.SettingsBindFlags.DEFAULT);
+    settings.bind("prefer-dark-style", this, "prefer_dark_style", GLib.SettingsBindFlags.DEFAULT);
 
     settings.changed.connect(this.on_change);
   }
