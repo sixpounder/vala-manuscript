@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-12 13:33+0200\n"
+"POT-Creation-Date: 2019-08-04 01:01+0200\n"
 "PO-Revision-Date: 2019-07-05 11:20+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,31 +17,40 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/MainWindow.vala:129
+#: src/EditorWindow.vala:161
 msgid "Unable to open document at "
 msgstr "Impossibile aprire il documento "
 
-#: src/StatusBar.vala:30 src/StatusBar.vala:68
+#: src/StatusBar.vala:41 src/StatusBar.vala:72
 msgid "words"
 msgstr "parole"
 
-#: src/StatusBar.vala:34
+#: src/StatusBar.vala:45
 msgid "Estimated reading time"
 msgstr "Tempo di lettura"
 
-#: src/StatusBar.vala:87
+#: src/StatusBar.vala:99
 msgid "minute"
 msgstr "minuto"
 
-#: src/StatusBar.vala:89
+#: src/StatusBar.vala:101
 msgid "minutes"
 msgstr "minuti"
 
-#: src/Header.vala:46
+#: src/Header.vala:50
 msgid "Open file"
 msgstr "Apri documento"
 
-#: src/Header.vala:73
+#: src/Header.vala:57
+#, fuzzy
+msgid "Save file"
+msgstr "Apri documento"
+
+#: src/Header.vala:66
+msgid "Settings"
+msgstr ""
+
+#: src/Header.vala:93
 msgid "modified"
 msgstr "modificato"
 
@@ -55,8 +64,8 @@ msgid ""
 "Closing this window will result in a loss of all unsaved changes. It is "
 "strongly suggested to save your changes before quitting the application."
 msgstr ""
-"Chiudendo questa finestra si perderanno tutte le modifiche non salvate. "
-"Si consiglia di salvare le modifiche prima di chiudere la finestra."
+"Chiudendo questa finestra si perderanno tutte le modifiche non salvate. Si "
+"consiglia di salvare le modifiche prima di chiudere la finestra."
 
 #: src/dialogs/QuitDialog.vala:18
 msgid "Keep editing"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-12 13:33+0200\n"
+"POT-Creation-Date: 2019-08-04 01:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,31 +17,39 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/MainWindow.vala:129
+#: src/EditorWindow.vala:161
 msgid "Unable to open document at "
 msgstr ""
 
-#: src/StatusBar.vala:30 src/StatusBar.vala:68
+#: src/StatusBar.vala:41 src/StatusBar.vala:72
 msgid "words"
 msgstr ""
 
-#: src/StatusBar.vala:34
+#: src/StatusBar.vala:45
 msgid "Estimated reading time"
 msgstr ""
 
-#: src/StatusBar.vala:87
+#: src/StatusBar.vala:99
 msgid "minute"
 msgstr ""
 
-#: src/StatusBar.vala:89
+#: src/StatusBar.vala:101
 msgid "minutes"
 msgstr ""
 
-#: src/Header.vala:46
+#: src/Header.vala:50
 msgid "Open file"
 msgstr ""
 
-#: src/Header.vala:73
+#: src/Header.vala:57
+msgid "Save file"
+msgstr ""
+
+#: src/Header.vala:66
+msgid "Settings"
+msgstr ""
+
+#: src/Header.vala:93
 msgid "modified"
 msgstr ""
 

@@ -7,6 +7,7 @@ public class Header : Gtk.HeaderBar {
   protected Gtk.Switch zen_switch;
   protected Gtk.Button settings_button;
   protected Gtk.Button save_file_button;
+  protected SettingsPopover settings_popover;
 
   public weak Document document {
     get {
@@ -62,6 +63,15 @@ public class Header : Gtk.HeaderBar {
     update_icons ();
 
     settings_button = new Gtk.Button.from_icon_name ("preferences-system-symbolic");
+    settings_button.tooltip_text = _("Settings");
+    settings_button.clicked.connect (() => {
+      if (settings_popover.visible) {
+        settings_popover.popdown ();
+      } else {
+        settings_popover.popup ();
+        settings_popover.show_all ();
+      }
+    });
     pack_end (settings_button);
 
     zen_switch = new Gtk.Switch();
@@ -75,6 +85,8 @@ public class Header : Gtk.HeaderBar {
       return false;
     });
     pack_end (zen_switch);
+
+    settings_popover = new SettingsPopover (settings_button);
   }
 
   protected void update_subtitle () {

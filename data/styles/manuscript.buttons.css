@@ -1,0 +1,14 @@
+button.theme-button {
+  border-radius: 50%;
+}
+button.theme-button-light {
+  background-color: #FFFFFF;
+}
+
+button.theme-button-dark {
+  background-color: @BLACK_500;
+}
+
+button.theme-button-sepia {
+  background-color: #f2e9d2;
+}
