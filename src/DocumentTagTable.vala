@@ -31,4 +31,3 @@ public class DocumentTagTable : Gtk.TextTagTable {
     }
   }
 }
-

@@ -24,12 +24,13 @@ public class EditorWindow : Gtk.ApplicationWindow {
   protected WelcomeView welcome_view;
   protected Header header;
   protected StatusBar status_bar;
-  protected Gtk.ScrolledWindow scrollContainer;
+  protected Gtk.ScrolledWindow scroll_container;
   protected Document document;
+  protected ulong document_load_signal_id;
 
   public Editor current_editor = null;
 
-  public EditorWindow.with_document (Gtk.Application app, string document_path) {
+  public EditorWindow.with_document (Gtk.Application app, string? document_path = null) {
     Object(
       application: app
     );
@@ -75,10 +76,10 @@ public class EditorWindow : Gtk.ApplicationWindow {
     // WELCOME VIEW
     this.welcome_view = new WelcomeView();
     this.welcome_view.should_open_file.connect (this.open_file_dialog);
-
-    this.add (this.layout);
+    this.welcome_view.should_create_new_file.connect (this.open_with_temp_file);
 
     this.layout.pack_end (this.status_bar = new StatusBar (), false, true, 0);
+    this.add (this.layout);
 
     this.key_press_event.connect (this.on_key_press);
     this.delete_event.connect (this.on_destroy);
@@ -140,24 +141,36 @@ public class EditorWindow : Gtk.ApplicationWindow {
     dialog.run();
   }
 
+  public void open_with_temp_file () {
+    File file = FileUtils.new_temp_file ();
+    this.open_file_at_path (file.get_path ());
+  }
+
   public void open_file_at_path (string path) {
     try {
-      document = Document.from_file (path);
-      if (current_editor == null) {
-        layout.remove (welcome_view);
-
-        current_editor = new Editor ();
-        current_editor.document = document;
-        scrollContainer = new Gtk.ScrolledWindow(null, null);
-        scrollContainer.add (current_editor);
-        layout.pack_start (scrollContainer, true, true, 0);
+      if (document != null) {
+        document.disconnect (document_load_signal_id);
       }
-      current_editor.document = document;
-      header.document = document;
-      status_bar.document = document;
-      settings.last_opened_document = this.document.file_path;
+      debug ("Opening " + path);
+      document = Document.from_file (path);
+      document_load_signal_id = document.load.connect(() => {
+        debug ("Document loaded, initializing view");
+        if (current_editor == null) {
+          layout.remove (welcome_view);
+
+          current_editor = new Editor ();
+          scroll_container = new Gtk.ScrolledWindow(null, null);
+          scroll_container.add (current_editor);
+          layout.pack_start (scroll_container, true, true, 0);
+        }
+        current_editor.document = document;
+        header.document = document;
+        status_bar.document = document;
+        settings.last_opened_document = this.document.file_path;
+      });
 
     } catch (GLib.Error error) {
+      warning (error.message);
       this.message(_("Unable to open document at " + path));
     }
   }

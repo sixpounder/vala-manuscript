@@ -3,6 +3,16 @@ public class FileUtils : Object {
 
   }
 
+  public static File new_temp_file () {
+    try {
+      FileIOStream iostream;
+	  File file = File.new_tmp (null, out iostream);
+      return file;
+	  } catch (Error e) {
+		  error ("Error: %s\n", e.message);
+	  }
+  }
+
   public static string? read (string path) throws Error {
     File file = File.new_for_path(path);
     if (file.query_exists ()) {
@@ -45,26 +55,22 @@ public class FileUtils : Object {
   }
 
   public static void save (string text, string path) throws Error {
-    try {
-      File file = File.new_for_path(path);
+    File file = File.new_for_path(path);
 
-      // delete if file already exists
-      if (file.query_exists ()) {
-          file.delete ();
-      }
-
-      var dos = new DataOutputStream (new BufferedOutputStream.sized (file.create (FileCreateFlags.REPLACE_DESTINATION), 65536));
-
-      uint8[] data = text.data;
-      long written = 0;
-      while (written < data.length) {
-        // sum of the bytes of 'text' that already have been written to the stream
-        written += dos.write (data[written:data.length]);
-      }
-    } catch (Error e) {
-      stderr.printf ("%s\n", e.message);
-      throw e;
+    // delete if file already exists
+    if (file.query_exists ()) {
+        file.delete ();
     }
 
+    var dos = new DataOutputStream (
+      new BufferedOutputStream.sized (file.create (FileCreateFlags.REPLACE_DESTINATION), 65536)
+    );
+
+    uint8[] data = text.data;
+    long written = 0;
+    while (written < data.length) {
+      // sum of the bytes of 'text' that already have been written to the stream
+      written += dos.write (data[written:data.length]);
+    }
   }
 }

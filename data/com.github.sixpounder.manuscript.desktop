@@ -2,7 +2,7 @@
 Name=Manuscript
 GenericName=Manuscript
 Comment=A distraction free writing environment
-Categories=Utility;Education;
+Categories=Utility;Education;Publishing;
 Exec=com.github.sixpounder.manuscript
 Icon=com.github.sixpounder.manuscript
 Terminal=false

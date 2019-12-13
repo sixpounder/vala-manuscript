@@ -34,12 +34,13 @@ public class Editor : Gtk.SourceView {
     }
     set {
       _document = value;
-      _document.change.connect (this.on_document_change);
-      _document.saved.connect (this.on_document_saved);
-      if (_document.buffer != null) {
+      if (_document.loaded) {
+        debug ("Loading buffer");
         load_buffer(_document.buffer);
       } else {
+        debug ("Waiting for document to become ready");
         _document.load.connect(() => {
+          debug ("Loading buffer");
           load_buffer (_document.buffer);
         });
       }
@@ -88,21 +89,27 @@ public class Editor : Gtk.SourceView {
 
   protected void load_buffer (Gtk.SourceBuffer newBuffer) {
     buffer = newBuffer;
+    _document.change.connect (this.on_document_change);
+    _document.saved.connect (this.on_document_saved);
     update_settings ();
   }
 
   protected void update_settings () {
-    AppSettings settings = AppSettings.get_instance ();
-    if (settings.zen) {
-      set_focused_paragraph ();
-      buffer.notify["cursor-position"].connect (set_focused_paragraph);
+    if (buffer != null) {
+      AppSettings settings = AppSettings.get_instance ();
+      if (settings.zen) {
+        set_focused_paragraph ();
+        buffer.notify["cursor-position"].connect (set_focused_paragraph);
+      } else {
+        Gtk.TextIter start, end;
+        Gtk.TextTag[] tags = (buffer.tag_table as DocumentTagTable).for_theme (settings.prefer_dark_style ? "dark" : "light");
+        buffer.get_bounds (out start, out end);
+        buffer.remove_tag (tags[1], start, end);
+        buffer.remove_tag (tags[0], start, end);
+        buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
+      }
     } else {
-      Gtk.TextIter start, end;
-      Gtk.TextTag[] tags = (buffer.tag_table as DocumentTagTable).for_theme (settings.prefer_dark_style ? "dark" : "light");
-      buffer.get_bounds (out start, out end);
-      buffer.remove_tag (tags[1], start, end);
-      buffer.remove_tag (tags[0], start, end);
-      buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
+      warning ("Settings not updated, current buffer is null");
     }
   }
 
@@ -147,9 +154,9 @@ public class Editor : Gtk.SourceView {
 
   protected void on_destroy () {
     settings.change.disconnect (on_setting_change);
-    if (this.document != null) {
-      this.document.change.disconnect (on_document_change);
-      this.document.saved.disconnect (on_document_saved);
+    if (document != null) {
+      document.change.disconnect (on_document_change);
+      document.saved.disconnect (on_document_saved);
     }
   }
 }

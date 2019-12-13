@@ -38,6 +38,12 @@ public class Document : Object {
     }
   }
 
+  public bool loaded {
+    get {
+      return load_state == DocumentLoadState.LOADED;
+    }
+  }
+
   public string text {
     owned get {
       return this.buffer != null ? this.buffer.text : null;
@@ -53,7 +59,9 @@ public class Document : Object {
   construct {
     if (this.file_path != null) {
       try {
+        load_state = DocumentLoadState.LOADING;
         FileUtils.read_async.begin (File.new_for_path(this.file_path), (obj, res) => {
+          debug ("File read, creating document");
           string? content = FileUtils.read_async.end (res);
           if (content != null) {
             this.build_document (content);
@@ -69,6 +77,7 @@ public class Document : Object {
   }
 
   ~Document () {
+    debug ("Unloading document");
     unload ();
   }
 
@@ -95,6 +104,8 @@ public class Document : Object {
 
     buffer.undo_manager.can_undo_changed.connect (on_can_undo_changed);
     buffer.undo_manager.can_redo_changed.connect (on_can_redo_changed);
+
+    load_state = DocumentLoadState.LOADED;
   }
 
   public void save () {

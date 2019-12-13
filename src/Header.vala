@@ -28,7 +28,7 @@ public class Header : Gtk.HeaderBar {
 
   protected bool has_changes {
     get {
-      return document.has_changes;
+      return document != null && document.has_changes;
     }
   }
 

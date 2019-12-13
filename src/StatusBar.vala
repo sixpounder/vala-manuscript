@@ -70,16 +70,18 @@ public class StatusBar : Gtk.ActionBar {
     set {
       _words_count = value;
       this.words_label.label = "" + _words_count.to_string () + " " + _("words");
-      this.reading_time = this.document.estimate_reading_time;
+      this.reading_time = this.document != null ? this.document.estimate_reading_time : 0;
     }
   }
 
   protected void load_document () {
-    this.words = this.document.words_count;
-
-    this.document.analyze.connect (() => {
+    if (document != null) {    
       this.words = this.document.words_count;
-    });
+
+      this.document.analyze.connect (() => {
+        this.words = this.document != null ? this.document.words_count : 0;
+      });
+    }
   }
 
   public double reading_time {

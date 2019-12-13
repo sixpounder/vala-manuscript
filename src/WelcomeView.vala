@@ -1,5 +1,6 @@
 public class WelcomeView : Gtk.Grid {
   public signal void should_open_file ();
+  public signal void should_create_new_file ();
 
   construct {
     var welcome = new Granite.Widgets.Welcome ("Welcome to " + Constants.APP_NAME, "Distraction free writing environment");
@@ -11,12 +12,7 @@ public class WelcomeView : Gtk.Grid {
     welcome.activated.connect ((index) => {
       switch (index) {
         case 0:
-          try {
-            AppInfo.launch_default_for_uri ("https://valadoc.org/granite/Granite.html", null);
-          } catch (Error e) {
-            warning (e.message);
-          }
-
+          this.should_create_new_file();
           break;
         case 1:
           this.should_open_file();
@@ -25,3 +21,4 @@ public class WelcomeView : Gtk.Grid {
     });
   }
 }
+
