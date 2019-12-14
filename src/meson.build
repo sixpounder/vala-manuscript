@@ -24,6 +24,7 @@ executable(
 	'utils/StyleProvider.vala',
 	'utils/Easing.vala',
 	'dialogs/QuitDialog.vala',
+	'dialogs/FileSaveDialog.vala',
 	'dialogs/InfoBar.vala',
 	asresources,
 	dependencies: [

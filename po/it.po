@@ -20,11 +20,11 @@ msgstr ""
 #: src/EditorWindow.vala:119
 #, fuzzy
 msgid "Open document"
-msgstr "Impossibile aprire il documento "
+msgstr "Apri documento "
 
 #: src/EditorWindow.vala:122
 msgid "Cancel"
-msgstr ""
+msgstr "Annulla"
 
 #: src/EditorWindow.vala:124
 #, fuzzy
@@ -34,7 +34,7 @@ msgstr "Apri documento"
 #: src/EditorWindow.vala:151
 #, fuzzy
 msgid "Unable to create temporary document"
-msgstr "Impossibile aprire il documento "
+msgstr "Impossibile creare un documento temporaneo "
 
 #: src/EditorWindow.vala:180
 msgid "Unable to open document at "

@@ -62,6 +62,10 @@ public class EditorWindow : Gtk.ApplicationWindow {
     header.open_file.connect(() => {
       open_file_dialog ();
     });
+
+    header.save_file.connect(() => {
+      document.save ();
+    });
     set_titlebar (header);
 
     // WELCOME VIEW
@@ -172,7 +176,7 @@ public class EditorWindow : Gtk.ApplicationWindow {
         set_layout_body (current_editor);
         debug ("Layout done");
 
-        // settings.last_opened_document = this.document.file_path;
+        settings.last_opened_document = this.document.file_path;
       });
 
     } catch (GLib.Error error) {
@@ -192,13 +196,27 @@ public class EditorWindow : Gtk.ApplicationWindow {
   }
 
   protected void set_layout_body (Gtk.Widget widget) {
-    scroll_container.remove (scroll_container.get_child ());
+    if (scroll_container.get_child () != null) {
+      scroll_container.remove (scroll_container.get_child ());
+    }
     scroll_container.add (widget);
+    widget.show_all ();
+    widget.focus (Gtk.DirectionType.UP);
   }
 
   protected bool on_key_press (Gdk.EventKey event) {
     if (event.state == Gdk.ModifierType.CONTROL_MASK && event.keyval == 115) {
-      this.document.save();
+      if (document.temporary) {
+        // Ask where to save this
+        FileSaveDialog dialog = new FileSaveDialog (this, document);
+        int res = dialog.run ();
+        if (res == Gtk.ResponseType.ACCEPT) {
+          document.save(dialog.get_filename ());
+        }
+        dialog.destroy ();
+      } else {
+        document.save();
+      }
     }
 
     return false;

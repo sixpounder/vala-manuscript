@@ -11,14 +11,26 @@ public class Document : Object {
 
   protected Gtk.SourceBuffer _buffer;
   protected string _raw_content;
+  private string original_path;
+  private string modified_path;
   private uint words_counter_timer = 0;
   private uint _load_state = DocumentLoadState.EMPTY;
 
   public uint words_count { get; private set; }
   public double estimate_reading_time { get; private set; }
-  public string file_path { get; construct; }
   public bool has_changes { get; private set; }
   public bool temporary { get; construct; }
+
+  public string file_path {
+    get {
+      return modified_path != null ? modified_path : original_path;
+    }
+
+    construct {
+      original_path = value;
+    }
+  }
+
   public uint load_state {
     get {
       return _load_state;
@@ -51,10 +63,20 @@ public class Document : Object {
     }
   }
 
+  public string filename {
+    owned get {
+      if (temporary) {
+        return "Untitled.txt";
+      } else {
+        return file_path != null ? GLib.Path.get_basename(file_path) : "Untitled.txt";
+      }
+    }
+  }
+
   protected Document (string? file_path, bool temporary = false) {
     Object(
-      file_path: file_path,
-      temporary: temporary
+      temporary: temporary,
+      file_path: file_path
     );
   }
 
@@ -110,10 +132,14 @@ public class Document : Object {
     load_state = DocumentLoadState.LOADED;
   }
 
-  public void save () {
+  public void save (string path = "@") {
     try {
-      FileUtils.save_buffer (this._buffer, this.file_path);
-      this.saved (this.file_path);
+      if (path == "@") {
+        modified_path = path;
+      }
+      FileUtils.save_buffer (_buffer, file_path);
+      this.has_changes = false;
+      this.saved (file_path);
     } catch (Error e) {
       this.save_error (e);
     }
