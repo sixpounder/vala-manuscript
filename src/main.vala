@@ -6,6 +6,11 @@ public class Manuscript : Gtk.Application {
     );
   }
 
+  construct {
+    Granite.Services.Paths.initialize(Constants.APP_ID, Constants.APP_ID);
+    Granite.Services.Paths.ensure_directory_exists(Granite.Services.Paths.user_cache_folder);
+  }
+
   protected override void activate () {
     AppSettings settings = AppSettings.get_instance ();
     EditorWindow main_window;

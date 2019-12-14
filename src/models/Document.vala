@@ -18,6 +18,7 @@ public class Document : Object {
   public double estimate_reading_time { get; private set; }
   public string file_path { get; construct; }
   public bool has_changes { get; private set; }
+  public bool temporary { get; construct; }
   public uint load_state {
     get {
       return _load_state;
@@ -50,9 +51,10 @@ public class Document : Object {
     }
   }
 
-  protected Document (string? file_path) {
+  protected Document (string? file_path, bool temporary = false) {
     Object(
-      file_path: file_path
+      file_path: file_path,
+      temporary: temporary
     );
   }
 
@@ -180,8 +182,8 @@ public class Document : Object {
     }
   }
 
-  public static Document from_file (string path) throws GLib.Error {
-    return new Document (path);
+  public static Document from_file (string path, bool temporary = false) throws GLib.Error {
+    return new Document (path, temporary);
   }
 
   public static Document empty () throws GLib.Error {

@@ -89,8 +89,8 @@ public class Editor : Gtk.SourceView {
 
   protected void load_buffer (Gtk.SourceBuffer newBuffer) {
     buffer = newBuffer;
-    _document.change.connect (this.on_document_change);
-    _document.saved.connect (this.on_document_saved);
+    document.change.connect (this.on_document_change);
+    document.saved.connect (this.on_document_saved);
     update_settings ();
   }
 

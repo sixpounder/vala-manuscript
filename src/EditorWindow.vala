@@ -28,28 +28,19 @@ public class EditorWindow : Gtk.ApplicationWindow {
   protected Document document;
   protected ulong document_load_signal_id;
 
+  public string initial_document_path { get; construct; }
+
   public Editor current_editor = null;
 
   public EditorWindow.with_document (Gtk.Application app, string? document_path = null) {
     Object(
-      application: app
-    );
-
-    if (document_path != null && document_path != "") {
-      this.open_file_at_path (document_path);
-    } else {
-      this.layout.pack_start (this.welcome_view);
-    }
-  }
-
-  public EditorWindow (Gtk.Application app) {
-    Object(
-      application: app
+      application: app,
+      initial_document_path: document_path
     );
   }
 
   construct {
-    this.settings = AppSettings.get_instance();
+    settings = AppSettings.get_instance();
 
     int x = settings.window_x;
     int y = settings.window_y;
@@ -57,32 +48,43 @@ public class EditorWindow : Gtk.ApplicationWindow {
       var rect = Gtk.Allocation ();
       rect.height = settings.window_height;
       rect.width = settings.window_width;
-      this.resize (rect.width, rect.height);
+      resize (rect.width, rect.height);
     }
 
     if (x != -1 && y != -1) {
-      this.move (x, y);
+      move (x, y);
     }
 
-    this.layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+    layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
 
     // HEADER
-    this.header = new Header (this);
-    this.header.open_file.connect(() => {
-      this.open_file_dialog ();
+    header = new Header (this);
+    header.open_file.connect(() => {
+      open_file_dialog ();
     });
-    this.set_titlebar (header);
+    set_titlebar (header);
 
     // WELCOME VIEW
-    this.welcome_view = new WelcomeView();
-    this.welcome_view.should_open_file.connect (this.open_file_dialog);
-    this.welcome_view.should_create_new_file.connect (this.open_with_temp_file);
+    welcome_view = new WelcomeView();
+    welcome_view.should_open_file.connect (open_file_dialog);
+    welcome_view.should_create_new_file.connect (open_with_temp_file);
 
-    this.layout.pack_end (this.status_bar = new StatusBar (), false, true, 0);
-    this.add (this.layout);
+    scroll_container = new Gtk.ScrolledWindow(null, null);
 
-    this.key_press_event.connect (this.on_key_press);
-    this.delete_event.connect (this.on_destroy);
+    layout.pack_start (scroll_container, true, true, 0);
+
+    layout.pack_end (status_bar = new StatusBar (), false, true, 0);
+
+    add (layout);
+
+    key_press_event.connect (on_key_press);
+    delete_event.connect (on_destroy);
+
+    if (initial_document_path != null && initial_document_path != "") {
+      open_file_at_path (initial_document_path);
+    } else {
+      set_layout_body (welcome_view);
+    }
   }
 
   public override bool configure_event (Gdk.EventConfigure event) {
@@ -114,12 +116,12 @@ public class EditorWindow : Gtk.ApplicationWindow {
    */
   public void open_file_dialog () {
     Gtk.FileChooserDialog dialog = new Gtk.FileChooserDialog(
-      "Open document",
-      (Gtk.Window) this.get_toplevel(),
+      _("Open document"),
+      (Gtk.Window) get_toplevel(),
       Gtk.FileChooserAction.OPEN,
-      "Cancel",
+      _("Cancel"),
       Gtk.ResponseType.CANCEL,
-      "Open",
+      _("Open"),
       Gtk.ResponseType.ACCEPT
     );
 
@@ -134,7 +136,7 @@ public class EditorWindow : Gtk.ApplicationWindow {
     dialog.response.connect((res) => {
       dialog.hide();
       if (res == Gtk.ResponseType.ACCEPT) {
-        this.open_file_at_path(dialog.get_filename());
+        open_file_at_path(dialog.get_filename());
       }
     });
 
@@ -142,31 +144,35 @@ public class EditorWindow : Gtk.ApplicationWindow {
   }
 
   public void open_with_temp_file () {
-    File file = FileUtils.new_temp_file ();
-    this.open_file_at_path (file.get_path ());
+    try {
+      File tmp_file = FileUtils.new_temp_file();
+      open_file_at_path (tmp_file.get_path(), true);
+    } catch (GLib.Error err) {
+      message (_("Unable to create temporary document"));
+      error (err.message);
+    }
   }
 
-  public void open_file_at_path (string path) {
+  public void open_file_at_path (string path, bool temporary = false) {
     try {
       if (document != null) {
         document.disconnect (document_load_signal_id);
       }
       debug ("Opening " + path);
-      document = Document.from_file (path);
+      document = Document.from_file (path, temporary);
       document_load_signal_id = document.load.connect(() => {
         debug ("Document loaded, initializing view");
-        if (current_editor == null) {
-          layout.remove (welcome_view);
 
-          current_editor = new Editor ();
-          scroll_container = new Gtk.ScrolledWindow(null, null);
-          scroll_container.add (current_editor);
-          layout.pack_start (scroll_container, true, true, 0);
-        }
-        current_editor.document = document;
         header.document = document;
         status_bar.document = document;
-        settings.last_opened_document = this.document.file_path;
+
+        current_editor = new Editor ();
+        current_editor.document = document;
+
+        set_layout_body (current_editor);
+        debug ("Layout done");
+
+        // settings.last_opened_document = this.document.file_path;
       });
 
     } catch (GLib.Error error) {
@@ -179,9 +185,15 @@ public class EditorWindow : Gtk.ApplicationWindow {
     GLib.List<weak Gtk.Widget> children = this.layout.get_children();
     foreach (Gtk.Widget element in children) {
       if (element is WelcomeView) {
+        debug ("Removing welcome view");
         this.layout.remove(element);
       }
     }
+  }
+
+  protected void set_layout_body (Gtk.Widget widget) {
+    scroll_container.remove (scroll_container.get_child ());
+    scroll_container.add (widget);
   }
 
   protected bool on_key_press (Gdk.EventKey event) {

@@ -3,14 +3,16 @@ public class FileUtils : Object {
 
   }
 
-  public static File new_temp_file () {
-    try {
-      FileIOStream iostream;
-	  File file = File.new_tmp (null, out iostream);
-      return file;
-	  } catch (Error e) {
-		  error ("Error: %s\n", e.message);
-	  }
+  public static File new_temp_file () throws GLib.Error {
+    File file = File.new_for_path (
+      Path.build_filename(
+        Granite.Services.Paths.user_cache_folder.get_path(),
+        GLib.Uuid.string_random ()
+      )
+    );
+
+    file.create (FileCreateFlags.PRIVATE);
+    return file;
   }
 
   public static string? read (string path) throws Error {

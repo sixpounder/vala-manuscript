@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-04 01:01+0200\n"
+"POT-Creation-Date: 2019-12-13 21:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,23 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/EditorWindow.vala:161
+#: src/EditorWindow.vala:119
+msgid "Open document"
+msgstr ""
+
+#: src/EditorWindow.vala:122
+msgid "Cancel"
+msgstr ""
+
+#: src/EditorWindow.vala:124
+msgid "Open"
+msgstr ""
+
+#: src/EditorWindow.vala:151
+msgid "Unable to create temporary document"
+msgstr ""
+
+#: src/EditorWindow.vala:180
 msgid "Unable to open document at "
 msgstr ""
 
@@ -29,11 +45,11 @@ msgstr ""
 msgid "Estimated reading time"
 msgstr ""
 
-#: src/StatusBar.vala:99
+#: src/StatusBar.vala:101
 msgid "minute"
 msgstr ""
 
-#: src/StatusBar.vala:101
+#: src/StatusBar.vala:103
 msgid "minutes"
 msgstr ""
 
