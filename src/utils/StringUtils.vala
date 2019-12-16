@@ -17,7 +17,7 @@
  * Authored by: Andrea Coronese <sixpounder@protonmail.com>
  */
 
-namespace Utils.Strings {
+namespace Manuscript.Utils.Strings {
 
     /**
      * Returns the string with its first letter capitalized
