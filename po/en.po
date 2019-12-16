@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-16 10:31+0100\n"
+"POT-Creation-Date: 2019-12-16 11:34+0100\n"
 "PO-Revision-Date: 2019-07-05 11:20+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/EditorWindow.vala:145
+#: src/EditorWindow.vala:147
 msgid "Open document"
 msgstr ""
 
-#: src/EditorWindow.vala:148
+#: src/EditorWindow.vala:150
 msgid "Cancel"
 msgstr ""
 
-#: src/EditorWindow.vala:150
+#: src/EditorWindow.vala:152
 msgid "Open"
 msgstr ""
 
-#: src/EditorWindow.vala:177
+#: src/EditorWindow.vala:179
 msgid "Unable to create temporary document"
 msgstr ""
 
-#: src/EditorWindow.vala:206
+#: src/EditorWindow.vala:215
 msgid "Unable to open document at "
 msgstr ""
 
@@ -91,10 +91,14 @@ msgstr ""
 msgid "Close this document"
 msgstr ""
 
-#: src/widgets/FileNotFound.vala:4
+#: src/widgets/FileNotFound.vala:5
 msgid "File does not exist"
 msgstr ""
 
-#: src/widgets/FileNotFound.vala:5
-msgid "This file may have been deleted or moved"
+#: src/widgets/FileNotFound.vala:6
+msgid "This file may have been deleted or moved."
+msgstr ""
+
+#: src/widgets/FileNotFound.vala:6
+msgid "not found"
 msgstr ""

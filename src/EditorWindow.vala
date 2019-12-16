@@ -280,7 +280,7 @@ public class EditorWindow : Gtk.ApplicationWindow {
 	}
 
 	protected void show_not_found_alert () {
-	  FileNotFound fnf = new FileNotFound ();
+	  FileNotFound fnf = new FileNotFound (document.file_path);
 	  fnf.show_all ();
 	  set_layout_body (fnf);
 	}
