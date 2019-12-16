@@ -40,3 +40,12 @@ if compile_schemas.found()
 
   message('Schema OK')
 endif
+
+message('Compiling css gresource')
+css_gresource = gnome.compile_resources(
+    'css-resources',
+    meson.project_name() + '.gresource.xml',
+    source_dir: '.',
+    c_name: 'css'
+)
+message('Compiled css gresource')

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-13 21:47+0100\n"
+"POT-Creation-Date: 2019-12-16 10:31+0100\n"
 "PO-Revision-Date: 2019-07-05 11:20+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/EditorWindow.vala:119
+#: src/EditorWindow.vala:145
 msgid "Open document"
 msgstr ""
 
-#: src/EditorWindow.vala:122
+#: src/EditorWindow.vala:148
 msgid "Cancel"
 msgstr ""
 
-#: src/EditorWindow.vala:124
+#: src/EditorWindow.vala:150
 msgid "Open"
 msgstr ""
 
-#: src/EditorWindow.vala:151
+#: src/EditorWindow.vala:177
 msgid "Unable to create temporary document"
 msgstr ""
 
-#: src/EditorWindow.vala:180
+#: src/EditorWindow.vala:206
 msgid "Unable to open document at "
 msgstr ""
 
@@ -53,19 +53,23 @@ msgstr "minute"
 msgid "minutes"
 msgstr "minutes"
 
-#: src/Header.vala:50
+#: src/Header.vala:51
 msgid "Open file"
 msgstr ""
 
-#: src/Header.vala:57
+#: src/Header.vala:58
 msgid "Save file"
 msgstr ""
 
 #: src/Header.vala:66
+msgid "Save file as"
+msgstr ""
+
+#: src/Header.vala:76
 msgid "Settings"
 msgstr ""
 
-#: src/Header.vala:93
+#: src/Header.vala:103
 msgid "modified"
 msgstr ""
 
@@ -75,8 +79,8 @@ msgstr ""
 
 #: src/dialogs/QuitDialog.vala:16
 msgid ""
-"Closing this window will result in a loss of all unsaved changes. It is "
-"strongly suggested to save your changes before quitting the application."
+"Leaving now will result in a loss of unsaved changes. It is strongly "
+"suggested to save your changes before proceeding."
 msgstr ""
 
 #: src/dialogs/QuitDialog.vala:18
@@ -84,5 +88,13 @@ msgid "Keep editing"
 msgstr ""
 
 #: src/dialogs/QuitDialog.vala:20
-msgid "Close this window"
+msgid "Close this document"
+msgstr ""
+
+#: src/widgets/FileNotFound.vala:4
+msgid "File does not exist"
+msgstr ""
+
+#: src/widgets/FileNotFound.vala:5
+msgid "This file may have been deleted or moved"
 msgstr ""

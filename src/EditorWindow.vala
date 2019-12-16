@@ -27,6 +27,7 @@ public class EditorWindow : Gtk.ApplicationWindow {
   protected Gtk.ScrolledWindow scroll_container;
   protected Document document;
   protected ulong document_load_signal_id;
+  protected ulong document_error_signal_id;
 
   public string initial_document_path { get; construct; }
 
@@ -42,6 +43,12 @@ public class EditorWindow : Gtk.ApplicationWindow {
   construct {
     settings = AppSettings.get_instance();
 
+    // Load some styles
+    var css_provider = new Gtk.CssProvider();
+    css_provider.load_from_resource("/com/github/sixpounder/manuscript/main.css");
+    Gtk.StyleContext.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+    // Position and resize window according to last settings
     int x = settings.window_x;
     int y = settings.window_y;
     if (settings.window_width != -1 || settings.window_height != -1) {
@@ -57,24 +64,40 @@ public class EditorWindow : Gtk.ApplicationWindow {
 
     layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
 
-    // HEADER
+    // Setup header
     header = new Header (this);
     header.open_file.connect(() => {
-      open_file_dialog ();
+      if (this.document != null && document.has_changes) {
+        if (quit_dialog()) {
+          open_file_dialog ();
+        }
+      } else {
+        open_file_dialog ();
+      }
     });
 
-    header.save_file.connect(() => {
-      document.save ();
+    header.save_file.connect((choose_path) => {
+      if (choose_path) {
+        FileSaveDialog dialog = new FileSaveDialog (this, document);
+        int res = dialog.run ();
+        if (res == Gtk.ResponseType.ACCEPT) {
+          document.save(dialog.get_filename ());
+          settings.last_opened_document = this.document.file_path;
+        }
+        dialog.destroy ();
+      } else {
+        document.save ();
+      }
     });
     set_titlebar (header);
 
-    // WELCOME VIEW
+    // Setup welcome view
     welcome_view = new WelcomeView();
     welcome_view.should_open_file.connect (open_file_dialog);
     welcome_view.should_create_new_file.connect (open_with_temp_file);
 
+    // Remaining layout components
     scroll_container = new Gtk.ScrolledWindow(null, null);
-
     layout.pack_start (scroll_container, true, true, 0);
 
     layout.pack_end (status_bar = new StatusBar (), false, true, 0);
@@ -84,6 +107,7 @@ public class EditorWindow : Gtk.ApplicationWindow {
     key_press_event.connect (on_key_press);
     delete_event.connect (on_destroy);
 
+    // Lift off
     if (initial_document_path != null && initial_document_path != "") {
       open_file_at_path (initial_document_path);
     } else {
@@ -161,23 +185,30 @@ public class EditorWindow : Gtk.ApplicationWindow {
     try {
       if (document != null) {
         document.disconnect (document_load_signal_id);
+        document.disconnect (document_error_signal_id);
       }
       debug ("Opening " + path);
       document = Document.from_file (path, temporary);
-      document_load_signal_id = document.load.connect(() => {
-        debug ("Document loaded, initializing view");
+      if (document == null) {
+        warning ("File not found");
+        show_not_found_alert ();
+      } else {
+        document_error_signal_id = document.read_error.connect(show_not_found_alert);
+        document_load_signal_id = document.load.connect(() => {
+          debug ("Document loaded, initializing view");
 
-        header.document = document;
-        status_bar.document = document;
+          header.document = document;
+          status_bar.document = document;
 
-        current_editor = new Editor ();
-        current_editor.document = document;
+          current_editor = new Editor ();
+          current_editor.document = document;
 
-        set_layout_body (current_editor);
-        debug ("Layout done");
+          set_layout_body (current_editor);
+          debug ("Layout done");
 
-        settings.last_opened_document = this.document.file_path;
-      });
+          settings.last_opened_document = this.document.file_path;
+        });
+      }
 
     } catch (GLib.Error error) {
       warning (error.message);
@@ -240,11 +271,17 @@ public class EditorWindow : Gtk.ApplicationWindow {
 	}
 
 	protected bool quit_dialog () {
-	  var confirm_dialog = new QuitDialog (this);
+	  QuitDialog confirm_dialog = new QuitDialog (this);
 
     int outcome = confirm_dialog.run ();
     confirm_dialog.destroy ();
 
     return outcome == 1;
+	}
+
+	protected void show_not_found_alert () {
+	  FileNotFound fnf = new FileNotFound ();
+	  fnf.show_all ();
+	  set_layout_body (fnf);
 	}
 }

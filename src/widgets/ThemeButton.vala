@@ -10,14 +10,14 @@ public class ThemeButton : Gtk.Button {
       width_request: size,
       tooltip_text: Utils.Strings.ucfirst (theme)
     );
-  }
 
-  construct {
     var color_context = get_style_context ();
     color_context.add_class ("theme-button");
     color_context.add_class ("circular");
-    color_context.add_class (@"theme-button-$(theme_name)");
+    color_context.add_class (@"theme-button-$theme_name");
+  }
 
+  construct {
     clicked.connect (on_click);
   }
 

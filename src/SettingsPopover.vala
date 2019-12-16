@@ -15,9 +15,10 @@ public class SettingsPopover : Gtk.Popover {
     set_size_request (256, -1);
 
     layout = new Gtk.Box(Gtk.Orientation.VERTICAL, 10);
-    layout.halign = Gtk.Align.START;
+    layout.halign = Gtk.Align.CENTER;
     layout.margin_top = 10;
     layout.margin_bottom = 10;
+    layout.homogeneous = true;
 
     theme_layout = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 10);
 
@@ -25,6 +26,7 @@ public class SettingsPopover : Gtk.Popover {
     lightThemeButton = new ThemeButton("light");
 
     lightThemeButton.selected.connect (this.on_theme_set);
+    darkThemeButton.selected.connect (this.on_theme_set);
 
     theme_layout.pack_start (lightThemeButton, false, true, 15);
     theme_layout.pack_start (darkThemeButton, false, true, 15);

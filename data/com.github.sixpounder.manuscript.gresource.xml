@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/com/github/sixpounder/manuscript">
-    <file alias="fonts.css" compressed="true">styles/manuscript.fonts.css</file>
-    <file alias="buttons.css" compressed="true">styles/manuscript.buttons.css</file>
+    <file alias="main.css" compressed="true">styles/manuscript.css</file>
   </gresource>
 </gresources>

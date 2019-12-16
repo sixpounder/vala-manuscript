@@ -2,11 +2,12 @@ public class Header : Gtk.HeaderBar {
   public weak Gtk.Window parent_window { get; construct; }
 
   public signal void open_file ();
-  public signal void save_file ();
+  public signal void save_file (bool choose_path);
 
   protected Gtk.Switch zen_switch;
   protected Gtk.Button settings_button;
   protected Gtk.Button save_file_button;
+  protected Gtk.Button save_file_as_button;
   protected SettingsPopover settings_popover;
 
   public weak Document document {
@@ -56,10 +57,19 @@ public class Header : Gtk.HeaderBar {
     save_file_button = new Gtk.Button.from_icon_name ("document-save");
     save_file_button.tooltip_text = _("Save file");
     save_file_button.clicked.connect(() => {
-      save_file ();
+      save_file (false);
     });
     save_file_button.sensitive = document != null ? has_changes : false;
     pack_start (save_file_button);
+
+    save_file_as_button = new Gtk.Button.from_icon_name ("document-save-as");
+    save_file_as_button.tooltip_text = _("Save file as");
+    save_file_as_button.clicked.connect(() => {
+      save_file (true);
+    });
+    save_file_button.sensitive = document != null ? has_changes : false;
+    pack_start (save_file_as_button);
+
     update_icons ();
 
     settings_button = new Gtk.Button.from_icon_name ("preferences-system-symbolic");
@@ -90,11 +100,12 @@ public class Header : Gtk.HeaderBar {
   }
 
   protected void update_subtitle () {
-    subtitle = document.file_path + (has_changes ? " (" + _("modified") + ")" : "");
+    subtitle = document.filename + (has_changes ? " (" + _("modified") + ")" : "");
   }
 
   protected void update_icons () {
     save_file_button.sensitive = has_changes;
+    save_file_as_button.sensitive = has_changes;
   }
 
   protected void on_document_change () {

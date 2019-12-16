@@ -33,22 +33,25 @@ public class FileUtils : Object {
     }
   }
 
-  public static async string? read_async (File file) {
+  public static async string? read_async (File file) throws GLib.Error {
     var text = new StringBuilder ();
+    if (!file.query_exists ()) {
+      throw new FileError.ACCES("E_NOT_FOUND");
+    } else {
+      try {
+        var dis = new DataInputStream (file.read ());
+        string line = null;
+        while ((line = yield dis.read_line_async (Priority.DEFAULT)) != null) {
+          if (text.len != 0)
+            text.append_c ('\n');
 
-    try {
-      var dis = new DataInputStream (file.read ());
-      string line = null;
-      while ((line = yield dis.read_line_async (Priority.DEFAULT)) != null) {
-        if (text.len != 0)
-          text.append_c ('\n');
-
-        text.append (line);
+          text.append (line);
+        }
+        return text.str;
+      } catch (Error e) {
+        warning ("Cannot read \"%s\": %s", file.get_basename (), e.message);
+        throw e;
       }
-      return text.str;
-    } catch (Error e) {
-      warning ("Cannot read \"%s\": %s", file.get_basename (), e.message);
-      return null;
     }
   }
 

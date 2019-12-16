@@ -18,6 +18,7 @@ executable(
 	'DocumentTagTable.vala',
 	'SettingsPopover.vala',
 	'widgets/ThemeButton.vala',
+	'widgets/FileNotFound.vala',
 	'models/Document.vala',
 	'models/LoadState.vala',
 	'utils/StringUtils.vala',

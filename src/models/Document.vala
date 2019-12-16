@@ -7,6 +7,7 @@ public class Document : Object {
   public signal void undo ();
   public signal void redo ();
   public signal void analyze ();
+  public signal void read_error ();
   public signal void save_error (Error e);
 
   protected Gtk.SourceBuffer _buffer;
@@ -85,14 +86,26 @@ public class Document : Object {
       try {
         load_state = DocumentLoadState.LOADING;
         FileUtils.read_async.begin (File.new_for_path(this.file_path), (obj, res) => {
-          debug ("File read, creating document");
-          string? content = FileUtils.read_async.end (res);
-          if (content != null) {
-            this.build_document (content);
+          if (res == null) {
+            warning ("File not read (not found?)");
+            load_state = DocumentLoadState.ERROR;
+            read_error ();
           } else {
-            this.build_document ("");
+            debug ("File read, creating document");
+            try {
+              string? content = FileUtils.read_async.end (res);
+              if (content != null) {
+                this.build_document (content);
+              } else {
+                this.build_document ("");
+              }
+              this.load ();
+            } catch (GLib.Error err) {
+              warning ("File unreadable");
+              load_state = DocumentLoadState.ERROR;
+              read_error ();
+            }
           }
-          this.load ();
         });
       } catch (Error err) {
         this.build_document ("");
@@ -134,7 +147,7 @@ public class Document : Object {
 
   public void save (string path = "@") {
     try {
-      if (path == "@") {
+      if (path != "@") {
         modified_path = path;
       }
       FileUtils.save_buffer (_buffer, file_path);

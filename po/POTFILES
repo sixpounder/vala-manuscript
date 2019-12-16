@@ -2,4 +2,5 @@ src/EditorWindow.vala
 src/StatusBar.vala
 src/Header.vala
 src/dialogs/QuitDialog.vala
+src/widgets/FileNotFound.vala
 src/widgets/ThemeButton.vala
