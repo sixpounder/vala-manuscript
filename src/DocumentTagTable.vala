@@ -1,34 +1,34 @@
 namespace Manuscript {
   public class DocumentTagTable : Gtk.TextTagTable {
 
-    public Gtk.TextTag lightDimmed;
-    public Gtk.TextTag lightFocused;
-    public Gtk.TextTag darkDimmed;
-    public Gtk.TextTag darkFocused;
+    public Gtk.TextTag light_dimmed;
+    public Gtk.TextTag light_focused;
+    public Gtk.TextTag dark_dimmed;
+    public Gtk.TextTag dark_focused;
 
     construct {
-      lightDimmed = new Gtk.TextTag ("light-dimmed");
-      lightDimmed.foreground = "#ccc";
+      light_dimmed = new Gtk.TextTag ("light-dimmed");
+      light_dimmed.foreground = "#ccc";
 
-      lightFocused = new Gtk.TextTag ("light-focused");
-      lightFocused.foreground = "#333";
+      light_focused = new Gtk.TextTag ("light-focused");
+      light_focused.foreground = "#333";
 
-      darkDimmed = new Gtk.TextTag ("dark-dimmed");
-      darkFocused = new Gtk.TextTag ("dark-focused");
+      dark_dimmed = new Gtk.TextTag ("dark-dimmed");
+      dark_focused = new Gtk.TextTag ("dark-focused");
 
-      add (lightDimmed);
-      add (lightFocused);
-      add (darkDimmed);
-      add (darkFocused);
+      add (light_dimmed);
+      add (light_focused);
+      add (dark_dimmed);
+      add (dark_focused);
     }
 
     public Gtk.TextTag[] for_theme (string? theme) {
       switch (theme) {
         case "light":
         default:
-          return { lightDimmed, lightFocused };
+          return { light_dimmed, light_focused };
         case "dark":
-          return { darkDimmed, darkFocused };
+          return { dark_dimmed, dark_focused };
       }
     }
   }

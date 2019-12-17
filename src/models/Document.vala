@@ -70,13 +70,13 @@ namespace Manuscript {
         if (temporary) {
           return "Untitled.txt";
         } else {
-          return file_path != null ? GLib.Path.get_basename(file_path) : "Untitled.txt";
+          return file_path != null ? GLib.Path.get_basename (file_path) : "Untitled.txt";
         }
       }
     }
 
     protected Document (string? file_path, bool temporary = false) {
-      Object(
+      Object (
         temporary: temporary,
         file_path: file_path
       );
@@ -86,7 +86,7 @@ namespace Manuscript {
       if (this.file_path != null) {
         try {
           load_state = DocumentLoadState.LOADING;
-          FileUtils.read_async.begin (File.new_for_path(this.file_path), (obj, res) => {
+          FileUtils.read_async.begin (File.new_for_path (this.file_path), (obj, res) => {
             if (res == null) {
               warning ("File not read (not found?)");
               load_state = DocumentLoadState.ERROR;
@@ -134,8 +134,8 @@ namespace Manuscript {
       estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
 
       buffer.changed.connect (on_content_changed);
-      buffer.undo.connect(on_buffer_undo);
-      buffer.redo.connect(on_buffer_redo);
+      buffer.undo.connect (on_buffer_undo);
+      buffer.redo.connect (on_buffer_redo);
 
       buffer.insert_text.connect (text_inserted);
       buffer.delete_range.connect (range_deleted);
@@ -162,8 +162,8 @@ namespace Manuscript {
     public void unload () {
       if (buffer != null) {
         buffer.changed.disconnect (on_content_changed);
-        buffer.undo.disconnect(on_buffer_undo);
-        buffer.redo.disconnect(on_buffer_redo);
+        buffer.undo.disconnect (on_buffer_undo);
+        buffer.redo.disconnect (on_buffer_redo);
 
         buffer.insert_text.disconnect (text_inserted);
         buffer.delete_range.disconnect (range_deleted);

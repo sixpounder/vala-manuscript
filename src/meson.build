@@ -19,6 +19,7 @@ executable(
 	'SettingsPopover.vala',
 	'widgets/ThemeButton.vala',
 	'widgets/FileNotFound.vala',
+	'widgets/SearchBar.vala',
 	'models/Document.vala',
 	'models/LoadState.vala',
 	'utils/StringUtils.vala',

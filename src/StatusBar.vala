@@ -91,7 +91,7 @@ namespace Manuscript {
 
       set {
         _reading_time = value;
-        reading_time_label.label = format_reading_time(_reading_time);
+        reading_time_label.label = format_reading_time (_reading_time);
       }
     }
 

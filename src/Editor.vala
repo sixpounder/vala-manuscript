@@ -1,7 +1,7 @@
 namespace Manuscript {
   public class Editor : Gtk.SourceView {
     public bool has_changes { get; private set; }
-
+    public Gtk.SourceSearchContext search_context = null;
     protected Gtk.CssProvider provider;
     protected Document _document;
     protected AppSettings settings = AppSettings.get_instance ();
@@ -10,18 +10,22 @@ namespace Manuscript {
       Object (
         has_focus: true,
         pixels_inside_wrap: 0,
-        pixels_below_lines: 20
+        pixels_below_lines: 20,
+        wrap_mode: Gtk.WrapMode.WORD
       );
     }
 
     construct {
+      search_context = new Gtk.SourceSearchContext (buffer as Gtk.SourceBuffer, null);
+      // search_context.set_match_style (srcstyle);
+
       try {
-        this.init_editor();
+        this.init_editor ();
         if (document != null) {
           this.document = document;
         }
       } catch (Error e) {
-        error("Cannot instantiate editor view: " + e.message);
+        error ("Cannot instantiate editor view: " + e.message);
       }
 
       settings.change.connect (on_setting_change);
@@ -37,10 +41,10 @@ namespace Manuscript {
         _document = value;
         if (_document.loaded) {
           debug ("Loading buffer");
-          load_buffer(_document.buffer);
+          load_buffer (_document.buffer);
         } else {
           debug ("Waiting for document to become ready");
-          _document.load.connect(() => {
+          _document.load.connect (() => {
             debug ("Loading buffer");
             load_buffer (_document.buffer);
           });
@@ -78,7 +82,7 @@ namespace Manuscript {
 
     protected void init_editor () throws GLib.Error {
 
-      this.get_style_context().add_provider(get_editor_style (), Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+      this.get_style_context ().add_provider (get_editor_style (), Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
       this.pixels_below_lines = 0;
       this.right_margin = 100;
       this.left_margin = 100;
@@ -88,8 +92,8 @@ namespace Manuscript {
       this.input_hints = Gtk.InputHints.SPELLCHECK | Gtk.InputHints.NO_EMOJI;
     }
 
-    protected void load_buffer (Gtk.SourceBuffer newBuffer) {
-      buffer = newBuffer;
+    protected void load_buffer (Gtk.SourceBuffer new_buffer) {
+      buffer = new_buffer;
       document.change.connect (this.on_document_change);
       document.saved.connect (this.on_document_saved);
       update_settings ();
@@ -103,7 +107,8 @@ namespace Manuscript {
           buffer.notify["cursor-position"].connect (set_focused_paragraph);
         } else {
           Gtk.TextIter start, end;
-          Gtk.TextTag[] tags = (buffer.tag_table as DocumentTagTable).for_theme (settings.prefer_dark_style ? "dark" : "light");
+          Gtk.TextTag[] tags =
+            (buffer.tag_table as DocumentTagTable).for_theme (settings.prefer_dark_style ? "dark" : "light");
           buffer.get_bounds (out start, out end);
           buffer.remove_tag (tags[1], start, end);
           buffer.remove_tag (tags[0], start, end);
@@ -133,13 +138,35 @@ namespace Manuscript {
           sentence_end.forward_sentence_end ();
         }
 
-        buffer.remove_tag (buffer.tag_table.lookup("light-focused"), start, end);
-        buffer.apply_tag (buffer.tag_table.lookup("light-dimmed"), start, end);
-        buffer.apply_tag (buffer.tag_table.lookup("light-focused"), sentence_start, sentence_end);
+        buffer.remove_tag (buffer.tag_table.lookup ("light-focused"), start, end);
+        buffer.apply_tag (buffer.tag_table.lookup ("light-dimmed"), start, end);
+        buffer.apply_tag (buffer.tag_table.lookup ("light-focused"), sentence_start, sentence_end);
 
         scroll_to_cursor ();
       }
     }
+
+    public bool search_for_iter (Gtk.TextIter? start_iter, out Gtk.TextIter? end_iter) {
+      end_iter = start_iter;
+      bool found = search_context.forward2 (start_iter, out start_iter, out end_iter, null);
+      if (found) {
+        buffer.select_range (start_iter, end_iter);
+        scroll_to_iter (start_iter, 0, false, 0, 0);
+      }
+
+      return found;
+    }
+
+    public bool search_for_iter_backward (Gtk.TextIter? start_iter, out Gtk.TextIter? end_iter) {
+      end_iter = start_iter;
+      bool found = search_context.backward2 (start_iter, out start_iter, out end_iter, null);
+      if (found) {
+        buffer.select_range (start_iter, end_iter);
+        scroll_to_iter (start_iter, 0, false, 0, 0);
+      }
+
+      return found;
+  }
 
     protected void on_setting_change (string key) {
       update_settings ();

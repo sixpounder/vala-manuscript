@@ -6,8 +6,8 @@ namespace Manuscript {
 
     public static File new_temp_file () throws GLib.Error {
       File file = File.new_for_path (
-        Path.build_filename(
-          Granite.Services.Paths.user_cache_folder.get_path(),
+        Path.build_filename (
+          Granite.Services.Paths.user_cache_folder.get_path (),
           GLib.Uuid.string_random ()
         )
       );
@@ -17,18 +17,18 @@ namespace Manuscript {
     }
 
     public static string? read (string path) throws Error {
-      File file = File.new_for_path(path);
+      File file = File.new_for_path (path);
       if (file.query_exists ()) {
         try {
-		      uint8[] contents;
-		      string etag_out;
+          uint8[] contents;
+          string etag_out;
 
-		      file.load_contents (null, out contents, out etag_out);
+          file.load_contents (null, out contents, out etag_out);
 
-		      return (string) contents;
-	      } catch (Error e) {
-		      throw e;
-	      }
+          return (string) contents;
+        } catch (Error e) {
+          throw e;
+        }
       } else {
         return null;
       }
@@ -37,7 +37,7 @@ namespace Manuscript {
     public static async string? read_async (File file) throws GLib.Error {
       var text = new StringBuilder ();
       if (!file.query_exists ()) {
-        throw new FileError.ACCES("E_NOT_FOUND");
+        throw new FileError.ACCES ("E_NOT_FOUND");
       } else {
         try {
           var dis = new DataInputStream (file.read ());
@@ -57,11 +57,11 @@ namespace Manuscript {
     }
 
     public static void save_buffer (Gtk.TextBuffer buffer, string path) throws Error {
-      FileUtils.save(buffer.text, path);
+      FileUtils.save (buffer.text, path);
     }
 
     public static void save (string text, string path) throws Error {
-      File file = File.new_for_path(path);
+      File file = File.new_for_path (path);
 
       // delete if file already exists
       if (file.query_exists ()) {

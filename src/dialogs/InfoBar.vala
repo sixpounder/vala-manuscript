@@ -13,7 +13,7 @@ namespace Manuscript {
 
     construct {
       Gtk.Label message_label = new Gtk.Label (this.message);
-      this.get_content_area().add (message_label);
+      this.get_content_area ().add (message_label);
     }
   }
 }

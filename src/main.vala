@@ -8,8 +8,8 @@ namespace Manuscript {
     }
 
     construct {
-      Granite.Services.Paths.initialize(Constants.APP_ID, Constants.APP_ID);
-      Granite.Services.Paths.ensure_directory_exists(Granite.Services.Paths.user_cache_folder);
+      Granite.Services.Paths.initialize (Constants.APP_ID, Constants.APP_ID);
+      Granite.Services.Paths.ensure_directory_exists (Granite.Services.Paths.user_cache_folder);
     }
 
     protected override void activate () {
@@ -24,6 +24,14 @@ namespace Manuscript {
         main_window = new EditorWindow.with_document (this);
       }
       main_window.title = Constants.APP_NAME;
+      var quit_action = new SimpleAction ("quit", null);
+      add_action (quit_action);
+      quit_action.activate.connect (() => {
+        if (main_window != null) {
+          main_window.close ();
+        }
+      });
+      this.set_accels_for_action ("app.quit", {"<Ctrl>Q"});
       main_window.show_all ();
     }
 

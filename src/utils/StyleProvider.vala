@@ -1,5 +1,5 @@
 public Gtk.CssProvider get_editor_style () {
-  Gtk.CssProvider provider = new Gtk.CssProvider();
+  Gtk.CssProvider provider = new Gtk.CssProvider ();
 
   try {
     provider.load_from_data (
@@ -13,3 +13,4 @@ public Gtk.CssProvider get_editor_style () {
 
   return provider;
 }
+

@@ -37,7 +37,7 @@ namespace Manuscript {
     protected Document _document = null;
 
     public Header (Gtk.Window parent) {
-      Object(
+      Object (
         title: Constants.APP_NAME,
         parent_window: parent,
         has_subtitle: true,
@@ -50,14 +50,14 @@ namespace Manuscript {
 
       Gtk.Button open_file_button = new Gtk.Button.from_icon_name ("document-open");
       open_file_button.tooltip_text = _("Open file");
-      open_file_button.clicked.connect(() => {
+      open_file_button.clicked.connect (() => {
         open_file ();
       });
       pack_start (open_file_button);
 
       save_file_button = new Gtk.Button.from_icon_name ("document-save");
       save_file_button.tooltip_text = _("Save file");
-      save_file_button.clicked.connect(() => {
+      save_file_button.clicked.connect (() => {
         save_file (false);
       });
       save_file_button.sensitive = document != null ? has_changes : false;
@@ -65,7 +65,7 @@ namespace Manuscript {
 
       save_file_as_button = new Gtk.Button.from_icon_name ("document-save-as");
       save_file_as_button.tooltip_text = _("Save file as");
-      save_file_as_button.clicked.connect(() => {
+      save_file_as_button.clicked.connect (() => {
         save_file (true);
       });
       save_file_button.sensitive = document != null ? has_changes : false;
@@ -85,7 +85,7 @@ namespace Manuscript {
       });
       pack_end (settings_button);
 
-      zen_switch = new Gtk.Switch();
+      zen_switch = new Gtk.Switch ();
       zen_switch.set_vexpand (false);
       zen_switch.set_hexpand (false);
       zen_switch.halign = Gtk.Align.CENTER;
@@ -115,8 +115,8 @@ namespace Manuscript {
     }
 
     protected void on_document_saved (string to_path) {
-      update_subtitle();
-      update_icons();
+      update_subtitle ();
+      update_icons ();
     }
 
     protected void update_settings () {
@@ -129,8 +129,8 @@ namespace Manuscript {
       document.saved.connect (on_document_saved);
       document.undo.connect (on_document_change);
       document.redo.connect (on_document_change);
-      update_subtitle();
-      update_icons();
+      update_subtitle ();
+      update_icons ();
     }
   }
 }
