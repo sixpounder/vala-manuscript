@@ -1,22 +1,3 @@
-/*-
- * Copyright (c) 2019 Andrea Coronese
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 2.1 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- * Authored by: Andrea Coronese <sixpounder@protonmail.com>
- */
-
 namespace Manuscript {
   public class EditorWindow : Gtk.ApplicationWindow {
     protected uint configure_id = 0;
@@ -67,10 +48,39 @@ namespace Manuscript {
       // Main layout container
       layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
 
-      layout.pack_start (search_bar = new SearchBar (this, current_editor), false, false, 0);
-
       // Setup header
       header = new Header (this);
+      set_titlebar (header);
+
+      // Setup welcome view
+      welcome_view = new WelcomeView ();
+
+      current_editor = new Editor ();
+      configure_searchbar ();
+
+      // Scrolled window element
+      scroll_container = new Gtk.ScrolledWindow (null, null);
+      layout.pack_start (scroll_container, true, true, 0);
+
+      // Status bar (bottom)
+      layout.pack_end (status_bar = new StatusBar (), false, true, 0);
+
+      add (layout);
+
+      connect_events ();
+      configure_key_events ();
+
+      // Lift off
+      if (initial_document_path != null && initial_document_path != "") {
+        open_file_at_path (initial_document_path);
+      } else {
+        set_layout_body (welcome_view);
+      }
+    }
+
+    public void connect_events () {
+      delete_event.connect (on_destroy);
+
       header.open_file.connect (() => {
         if (this.document != null && document.has_changes) {
           if (quit_dialog ()) {
@@ -83,7 +93,7 @@ namespace Manuscript {
 
       header.save_file.connect ((choose_path) => {
         if (choose_path) {
-          FileSaveDialog dialog = new FileSaveDialog (this, document);
+          var dialog = new FileSaveDialog (this, document);
           int res = dialog.run ();
           if (res == Gtk.ResponseType.ACCEPT) {
             document.save (dialog.get_filename ());
@@ -94,31 +104,19 @@ namespace Manuscript {
           document.save ();
         }
       });
-      set_titlebar (header);
 
-      // Setup welcome view
-      welcome_view = new WelcomeView ();
       welcome_view.should_open_file.connect (open_file_dialog);
       welcome_view.should_create_new_file.connect (open_with_temp_file);
+    }
 
-      // Remaining layout components
-      scroll_container = new Gtk.ScrolledWindow (null, null);
-      layout.pack_start (scroll_container, true, true, 0);
-
-      layout.pack_end (status_bar = new StatusBar (), false, true, 0);
-
-      add (layout);
-
-      configure_key_events ();
-      key_press_event.connect (on_key_press);
-      delete_event.connect (on_destroy);
-
-      // Lift off
-      if (initial_document_path != null && initial_document_path != "") {
-        open_file_at_path (initial_document_path);
-      } else {
-        set_layout_body (welcome_view);
-      }
+    public void configure_searchbar () {
+      search_bar = new SearchBar (this, current_editor);
+      layout.pack_start (search_bar, false, false, 0);
+      settings.change.connect ((k) => {
+        if (k == "searchbar") {
+          show_searchbar ();
+        }
+      });
     }
 
     public bool configure_key_events () {
@@ -126,11 +124,25 @@ namespace Manuscript {
         uint keycode = e.hardware_keycode;
 
         if ((e.state & Gdk.ModifierType.CONTROL_MASK) != 0) {
-          if (match_keycode (Gdk.Key.f, keycode)) {
+          if (Manuscript.Utils.Keys.match_keycode (Gdk.Key.f, keycode)) {
             if (settings.searchbar == false) {
+              debug ("Searchbar on");
               settings.searchbar = true;
             } else {
+              debug ("Searchbar off");
               settings.searchbar = false;
+            }
+          } else if (Manuscript.Utils.Keys.match_keycode (Gdk.Key.s, keycode)) {
+            if (document.temporary) {
+              // Ask where to save this
+              var dialog = new FileSaveDialog (this, document);
+              int res = dialog.run ();
+              if (res == Gtk.ResponseType.ACCEPT) {
+                document.save (dialog.get_filename ());
+              }
+              dialog.destroy ();
+            } else {
+              document.save ();
             }
           }
         }
@@ -139,23 +151,6 @@ namespace Manuscript {
       });
 
       return false;
-    }
-
-    #if VALA_0_42
-    protected bool match_keycode (uint keyval, uint code) {
-    #else
-    protected bool match_keycode (int keyval, uint code) {
-    #endif
-      Gdk.KeymapKey [] keys;
-      Gdk.Keymap keymap = Gdk.Keymap.get_for_display (Gdk.Display.get_default ());
-      if (keymap.get_entries_for_keyval (keyval, out keys)) {
-        foreach (var key in keys) {
-          if (code == key.keycode)
-              return true;
-          }
-        }
-
-        return false;
     }
 
     public override bool configure_event (Gdk.EventConfigure event) {
@@ -184,6 +179,7 @@ namespace Manuscript {
     }
 
     public void show_searchbar () {
+      debug ("Showing searchbar");
       search_bar.reveal_child = settings.searchbar;
       if (settings.searchbar == true) {
         search_bar.search_entry.grab_focus_without_selecting ();
@@ -253,7 +249,6 @@ namespace Manuscript {
             header.document = document;
             status_bar.document = document;
 
-            current_editor = new Editor ();
             current_editor.document = document;
 
             set_layout_body (current_editor);
@@ -269,16 +264,6 @@ namespace Manuscript {
       }
     }
 
-    protected void cleanup_layout () {
-      GLib.List<weak Gtk.Widget> children = this.layout.get_children ();
-      foreach (Gtk.Widget element in children) {
-        if (element is WelcomeView) {
-          debug ("Removing welcome view");
-          this.layout.remove (element);
-        }
-      }
-    }
-
     protected void set_layout_body (Gtk.Widget widget) {
       if (scroll_container.get_child () != null) {
         scroll_container.remove (scroll_container.get_child ());
@@ -286,24 +271,6 @@ namespace Manuscript {
       scroll_container.add (widget);
       widget.show_all ();
       widget.focus (Gtk.DirectionType.UP);
-    }
-
-    protected bool on_key_press (Gdk.EventKey event) {
-      if (event.state == Gdk.ModifierType.CONTROL_MASK && event.keyval == 115) {
-        if (document.temporary) {
-          // Ask where to save this
-          FileSaveDialog dialog = new FileSaveDialog (this, document);
-          int res = dialog.run ();
-          if (res == Gtk.ResponseType.ACCEPT) {
-            document.save (dialog.get_filename ());
-          }
-          dialog.destroy ();
-        } else {
-          document.save ();
-        }
-      }
-
-      return false;
     }
 
     protected bool on_destroy () {
@@ -324,7 +291,7 @@ namespace Manuscript {
     }
 
     protected bool quit_dialog () {
-     QuitDialog confirm_dialog = new QuitDialog (this);
+      QuitDialog confirm_dialog = new QuitDialog (this);
 
       int outcome = confirm_dialog.run ();
       confirm_dialog.destroy ();

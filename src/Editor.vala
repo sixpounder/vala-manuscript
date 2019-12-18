@@ -82,14 +82,14 @@ namespace Manuscript {
 
     protected void init_editor () throws GLib.Error {
 
-      this.get_style_context ().add_provider (get_editor_style (), Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-      this.pixels_below_lines = 0;
-      this.right_margin = 100;
-      this.left_margin = 100;
-      this.top_margin = 50;
-      this.bottom_margin = 50;
-      this.wrap_mode = Gtk.WrapMode.WORD;
-      this.input_hints = Gtk.InputHints.SPELLCHECK | Gtk.InputHints.NO_EMOJI;
+      get_style_context ().add_provider (get_editor_style (), Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+      pixels_below_lines = 0;
+      right_margin = 100;
+      left_margin = 100;
+      top_margin = 50;
+      bottom_margin = 50;
+      wrap_mode = Gtk.WrapMode.WORD;
+      input_hints = Gtk.InputHints.SPELLCHECK | Gtk.InputHints.NO_EMOJI;
     }
 
     protected void load_buffer (Gtk.SourceBuffer new_buffer) {

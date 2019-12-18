@@ -1,5 +1,8 @@
 namespace Manuscript {
   public class Application : Gtk.Application {
+
+    protected EditorWindow [] windows = {};
+
     public Application () {
       Object (
         application_id: Constants.APP_ID,
@@ -15,7 +18,7 @@ namespace Manuscript {
     protected override void activate () {
       AppSettings settings = AppSettings.get_instance ();
       EditorWindow main_window;
-      debug (settings.last_opened_document);
+
       if (settings.last_opened_document != "") {
         debug ("Opening with document - " + settings.last_opened_document);
         main_window = new EditorWindow.with_document (this, settings.last_opened_document);

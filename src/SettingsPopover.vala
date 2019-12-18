@@ -2,7 +2,6 @@ namespace Manuscript {
   public class SettingsPopover : Gtk.Popover {
     protected Gtk.Box layout;
     protected Gtk.Box theme_layout;
-
     protected ThemeButton light_theme_button;
     protected ThemeButton dark_theme_button;
 
@@ -38,7 +37,7 @@ namespace Manuscript {
     }
 
     protected void on_theme_set (string theme) {
-      AppSettings settings = AppSettings.get_instance ();
+      var settings = AppSettings.get_instance ();
       settings.prefer_dark_style = (theme == "dark");
     }
   }

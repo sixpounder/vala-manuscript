@@ -5,8 +5,8 @@ asresources = gnome.compile_resources(
 )
 executable(
 	meson.project_name(),
-	'Constants.vala',
 	'main.vala',
+	'Constants.vala',
 	'AppSettings.vala',
 	'EditorWindow.vala',
 	'WelcomeView.vala',
@@ -25,6 +25,7 @@ executable(
 	'utils/StringUtils.vala',
 	'utils/StyleProvider.vala',
 	'utils/Easing.vala',
+	'utils/Keys.vala',
 	'dialogs/QuitDialog.vala',
 	'dialogs/FileSaveDialog.vala',
 	'dialogs/InfoBar.vala',
