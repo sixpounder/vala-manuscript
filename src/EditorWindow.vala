@@ -109,6 +109,7 @@ namespace Manuscript {
 
       add (layout);
 
+      configure_key_events ();
       key_press_event.connect (on_key_press);
       delete_event.connect (on_destroy);
 
@@ -118,6 +119,43 @@ namespace Manuscript {
       } else {
         set_layout_body (welcome_view);
       }
+    }
+
+    public bool configure_key_events () {
+      key_press_event.connect ((e) => {
+        uint keycode = e.hardware_keycode;
+
+        if ((e.state & Gdk.ModifierType.CONTROL_MASK) != 0) {
+          if (match_keycode (Gdk.Key.f, keycode)) {
+            if (settings.searchbar == false) {
+              settings.searchbar = true;
+            } else {
+              settings.searchbar = false;
+            }
+          }
+        }
+
+        return false;
+      });
+
+      return false;
+    }
+
+    #if VALA_0_42
+    protected bool match_keycode (uint keyval, uint code) {
+    #else
+    protected bool match_keycode (int keyval, uint code) {
+    #endif
+      Gdk.KeymapKey [] keys;
+      Gdk.Keymap keymap = Gdk.Keymap.get_for_display (Gdk.Display.get_default ());
+      if (keymap.get_entries_for_keyval (keyval, out keys)) {
+        foreach (var key in keys) {
+          if (code == key.keycode)
+              return true;
+          }
+        }
+
+        return false;
     }
 
     public override bool configure_event (Gdk.EventConfigure event) {

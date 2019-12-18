@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-16 11:34+0100\n"
+"POT-Creation-Date: 2019-12-18 00:33+0100\n"
 "PO-Revision-Date: 2019-07-05 11:20+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,26 +17,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/EditorWindow.vala:147
+#: src/EditorWindow.vala:198
 #, fuzzy
 msgid "Open document"
 msgstr "Apri documento "
 
-#: src/EditorWindow.vala:150
+#: src/EditorWindow.vala:201
 msgid "Cancel"
 msgstr "Annulla"
 
-#: src/EditorWindow.vala:152
+#: src/EditorWindow.vala:203
 #, fuzzy
 msgid "Open"
 msgstr "Apri documento"
 
-#: src/EditorWindow.vala:179
+#: src/EditorWindow.vala:231
 #, fuzzy
 msgid "Unable to create temporary document"
 msgstr "Impossibile creare un documento temporaneo "
 
-#: src/EditorWindow.vala:215
+#: src/EditorWindow.vala:268
 msgid "Unable to open document at "
 msgstr "Impossibile aprire il documento "
 
@@ -56,59 +56,61 @@ msgstr "minuto"
 msgid "minutes"
 msgstr "minuti"
 
-#: src/Header.vala:51
+#: src/Header.vala:52
 msgid "Open file"
 msgstr "Apri documento"
 
-#: src/Header.vala:58
+#: src/Header.vala:59
 #, fuzzy
 msgid "Save file"
 msgstr "Apri documento"
 
-#: src/Header.vala:66
+#: src/Header.vala:67
 #, fuzzy
 msgid "Save file as"
 msgstr "Apri documento"
 
-#: src/Header.vala:76
+#: src/Header.vala:77
 msgid "Settings"
 msgstr ""
 
-#: src/Header.vala:103
+#: src/Header.vala:104
 msgid "modified"
 msgstr "modificato"
 
-#: src/dialogs/QuitDialog.vala:14
+#: src/dialogs/QuitDialog.vala:15
 msgid "Document has unsaved changes"
 msgstr "Il documento ha delle modifiche non salvate"
 
-#: src/dialogs/QuitDialog.vala:16
+#: src/dialogs/QuitDialog.vala:18
 #, fuzzy
 msgid ""
-"Leaving now will result in a loss of unsaved changes. It is strongly "
-"suggested to save your changes before proceeding."
+"\n"
+"          Leaving now will result in a loss of unsaved changes.\n"
+"          It is strongly suggested to save your changes before proceeding.\n"
+"        "
 msgstr ""
 "Chiudendo questo documento si perderanno le modifiche non salvate. Si "
 "consiglia di salvare le modifiche prima proseguire."
 
-#: src/dialogs/QuitDialog.vala:18
+#: src/dialogs/QuitDialog.vala:23
 msgid "Keep editing"
 msgstr "Continua a scrivere"
 
-#: src/dialogs/QuitDialog.vala:20
+#: src/dialogs/QuitDialog.vala:25
 #, fuzzy
 msgid "Close this document"
 msgstr "Chiudi questo documento"
 
-#: src/widgets/FileNotFound.vala:5
+#: src/widgets/FileNotFound.vala:6
 msgid "File does not exist"
 msgstr "Il file non esiste"
 
-#: src/widgets/FileNotFound.vala:6
+#: src/widgets/FileNotFound.vala:7
 #, fuzzy
 msgid "This file may have been deleted or moved."
 msgstr "Questo file potrebbe essere stato eliminato oppure spostato."
 
-#: src/widgets/FileNotFound.vala:6
+#: src/widgets/FileNotFound.vala:7
 msgid "not found"
 msgstr "non trovato"

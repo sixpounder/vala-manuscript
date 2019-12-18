@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-16 11:34+0100\n"
+"POT-Creation-Date: 2019-12-18 00:33+0100\n"
 "PO-Revision-Date: 2019-07-05 11:20+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/EditorWindow.vala:147
+#: src/EditorWindow.vala:198
 msgid "Open document"
 msgstr ""
 
-#: src/EditorWindow.vala:150
+#: src/EditorWindow.vala:201
 msgid "Cancel"
 msgstr ""
 
-#: src/EditorWindow.vala:152
+#: src/EditorWindow.vala:203
 msgid "Open"
 msgstr ""
 
-#: src/EditorWindow.vala:179
+#: src/EditorWindow.vala:231
 msgid "Unable to create temporary document"
 msgstr ""
 
-#: src/EditorWindow.vala:215
+#: src/EditorWindow.vala:268
 msgid "Unable to open document at "
 msgstr ""
 
@@ -53,52 +53,54 @@ msgstr "minute"
 msgid "minutes"
 msgstr "minutes"
 
-#: src/Header.vala:51
+#: src/Header.vala:52
 msgid "Open file"
 msgstr ""
 
-#: src/Header.vala:58
+#: src/Header.vala:59
 msgid "Save file"
 msgstr ""
 
-#: src/Header.vala:66
+#: src/Header.vala:67
 msgid "Save file as"
 msgstr ""
 
-#: src/Header.vala:76
+#: src/Header.vala:77
 msgid "Settings"
 msgstr ""
 
-#: src/Header.vala:103
+#: src/Header.vala:104
 msgid "modified"
 msgstr ""
 
-#: src/dialogs/QuitDialog.vala:14
+#: src/dialogs/QuitDialog.vala:15
 msgid "Document has unsaved changes"
 msgstr ""
 
-#: src/dialogs/QuitDialog.vala:16
+#: src/dialogs/QuitDialog.vala:18
 msgid ""
-"Leaving now will result in a loss of unsaved changes. It is strongly "
-"suggested to save your changes before proceeding."
+"\n"
+"          Leaving now will result in a loss of unsaved changes.\n"
+"          It is strongly suggested to save your changes before proceeding.\n"
+"        "
 msgstr ""
 
-#: src/dialogs/QuitDialog.vala:18
+#: src/dialogs/QuitDialog.vala:23
 msgid "Keep editing"
 msgstr ""
 
-#: src/dialogs/QuitDialog.vala:20
+#: src/dialogs/QuitDialog.vala:25
 msgid "Close this document"
 msgstr ""
 
-#: src/widgets/FileNotFound.vala:5
+#: src/widgets/FileNotFound.vala:6
 msgid "File does not exist"
 msgstr ""
 
-#: src/widgets/FileNotFound.vala:6
+#: src/widgets/FileNotFound.vala:7
 msgid "This file may have been deleted or moved."
 msgstr ""
 
-#: src/widgets/FileNotFound.vala:6
+#: src/widgets/FileNotFound.vala:7
 msgid "not found"
 msgstr ""
