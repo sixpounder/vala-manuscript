@@ -13,10 +13,10 @@ namespace Manuscript {
 
     private GLib.Settings settings = null;
 
-    private static AppSettings instance = null;
+    private static AppSettings instance;
 
     private AppSettings () {
-      this.settings = new GLib.Settings (Constants.APP_ID);
+      settings = new GLib.Settings (Constants.APP_ID);
       settings.bind ("searchbar", this, "searchbar", GLib.SettingsBindFlags.DEFAULT);
       settings.bind ("window-width", this, "window_width", GLib.SettingsBindFlags.DEFAULT);
       settings.bind ("window-height", this, "window_height", GLib.SettingsBindFlags.DEFAULT);
@@ -39,7 +39,7 @@ namespace Manuscript {
 
     protected void on_change (string key) {
       debug (key + " changed");
-      this.change (key);
+      change (key);
     }
   }
 }

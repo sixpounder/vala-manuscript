@@ -1,10 +1,12 @@
-[default]
-name=Default
+[inspect]
+name=Inspect
 runtime=host
 config-opts=
 run-opts=
-prefix=/home/sixpounder/.cache/gnome-builder/install/manuscript/host
-app-id=com.github.sixpounder.manuscript
+prefix=/home/sixpounder/.cache/gnome-builder/install/write/host
+app-id=
 postbuild=
 prebuild=
-default=true
+
+[inspect.environment]
+GTK_DEBUG=interactive

@@ -21,12 +21,12 @@ button.theme-button-sepia {
   transition: 500ms ease-in-out;
 }
 
-.documents-notebook.toggled-on notebook header * {
+.documents-notebook.toggled-on notebook header {
   margin-top: 0px;
-  transition: 500ms linear;
+  transition: 200ms linear;
 }
 
-.documents-notebook.toggled-off notebook header * {
+.documents-notebook.toggled-off notebook header {
   margin-top: -70px;
   transition: 500ms linear;
 }
