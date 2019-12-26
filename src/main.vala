@@ -1,8 +1,6 @@
 namespace Manuscript {
   public class Application : Gtk.Application {
 
-    protected EditorWindow [] windows = {};
-
     public Application () {
       Object (
         application_id: Constants.APP_ID,
@@ -17,14 +15,14 @@ namespace Manuscript {
 
     protected override void activate () {
       AppSettings settings = AppSettings.get_instance ();
-      EditorWindow main_window;
+      Window main_window;
 
       if (settings.last_opened_document != "") {
         debug ("Opening with document - " + settings.last_opened_document);
-        main_window = new EditorWindow.with_document (this, settings.last_opened_document);
+        main_window = new Window.with_document (this, settings.last_opened_document);
       } else {
         debug ("Opening with welcome view");
-        main_window = new EditorWindow.with_document (this);
+        main_window = new Window.with_document (this);
       }
       main_window.title = Constants.APP_NAME;
       var quit_action = new SimpleAction ("quit", null);
@@ -36,6 +34,9 @@ namespace Manuscript {
       });
       this.set_accels_for_action ("app.quit", {"<Ctrl>Q"});
       main_window.show_all ();
+
+      Globals.application = this;
+      Globals.window = main_window;
     }
 
     public static int main (string[] args) {

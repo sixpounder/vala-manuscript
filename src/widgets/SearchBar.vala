@@ -8,10 +8,10 @@ namespace Manuscript {
     private Gtk.TextBuffer? text_buffer = null;
     private Gtk.SourceSearchContext search_context = null;
 
-    public weak Manuscript.EditorWindow window { get; construct; }
-    public weak Editor? editor { get; construct; }
+    public weak Window window { get; construct; }
+    public weak Editor? editor { get; private set; }
 
-    public SearchBar (EditorWindow window, Editor editor) {
+    public SearchBar (Window window, Editor ? editor) {
         Object (window: window, editor: editor);
     }
 
@@ -46,6 +46,11 @@ namespace Manuscript {
 
       this.transition_type = Gtk.RevealerTransitionType.SLIDE_DOWN;
       this.add (grid);
+      this.text_buffer = editor.get_buffer ();
+    }
+
+    public void rebind (Editor editor) {
+      this.editor = editor;
       this.text_buffer = editor.get_buffer ();
     }
 

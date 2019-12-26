@@ -2,6 +2,7 @@ namespace Manuscript {
   public class Header : Gtk.HeaderBar {
     public weak Gtk.Window parent_window { get; construct; }
 
+    public signal void new_file ();
     public signal void open_file ();
     public signal void save_file (bool choose_path);
 
@@ -47,6 +48,13 @@ namespace Manuscript {
 
     construct {
       AppSettings settings = AppSettings.get_instance ();
+
+      Gtk.Button new_file_button = new Gtk.Button.from_icon_name ("document-new");
+      new_file_button.tooltip_text = _("New file");
+      new_file_button.clicked.connect (() => {
+        new_file ();
+      });
+      pack_start (new_file_button);
 
       Gtk.Button open_file_button = new Gtk.Button.from_icon_name ("document-open");
       open_file_button.tooltip_text = _("Open file");

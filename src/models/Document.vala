@@ -227,7 +227,7 @@ namespace Manuscript {
     }
 
     public static Document empty () throws GLib.Error {
-      return new Document (null);
+      return new Document (null, true);
     }
   }
 }

@@ -3,7 +3,7 @@ namespace Manuscript {
 
     public unowned Document document { get; construct; }
 
-    public FileSaveDialog (EditorWindow parent, Document document) {
+    public FileSaveDialog (Gtk.ApplicationWindow parent, Document document) {
       Object (
         transient_for: parent,
         modal: true,

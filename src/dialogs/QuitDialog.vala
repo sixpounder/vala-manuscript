@@ -1,6 +1,6 @@
 namespace Manuscript {
   public class QuitDialog : Granite.MessageDialog {
-    public QuitDialog (EditorWindow parent) {
+    public QuitDialog (Gtk.ApplicationWindow parent) {
       Object (
         buttons: Gtk.ButtonsType.NONE,
         transient_for: parent
