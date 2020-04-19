@@ -38,7 +38,6 @@ namespace Manuscript {
     }
 
     protected void on_change (string key) {
-      debug (key + " changed");
       change (key);
     }
   }

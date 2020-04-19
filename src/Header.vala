@@ -49,21 +49,21 @@ namespace Manuscript {
     construct {
       AppSettings settings = AppSettings.get_instance ();
 
-      Gtk.Button new_file_button = new Gtk.Button.from_icon_name ("document-new");
+      Gtk.Button new_file_button = new Gtk.Button.from_icon_name ("document-new", Gtk.IconSize.LARGE_TOOLBAR);
       new_file_button.tooltip_text = _("New file");
       new_file_button.clicked.connect (() => {
         new_file ();
       });
       pack_start (new_file_button);
 
-      Gtk.Button open_file_button = new Gtk.Button.from_icon_name ("document-open");
+      Gtk.Button open_file_button = new Gtk.Button.from_icon_name ("document-open", Gtk.IconSize.LARGE_TOOLBAR);
       open_file_button.tooltip_text = _("Open file");
       open_file_button.clicked.connect (() => {
         open_file ();
       });
       pack_start (open_file_button);
 
-      save_file_button = new Gtk.Button.from_icon_name ("document-save");
+      save_file_button = new Gtk.Button.from_icon_name ("document-save", Gtk.IconSize.LARGE_TOOLBAR);
       save_file_button.tooltip_text = _("Save file");
       save_file_button.clicked.connect (() => {
         save_file (false);
@@ -71,7 +71,7 @@ namespace Manuscript {
       save_file_button.sensitive = document != null ? has_changes : false;
       pack_start (save_file_button);
 
-      save_file_as_button = new Gtk.Button.from_icon_name ("document-save-as");
+      save_file_as_button = new Gtk.Button.from_icon_name ("document-save-as", Gtk.IconSize.LARGE_TOOLBAR);
       save_file_as_button.tooltip_text = _("Save file as");
       save_file_as_button.clicked.connect (() => {
         save_file (true);
@@ -81,7 +81,7 @@ namespace Manuscript {
 
       update_icons ();
 
-      settings_button = new Gtk.Button.from_icon_name ("preferences-system-symbolic");
+      settings_button = new Gtk.Button.from_icon_name ("preferences-system-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
       settings_button.tooltip_text = _("Settings");
       settings_button.clicked.connect (() => {
         if (settings_popover.visible) {

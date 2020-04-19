@@ -20,6 +20,7 @@ executable(
 	'DocumentTagTable.vala',
 	'SettingsPopover.vala',
 	'Sidebar.vala',
+	'services/DocumentManager.vala',
 	'widgets/SidebarRow.vala',
 	'widgets/ThemeButton.vala',
 	'widgets/FileNotFound.vala',
@@ -38,6 +39,7 @@ executable(
 	asresources,
 	dependencies: [
 		dependency('gtk+-3.0'),
+		dependency('gee-0.8', version : '>= 0.8'),
 		dependency('gtksourceview-3.0'),
 		dependency('granite')
 	],
