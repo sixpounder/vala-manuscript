@@ -11,7 +11,8 @@ namespace Manuscript {
     protected SearchBar search_bar;
     protected Gtk.Bin body;
     protected DocumentsNotebook tabs;
-    protected GLib.Array<Document> documents = new GLib.Array<Document> ();
+    // protected GLib.Array<Document> documents = new GLib.Array<Document> ();
+    protected Services.DocumentManager document_manager;
     protected weak Document selected_document = null;
 
     public string initial_document_path { get; construct; }
@@ -33,16 +34,17 @@ namespace Manuscript {
 
       set {
         Document found = null;
+        var documents = document_manager.documents;
         for (int i = 0; i < documents.length; i++) {
-          if (documents.index (i) == value) {
-            found = documents.index (i);
+          if (documents[i] == value) {
+            found = documents[i];
             break;
           }
         }
         if (found != null) {
           selected_document = found;
         } else {
-          documents.append_val (value);
+          document_manager.add_document (value);
           selected_document = value;
         }
       }
@@ -53,10 +55,9 @@ namespace Manuscript {
         application: app,
         initial_document_path: document_path
       );
-    }
 
-    construct {
       settings = AppSettings.get_instance ();
+      document_manager = Services.DocumentManager.get_default ();
 
       // Load some styles
       var css_provider = new Gtk.CssProvider ();
@@ -95,7 +96,6 @@ namespace Manuscript {
 
       // Tabs
       tabs = new DocumentsNotebook ();
-      // tabs.set_no_show_all (true);
 
       // Setup welcome view
       welcome_view = new WelcomeView ();
@@ -124,7 +124,7 @@ namespace Manuscript {
       delete_event.connect (on_destroy);
 
       header.new_file.connect (() => {
-        add_document (Document.empty ());
+        document_manager.add_document (Document.empty ());
       });
 
       header.open_file.connect (() => {
@@ -225,7 +225,6 @@ namespace Manuscript {
     }
 
     public void show_searchbar () {
-      debug ("Showing searchbar");
       search_bar.rebind (current_editor);
       search_bar.reveal_child = settings.searchbar;
       if (settings.searchbar == true) {
@@ -252,6 +251,7 @@ namespace Manuscript {
       text_file_filter.add_mime_type ("text/markdown");
       text_file_filter.add_pattern ("*.txt");
       text_file_filter.add_pattern ("*.md");
+      text_file_filter.add_pattern ("*.manuscript");
 
       dialog.add_filter (text_file_filter);
 
@@ -278,38 +278,8 @@ namespace Manuscript {
 
     // Opens file at path and sets up the editor
     public void open_file_at_path (string path, bool temporary = false) {
-      // try {
-      //   if (document != null) {
-      //     document.disconnect (document_load_signal_id);
-      //     document.disconnect (document_error_signal_id);
-      //   }
-      //   debug ("Opening " + path);
-      //   document = Document.from_file (path, temporary);
-      //   if (document == null) {
-      //     warning ("File not found");
-      //     show_not_found_alert ();
-      //   } else {
-      //     document_error_signal_id = document.read_error.connect (show_not_found_alert);
-      //     document_load_signal_id = document.load.connect (() => {
-      //       debug ("Document loaded, initializing view");
-
-      //       header.document = document;
-      //       status_bar.document = document;
-
-      //       current_editor.document = document;
-
-      //       set_layout_body (current_editor);
-      //       debug ("Layout done");
-
-      //       settings.last_opened_document = this.document.file_path;
-      //     });
-      //   }
-
-      // } catch (GLib.Error error) {
-      //   warning (error.message);
-      //   this.message (_("Unable to open document at " + path));
-      // }
-      tabs.add_document (Document.from_file (path));
+      // tabs.add_document (Document.from_file (path));
+      document_manager.add_document (Document.from_file (path));
       set_layout_body (tabs);
     }
 
@@ -322,26 +292,17 @@ namespace Manuscript {
       widget.focus (Gtk.DirectionType.UP);
     }
 
-    protected void add_document (Document document) {
-      this.document = document;
-    }
-
     protected void close_document (Document document) {
+      var documents = document_manager.documents;
       for (int i = 0; i < documents.length; i++) {
-        if (document == documents.index (i)) {
-          documents.remove_index (i);
-          tabs.remove_tab (tabs.get_tab_by_index (i));
+        if (document == documents[i]) {
+          document_manager.remove_document(document);
           break;
         }
       }
     }
 
     protected bool on_destroy () {
-      // if (this.current_editor != null && this.document.has_changes) {
-      //   return !this.quit_dialog ();
-      // } else {
-      //   return false;
-      // }
       return false;
     }
 

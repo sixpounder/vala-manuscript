@@ -25,6 +25,8 @@ namespace Manuscript {
         main_window = new Window.with_document (this);
       }
       main_window.title = Constants.APP_NAME;
+
+      // Current window close accelerator
       var quit_action = new SimpleAction ("quit", null);
       add_action (quit_action);
       quit_action.activate.connect (() => {
@@ -32,7 +34,16 @@ namespace Manuscript {
           main_window.close ();
         }
       });
-      this.set_accels_for_action ("app.quit", {"<Ctrl>Q"});
+      set_accels_for_action ("app.quit", {"<Ctrl>Q"});
+
+      // Zen mode accelerator
+      var zen_action = new SimpleAction ("zen", null);
+      add_action (zen_action);
+      zen_action.activate.connect (() => {
+        settings.zen = !settings.zen;
+      });
+      set_accels_for_action ("app.zen", {"<Alt>M"});
+
       main_window.show_all ();
 
       Globals.application = this;

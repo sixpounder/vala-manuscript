@@ -3,6 +3,7 @@ namespace Manuscript {
 
     protected bool _on_viewport = true;
     protected AppSettings settings;
+    protected Services.DocumentManager documents_manager;
 
     public bool on_viewport {
       get {
@@ -23,6 +24,20 @@ namespace Manuscript {
       Object (
         add_button_visible: true
       );
+
+      documents_manager = Services.DocumentManager.get_default ();
+
+      documents_manager.document_added.connect ((document, active) => {
+        this.add_document (document, active);
+      });
+
+      documents_manager.document_removed.connect ((document) => {
+        this.remove_document (document);
+      });
+
+      documents_manager.active_changed.connect ((document) => {
+        select_document (document);
+      });
     }
 
     construct {
@@ -38,9 +53,12 @@ namespace Manuscript {
       });
     }
 
-    public void add_document (Document doc) {
+    public void add_document (Document doc, bool active = true) {
       DocumentTab new_tab = new DocumentTab (doc);
       insert_tab (new_tab, 0);
+      if (active) {
+        current = new_tab;
+      }
     }
 
     public void remove_document (Document doc) {
@@ -48,6 +66,16 @@ namespace Manuscript {
         DocumentTab t = (DocumentTab) tabs.nth (i);
         if (t.document == doc) {
           remove_tab (t);
+          return;
+        }
+      }
+    }
+
+    public void select_document (Document doc) {
+      for (int i = 0; i < tabs.length (); i++) {
+        DocumentTab t = (DocumentTab) tabs.nth (i);
+        if (t.document != null && t.document == doc) {
+          current = t;
           return;
         }
       }

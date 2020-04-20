@@ -1,8 +1,9 @@
 namespace Manuscript.Services {
   public class DocumentManager : Object {
 
-    public signal void document_added (Document document);
+    public signal void document_added (Document document, bool active);
     public signal void document_removed (Document document);
+    public signal void active_changed (Document document);
 
     private static DocumentManager instance;
 
@@ -13,6 +14,8 @@ namespace Manuscript.Services {
 
         return instance;
     }
+
+    public Document active_document { get; private set; }
 
     private Gee.ArrayList<Document> _documents;
     public Document[] documents {
@@ -25,14 +28,24 @@ namespace Manuscript.Services {
       _documents = new Gee.ArrayList<Document> ();
     }
 
-    public void add_document (Document document) {
+    /**
+     * Adds a document to the collection, making it active by default
+     */
+    public void add_document (Document document, bool activate = true) {
       _documents.add (document);
-      document_added (document);
+      document_added (document, activate);
     }
 
     public void remove_document (Document document) {
       _documents.remove (document);
       document_removed (document);
+    }
+
+    public void set_active (Document document) {
+      if (document != active_document && _documents.contains (document)) {
+        active_document = document;
+        active_changed (active_document);
+      }
     }
   }
 }

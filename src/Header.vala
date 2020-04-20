@@ -105,6 +105,10 @@ namespace Manuscript {
       });
       pack_end (zen_switch);
 
+      settings.change.connect ((prop) => {
+        update_ui ();
+      });
+
       settings_popover = new SettingsPopover (settings_button);
     }
 
@@ -115,6 +119,11 @@ namespace Manuscript {
     protected void update_icons () {
       save_file_button.sensitive = has_changes;
       save_file_as_button.sensitive = has_changes;
+    }
+
+    protected void update_ui () {
+      AppSettings settings = AppSettings.get_instance ();
+      zen_switch.active = settings.zen;
     }
 
     protected void on_document_change () {
