@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2019 Your Name <you@email.com> -->
+<!-- Copyright 2019 Andrea Coronese <sixpounder@protonmail.com> -->
 <component type="desktop">
-  <id>com.github.sixpounder.manuscript</id>
-  <metadata_license>CC0</metadata_license>
-  <name>Write</name>
-  <summary>A distraction free writing environment</summary>
-  <description>
-    <p>A distraction free writing environment</p>
-  </description>
-  <custom>
-    <value key="x-appcenter-color-primary">#F6F6F6</value>
-    <value key="x-appcenter-color-primary-text">rgb(33, 33, 33)</value>
-    <value key="x-appcenter-suggested-price">0</value>
-  </custom>
+    <id>com.github.sixpounder.manuscript</id>
+    <metadata_license>CC0</metadata_license>
+    <name>Write</name>
+    <summary>A distraction free writing environment</summary>
+    <description>
+        <p>A distraction free writing environment</p>
+    </description>
+    <custom>
+      <value key="x-appcenter-color-primary">#F6F6F6</value>
+      <value key="x-appcenter-color-primary-text">rgb(33, 33, 33)</value>
+      <value key="x-appcenter-suggested-price">0</value>
+    </custom>
 </component>
+

@@ -79,16 +79,16 @@ namespace Manuscript.Utils.Strings {
     }
 
     public static string join (string[] a, string separator = ", ") {
-      string o = "";
+        string o = "";
 
-      for (int i = 0; i < a.length; i++) {
-        string s = a[i];
-        o += s;
-        if (i < a.length - 1) {
-          o += separator;
+        for (int i = 0; i < a.length; i++) {
+            string s = a[i];
+            o += s;
+            if (i < a.length - 1) {
+                o += separator;
+            }
         }
-      }
 
-      return o;
+        return o;
     }
 }

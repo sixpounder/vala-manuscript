@@ -10,7 +10,9 @@ namespace Manuscript {
     protected Gtk.Button settings_button;
     protected Gtk.Button save_file_button;
     protected Gtk.Button save_file_as_button;
-    protected SettingsPopover settings_popover;
+    protected Gtk.Button export_button;
+    protected Widgets.SettingsPopover settings_popover;
+    protected Widgets.ExportPopover export_popover;
 
     public weak Document document {
       get {
@@ -81,7 +83,19 @@ namespace Manuscript {
 
       update_icons ();
 
-      settings_button = new Gtk.Button.from_icon_name ("preferences-system-symbolic", Gtk.IconSize.LARGE_TOOLBAR);
+      export_button = new Gtk.Button.from_icon_name ("document-export", Gtk.IconSize.LARGE_TOOLBAR);
+      export_button.clicked.connect (() => {
+        if (export_popover.visible) {
+          export_popover.popdown ();
+        } else {
+          export_popover.popup ();
+          export_popover.show_all ();
+        }
+      });
+      pack_end (export_button);
+      export_popover = new Widgets.ExportPopover (export_button);
+
+      settings_button = new Gtk.Button.from_icon_name ("preferences-system", Gtk.IconSize.LARGE_TOOLBAR);
       settings_button.tooltip_text = _("Settings");
       settings_button.clicked.connect (() => {
         if (settings_popover.visible) {
@@ -109,7 +123,7 @@ namespace Manuscript {
         update_ui ();
       });
 
-      settings_popover = new SettingsPopover (settings_button);
+      settings_popover = new Widgets.SettingsPopover (settings_button);
     }
 
     protected void update_subtitle () {

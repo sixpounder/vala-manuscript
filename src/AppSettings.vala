@@ -10,6 +10,7 @@ namespace Manuscript {
     public bool searchbar { get; set; }
     public bool zen { get; set; }
     public bool prefer_dark_style { get; set; }
+    public double text_scale_factor { get; set; }
 
     private GLib.Settings settings = null;
 
@@ -25,6 +26,7 @@ namespace Manuscript {
       settings.bind ("last-opened-document", this, "last_opened_document", GLib.SettingsBindFlags.DEFAULT);
       settings.bind ("zen", this, "zen", GLib.SettingsBindFlags.DEFAULT);
       settings.bind ("prefer-dark-style", this, "prefer_dark_style", GLib.SettingsBindFlags.DEFAULT);
+      settings.bind ("text-scale-factor", this, "text_scale_factor", GLib.SettingsBindFlags.DEFAULT);
 
       settings.changed.connect (this.on_change);
     }

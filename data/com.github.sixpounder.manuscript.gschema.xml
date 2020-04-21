@@ -61,5 +61,10 @@
 	    <summary>Dark variant</summary>
 	    <description>Wheter to use dark theme or not</description>
 	  </key>
+	  <key name="text-scale-factor" type="d">
+			<default>1.0</default>
+			<summary>Text scale factor</summary>
+			<description>The percentage value representing the text scaling on the app default basis</description>
+		</key>
 	</schema>
 </schemalist>

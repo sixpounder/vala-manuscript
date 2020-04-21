@@ -1,32 +1,32 @@
 .editor {
-  font-family: 'iA Writer Duospace';
+    font-family: 'iA Writer Duospace';
 }
 
 button.theme-button {
-  border-radius: 50%;
+    border-radius: 50%;
 }
 button.theme-button-light {
-  background-color: #FFFFFF;
+    background-color: #FFFFFF;
 }
 
 button.theme-button-dark {
-  background-color: @BLACK_500;
+    background-color: @BLACK_500;
 }
 
 button.theme-button-sepia {
-  background-color: #f2e9d2;
+    background-color: #f2e9d2;
 }
 
 .documents-notebook {
-  transition: 500ms ease-in-out;
+    transition: 500ms ease-in-out;
 }
 
 .documents-notebook.toggled-on notebook header {
-  margin-top: 0px;
-  transition: 200ms linear;
+    margin-top: 0px;
+    transition: 200ms linear;
 }
 
 .documents-notebook.toggled-off notebook header {
-  margin-top: -70px;
-  transition: 500ms linear;
+    margin-top: -70px;
+    transition: 500ms linear;
 }

@@ -22,22 +22,19 @@ namespace Manuscript {
 
     public DocumentsNotebook () {
       Object (
-        add_button_visible: true
+        add_button_visible: false,
+        allow_new_window: false
       );
+
+      add_button_visible = false;
 
       documents_manager = Services.DocumentManager.get_default ();
 
-      documents_manager.document_added.connect ((document, active) => {
-        this.add_document (document, active);
-      });
+      documents_manager.document_added.connect (add_document);
 
-      documents_manager.document_removed.connect ((document) => {
-        this.remove_document (document);
-      });
+      documents_manager.document_removed.connect (remove_document);
 
-      documents_manager.active_changed.connect ((document) => {
-        select_document (document);
-      });
+      documents_manager.active_changed.connect (select_document);
     }
 
     construct {
@@ -51,6 +48,14 @@ namespace Manuscript {
           on_viewport = !settings.zen;
         }
       });
+    }
+
+    ~DocumentsNotebook () {
+      documents_manager.document_added.connect (add_document);
+
+      documents_manager.document_removed.connect (remove_document);
+
+      documents_manager.active_changed.connect (select_document);
     }
 
     public void add_document (Document doc, bool active = true) {

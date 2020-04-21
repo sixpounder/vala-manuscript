@@ -1,16 +1,16 @@
 public Gtk.CssProvider get_editor_style () {
-  Gtk.CssProvider provider = new Gtk.CssProvider ();
+    Gtk.CssProvider provider = new Gtk.CssProvider ();
 
-  try {
-    provider.load_from_data (
-      """textview {
-        font: 18px iA Writer Duospace;
-      }"""
-    );
-  } catch {
-    // skip
-  }
+    try {
+        provider.load_from_data (
+            """textview {
+                font: 18px iA Writer Duospace;
+            }"""
+        );
+    } catch {
+        // skip
+    }
 
-  return provider;
+    return provider;
 }
 
