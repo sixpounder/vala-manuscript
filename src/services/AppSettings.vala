@@ -1,7 +1,9 @@
-namespace Manuscript {
+namespace Manuscript.Services {
   public class AppSettings : Object {
 
     public signal void change (string key);
+    public string[] supported_mime_types { get; set; }
+    public string[] supported_extensions { get; set; }
     public int window_width { get; set; }
     public int window_height { get; set; }
     public int window_x { get; set; }
@@ -18,6 +20,8 @@ namespace Manuscript {
 
     private AppSettings () {
       settings = new GLib.Settings (Constants.APP_ID);
+      settings.bind ("supported-mime-types", this, "supported_mime_types", GLib.SettingsBindFlags.DEFAULT);
+      settings.bind ("supported-extensions", this, "supported_extensions", GLib.SettingsBindFlags.DEFAULT);
       settings.bind ("searchbar", this, "searchbar", GLib.SettingsBindFlags.DEFAULT);
       settings.bind ("window-width", this, "window_width", GLib.SettingsBindFlags.DEFAULT);
       settings.bind ("window-height", this, "window_height", GLib.SettingsBindFlags.DEFAULT);
@@ -44,4 +48,3 @@ namespace Manuscript {
     }
   }
 }
-

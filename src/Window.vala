@@ -1,7 +1,7 @@
 namespace Manuscript {
     public class Window : Gtk.ApplicationWindow {
         protected uint configure_id = 0;
-        protected AppSettings settings;
+        protected Services.AppSettings settings;
         protected Gtk.Stack container;
         protected Sidebar sidebar;
         protected Gtk.Box layout;
@@ -16,10 +16,10 @@ namespace Manuscript {
 
         public string initial_document_path { get; construct; }
 
-        public Editor? current_editor {
+        public Editor ? current_editor {
             get {
                 if (tabs.tabs.length () != 0) {
-                    return ((EditorPage) tabs.current.page).editor;
+                    return ( (Widgets.EditorPage)tabs.current.page ).editor;
                 } else {
                     return null;
                 }
@@ -49,13 +49,13 @@ namespace Manuscript {
             }
         }
 
-        public Window.with_document (Gtk.Application app, string? document_path = null) {
+        public Window.with_document (Gtk.Application app, string ? document_path = null) {
             Object (
                 application: app,
                 initial_document_path: document_path
-            );
+                );
 
-            settings = AppSettings.get_instance ();
+            settings = Services.AppSettings.get_instance ();
             document_manager = Services.DocumentManager.get_default ();
 
             // Load some styles
@@ -99,7 +99,7 @@ namespace Manuscript {
             // Setup welcome view
             welcome_view = new WelcomeView ();
 
-            layout.pack_start (body = new Gtk.EventBox ());
+            layout.pack_start (body = new Gtk.EventBox () );
 
             // Status bar (bottom)
             layout.pack_end (status_bar = new StatusBar (), false, false, 0);
@@ -122,33 +122,33 @@ namespace Manuscript {
         public void connect_events () {
             delete_event.connect (on_destroy);
 
-            header.new_file.connect (() => {
-                document_manager.add_document (Document.empty ());
-            });
+            header.new_file.connect ( () => {
+                document_manager.add_document (Document.empty () );
+            } );
 
-            header.open_file.connect (() => {
+            header.open_file.connect ( () => {
                 if (this.document != null && document.has_changes) {
-                    if (quit_dialog ()) {
+                    if (quit_dialog () ) {
                         open_file_dialog ();
                     }
                 } else {
                     open_file_dialog ();
                 }
-            });
+            } );
 
-            header.save_file.connect ((choose_path) => {
+            header.save_file.connect ( (choose_path) => {
                 if (choose_path) {
                     var dialog = new FileSaveDialog (this, document);
                     int res = dialog.run ();
                     if (res == Gtk.ResponseType.ACCEPT) {
-                        document.save (dialog.get_filename ());
+                        document.save (dialog.get_filename () );
                         settings.last_opened_document = this.document.file_path;
                     }
                     dialog.destroy ();
                 } else {
                     document.save ();
                 }
-            });
+            } );
 
             welcome_view.should_open_file.connect (open_file_dialog);
             welcome_view.should_create_new_file.connect (open_with_temp_file);
@@ -157,19 +157,19 @@ namespace Manuscript {
         public void configure_searchbar () {
             search_bar = new SearchBar (this, current_editor);
             layout.pack_start (search_bar, false, false, 0);
-            settings.change.connect ((k) => {
+            settings.change.connect ( (k) => {
                 if (k == "searchbar") {
                     show_searchbar ();
                 }
-            });
+            } );
         }
 
         public bool configure_key_events () {
-            key_press_event.connect ((e) => {
+            key_press_event.connect ( (e) => {
                 uint keycode = e.hardware_keycode;
 
-                if ((e.state & Gdk.ModifierType.CONTROL_MASK) != 0) {
-                    if (Manuscript.Utils.Keys.match_keycode (Gdk.Key.f, keycode)) {
+                if ( (e.state & Gdk.ModifierType.CONTROL_MASK) != 0 ) {
+                    if (Manuscript.Utils.Keys.match_keycode (Gdk.Key.f, keycode) ) {
                         if (settings.searchbar == false) {
                             debug ("Searchbar on");
                             settings.searchbar = true;
@@ -177,13 +177,13 @@ namespace Manuscript {
                             debug ("Searchbar off");
                             settings.searchbar = false;
                         }
-                    } else if (Manuscript.Utils.Keys.match_keycode (Gdk.Key.s, keycode)) {
+                    } else if (Manuscript.Utils.Keys.match_keycode (Gdk.Key.s, keycode) ) {
                         if (document.temporary) {
                             // Ask where to save this
                             var dialog = new FileSaveDialog (this, document);
                             int res = dialog.run ();
                             if (res == Gtk.ResponseType.ACCEPT) {
-                                document.save (dialog.get_filename ());
+                                document.save (dialog.get_filename () );
                             }
                             dialog.destroy ();
                         } else {
@@ -193,7 +193,7 @@ namespace Manuscript {
                 }
 
                 return false;
-            });
+            } );
 
             return false;
         }
@@ -236,30 +236,32 @@ namespace Manuscript {
          */
         public void open_file_dialog () {
             Gtk.FileChooserDialog dialog = new Gtk.FileChooserDialog (
-                _("Open document"),
-                (Gtk.Window) get_toplevel (),
+                _ ("Open document"),
+                (Gtk.Window)get_toplevel (),
                 Gtk.FileChooserAction.OPEN,
-                _("Cancel"),
+                _ ("Cancel"),
                 Gtk.ResponseType.CANCEL,
-                _("Open"),
+                _ ("Open"),
                 Gtk.ResponseType.ACCEPT
-            );
+                );
 
             Gtk.FileFilter text_file_filter = new Gtk.FileFilter ();
-            text_file_filter.add_mime_type ("text/plain");
-            text_file_filter.add_mime_type ("text/markdown");
-            text_file_filter.add_pattern ("*.txt");
-            text_file_filter.add_pattern ("*.md");
-            text_file_filter.add_pattern ("*.manuscript");
+
+            foreach (string mime in settings.supported_mime_types) {
+                text_file_filter.add_mime_type (mime);
+            }
+            foreach (string ext in settings.supported_extensions) {
+                text_file_filter.add_pattern (ext);
+            }
 
             dialog.add_filter (text_file_filter);
 
-            dialog.response.connect ((res) => {
+            dialog.response.connect ( (res) => {
                 dialog.hide ();
                 if (res == Gtk.ResponseType.ACCEPT) {
-                    open_file_at_path (dialog.get_filename ());
+                    open_file_at_path (dialog.get_filename () );
                 }
-            });
+            } );
 
             dialog.run ();
         }
@@ -270,7 +272,7 @@ namespace Manuscript {
                 File tmp_file = FileUtils.new_temp_file ();
                 open_file_at_path (tmp_file.get_path (), true);
             } catch (GLib.Error err) {
-                message (_("Unable to create temporary document"));
+                message (_ ("Unable to create temporary document") );
                 error (err.message);
             }
         }
@@ -278,13 +280,13 @@ namespace Manuscript {
         // Opens file at path and sets up the editor
         public void open_file_at_path (string path, bool temporary = false) {
             // tabs.add_document (Document.from_file (path));
-            document_manager.add_document (Document.from_file (path));
+            document_manager.add_document (Document.from_file (path) );
             set_layout_body (tabs);
         }
 
         protected void set_layout_body (Gtk.Widget widget) {
             if (body.get_child () != null) {
-                body.remove (body.get_child ());
+                body.remove (body.get_child () );
             }
             body.add (widget);
             widget.show_all ();
@@ -295,7 +297,7 @@ namespace Manuscript {
             var documents = document_manager.documents;
             for (int i = 0; i < documents.length; i++) {
                 if (document == documents[i]) {
-                    document_manager.remove_document(document);
+                    document_manager.remove_document (document);
                     break;
                 }
             }
@@ -307,10 +309,10 @@ namespace Manuscript {
 
         protected void message (string message, Gtk.MessageType level = Gtk.MessageType.ERROR) {
             var messagedialog = new Gtk.MessageDialog (this,
-                                    Gtk.DialogFlags.MODAL,
-                                    Gtk.MessageType.ERROR,
-                                    Gtk.ButtonsType.OK,
-                                    message);
+                                                       Gtk.DialogFlags.MODAL,
+                                                       Gtk.MessageType.ERROR,
+                                                       Gtk.ButtonsType.OK,
+                                                       message);
             messagedialog.show ();
         }
 
@@ -329,4 +331,3 @@ namespace Manuscript {
         }
     }
 }
-

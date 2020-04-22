@@ -7,8 +7,8 @@ namespace Manuscript.Widgets {
 
         public SettingsPopover (Gtk.Widget relative_to) {
             Object (
-              relative_to: relative_to
-            );
+                relative_to: relative_to
+                );
         }
 
         construct {
@@ -42,9 +42,8 @@ namespace Manuscript.Widgets {
         }
 
         protected void on_theme_set (string theme) {
-            var settings = AppSettings.get_instance ();
+            var settings = Services.AppSettings.get_instance ();
             settings.prefer_dark_style = (theme == "dark");
         }
     }
 }
-

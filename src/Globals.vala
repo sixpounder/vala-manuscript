@@ -4,4 +4,3 @@ namespace Manuscript {
         public static Gtk.ApplicationWindow window { get; set; }
     }
 }
-

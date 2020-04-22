@@ -13,4 +13,3 @@ public Gtk.CssProvider get_editor_style () {
 
     return provider;
 }
-

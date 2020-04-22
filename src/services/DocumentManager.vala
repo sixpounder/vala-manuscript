@@ -4,12 +4,13 @@ namespace Manuscript.Services {
         public signal void document_added (Document document, bool active);
         public signal void document_removed (Document document);
         public signal void active_changed (Document document);
+        public signal void drain ();
 
         private static DocumentManager instance;
 
         public static DocumentManager get_default () {
             if (DocumentManager.instance == null) {
-                DocumentManager.instance = new DocumentManager();
+                DocumentManager.instance = new DocumentManager ();
             }
 
             return instance;
@@ -39,14 +40,16 @@ namespace Manuscript.Services {
         public void remove_document (Document document) {
             _documents.remove (document);
             document_removed (document);
+            if (_documents.size == 0) {
+                drain ();
+            }
         }
 
         public void set_active (Document document) {
-            if (document != active_document && _documents.contains (document)) {
+            if (document != active_document && _documents.contains (document) ) {
                 active_document = document;
                 active_changed (active_document);
             }
         }
     }
 }
-

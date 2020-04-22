@@ -2,9 +2,14 @@
 <schemalist>
 	<schema id="com.github.sixpounder.manuscript" path="/com/github/sixpounder/manuscript/" gettext-domain="manuscript">
 		<key name="mime-types" type="as">
-			<default>[]</default>
+			<default>["text/plain", "application/json"]</default>
 			<summary>Supported mime types</summary>
 			<description>Cached supported mime types which the app can open and handle</description>
+		</key>
+	  <key name="extensions" type="as">
+			<default>[".manuscript"]</default>
+			<summary>Supported files by extension</summary>
+			<description>Cached supported extensions which the app can open and handle</description>
 		</key>
 		<key name="window-width" type="i">
 			<default>650</default>

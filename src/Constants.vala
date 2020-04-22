@@ -4,4 +4,3 @@ namespace Manuscript {
         public const string APP_NAME = "Manuscript";
     }
 }
-

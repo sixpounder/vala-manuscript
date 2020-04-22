@@ -6,4 +6,3 @@ namespace Manuscript {
         ERROR = 100
     }
 }
-

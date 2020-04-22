@@ -4,7 +4,7 @@ namespace Manuscript {
         public Gtk.SourceSearchContext search_context = null;
         protected Gtk.CssProvider provider;
         protected Document _document;
-        protected AppSettings settings = AppSettings.get_instance ();
+        protected Services.AppSettings settings = Services.AppSettings.get_instance ();
 
         public Editor () {
             Object (
@@ -12,7 +12,7 @@ namespace Manuscript {
                 pixels_inside_wrap: 0,
                 pixels_below_lines: 20,
                 wrap_mode: Gtk.WrapMode.WORD
-            );
+                );
         }
 
         construct {
@@ -44,10 +44,10 @@ namespace Manuscript {
                     load_buffer (_document.buffer);
                 } else {
                     debug ("Waiting for document to become ready");
-                    _document.load.connect (() => {
+                    _document.load.connect ( () => {
                         debug ("Loading buffer");
                         load_buffer (_document.buffer);
-                    });
+                    } );
                 }
             }
         }
@@ -61,18 +61,18 @@ namespace Manuscript {
             var start_time = clock.get_frame_time ();
             var end_time = start_time + 1000 * duration;
 
-            add_tick_callback ((widget, frame_clock) => {
+            add_tick_callback ( (widget, frame_clock) => {
                 var now = frame_clock.get_frame_time ();
                 if (now < end_time && vadjustment.get_value () != end) {
                     double t = (now - start_time) / (end_time - start_time);
                     t = ease_out_cubic (t);
-                    vadjustment.set_value (start + t * (end - start));
+                    vadjustment.set_value (start + t * (end - start) );
                     return true;
                 } else {
                     vadjustment.set_value (end);
                     return false;
                 }
-            });
+            } );
         }
 
         public bool scroll_to_cursor () {
@@ -101,19 +101,20 @@ namespace Manuscript {
 
         protected void update_settings () {
             if (buffer != null) {
-                AppSettings settings = AppSettings.get_instance ();
-            if (settings.zen) {
-                set_focused_paragraph ();
-                buffer.notify["cursor-position"].connect (set_focused_paragraph);
-            } else {
-                Gtk.TextIter start, end;
-                Gtk.TextTag[] tags =
-                (buffer.tag_table as DocumentTagTable).for_theme (settings.prefer_dark_style ? "dark" : "light");
-                buffer.get_bounds (out start, out end);
-                buffer.remove_tag (tags[1], start, end);
-                buffer.remove_tag (tags[0], start, end);
-                buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
-            }
+                if (settings.zen) {
+                    set_focused_paragraph ();
+                    buffer.notify["cursor-position"].connect (set_focused_paragraph);
+                } else {
+                    Gtk.TextIter start, end;
+                    Gtk.TextTag[] tags =
+                        (buffer.tag_table as DocumentTagTable).for_theme (
+                            settings.prefer_dark_style ? "dark" : "light"
+                        );
+                    buffer.get_bounds (out start, out end);
+                    buffer.remove_tag (tags[1], start, end);
+                    buffer.remove_tag (tags[0], start, end);
+                    buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
+                }
             } else {
                 warning ("Settings not updated, current buffer is null");
             }
@@ -148,7 +149,7 @@ namespace Manuscript {
             }
         }
 
-        public bool search_for_iter (Gtk.TextIter? start_iter, out Gtk.TextIter? end_iter) {
+        public bool search_for_iter (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
             end_iter = start_iter;
             bool found = search_context.forward2 (start_iter, out start_iter, out end_iter, null);
             if (found) {
@@ -159,7 +160,7 @@ namespace Manuscript {
             return found;
         }
 
-        public bool search_for_iter_backward (Gtk.TextIter? start_iter, out Gtk.TextIter? end_iter) {
+        public bool search_for_iter_backward (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
             end_iter = start_iter;
             bool found = search_context.backward2 (start_iter, out start_iter, out end_iter, null);
             if (found) {
@@ -191,4 +192,3 @@ namespace Manuscript {
         }
     }
 }
-

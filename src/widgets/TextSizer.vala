@@ -19,4 +19,3 @@ namespace Manuscript.Widgets {
         protected void decrement () {}
     }
 }
-

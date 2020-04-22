@@ -16,4 +16,3 @@ namespace Manuscript.Utils.Keys {
         return false;
     }
 }
-

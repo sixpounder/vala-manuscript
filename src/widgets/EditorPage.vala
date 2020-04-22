@@ -1,4 +1,4 @@
-namespace Manuscript {
+namespace Manuscript.Widgets {
     public class EditorPage : Gtk.ScrolledWindow {
 
         public Document document { get; construct; }
@@ -12,4 +12,3 @@ namespace Manuscript {
         }
     }
 }
-

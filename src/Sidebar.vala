@@ -19,4 +19,3 @@ namespace Manuscript {
         public void update () {}
     }
 }
-
