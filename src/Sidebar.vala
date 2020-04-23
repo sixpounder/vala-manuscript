@@ -1,11 +1,11 @@
 namespace Manuscript {
     public class Sidebar : Gtk.StackSidebar {
-        protected Document _document;
+        protected Models.Document _document;
 
         public Sidebar () {
         }
 
-        public Document document {
+        public Models.Document document {
             get {
                 return _document;
             }

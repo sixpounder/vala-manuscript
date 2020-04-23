@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-19 14:31+0100\n"
+"POT-Creation-Date: 2020-04-23 21:53+0200\n"
 "PO-Revision-Date: 2019-07-05 11:20+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,28 +17,33 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/EditorWindow.vala:217
+#: src/Window.vala:239
 #, fuzzy
 msgid "Open document"
 msgstr "Apri documento "
 
-#: src/EditorWindow.vala:220
+#: src/Window.vala:242
 msgid "Cancel"
 msgstr "Annulla"
 
-#: src/EditorWindow.vala:222
+#: src/Window.vala:244 src/WelcomeView.vala:12
 #, fuzzy
 msgid "Open"
 msgstr "Apri documento"
 
-#: src/EditorWindow.vala:250
+#: src/Window.vala:251
+#, fuzzy
+msgid "Manuscripts"
+msgstr "Manoscritti"
+
+#: src/Window.vala:259
+msgid "All files"
+msgstr "Tutti i file"
+
+#: src/Window.vala:282
 #, fuzzy
 msgid "Unable to create temporary document"
 msgstr "Impossibile creare un documento temporaneo "
-
-#: src/EditorWindow.vala:286
-msgid "Unable to open document at "
-msgstr "Impossibile aprire il documento "
 
 #: src/StatusBar.vala:22 src/StatusBar.vala:53
 msgid "words"
@@ -48,64 +53,86 @@ msgstr "parole"
 msgid "Estimated reading time"
 msgstr "Tempo di lettura"
 
-#: src/StatusBar.vala:82
+#: src/StatusBar.vala:81
 msgid "minute"
 msgstr "minuto"
 
-#: src/StatusBar.vala:84
+#: src/StatusBar.vala:82
 msgid "minutes"
 msgstr "minuti"
 
-#: src/Header.vala:53
+#: src/Header.vala:55
 #, fuzzy
 msgid "New file"
 msgstr "Nuovo documento"
 
-#: src/Header.vala:60
+#: src/Header.vala:62
 msgid "Open file"
-msgstr "Apri documento"
+msgstr "Apri manoscritto"
 
-#: src/Header.vala:67
+#: src/Header.vala:69
 #, fuzzy
 msgid "Save file"
-msgstr "Apri documento"
+msgstr "Salva manoscritto"
 
-#: src/Header.vala:75
+#: src/Header.vala:77
 #, fuzzy
 msgid "Save file as"
-msgstr "Apri documento"
+msgstr "Salva con nome"
 
-#: src/Header.vala:85
+#: src/Header.vala:99
 msgid "Settings"
-msgstr ""
+msgstr "Impostazioni"
 
-#: src/Header.vala:112
+#: src/Header.vala:130
 msgid "modified"
 msgstr "modificato"
+
+#: src/WelcomeView.vala:9
+#, fuzzy
+msgid "Welcome to "
+msgstr "Benvenuto in "
+
+#: src/WelcomeView.vala:9
+msgid "Distraction free writing environment"
+msgstr "Un ambiente di scrittura senza distrazioni"
+
+#: src/WelcomeView.vala:11
+msgid "New manuscript"
+msgstr "Nuovo manoscritto"
+
+#: src/WelcomeView.vala:11
+msgid "Create a new empty manuscript"
+msgstr "Crea un nuovo manoscritto"
+
+#: src/WelcomeView.vala:12
+msgid "Open an existing manuscript"
+msgstr "Apri un manoscritto esistente"
 
 #: src/dialogs/QuitDialog.vala:15
 msgid "Document has unsaved changes"
 msgstr "Il documento ha delle modifiche non salvate"
 
-#: src/dialogs/QuitDialog.vala:18
+#: src/dialogs/QuitDialog.vala:17
 #, fuzzy
 msgid ""
 "\n"
-"          Leaving now will result in a loss of unsaved changes.\n"
-"          It is strongly suggested to save your changes before proceeding.\n"
-"        "
+"                Leaving now will result in a loss of unsaved changes.\n"
+"                It is strongly suggested to save your changes before "
+"proceeding.\n"
+"            "
 msgstr ""
 "Chiudendo questo documento si perderanno le modifiche non salvate. Si "
 "consiglia di salvare le modifiche prima proseguire."
 
-#: src/dialogs/QuitDialog.vala:23
+#: src/dialogs/QuitDialog.vala:22
 msgid "Keep editing"
 msgstr "Continua a scrivere"
 
-#: src/dialogs/QuitDialog.vala:25
+#: src/dialogs/QuitDialog.vala:24
 #, fuzzy
 msgid "Close this document"
-msgstr "Chiudi questo documento"
+msgstr "Chiudi questo manoscritto"
 
 #: src/widgets/FileNotFound.vala:6
 msgid "File does not exist"
@@ -119,3 +146,6 @@ msgstr "Questo file potrebbe essere stato eliminato oppure spostato."
 #: src/widgets/FileNotFound.vala:7
 msgid "not found"
 msgstr "non trovato"
+
+#~ msgid "Unable to open document at "
+#~ msgstr "Impossibile aprire il file "

@@ -1,6 +1,8 @@
-src/EditorWindow.vala
+src/Window.vala
+src/Editor.vala
 src/StatusBar.vala
 src/Header.vala
+src/WelcomeView.vala
 src/dialogs/QuitDialog.vala
 src/widgets/FileNotFound.vala
 src/widgets/ThemeButton.vala

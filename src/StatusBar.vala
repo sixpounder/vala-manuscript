@@ -5,8 +5,8 @@ namespace Manuscript {
         protected Gtk.Label words_label;
         protected Gtk.Label reading_time_label;
         protected Gtk.Image reading_time_icon;
-        protected Document _document;
-        public Document document {
+        protected Models.Document _document;
+        public Models.Document document {
             get {
                 return this._document;
             }
@@ -59,9 +59,9 @@ namespace Manuscript {
             if (document != null) {
                 this.words = this.document.words_count;
 
-                this.document.analyze.connect (() => {
-                    this.words = this.document != null ? this.document.words_count : 0;
-                });
+                //  this.document.analyze.connect (() => {
+                //      this.words = this.document != null ? this.document.words_count : 0;
+                //  });
             }
         }
 

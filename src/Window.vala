@@ -12,40 +12,40 @@ namespace Manuscript {
         protected Gtk.Bin body;
         protected DocumentsNotebook tabs;
         protected Services.DocumentManager document_manager;
-        protected weak Document selected_document = null;
+        protected weak Models.Document selected_document = null;
 
         public string initial_document_path { get; construct; }
 
         public Editor ? current_editor {
             get {
                 if (tabs.tabs.length () != 0) {
-                    return ( (Widgets.EditorPage)tabs.current.page ).editor;
+                    return ((Widgets.EditorPage) tabs.current.page).editor;
                 } else {
                     return null;
                 }
             }
         }
 
-        public Document document {
+        public Models.Document document {
             get {
-                return selected_document;
+                return document_manager.document;
             }
 
             set {
-                Document found = null;
-                var documents = document_manager.documents;
-                for (int i = 0; i < documents.length; i++) {
-                    if (documents[i] == value) {
-                        found = documents[i];
-                        break;
-                    }
-                }
-                if (found != null) {
-                    selected_document = found;
-                } else {
-                    document_manager.add_document (value);
-                    selected_document = value;
-                }
+                //  Models.Document found = null;
+                //  var documents = document_manager.documents;
+                //  for (int i = 0; i < documents.length; i++) {
+                //      if (documents[i] == value) {
+                //          found = documents[i];
+                //          break;
+                //      }
+                //  }
+                //  if (found != null) {
+                //      selected_document = found;
+                //  } else {
+                //      selected_document = value;
+                //  }
+                document_manager.@set (value);
             }
         }
 
@@ -53,7 +53,7 @@ namespace Manuscript {
             Object (
                 application: app,
                 initial_document_path: document_path
-                );
+            );
 
             settings = Services.AppSettings.get_instance ();
             document_manager = Services.DocumentManager.get_default ();
@@ -123,11 +123,11 @@ namespace Manuscript {
             delete_event.connect (on_destroy);
 
             header.new_file.connect ( () => {
-                document_manager.add_document (Document.empty () );
+                document_manager.document.add_chunk (new Models.DocumentChunk.empty () );
             } );
 
             header.open_file.connect ( () => {
-                if (this.document != null && document.has_changes) {
+                if (document != null && document.has_changes) {
                     if (quit_dialog () ) {
                         open_file_dialog ();
                     }
@@ -243,25 +243,32 @@ namespace Manuscript {
                 Gtk.ResponseType.CANCEL,
                 _ ("Open"),
                 Gtk.ResponseType.ACCEPT
-                );
+            );
 
-            Gtk.FileFilter text_file_filter = new Gtk.FileFilter ();
+            dialog.select_multiple = false;
 
-            foreach (string mime in settings.supported_mime_types) {
-                text_file_filter.add_mime_type (mime);
-            }
+            Gtk.FileFilter file_filter = new Gtk.FileFilter ();
+            file_filter.set_filter_name (_("Manuscripts") + " (*.manuscript)");
+
             foreach (string ext in settings.supported_extensions) {
-                text_file_filter.add_pattern (ext);
+                file_filter.add_pattern (ext);
             }
+            dialog.add_filter (file_filter);
 
-            dialog.add_filter (text_file_filter);
+            Gtk.FileFilter all_files = new Gtk.FileFilter ();
+            all_files.set_filter_name (_("All files"));
+            foreach (string mime in settings.supported_mime_types) {
+                all_files.add_mime_type (mime);
+            }
+            all_files.add_pattern ("*.*");
+            dialog.add_filter (all_files);
 
-            dialog.response.connect ( (res) => {
+            dialog.response.connect ((res) => {
                 dialog.hide ();
                 if (res == Gtk.ResponseType.ACCEPT) {
-                    open_file_at_path (dialog.get_filename () );
+                    open_file_at_path (dialog.get_filename ());
                 }
-            } );
+            });
 
             dialog.run ();
         }
@@ -279,9 +286,14 @@ namespace Manuscript {
 
         // Opens file at path and sets up the editor
         public void open_file_at_path (string path, bool temporary = false) {
-            // tabs.add_document (Document.from_file (path));
-            document_manager.add_document (Document.from_file (path) );
-            set_layout_body (tabs);
+            try {
+                document_manager.@set (Models.Document.from_file (path) );
+                set_layout_body (tabs);
+            } catch (GLib.Error error) {
+                var invalid_file_dialog = new InvalidFileDialog (this);
+                invalid_file_dialog.run ();
+                invalid_file_dialog.destroy ();
+            }
         }
 
         protected void set_layout_body (Gtk.Widget widget) {
@@ -293,14 +305,8 @@ namespace Manuscript {
             widget.focus (Gtk.DirectionType.UP);
         }
 
-        protected void close_document (Document document) {
-            var documents = document_manager.documents;
-            for (int i = 0; i < documents.length; i++) {
-                if (document == documents[i]) {
-                    document_manager.remove_document (document);
-                    break;
-                }
-            }
+        protected void close_document (Models.Document document) {
+            document_manager.@set (null);
         }
 
         protected bool on_destroy () {

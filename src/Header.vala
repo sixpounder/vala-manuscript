@@ -14,7 +14,7 @@ namespace Manuscript {
         protected Widgets.SettingsPopover settings_popover;
         protected Widgets.ExportPopover export_popover;
 
-        public weak Document document {
+        public weak Models.Document document {
             get {
                 return this._document;
             }
@@ -37,7 +37,7 @@ namespace Manuscript {
             }
         }
 
-        protected Document _document = null;
+        protected Models.Document _document = null;
 
         public Header (Gtk.Window parent) {
             Object (
@@ -156,10 +156,10 @@ namespace Manuscript {
         }
 
         protected void load_document () {
-            document.change.connect (on_document_change);
+            //  document.change.connect (on_document_change);
             document.saved.connect (on_document_saved);
-            document.undo.connect (on_document_change);
-            document.redo.connect (on_document_change);
+            //  document.undo.connect (on_document_change);
+            //  document.redo.connect (on_document_change);
             update_subtitle ();
             update_icons ();
         }

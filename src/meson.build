@@ -39,6 +39,7 @@ executable(
 	'utils/Keys.vala',
 	'dialogs/QuitDialog.vala',
 	'dialogs/FileSaveDialog.vala',
+	'dialogs/InvalidFileDialog.vala',
 	'dialogs/InfoBar.vala',
 	asresources,
 	dependencies: [

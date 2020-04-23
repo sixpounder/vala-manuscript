@@ -20,8 +20,8 @@ namespace Manuscript.Services {
 
     private AppSettings () {
       settings = new GLib.Settings (Constants.APP_ID);
-      settings.bind ("supported-mime-types", this, "supported_mime_types", GLib.SettingsBindFlags.DEFAULT);
-      settings.bind ("supported-extensions", this, "supported_extensions", GLib.SettingsBindFlags.DEFAULT);
+      settings.bind ("mime-types", this, "supported_mime_types", GLib.SettingsBindFlags.DEFAULT);
+      settings.bind ("extensions", this, "supported_extensions", GLib.SettingsBindFlags.DEFAULT);
       settings.bind ("searchbar", this, "searchbar", GLib.SettingsBindFlags.DEFAULT);
       settings.bind ("window-width", this, "window_width", GLib.SettingsBindFlags.DEFAULT);
       settings.bind ("window-height", this, "window_height", GLib.SettingsBindFlags.DEFAULT);

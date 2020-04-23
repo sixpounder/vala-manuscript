@@ -3,26 +3,23 @@ namespace Manuscript {
         public bool has_changes { get; private set; }
         public Gtk.SourceSearchContext search_context = null;
         protected Gtk.CssProvider provider;
-        protected Document _document;
+        protected Models.DocumentChunk _chunk;
         protected Services.AppSettings settings = Services.AppSettings.get_instance ();
 
-        public Editor () {
+        public Editor (Models.DocumentChunk chunk = null) {
             Object (
                 has_focus: true,
                 pixels_inside_wrap: 0,
                 pixels_below_lines: 20,
                 wrap_mode: Gtk.WrapMode.WORD
-                );
-        }
+            );
 
-        construct {
             search_context = new Gtk.SourceSearchContext (buffer as Gtk.SourceBuffer, null);
-            // search_context.set_match_style (srcstyle);
 
             try {
-                this.init_editor ();
-                if (document != null) {
-                    this.document = document;
+                init_editor ();
+                if (chunk != null) {
+                    _chunk = chunk;
                 }
             } catch (Error e) {
                 error ("Cannot instantiate editor view: " + e.message);
@@ -33,21 +30,18 @@ namespace Manuscript {
             destroy.connect (on_destroy);
         }
 
-        public Document document {
+        public Models.DocumentChunk chunk {
             get {
-                return this._document;
+                return _chunk;
             }
             set {
-                _document = value;
-                if (_document.loaded) {
+                _chunk = value;
+                if (_chunk.buffer != null) {
                     debug ("Loading buffer");
-                    load_buffer (_document.buffer);
+                    load_buffer (_chunk.buffer);
                 } else {
-                    debug ("Waiting for document to become ready");
-                    _document.load.connect ( () => {
-                        debug ("Loading buffer");
-                        load_buffer (_document.buffer);
-                    } );
+                    debug ("Loading buffer");
+                    load_buffer (_chunk.buffer);
                 }
             }
         }
@@ -94,8 +88,8 @@ namespace Manuscript {
 
         protected void load_buffer (Gtk.SourceBuffer new_buffer) {
             buffer = new_buffer;
-            document.change.connect (this.on_document_change);
-            document.saved.connect (this.on_document_saved);
+            //  document.change.connect (this.on_document_change);
+            //  _chunk.saved.connect (on_document_saved);
             update_settings ();
         }
 
@@ -185,10 +179,9 @@ namespace Manuscript {
 
         protected void on_destroy () {
             settings.change.disconnect (on_setting_change);
-            if (document != null) {
-                document.change.disconnect (on_document_change);
-                document.saved.disconnect (on_document_saved);
-            }
+            //  if (_chunk != null) {
+            //      _chunk.saved.disconnect (on_document_saved);
+            //  }
         }
     }
 }

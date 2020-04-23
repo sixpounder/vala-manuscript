@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-19 14:31+0100\n"
+"POT-Creation-Date: 2020-04-23 21:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,24 +17,28 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/EditorWindow.vala:217
+#: src/Window.vala:239
 msgid "Open document"
 msgstr ""
 
-#: src/EditorWindow.vala:220
+#: src/Window.vala:242
 msgid "Cancel"
 msgstr ""
 
-#: src/EditorWindow.vala:222
+#: src/Window.vala:244 src/WelcomeView.vala:12
 msgid "Open"
 msgstr ""
 
-#: src/EditorWindow.vala:250
-msgid "Unable to create temporary document"
+#: src/Window.vala:251
+msgid "Manuscripts"
 msgstr ""
 
-#: src/EditorWindow.vala:286
-msgid "Unable to open document at "
+#: src/Window.vala:259
+msgid "All files"
+msgstr ""
+
+#: src/Window.vala:282
+msgid "Unable to create temporary document"
 msgstr ""
 
 #: src/StatusBar.vala:22 src/StatusBar.vala:53
@@ -45,55 +49,76 @@ msgstr ""
 msgid "Estimated reading time"
 msgstr ""
 
-#: src/StatusBar.vala:82
+#: src/StatusBar.vala:81
 msgid "minute"
 msgstr ""
 
-#: src/StatusBar.vala:84
+#: src/StatusBar.vala:82
 msgid "minutes"
 msgstr ""
 
-#: src/Header.vala:53
+#: src/Header.vala:55
 msgid "New file"
 msgstr ""
 
-#: src/Header.vala:60
+#: src/Header.vala:62
 msgid "Open file"
 msgstr ""
 
-#: src/Header.vala:67
+#: src/Header.vala:69
 msgid "Save file"
 msgstr ""
 
-#: src/Header.vala:75
+#: src/Header.vala:77
 msgid "Save file as"
 msgstr ""
 
-#: src/Header.vala:85
+#: src/Header.vala:99
 msgid "Settings"
 msgstr ""
 
-#: src/Header.vala:112
+#: src/Header.vala:130
 msgid "modified"
+msgstr ""
+
+#: src/WelcomeView.vala:9
+msgid "Welcome to "
+msgstr ""
+
+#: src/WelcomeView.vala:9
+msgid "Distraction free writing environment"
+msgstr ""
+
+#: src/WelcomeView.vala:11
+msgid "New manuscript"
+msgstr ""
+
+#: src/WelcomeView.vala:11
+msgid "Create a new empty manuscript"
+msgstr ""
+
+#: src/WelcomeView.vala:12
+msgid "Open an existing manuscript"
 msgstr ""
 
 #: src/dialogs/QuitDialog.vala:15
 msgid "Document has unsaved changes"
 msgstr ""
 
-#: src/dialogs/QuitDialog.vala:18
+#: src/dialogs/QuitDialog.vala:17
 msgid ""
 "\n"
-"          Leaving now will result in a loss of unsaved changes.\n"
-"          It is strongly suggested to save your changes before proceeding.\n"
-"        "
+"                Leaving now will result in a loss of unsaved changes.\n"
+"                It is strongly suggested to save your changes before "
+"proceeding.\n"
+"            "
 msgstr ""
 
-#: src/dialogs/QuitDialog.vala:23
+#: src/dialogs/QuitDialog.vala:22
 msgid "Keep editing"
 msgstr ""
 
-#: src/dialogs/QuitDialog.vala:25
+#: src/dialogs/QuitDialog.vala:24
 msgid "Close this document"
 msgstr ""
 

@@ -6,10 +6,10 @@ namespace Manuscript {
         construct {
             var welcome =
                 new Granite.Widgets.Welcome (
-                    "Welcome to " + Constants.APP_NAME, "Distraction free writing environment"
+                    _("Welcome to " + Constants.APP_NAME), _("Distraction free writing environment")
                 );
-            welcome.append ("document-new", "New document", "Create a new empty document");
-            welcome.append ("document-open", "Open", "Open an existing document");
+            welcome.append ("document-new", _("New manuscript"), _("Create a new empty manuscript"));
+            welcome.append ("document-open", _("Open"), _("Open an existing manuscript"));
 
             add (welcome);
 

@@ -30,11 +30,11 @@ namespace Manuscript {
 
             documents_manager = Services.DocumentManager.get_default ();
 
-            documents_manager.document_added.connect (add_document);
+            documents_manager.document.chunk_added.connect (add_chunk);
 
-            documents_manager.document_removed.connect (remove_document);
+            documents_manager.document.chunk_removed.connect (remove_chunk);
 
-            documents_manager.active_changed.connect (select_document);
+            documents_manager.document.active_changed.connect (select_chunk);
         }
 
         construct {
@@ -51,37 +51,37 @@ namespace Manuscript {
         }
 
         ~DocumentsNotebook () {
-            documents_manager.document_added.connect (add_document);
+            documents_manager.document.chunk_added.connect (add_chunk);
 
-            documents_manager.document_removed.connect (remove_document);
+            documents_manager.document.chunk_removed.connect (remove_chunk);
 
-            documents_manager.active_changed.connect (select_document);
+            documents_manager.document.active_changed.connect (select_chunk);
         }
 
-        public void add_document (Document doc, bool active = true) {
-            DocumentTab new_tab = new DocumentTab (doc);
+        public void add_chunk (Models.DocumentChunk chunk, bool active = true) {
+            DocumentTab new_tab = new DocumentTab (chunk);
             insert_tab (new_tab, 0);
             if (active) {
                 current = new_tab;
             }
         }
 
-        public void remove_document (Document doc) {
+        public void remove_chunk (Models.DocumentChunk chunk) {
             for (int i = 0; i < tabs.length (); i++) {
                 DocumentTab t = (DocumentTab) tabs.nth (i);
-                if (t.document == doc) {
+                if (t.chunk == chunk) {
                     remove_tab (t);
                     return;
                 }
             }
         }
 
-        public void select_document (Document doc) {
+        public void select_chunk (Models.DocumentChunk chunk) {
             for (int i = 0; i < tabs.length (); i++) {
                 DocumentTab t = (DocumentTab) tabs.nth (i);
-                if (t.document != null && t.document == doc) {
+                if (t.chunk != null && t.chunk == chunk) {
                     current = t;
-                    documents_manager.set_active (doc);
+                    documents_manager.document.set_active (chunk);
                     return;
                 }
             }

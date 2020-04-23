@@ -8,7 +8,9 @@ namespace Manuscript {
                 )
             );
 
-            file.create (FileCreateFlags.PRIVATE);
+            FileOutputStream os = file.create (FileCreateFlags.PRIVATE);
+            var title = _("New manuscript");
+            os.write (@"{\"title\": \"$title\"}".data);
             return file;
         }
 
@@ -23,6 +25,7 @@ namespace Manuscript {
 
                     return (string) contents;
                 } catch (Error e) {
+                    warning ("Cannot read \"%s\": %s", file.get_basename (), e.message);
                     throw e;
                 }
             } else {

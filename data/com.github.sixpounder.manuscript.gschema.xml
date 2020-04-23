@@ -7,7 +7,7 @@
 			<description>Cached supported mime types which the app can open and handle</description>
 		</key>
 	  <key name="extensions" type="as">
-			<default>[".manuscript"]</default>
+			<default>["*.manuscript"]</default>
 			<summary>Supported files by extension</summary>
 			<description>Cached supported extensions which the app can open and handle</description>
 		</key>

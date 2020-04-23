@@ -1,9 +1,9 @@
 namespace Manuscript {
     public class FileSaveDialog : Gtk.FileChooserDialog {
 
-        public unowned Document document { get; construct; }
+        public unowned Models.Document document { get; construct; }
 
-        public FileSaveDialog (Gtk.ApplicationWindow parent, Document document) {
+        public FileSaveDialog (Gtk.ApplicationWindow parent, Models.Document document) {
             Object (
                 transient_for: parent,
                 modal: true,
