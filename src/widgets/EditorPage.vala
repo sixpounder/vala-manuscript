@@ -1,13 +1,12 @@
 namespace Manuscript.Widgets {
     public class EditorPage : Gtk.ScrolledWindow {
 
-        public Models.Document document { get; construct; }
+        public Models.DocumentChunk chunk { get; construct; }
+        public Editor editor { get; set; }
 
-        public Editor editor;
-
-        public EditorPage (Models.Document document) {
+        public EditorPage (Models.DocumentChunk chunk) {
             Object (
-                document: document
+                chunk: chunk
             );
         }
     }

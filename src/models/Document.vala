@@ -96,11 +96,9 @@ namespace Manuscript.Models {
                     if (res == null) {
                         warning ("File not read (not found?)");
                         load_state = DocumentLoadState.ERROR;
-                        read_error (null);
                     } else {
                         debug ("File read, creating document");
                         build_document (res);
-                        load ();
                     }
                 }
             } catch (GLib.Error error) {

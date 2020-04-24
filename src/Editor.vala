@@ -4,9 +4,9 @@ namespace Manuscript {
         public Gtk.SourceSearchContext search_context = null;
         protected Gtk.CssProvider provider;
         protected Models.DocumentChunk _chunk;
-        protected Services.AppSettings settings = Services.AppSettings.get_instance ();
+        protected Services.AppSettings settings = Services.AppSettings.get_default ();
 
-        public Editor (Models.DocumentChunk chunk = null) {
+        public Editor (Models.DocumentChunk ? chunk = null) {
             Object (
                 has_focus: true,
                 pixels_inside_wrap: 0,

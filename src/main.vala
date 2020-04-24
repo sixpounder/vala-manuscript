@@ -14,7 +14,7 @@ namespace Manuscript {
         }
 
         protected override void activate () {
-            Services.AppSettings settings = Services.AppSettings.get_instance ();
+            Services.AppSettings settings = Services.AppSettings.get_default ();
             Window main_window;
 
             if (settings.last_opened_document != "") {

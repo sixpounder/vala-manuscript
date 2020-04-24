@@ -12,7 +12,7 @@ namespace Manuscript.Widgets {
         }
 
         construct {
-            settings = AppSettings.get_instance ();
+            settings = AppSettings.get_default ();
         }
 
         protected void increment () {}

@@ -15,19 +15,21 @@ namespace Manuscript.Models {
         public double estimate_reading_time { get; private set; }
         public string notes { get; set; }
         public string title { get; set; }
+        public string raw_content { get; set; }
+        public uint index { get; set; }
 
         public Gtk.SourceBuffer buffer {
             get {
-                return this._buffer;
+                return _buffer;
             }
 
-            set {
-                this._buffer = value;
+            private set {
+                _buffer = value;
             }
         }
 
         public DocumentChunk.empty () {
-
+            build ();
         }
 
         public DocumentChunk.from_data (string data) {
@@ -35,7 +37,34 @@ namespace Manuscript.Models {
         }
 
         public static DocumentChunk from_node (Json.Node node) {
-            return Json.gobject_deserialize (typeof (DocumentChunk), node) as DocumentChunk;
+            var chunk = Json.gobject_deserialize (typeof (DocumentChunk), node) as DocumentChunk;
+            chunk.build (chunk.raw_content);
+
+            return chunk;
+        }
+
+        protected void build (string ? content = "") {
+            buffer = new Gtk.SourceBuffer (new DocumentTagTable () );
+            buffer.highlight_matching_brackets = false;
+            buffer.max_undo_levels = -1;
+            buffer.highlight_syntax = false;
+            // buffer.language = manager.guess_language (this.file_path, null);
+            buffer.begin_not_undoable_action ();
+            buffer.set_text (content, content.length);
+            buffer.end_not_undoable_action ();
+
+            words_count = Utils.Strings.count_words (buffer.text);
+            estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
+
+            buffer.changed.connect (on_content_changed);
+            buffer.undo.connect (on_buffer_undo);
+            buffer.redo.connect (on_buffer_redo);
+
+            buffer.insert_text.connect (text_inserted);
+            buffer.delete_range.connect (range_deleted);
+
+            buffer.undo_manager.can_undo_changed.connect (on_can_undo_changed);
+            buffer.undo_manager.can_redo_changed.connect (on_can_redo_changed);
         }
 
         private void text_inserted () {

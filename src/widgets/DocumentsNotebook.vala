@@ -40,7 +40,7 @@ namespace Manuscript {
         construct {
             get_style_context ().add_class ("documents-notebook");
 
-            settings = Services.AppSettings.get_instance ();
+            settings = Services.AppSettings.get_default ();
             on_viewport = !settings.zen;
 
             settings.change.connect ((key) => {

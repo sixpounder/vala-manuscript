@@ -32,20 +32,7 @@ namespace Manuscript {
             }
 
             set {
-                //  Models.Document found = null;
-                //  var documents = document_manager.documents;
-                //  for (int i = 0; i < documents.length; i++) {
-                //      if (documents[i] == value) {
-                //          found = documents[i];
-                //          break;
-                //      }
-                //  }
-                //  if (found != null) {
-                //      selected_document = found;
-                //  } else {
-                //      selected_document = value;
-                //  }
-                document_manager.@set (value);
+                document_manager.set_current_document (value);
             }
         }
 
@@ -55,7 +42,7 @@ namespace Manuscript {
                 initial_document_path: document_path
             );
 
-            settings = Services.AppSettings.get_instance ();
+            settings = Services.AppSettings.get_default ();
             document_manager = Services.DocumentManager.get_default ();
 
             // Load some styles
@@ -287,7 +274,7 @@ namespace Manuscript {
         // Opens file at path and sets up the editor
         public void open_file_at_path (string path, bool temporary = false) {
             try {
-                document_manager.@set (Models.Document.from_file (path) );
+                document_manager.set_current_document (Models.Document.from_file (path) );
                 set_layout_body (tabs);
             } catch (GLib.Error error) {
                 var invalid_file_dialog = new InvalidFileDialog (this);
@@ -306,7 +293,7 @@ namespace Manuscript {
         }
 
         protected void close_document (Models.Document document) {
-            document_manager.@set (null);
+            document_manager.set_current_document (null);
         }
 
         protected bool on_destroy () {
@@ -314,11 +301,13 @@ namespace Manuscript {
         }
 
         protected void message (string message, Gtk.MessageType level = Gtk.MessageType.ERROR) {
-            var messagedialog = new Gtk.MessageDialog (this,
-                                                       Gtk.DialogFlags.MODAL,
-                                                       Gtk.MessageType.ERROR,
-                                                       Gtk.ButtonsType.OK,
-                                                       message);
+            var messagedialog = new Gtk.MessageDialog (
+                this,
+                Gtk.DialogFlags.MODAL,
+                Gtk.MessageType.ERROR,
+                Gtk.ButtonsType.OK,
+                message
+            );
             messagedialog.show ();
         }
 

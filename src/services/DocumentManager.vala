@@ -13,11 +13,17 @@ namespace Manuscript.Services {
 
         public signal void change ();
 
+        public Services.AppSettings settings { get; private set; }
         public Models.Document document { get; private set; }
 
-        public void @set (Models.Document? doc) {
+        construct {
+            settings = Services.AppSettings.get_default ();
+        }
+
+        public void set_current_document (Models.Document? doc) {
             if (document != null && document != doc) {
                 document = doc;
+                settings.last_opened_document = document.file_path;
                 change ();
             } else {
                 document = null;

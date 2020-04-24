@@ -42,7 +42,7 @@ namespace Manuscript.Widgets {
         }
 
         protected void on_theme_set (string theme) {
-            var settings = Services.AppSettings.get_instance ();
+            var settings = Services.AppSettings.get_default ();
             settings.prefer_dark_style = (theme == "dark");
         }
     }

@@ -35,7 +35,7 @@ namespace Manuscript.Services {
       settings.changed.connect (this.on_change);
     }
 
-    public static AppSettings get_instance () {
+    public static AppSettings get_default () {
       if (instance == null) {
         instance = new AppSettings ();
       }
