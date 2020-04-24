@@ -113,6 +113,7 @@ msgid ""
 "proceeding.\n"
 "            "
 msgstr ""
+"\n"
 "Leaving now will result in a loss of unsaved changes.\n"
 "It is strongly suggested to save your changes before "
 

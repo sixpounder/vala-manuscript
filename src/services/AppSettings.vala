@@ -14,7 +14,7 @@ namespace Manuscript.Services {
     public bool prefer_dark_style { get; set; }
     public double text_scale_factor { get; set; }
 
-    private GLib.Settings settings = null;
+    private GLib.Settings ? settings = null;
 
     private static AppSettings instance;
 
