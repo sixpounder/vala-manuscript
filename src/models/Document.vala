@@ -1,5 +1,21 @@
 namespace Manuscript.Models {
-    public class Document : Object {
+    public errordomain DocumentError {
+        READ
+    }
+
+    public interface DocumentBase : Object {
+        public abstract string title { get; set; }
+        public abstract void copy_from (DocumentBase base_data);
+    }
+
+    public class DocumentData : Object, DocumentBase {
+        public string title { get; set; }
+        public void copy_from (DocumentBase base_data) {
+            title = base_data.title;
+        }
+    }
+
+    public class Document : DocumentData {
 
         public signal void saved (string target_path);
         public signal void load ();
@@ -21,14 +37,9 @@ namespace Manuscript.Models {
         public double estimate_reading_time { get; private set; }
         public bool has_changes { get; private set; }
         public bool temporary { get; construct; }
-        public string title { get; set; }
+        public string uuid { get; construct; }
 
         private Gee.ArrayList<DocumentChunk> _chunks;
-        public DocumentChunk[] chunks {
-            owned get {
-                return _chunks.to_array ();
-            }
-        }
 
         public DocumentChunk active_chunk { get; private set; }
 
@@ -87,8 +98,10 @@ namespace Manuscript.Models {
         protected Document (string ? file_path, bool temporary = false) throws GLib.Error {
             Object (
                 temporary: temporary,
-                file_path: file_path
+                file_path: file_path,
+                uuid: GLib.Uuid.string_random ()
             );
+            debug (@"Created document $uuid");
             try {
                 if (file_path != null) {
                     load_state = DocumentLoadState.LOADING;
@@ -97,18 +110,18 @@ namespace Manuscript.Models {
                         warning ("File not read (not found?)");
                         load_state = DocumentLoadState.ERROR;
                     } else {
-                        debug ("File read, creating document");
+                        debug ("File read");
                         build_document (res);
                     }
                 }
             } catch (GLib.Error error) {
-                warning ("Cannot create document: %s\n", error.message);
+                critical ("Cannot create document: %s\n", error.message);
                 throw error;
             }
         }
 
         ~Document () {
-            debug ("Unloading document");
+            debug (@"Unloading document $uuid");
             unload ();
         }
 
@@ -141,16 +154,20 @@ namespace Manuscript.Models {
                 parser.load_from_data (content);
                 Json.Node node = parser.get_root ();
 
-                Document obj = Json.gobject_deserialize (typeof (Document), node) as Document;
+                DocumentBase obj = Json.gobject_deserialize (typeof (DocumentData), node) as DocumentData;
                 if (obj == null) {
-                    assert (obj != null);
-                    // TODO: gracefully manage the case of a "bad" file
+                    throw new DocumentError.READ (@"Cannot parse manuscript from content of $file_path");
                 } else {
+                    copy_from (obj);
                     load_state = DocumentLoadState.LOADED;
                 }
             } catch (GLib.Error error) {
                 throw error;
             }
+        }
+
+        public DocumentChunk[] get_chunks () {
+            return _chunks.to_array ();
         }
 
         /**
@@ -202,7 +219,7 @@ namespace Manuscript.Models {
                 //  buffer.undo_manager.can_redo_changed.disconnect (on_can_redo_changed);
                 buffer.dispose ();
             } else {
-                warning ("Document already disposed");
+                warning ("Document buffer already disposed");
             }
         }
 

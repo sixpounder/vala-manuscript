@@ -6,7 +6,7 @@
     {
       "label": "Run",
       "type": "shell",
-      "command": "ninja && ./src/com.github.sixpounder.manuscript",
+      "command": "ninja && GTK_DEBUG=interactive ./src/com.github.sixpounder.manuscript",
       "options": {
         "cwd": "./build"
       },

@@ -3,14 +3,15 @@ namespace Manuscript {
         protected uint configure_id = 0;
         protected Services.AppSettings settings;
         protected Gtk.Stack container;
-        protected Sidebar sidebar;
+        protected Widgets.Sidebar sidebar;
         protected Gtk.Box layout;
         protected WelcomeView welcome_view;
         protected Header header;
         protected StatusBar status_bar;
         protected SearchBar search_bar;
         protected Gtk.Bin body;
-        protected DocumentsNotebook tabs;
+        protected Gtk.Box editor_grid;
+        protected Widgets.EditorsNotebook tabs;
         protected Services.DocumentManager document_manager;
         protected weak Models.Document selected_document = null;
 
@@ -19,7 +20,7 @@ namespace Manuscript {
         public Editor ? current_editor {
             get {
                 if (tabs.tabs.length () != 0) {
-                    return ((Widgets.EditorPage) tabs.current.page).editor;
+                    return ((Widgets.EditorPage) tabs.current_tab.page).editor;
                 } else {
                     return null;
                 }
@@ -73,20 +74,32 @@ namespace Manuscript {
             layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
 
             // Sidebar
-            sidebar = new Sidebar ();
-            sidebar.set_stack (container);
+            sidebar = new Widgets.Sidebar ();
+            //  sidebar.set_stack (container);
 
             // Setup header
             header = new Header (this);
             set_titlebar (header);
 
             // Tabs
-            tabs = new DocumentsNotebook ();
+            tabs = new Widgets.EditorsNotebook ();
+
+            // Grid
+            editor_grid = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 1);
+            editor_grid.get_style_context ().add_class ("editor_grid");
+            editor_grid.valign = Gtk.Align.FILL;
+            editor_grid.expand = true;
+            editor_grid.homogeneous = false;
+            editor_grid.pack_start (sidebar);
+            editor_grid.pack_start (tabs);
 
             // Setup welcome view
             welcome_view = new WelcomeView ();
 
-            layout.pack_start (body = new Gtk.EventBox () );
+            body = new Gtk.EventBox ();
+            body.vexpand = true;
+            body.hexpand = true;
+            layout.pack_start (body);
 
             // Status bar (bottom)
             layout.pack_end (status_bar = new StatusBar (), false, false, 0);
@@ -123,7 +136,7 @@ namespace Manuscript {
                 }
             } );
 
-            header.save_file.connect ( (choose_path) => {
+            header.save_file.connect ((choose_path) => {
                 if (choose_path) {
                     var dialog = new FileSaveDialog (this, document);
                     int res = dialog.run ();
@@ -135,7 +148,7 @@ namespace Manuscript {
                 } else {
                     document.save ();
                 }
-            } );
+            });
 
             welcome_view.should_open_file.connect (open_file_dialog);
             welcome_view.should_create_new_file.connect (open_with_temp_file);
@@ -274,12 +287,13 @@ namespace Manuscript {
         // Opens file at path and sets up the editor
         public void open_file_at_path (string path, bool temporary = false) {
             try {
-                document_manager.set_current_document (Models.Document.from_file (path) );
-                set_layout_body (tabs);
+                document_manager.set_current_document (Models.Document.from_file (path));
+                set_layout_body (editor_grid);
             } catch (GLib.Error error) {
                 var invalid_file_dialog = new InvalidFileDialog (this);
                 invalid_file_dialog.run ();
                 invalid_file_dialog.destroy ();
+                settings.last_opened_document = "";
             }
         }
 

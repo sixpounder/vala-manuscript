@@ -8,9 +8,9 @@ namespace Manuscript {
 
         protected Gtk.Switch zen_switch;
         protected Gtk.Button settings_button;
-        protected Gtk.Button save_file_button;
-        protected Gtk.Button save_file_as_button;
-        protected Gtk.Button export_button;
+        //  protected Gtk.Button save_file_button;
+        //  protected Gtk.Button save_file_as_button;
+        protected Widgets.MenuButton export_button;
         protected Widgets.SettingsPopover settings_popover;
         protected Widgets.ExportPopover export_popover;
         protected Services.DocumentManager document_manager;
@@ -33,46 +33,23 @@ namespace Manuscript {
                 title: Constants.APP_NAME,
                 parent_window: parent,
                 has_subtitle: true,
-                show_close_button: true
+                show_close_button: true,
+                spacing: 10
             );
 
             document_manager = Services.DocumentManager.get_default ();
             settings = Services.AppSettings.get_default ();
 
-            Gtk.Button new_file_button = new Gtk.Button.from_icon_name ("document-new", Gtk.IconSize.LARGE_TOOLBAR);
-            new_file_button.tooltip_text = _ ("New file");
-            new_file_button.clicked.connect (() => {
-                new_file ();
-            });
-            pack_start (new_file_button);
+            Widgets.MenuButton menu_button = new Widgets.MenuButton.with_properties ("folder", "Menu");
+            menu_button.menu_model = Menus.get_default ().main_menu;
+            pack_start (menu_button);
 
-            Gtk.Button open_file_button = new Gtk.Button.from_icon_name ("document-open", Gtk.IconSize.LARGE_TOOLBAR);
-            open_file_button.tooltip_text = _ ("Open file");
-            open_file_button.clicked.connect (() => {
-                open_file ();
-            });
-            pack_start (open_file_button);
+            Widgets.MenuButton add_chunk_button = new Widgets.MenuButton.with_properties ("insert-object", "Insert");
+            add_chunk_button.menu_model = Menus.get_default ().create_menu;
+            pack_start (add_chunk_button);
 
-            save_file_button = new Gtk.Button.from_icon_name ("document-save", Gtk.IconSize.LARGE_TOOLBAR);
-            save_file_button.tooltip_text = _ ("Save file");
-            save_file_button.clicked.connect (() => {
-                save_file (false);
-            });
-            save_file_button.sensitive = document != null ? has_changes : false;
-            pack_start (save_file_button);
-
-            save_file_as_button = new Gtk.Button.from_icon_name ("document-save-as", Gtk.IconSize.LARGE_TOOLBAR);
-            save_file_as_button.tooltip_text = _ ("Save file as");
-            save_file_as_button.clicked.connect (() => {
-                save_file (true);
-            });
-            save_file_button.sensitive = document != null ? has_changes : false;
-            pack_start (save_file_as_button);
-
-            update_icons ();
-
-            export_button = new Gtk.Button.from_icon_name ("document-export", Gtk.IconSize.LARGE_TOOLBAR);
-            export_button.clicked.connect (() => {
+            export_button = new Widgets.MenuButton.with_properties ("document-export", "Export");
+            export_button.activated.connect (() => {
                 if (export_popover.visible) {
                     export_popover.popdown ();
                 } else {
@@ -80,10 +57,42 @@ namespace Manuscript {
                     export_popover.show_all ();
                 }
             });
-            pack_end (export_button);
+            pack_start (export_button);
             export_popover = new Widgets.ExportPopover (export_button);
 
-            settings_button = new Gtk.Button.from_icon_name ("preferences-system", Gtk.IconSize.LARGE_TOOLBAR);
+            //  Gtk.Button new_file_button = new Gtk.Button.from_icon_name ("document-new", Gtk.IconSize.LARGE_TOOLBAR);
+            //  new_file_button.tooltip_text = _ ("New file");
+            //  new_file_button.clicked.connect (() => {
+            //      new_file ();
+            //  });
+            //  pack_start (new_file_button);
+
+            //  Gtk.Button open_file_button = new Gtk.Button.from_icon_name ("document-open", Gtk.IconSize.LARGE_TOOLBAR);
+            //  open_file_button.tooltip_text = _ ("Open file");
+            //  open_file_button.clicked.connect (() => {
+            //      open_file ();
+            //  });
+            //  pack_start (open_file_button);
+
+            //  save_file_button = new Gtk.Button.from_icon_name ("document-save", Gtk.IconSize.LARGE_TOOLBAR);
+            //  save_file_button.tooltip_text = _ ("Save file");
+            //  save_file_button.clicked.connect (() => {
+            //      save_file (false);
+            //  });
+            //  save_file_button.sensitive = document != null ? has_changes : false;
+            //  pack_start (save_file_button);
+
+            //  save_file_as_button = new Gtk.Button.from_icon_name ("document-save-as", Gtk.IconSize.LARGE_TOOLBAR);
+            //  save_file_as_button.tooltip_text = _ ("Save file as");
+            //  save_file_as_button.clicked.connect (() => {
+            //      save_file (true);
+            //  });
+            //  save_file_button.sensitive = document != null ? has_changes : false;
+            //  pack_start (save_file_as_button);
+
+            update_icons ();
+
+            settings_button = new Gtk.Button.from_icon_name ("open-menu", Gtk.IconSize.LARGE_TOOLBAR);
             settings_button.tooltip_text = _ ("Settings");
             settings_button.clicked.connect (() => {
                 if (settings_popover.visible) {
@@ -112,11 +121,13 @@ namespace Manuscript {
 
             settings.change.connect (update_ui);
 
+            document_manager.load.connect (update_ui);
             document_manager.change.connect (update_ui);
         }
 
         ~ Header () {
             settings.change.disconnect (update_ui);
+            document_manager.load.disconnect (update_ui);
             document_manager.change.disconnect (update_ui);
         }
 
@@ -125,8 +136,8 @@ namespace Manuscript {
         }
 
         protected void update_icons () {
-            save_file_button.sensitive = has_changes;
-            save_file_as_button.sensitive = has_changes;
+            //  save_file_button.sensitive = has_changes;
+            //  save_file_as_button.sensitive = has_changes;
         }
 
         protected void update_ui () {
