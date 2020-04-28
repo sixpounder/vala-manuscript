@@ -18,6 +18,7 @@ executable(
 	'DocumentTagTable.vala',
 	'services/AppSettings.vala',
 	'services/DocumentManager.vala',
+	'services/ActionManager.vala',
 	'widgets/MenuButton.vala',
 	'widgets/Sidebar.vala',
 	'widgets/EditorPage.vala',

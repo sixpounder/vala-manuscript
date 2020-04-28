@@ -10,7 +10,8 @@ namespace Manuscript {
         protected Gtk.Button settings_button;
         //  protected Gtk.Button save_file_button;
         //  protected Gtk.Button save_file_as_button;
-        protected Widgets.MenuButton export_button;
+        protected Widgets.MenuButton
+         export_button;
         protected Widgets.SettingsPopover settings_popover;
         protected Widgets.ExportPopover export_popover;
         protected Services.DocumentManager document_manager;
@@ -41,7 +42,7 @@ namespace Manuscript {
             settings = Services.AppSettings.get_default ();
 
             Widgets.MenuButton menu_button = new Widgets.MenuButton.with_properties ("folder", "Menu");
-            menu_button.menu_model = Menus.get_default ().main_menu;
+            menu_button.popover = build_main_menu_popover ();
             pack_start (menu_button);
 
             Widgets.MenuButton add_chunk_button = new Widgets.MenuButton.with_properties ("insert-object", "Insert");
@@ -129,6 +130,53 @@ namespace Manuscript {
             settings.change.disconnect (update_ui);
             document_manager.load.disconnect (update_ui);
             document_manager.change.disconnect (update_ui);
+        }
+
+        private Gtk.PopoverMenu build_main_menu_popover () {
+            var grid = new Gtk.Grid ();
+            grid.margin_top = 6;
+            grid.margin_bottom = 3;
+            grid.orientation = Gtk.Orientation.VERTICAL;
+            grid.width_request = 240;
+            grid.name = "main";
+
+
+            var open_button = create_model_button (
+                _("Open"),
+                "document-open-symbolic",
+                //  Services.ActionManager.ACTION_PREFIX + "action_open"
+                "app.action_open"
+            );
+
+            grid.add (open_button);
+            grid.show_all ();
+
+            var popover = new Gtk.PopoverMenu ();
+            popover.add (grid);
+
+            return popover;
+        }
+
+        private Gtk.ModelButton create_model_button (string text, string? icon, string? accels = null) {
+            var button = new Gtk.ModelButton ();
+            button.get_child ().destroy ();
+            var label = new Granite.AccelLabel.from_action_name (text, accels);
+    
+            if (icon != null) {
+                var image = new Gtk.Image.from_icon_name (icon, Gtk.IconSize.MENU);
+                image.margin_end = 6;
+                label.attach_next_to (
+                    image,
+                    label.get_child_at (0, 0),
+                    Gtk.PositionType.LEFT
+                );
+            }
+    
+            button.add (label);
+            button.action_name = accels;
+            button.sensitive = true;
+    
+            return button;
         }
 
         protected void update_subtitle () {

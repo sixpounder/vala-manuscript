@@ -5,19 +5,6 @@ namespace Manuscript.Widgets {
         public Gtk.MenuButton button { get; protected set; }
         public Gtk.Label label { get; protected set; }
 
-        public MenuButton.with_icon_name (string icon_name) {
-            this.with_properties (icon_name, "");
-        }
-
-        public bool sensitive {
-            get {
-                return button.sensitive;
-            }
-            set {
-                button.sensitive = value;
-            }
-        }
-
         public GLib.MenuModel menu_model {
             get {
                 return button != null ? button.menu_model : null;
@@ -28,9 +15,24 @@ namespace Manuscript.Widgets {
                 }
             }
         }
+
+        public Gtk.Popover popover {
+            get {
+                return button.popover;
+            }
+            set {
+                button.popover = value;
+            }
+        }
+
+        public MenuButton.with_icon_name (string icon_name) {
+            this.with_properties (icon_name, "");
+        }
         
-        public MenuButton.with_properties (string icon_name, string title) {
+        public MenuButton.with_properties (string icon_name, string title, string[]? accels = null) {
             button = new Gtk.MenuButton ();
+            button.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
+            button.can_focus = false;
             var icon = new Gtk.Image ();
             icon.gicon = new ThemedIcon (icon_name);
             icon.pixel_size = 24;
@@ -55,8 +57,8 @@ namespace Manuscript.Widgets {
                 return true;
             });
 
-            attach (button, 0, 0);
-            attach (label, 0, 1);
+            attach (button, 0, 0, 1, 1);
+            attach (label, 0, 1, 1, 1);
         }
 
         construct {

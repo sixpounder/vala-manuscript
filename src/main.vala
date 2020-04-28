@@ -42,7 +42,14 @@ namespace Manuscript {
             zen_action.activate.connect (() => {
                 settings.zen = !settings.zen;
             });
-            set_accels_for_action ("app.zen", {"<Alt>M"});
+            set_accels_for_action ("app.zen", {"<Ctrl>M"});
+
+            var action_open = new SimpleAction ("open", null);
+            add_action (action_open);
+            action_open.activate.connect (() => {
+                debug ("DIO BUBU");
+            });
+            set_accels_for_action ("app.action_open", {"<Ctrl>o"});
 
             main_window.show_all ();
 
