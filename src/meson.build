@@ -40,8 +40,6 @@ executable(
 	'models/Document.vala',
 	'models/LoadState.vala',
 
-	'menus/MainMenu.vala',
-
 	'utils/StringUtils.vala',
 	'utils/StyleProvider.vala',
 	'utils/Easing.vala',
