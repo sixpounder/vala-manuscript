@@ -16,9 +16,11 @@ executable(
 	'FileUtils.vala',
 	'Palettes.vala',
 	'DocumentTagTable.vala',
+
 	'services/AppSettings.vala',
 	'services/DocumentManager.vala',
 	'services/ActionManager.vala',
+
 	'widgets/MenuButton.vala',
 	'widgets/Sidebar.vala',
 	'widgets/EditorPage.vala',
@@ -31,17 +33,21 @@ executable(
 	'widgets/EditorsNotebook.vala',
 	'widgets/EditorTab.vala',
 	'widgets/ChunkPreview.vala',
+
 	'models/ChunkType.vala',
 	'models/DocumentChunk.vala',
 	'models/Chapter.vala',
 	'models/Document.vala',
 	'models/LoadState.vala',
+
 	'menus/MainMenu.vala',
+
 	'utils/StringUtils.vala',
 	'utils/StyleProvider.vala',
 	'utils/Easing.vala',
 	'utils/Keys.vala',
 	'utils/Math.vala',
+
 	'dialogs/QuitDialog.vala',
 	'dialogs/FileSaveDialog.vala',
 	'dialogs/InvalidFileDialog.vala',
@@ -55,7 +61,7 @@ executable(
 		dependency('pangocairo', version : '>= 1.40'),
 		dependency('json-glib-1.0'),
 		dependency('gtksourceview-3.0'),
-		dependency('granite')
+		dependency('granite', version : '>= 5.3.0')
 	],
 	install: true
 )

@@ -8,10 +8,10 @@ namespace Manuscript {
 
         protected Gtk.Switch zen_switch;
         protected Gtk.Button settings_button;
-        //  protected Gtk.Button save_file_button;
-        //  protected Gtk.Button save_file_as_button;
-        protected Widgets.MenuButton
-         export_button;
+        protected Widgets.MenuButton menu_button;
+        protected Widgets.MenuButton add_element_button;
+        protected Widgets.MenuButton export_button;
+
         protected Widgets.SettingsPopover settings_popover;
         protected Widgets.ExportPopover export_popover;
         protected Services.DocumentManager document_manager;
@@ -37,17 +37,31 @@ namespace Manuscript {
                 show_close_button: true,
                 spacing: 10
             );
+        }
 
+        construct {
             document_manager = Services.DocumentManager.get_default ();
             settings = Services.AppSettings.get_default ();
+            build_ui ();
+        }
 
-            Widgets.MenuButton menu_button = new Widgets.MenuButton.with_properties ("folder", "Menu");
+        ~ Header () {
+            settings.change.disconnect (update_ui);
+            document_manager.load.disconnect (update_ui);
+            document_manager.change.disconnect (update_ui);
+        }
+
+        /**
+         * Builds the UI for this widget
+         */
+        private void build_ui () {
+            menu_button = new Widgets.MenuButton.with_properties ("folder", "Menu");
             menu_button.popover = build_main_menu_popover ();
             pack_start (menu_button);
 
-            Widgets.MenuButton add_chunk_button = new Widgets.MenuButton.with_properties ("insert-object", "Insert");
-            add_chunk_button.menu_model = Menus.get_default ().create_menu;
-            pack_start (add_chunk_button);
+            add_element_button = new Widgets.MenuButton.with_properties ("insert-object", "Insert");
+            add_element_button.popover = build_add_element_menu ();
+            pack_start (add_element_button);
 
             export_button = new Widgets.MenuButton.with_properties ("document-export", "Export");
             export_button.activated.connect (() => {
@@ -61,35 +75,6 @@ namespace Manuscript {
             pack_start (export_button);
             export_popover = new Widgets.ExportPopover (export_button);
 
-            //  Gtk.Button new_file_button = new Gtk.Button.from_icon_name ("document-new", Gtk.IconSize.LARGE_TOOLBAR);
-            //  new_file_button.tooltip_text = _ ("New file");
-            //  new_file_button.clicked.connect (() => {
-            //      new_file ();
-            //  });
-            //  pack_start (new_file_button);
-
-            //  Gtk.Button open_file_button = new Gtk.Button.from_icon_name ("document-open", Gtk.IconSize.LARGE_TOOLBAR);
-            //  open_file_button.tooltip_text = _ ("Open file");
-            //  open_file_button.clicked.connect (() => {
-            //      open_file ();
-            //  });
-            //  pack_start (open_file_button);
-
-            //  save_file_button = new Gtk.Button.from_icon_name ("document-save", Gtk.IconSize.LARGE_TOOLBAR);
-            //  save_file_button.tooltip_text = _ ("Save file");
-            //  save_file_button.clicked.connect (() => {
-            //      save_file (false);
-            //  });
-            //  save_file_button.sensitive = document != null ? has_changes : false;
-            //  pack_start (save_file_button);
-
-            //  save_file_as_button = new Gtk.Button.from_icon_name ("document-save-as", Gtk.IconSize.LARGE_TOOLBAR);
-            //  save_file_as_button.tooltip_text = _ ("Save file as");
-            //  save_file_as_button.clicked.connect (() => {
-            //      save_file (true);
-            //  });
-            //  save_file_button.sensitive = document != null ? has_changes : false;
-            //  pack_start (save_file_as_button);
 
             update_icons ();
 
@@ -126,12 +111,6 @@ namespace Manuscript {
             document_manager.change.connect (update_ui);
         }
 
-        ~ Header () {
-            settings.change.disconnect (update_ui);
-            document_manager.load.disconnect (update_ui);
-            document_manager.change.disconnect (update_ui);
-        }
-
         private Gtk.PopoverMenu build_main_menu_popover () {
             var grid = new Gtk.Grid ();
             grid.margin_top = 6;
@@ -140,15 +119,72 @@ namespace Manuscript {
             grid.width_request = 240;
             grid.name = "main";
 
-
             var open_button = create_model_button (
                 _("Open"),
                 "document-open-symbolic",
-                //  Services.ActionManager.ACTION_PREFIX + "action_open"
-                "app.action_open"
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_OPEN)"
+            );
+
+            var save_button = create_model_button (
+                _("Save"),
+                "document-save-symbolic",
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_SAVE)"
+            );
+
+            var save_as_button = create_model_button (
+                _("Save as"),
+                "document-save-as-symbolic",
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_SAVE_AS)"
             );
 
             grid.add (open_button);
+            grid.add (save_button);
+            grid.add (save_as_button);
+            grid.show_all ();
+
+            var popover = new Gtk.PopoverMenu ();
+            popover.add (grid);
+
+            return popover;
+        }
+
+        private Gtk.PopoverMenu build_add_element_menu () {
+            var grid = new Gtk.Grid ();
+            grid.margin_top = 6;
+            grid.margin_bottom = 3;
+            grid.orientation = Gtk.Orientation.VERTICAL;
+            grid.width_request = 240;
+            grid.name = "main";
+
+            var add_chapter_button = create_model_button (
+                _("Chapter"),
+                Models.ChunkType.CHAPTER.to_icon_name (),
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_ADD_CHAPTER)"
+            );
+
+            var add_character_sheet_button = create_model_button (
+                _("Character sheet"),
+                Models.ChunkType.CHARACTER_SHEET.to_icon_name (),
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_ADD_CHARACTER_SHEET)"
+            );
+
+            var add_note_button = create_model_button (
+                _("Note"),
+                Models.ChunkType.NOTE.to_icon_name (),
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_ADD_NOTE)"
+            );
+
+            var import_button = create_model_button (
+                _("Import"),
+                "document-import-symbolic",
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_IMPORT)"
+            );
+
+            grid.add (add_chapter_button);
+            grid.add (add_character_sheet_button);
+            grid.add (add_note_button);
+            grid.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
+            grid.add (import_button);
             grid.show_all ();
 
             var popover = new Gtk.PopoverMenu ();
@@ -161,7 +197,7 @@ namespace Manuscript {
             var button = new Gtk.ModelButton ();
             button.get_child ().destroy ();
             var label = new Granite.AccelLabel.from_action_name (text, accels);
-    
+
             if (icon != null) {
                 var image = new Gtk.Image.from_icon_name (icon, Gtk.IconSize.MENU);
                 image.margin_end = 6;
@@ -171,11 +207,11 @@ namespace Manuscript {
                     Gtk.PositionType.LEFT
                 );
             }
-    
+
             button.add (label);
             button.action_name = accels;
             button.sensitive = true;
-    
+
             return button;
         }
 
@@ -209,10 +245,7 @@ namespace Manuscript {
         }
 
         protected void load_document () {
-            //  document.change.connect (on_document_change);
             document.saved.connect (on_document_saved);
-            //  document.undo.connect (on_document_change);
-            //  document.redo.connect (on_document_change);
             update_subtitle ();
             update_icons ();
         }

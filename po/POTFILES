@@ -6,3 +6,4 @@ src/WelcomeView.vala
 src/dialogs/QuitDialog.vala
 src/widgets/FileNotFound.vala
 src/widgets/ThemeButton.vala
+src/widgets/SearchBar.vala

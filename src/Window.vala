@@ -10,10 +10,12 @@ namespace Manuscript {
         protected StatusBar status_bar;
         protected SearchBar search_bar;
         protected Gtk.Bin body;
-        protected Gtk.Box editor_grid;
+        protected Gtk.Paned editor_grid;
         protected Widgets.EditorsNotebook tabs;
         protected Services.DocumentManager document_manager;
         protected weak Models.Document selected_document = null;
+
+        public Services.ActionManager action_manager { get; private set; }
 
         public string initial_document_path { get; construct; }
 
@@ -37,18 +39,19 @@ namespace Manuscript {
             }
         }
 
-        public Window.with_document (Gtk.Application app, string ? document_path = null) {
+        public Window.with_document (Manuscript.Application app, string ? document_path = null) {
             Object (
                 application: app,
                 initial_document_path: document_path
             );
 
+            action_manager = new Services.ActionManager (app, this);
             settings = Services.AppSettings.get_default ();
             document_manager = Services.DocumentManager.get_default ();
 
             // Load some styles
             var css_provider = new Gtk.CssProvider ();
-            css_provider.load_from_resource ("/com/github/sixpounder/manuscript/main.css");
+            css_provider.load_from_resource (Manuscript.Constants.MAIN_CSS_URI);
             Gtk.StyleContext.add_provider_for_screen (screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 
             // Position and resize window according to last settings
@@ -75,7 +78,7 @@ namespace Manuscript {
 
             // Sidebar
             sidebar = new Widgets.Sidebar ();
-            //  sidebar.set_stack (container);
+            sidebar.width_request = 10;
 
             // Setup header
             header = new Header (this);
@@ -83,15 +86,14 @@ namespace Manuscript {
 
             // Tabs
             tabs = new Widgets.EditorsNotebook ();
+            tabs.width_request = 500;
 
             // Grid
-            editor_grid = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 1);
+            editor_grid = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
             editor_grid.get_style_context ().add_class ("editor_grid");
             editor_grid.valign = Gtk.Align.FILL;
-            editor_grid.expand = true;
-            editor_grid.homogeneous = false;
-            editor_grid.pack_start (sidebar);
-            editor_grid.pack_start (tabs);
+            editor_grid.pack1 (sidebar, true, false);
+            editor_grid.pack2 (tabs, false, false);
 
             // Setup welcome view
             welcome_view = new WelcomeView ();
@@ -246,6 +248,7 @@ namespace Manuscript {
             );
 
             dialog.select_multiple = false;
+            dialog.do_overwrite_confirmation = false;
 
             Gtk.FileFilter file_filter = new Gtk.FileFilter ();
             file_filter.set_filter_name (_("Manuscripts") + " (*.manuscript)");
@@ -263,14 +266,13 @@ namespace Manuscript {
             all_files.add_pattern ("*.*");
             dialog.add_filter (all_files);
 
-            dialog.response.connect ((res) => {
-                dialog.hide ();
-                if (res == Gtk.ResponseType.ACCEPT) {
-                    open_file_at_path (dialog.get_filename ());
-                }
-            });
+            var res = dialog.run ();
 
-            dialog.run ();
+            if (res == Gtk.ResponseType.ACCEPT) {
+                open_file_at_path (dialog.get_filename ());
+            }
+
+            dialog.destroy ();
         }
 
         // Like open_file_at_path, but with a temporary file

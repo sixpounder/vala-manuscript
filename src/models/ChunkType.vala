@@ -1,7 +1,13 @@
 namespace Manuscript.Models {
+    public struct ChunkTypeIconInfo {
+        public string? name;
+        public bool themed;
+    }
+
     public enum ChunkType {
         CHAPTER,
-        CHARACTER_SHEET;
+        CHARACTER_SHEET,
+        NOTE;
 
         public string to_string () {
             switch (this) {
@@ -9,28 +15,47 @@ namespace Manuscript.Models {
                     return "Chapter";
                 case CHARACTER_SHEET:
                     return "Character Sheet";
+                case NOTE:
+                    return "Note";
                 default:
                     assert_not_reached ();
             }
         }
 
-        public Gtk.Image to_icon (int size = 24, bool symbolic = true) {
-            string icon_name;
+        public ChunkTypeIconInfo to_icon_info (bool symbolic = true) {
+            ChunkTypeIconInfo icon_info = ChunkTypeIconInfo () {
+                name = "",
+                themed = true
+            };
+
             switch (this) {
                 case CHAPTER:
-                    icon_name = "insert-text";
+                    icon_info.name = "insert-text";
                     break;
                 case CHARACTER_SHEET:
-                    icon_name = "avatar-default";
+                    icon_info.name = "avatar-default";
+                    break;
+                case NOTE:
+                    icon_info.name = "note";
+                    icon_info.themed = false;
                     break;
                 default:
                     assert_not_reached ();
             }
 
             if (symbolic) {
-                icon_name = @"$icon_name-symbolic";
+                icon_info.name = @"$(icon_info.name)-symbolic";
             }
 
+            return icon_info;
+        }
+
+        public string to_icon_name (bool symbolic = true) {
+            return this.to_icon_info (symbolic).name;
+        }
+
+        public Gtk.Image to_icon (int size = 24, bool symbolic = true) {
+            string icon_name = this.to_icon_name ();
             var icon = new Gtk.Image ();
             icon.gicon = new ThemedIcon (icon_name);
             icon.pixel_size = size;
@@ -39,7 +64,7 @@ namespace Manuscript.Models {
         }
 
         public static ChunkType[] all () {
-            return { CHAPTER, CHARACTER_SHEET };
+            return { CHAPTER, CHARACTER_SHEET, NOTE };
         }
     }
 }

@@ -1,0 +1,23 @@
+Source: com.github.sixpounder.manuscript
+Section: office
+Priority: extra
+Maintainer: Andrea C. <sixpounder@protonmail.com>
+Build-Depends: appstream,
+               debhelper (>= 10.5.1),
+               gettext,
+               desktop-file-utils,
+               libgtk-3-dev (>= 3.10),
+               libglib2.0-dev,
+               libgranite-dev (>= 5.3.0),
+               libjson-glib-dev,
+               libjson-glib-dev,
+               libcairo2-dev,
+               meson,
+               valac (>= 0.26)
+Standards-Version: 3.9.3
+
+Package: com.github.sixpounder.manuscript
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, 
+Description: Manuscript
+ The writing environment

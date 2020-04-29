@@ -55,8 +55,8 @@ namespace Manuscript.Widgets {
             });
 
             editors_courtesy_view = new Gtk.Label ("Use the sidebar to open an editor");
-            editors_courtesy_view.get_style_context ().add_class ("dim-label");
-            editors_courtesy_view.get_style_context ().add_class ("h2");
+            //  editors_courtesy_view.get_style_context ().add_class (Granite.STYLE_CLASS_WELCOME);
+            editors_courtesy_view.get_style_context ().add_class (Granite.STYLE_CLASS_H2_LABEL);
 
             update_ui ();
         }

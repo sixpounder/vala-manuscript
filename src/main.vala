@@ -17,6 +17,9 @@ namespace Manuscript {
             Services.AppSettings settings = Services.AppSettings.get_default ();
             Window main_window;
 
+            weak Gtk.IconTheme default_theme = Gtk.IconTheme.get_default ();
+            default_theme.add_resource_path ("/com/github/sixpounder/manuscript/icons");
+
             if (settings.last_opened_document != "") {
                 debug ("Opening with document - " + settings.last_opened_document);
                 main_window = new Window.with_document (this, settings.last_opened_document);
@@ -24,32 +27,8 @@ namespace Manuscript {
                 debug ("Opening with welcome view");
                 main_window = new Window.with_document (this);
             }
+
             main_window.title = Constants.APP_NAME;
-
-            // Current window close accelerator
-            var quit_action = new SimpleAction ("quit", null);
-            add_action (quit_action);
-            quit_action.activate.connect (() => {
-                if (main_window != null) {
-                    main_window.close ();
-                }
-            });
-            set_accels_for_action ("app.quit", {"<Ctrl>Q"});
-
-            // Zen mode accelerator
-            var zen_action = new SimpleAction ("zen", null);
-            add_action (zen_action);
-            zen_action.activate.connect (() => {
-                settings.zen = !settings.zen;
-            });
-            set_accels_for_action ("app.zen", {"<Ctrl>M"});
-
-            var action_open = new SimpleAction ("open", null);
-            add_action (action_open);
-            action_open.activate.connect (() => {
-                debug ("DIO BUBU");
-            });
-            set_accels_for_action ("app.action_open", {"<Ctrl>o"});
 
             main_window.show_all ();
 
@@ -58,7 +37,7 @@ namespace Manuscript {
         }
 
         public static int main (string[] args) {
-            var app = new Application ();
+            var app = new Manuscript.Application ();
             return app.run (args);
         }
     }

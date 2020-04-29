@@ -26,7 +26,7 @@ install_data(
 desktop_utils = find_program('desktop-file-validate', required: true)
 if desktop_utils.found()
     test('Validate desktop file', desktop_utils,
-        args: [meson.project_name() + '.desktop']
+        args: [join_paths(meson.current_source_dir(), meson.project_name() + '.desktop')]
     )
 
     message('Desktop file OK')

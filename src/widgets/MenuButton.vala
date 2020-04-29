@@ -28,7 +28,7 @@ namespace Manuscript.Widgets {
         public MenuButton.with_icon_name (string icon_name) {
             this.with_properties (icon_name, "");
         }
-        
+
         public MenuButton.with_properties (string icon_name, string title, string[]? accels = null) {
             button = new Gtk.MenuButton ();
             button.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
