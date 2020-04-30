@@ -12,8 +12,8 @@ namespace Manuscript {
         protected Gtk.Bin body;
         protected Gtk.Paned editor_grid;
         protected Widgets.EditorsNotebook tabs;
-        protected Services.DocumentManager document_manager;
         protected weak Models.Document selected_document = null;
+        public Services.DocumentManager document_manager;
 
         public Services.ActionManager action_manager { get; private set; }
 
@@ -29,9 +29,13 @@ namespace Manuscript {
             }
         }
 
-        public Models.Document document {
+        public Models.Document? document {
             get {
-                return document_manager.document;
+                if (document_manager != null && document_manager.has_document) {
+                    return document_manager.document;
+                } else {
+                    return null;
+                }
             }
 
             set {
@@ -45,9 +49,10 @@ namespace Manuscript {
                 initial_document_path: document_path
             );
 
-            action_manager = new Services.ActionManager (app, this);
+            action_manager = new Services.ActionManager ((Manuscript.Application) application, this);
+            document_manager = new Services.DocumentManager ((Manuscript.Application) application, this);
+
             settings = Services.AppSettings.get_default ();
-            document_manager = Services.DocumentManager.get_default ();
 
             // Load some styles
             var css_provider = new Gtk.CssProvider ();
@@ -77,7 +82,7 @@ namespace Manuscript {
             layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
 
             // Sidebar
-            sidebar = new Widgets.Sidebar ();
+            sidebar = new Widgets.Sidebar (this);
             sidebar.width_request = 10;
 
             // Setup header
@@ -85,7 +90,7 @@ namespace Manuscript {
             set_titlebar (header);
 
             // Tabs
-            tabs = new Widgets.EditorsNotebook ();
+            tabs = new Widgets.EditorsNotebook (this);
             tabs.width_request = 500;
 
             // Grid
@@ -124,9 +129,9 @@ namespace Manuscript {
         public void connect_events () {
             delete_event.connect (on_destroy);
 
-            header.new_file.connect ( () => {
-                document_manager.document.add_chunk (new Models.DocumentChunk.empty () );
-            } );
+            //  header.new_file.connect ( () => {
+            //      document_manager.document.add_chunk (new Models.DocumentChunk.empty (Models.ChunkType.CHAPTER));
+            //  } );
 
             header.open_file.connect ( () => {
                 if (document != null && document.has_changes) {

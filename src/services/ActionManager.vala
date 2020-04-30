@@ -77,9 +77,24 @@ namespace Manuscript.Services {
             }
         }
 
-        protected void action_add_chapter () {}
-        protected void action_add_character_sheet () {}
-        protected void action_add_note () {}
+        protected void action_add_chapter () {
+            window.document_manager.document.add_chunk (
+                new Models.DocumentChunk.empty (Models.ChunkType.CHAPTER)
+            );
+        }
+
+        protected void action_add_character_sheet () {
+            window.document_manager.document.add_chunk (
+                new Models.DocumentChunk.empty (Models.ChunkType.CHARACTER_SHEET)
+            );
+        }
+
+        protected void action_add_note () {
+            window.document_manager.document.add_chunk (
+                new Models.DocumentChunk.empty (Models.ChunkType.NOTE)
+            );
+        }
+
         protected void action_import () {}
     }
 }

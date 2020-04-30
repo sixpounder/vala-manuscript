@@ -1,6 +1,6 @@
 namespace Manuscript {
     public class Header : Gtk.HeaderBar {
-        public weak Gtk.Window parent_window { get; construct; }
+        public weak Manuscript.Window parent_window { get; construct; }
 
         public signal void new_file ();
         public signal void open_file ();
@@ -14,7 +14,7 @@ namespace Manuscript {
 
         protected Widgets.SettingsPopover settings_popover;
         protected Widgets.ExportPopover export_popover;
-        protected Services.DocumentManager document_manager;
+        protected weak Services.DocumentManager document_manager;
         protected Services.AppSettings settings;
 
         public weak Models.Document document {
@@ -25,11 +25,11 @@ namespace Manuscript {
 
         protected bool has_changes {
             get {
-                return document != null && document.has_changes;
+                return document_manager.has_document && document.has_changes;
             }
         }
 
-        public Header (Gtk.Window parent) {
+        public Header (Manuscript.Window parent) {
             Object (
                 title: Constants.APP_NAME,
                 parent_window: parent,
@@ -40,7 +40,7 @@ namespace Manuscript {
         }
 
         construct {
-            document_manager = Services.DocumentManager.get_default ();
+            document_manager = parent_window.document_manager;
             settings = Services.AppSettings.get_default ();
             build_ui ();
         }

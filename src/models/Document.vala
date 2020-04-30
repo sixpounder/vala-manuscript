@@ -101,8 +101,8 @@ namespace Manuscript.Models {
                 file_path: file_path,
                 uuid: GLib.Uuid.string_random ()
             );
-            debug (@"Created document $uuid");
             try {
+                _chunks = new Gee.ArrayList<DocumentChunk> ();
                 if (file_path != null) {
                     load_state = DocumentLoadState.LOADING;
                     var res = FileUtils.read (file_path);
@@ -126,29 +126,6 @@ namespace Manuscript.Models {
         }
 
         protected void build_document (string content) throws GLib.Error {
-            //  Gtk.SourceLanguageManager manager = Gtk.SourceLanguageManager.get_default ();
-            //  buffer = new Gtk.SourceBuffer (new DocumentTagTable () );
-            //  buffer.highlight_matching_brackets = false;
-            //  buffer.max_undo_levels = -1;
-            //  buffer.highlight_syntax = false;
-            //  // buffer.language = manager.guess_language (this.file_path, null);
-            //  buffer.begin_not_undoable_action ();
-            //  buffer.set_text (content, content.length);
-            //  buffer.end_not_undoable_action ();
-
-            //  words_count = Utils.Strings.count_words (buffer.text);
-            //  estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
-
-            //  buffer.changed.connect (on_content_changed);
-            //  buffer.undo.connect (on_buffer_undo);
-            //  buffer.redo.connect (on_buffer_redo);
-
-            //  buffer.insert_text.connect (text_inserted);
-            //  buffer.delete_range.connect (range_deleted);
-
-            //  buffer.undo_manager.can_undo_changed.connect (on_can_undo_changed);
-            //  buffer.undo_manager.can_redo_changed.connect (on_can_redo_changed);
-
             try {
                 Json.Parser parser = new Json.Parser ();
                 parser.load_from_data (content);
@@ -208,15 +185,6 @@ namespace Manuscript.Models {
 
         public void unload () {
             if (buffer != null) {
-                //  buffer.changed.disconnect (on_content_changed);
-                //  buffer.undo.disconnect (on_buffer_undo);
-                //  buffer.redo.disconnect (on_buffer_redo);
-
-                //  buffer.insert_text.disconnect (text_inserted);
-                //  buffer.delete_range.disconnect (range_deleted);
-
-                //  buffer.undo_manager.can_undo_changed.disconnect (on_can_undo_changed);
-                //  buffer.undo_manager.can_redo_changed.disconnect (on_can_redo_changed);
                 buffer.dispose ();
             } else {
                 warning ("Document buffer already disposed");

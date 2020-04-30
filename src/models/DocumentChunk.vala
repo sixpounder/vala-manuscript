@@ -28,12 +28,14 @@ namespace Manuscript.Models {
             }
         }
 
-        public DocumentChunk.empty () {
+        public DocumentChunk.empty (ChunkType chunk_type) {
+            Object (
+                chunk_type: chunk_type
+            );
             build ();
         }
 
         public DocumentChunk.from_data (string data) {
-
         }
 
         public static DocumentChunk from_node (Json.Node node) {
@@ -43,7 +45,19 @@ namespace Manuscript.Models {
             return chunk;
         }
 
-        protected void build (string ? content = "") {
+        protected void build (string content = "") {
+            switch (chunk_type) {
+                case ChunkType.CHAPTER:
+                    title = _("New chapter");
+                    break;
+                case ChunkType.CHARACTER_SHEET:
+                    title = _("New character sheet");
+                    break;
+                case ChunkType.NOTE:
+                    title = _("New note");
+                    break;
+            }
+
             buffer = new Gtk.SourceBuffer (new DocumentTagTable () );
             buffer.highlight_matching_brackets = false;
             buffer.max_undo_levels = -1;

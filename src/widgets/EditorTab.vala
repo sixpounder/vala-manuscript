@@ -8,12 +8,18 @@ namespace Manuscript {
                 chunk: chunk,
                 label: chunk.title
             );
-            var scrolled_container = new Widgets.EditorPage (chunk);
-            scrolled_container.editor = new Editor ();
-            scrolled_container.editor.chunk = chunk;
-            scrolled_container.add (editor);
+        }
 
+        construct {
+            var scrolled_container = new Gtk.ScrolledWindow (null, null);
+            editor = new Editor (chunk);
+            scrolled_container.add (editor);
             page = scrolled_container;
+
+            chunk.notify["title"].connect (() => {
+                label = chunk.title;
+            });
         }
     }
 }
+

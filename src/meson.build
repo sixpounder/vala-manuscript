@@ -33,6 +33,7 @@ executable(
 	'widgets/EditorsNotebook.vala',
 	'widgets/EditorTab.vala',
 	'widgets/ChunkPreview.vala',
+    'widgets/SourceListChunkItem.vala',
 
 	'models/ChunkType.vala',
 	'models/DocumentChunk.vala',

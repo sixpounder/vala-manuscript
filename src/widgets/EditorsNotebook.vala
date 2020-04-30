@@ -3,9 +3,12 @@ namespace Manuscript.Widgets {
 
         protected bool _on_viewport = true;
         protected Services.AppSettings settings;
-        protected Services.DocumentManager documents_manager;
+        protected Services.DocumentManager document_manager;
         protected Granite.Widgets.DynamicNotebook notebook;
         protected Gtk.Label editors_courtesy_view;
+
+
+        public weak Manuscript.Window parent_window { get; construct; }
 
         public bool on_viewport {
             get {
@@ -34,17 +37,22 @@ namespace Manuscript.Widgets {
             }
         }
 
-        public EditorsNotebook () {
+        public EditorsNotebook (Manuscript.Window parent_window) {
+            Object (
+                parent_window: parent_window
+            );
+
             notebook = new Granite.Widgets.DynamicNotebook ();
             notebook.add_button_visible = false;
             notebook.allow_new_window = false;
 
             get_style_context ().add_class ("documents-notebook");
             settings = Services.AppSettings.get_default ();
-            documents_manager = Services.DocumentManager.get_default ();
-            documents_manager.load.connect (on_document_set);
-            documents_manager.change.connect (on_document_set);
-            documents_manager.unload.connect (on_document_unload);
+            document_manager = parent_window.document_manager;
+            document_manager.load.connect (on_document_set);
+            document_manager.change.connect (on_document_set);
+            document_manager.unload.connect (on_document_unload);
+            document_manager.start_editing.connect (on_start_chunk_editing);
 
             on_viewport = !settings.zen;
 
@@ -61,11 +69,9 @@ namespace Manuscript.Widgets {
             update_ui ();
         }
 
-        ~EditorsNotebook () {
-            if (documents_manager.document != null) {
-                documents_manager.document.chunk_added.disconnect (add_chunk);
-                documents_manager.document.chunk_removed.disconnect (remove_chunk);
-                documents_manager.document.active_changed.disconnect (select_chunk);
+        ~ EditorsNotebook () {
+            if (document_manager.document != null) {
+                on_document_unload (document_manager.document);
             }
         }
 
@@ -83,15 +89,38 @@ namespace Manuscript.Widgets {
             doc.active_changed.disconnect (select_chunk);
         }
 
+        private void on_start_chunk_editing (Models.DocumentChunk chunk) {
+            var existing_tab = get_tab_for_chunk (chunk);
+            if (existing_tab == null) {
+                add_chunk (chunk, true);
+            } else {
+                notebook.current = existing_tab;
+            }
+        }
+
         private void update_ui () {
             if (get_child () != null) {
                 remove (get_child ());
             }
-            if (documents_manager.document != null && documents_manager.opened_chunks.size != 0) {
+            if (document_manager.document != null && document_manager.opened_chunks.size != 0) {
                 add (notebook);
             } else {
                 add (editors_courtesy_view);
             }
+
+            show_all ();
+        }
+
+        private EditorTab ? get_tab_for_chunk (Models.DocumentChunk chunk) {
+            EditorTab? existing_tab = null;
+            tabs.@foreach ((item) => {
+                assert (item is EditorTab);
+                if (existing_tab == null && ((EditorTab) item).chunk == chunk) {
+                    existing_tab = (EditorTab) item;
+                }
+            });
+
+            return existing_tab;
         }
 
         public void add_chunk (Models.DocumentChunk chunk, bool active = true) {
@@ -101,6 +130,7 @@ namespace Manuscript.Widgets {
             if (active) {
                 notebook.current = new_tab;
             }
+            update_ui ();
         }
 
         public void remove_chunk (Models.DocumentChunk chunk) {
@@ -112,6 +142,7 @@ namespace Manuscript.Widgets {
                     return;
                 }
             }
+            update_ui ();
         }
 
         public void select_chunk (Models.DocumentChunk chunk) {
@@ -120,7 +151,7 @@ namespace Manuscript.Widgets {
                 EditorTab t = (EditorTab) notebook.tabs.nth (i);
                 if (t.chunk != null && t.chunk == chunk) {
                     notebook.current = t;
-                    documents_manager.document.set_active (chunk);
+                    document_manager.document.set_active (chunk);
                     return;
                 }
             }

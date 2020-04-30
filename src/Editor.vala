@@ -2,35 +2,32 @@ namespace Manuscript {
     public class Editor : Gtk.SourceView {
         public bool has_changes { get; private set; }
         public Gtk.SourceSearchContext search_context = null;
+        protected weak Models.DocumentChunk _chunk;
         protected Gtk.CssProvider provider;
-        protected Models.DocumentChunk _chunk;
         protected Services.AppSettings settings = Services.AppSettings.get_default ();
 
-        public Editor (Models.DocumentChunk ? chunk = null) {
+        public Editor (Models.DocumentChunk chunk) {
             Object (
+                chunk: chunk,
                 has_focus: true,
                 pixels_inside_wrap: 0,
                 pixels_below_lines: 20,
-                wrap_mode: Gtk.WrapMode.WORD
+                wrap_mode: Gtk.WrapMode.WORD,
+                expand: true
             );
-
-            search_context = new Gtk.SourceSearchContext (buffer as Gtk.SourceBuffer, null);
 
             try {
                 init_editor ();
-                if (chunk != null) {
-                    _chunk = chunk;
-                }
+                search_context = new Gtk.SourceSearchContext (buffer as Gtk.SourceBuffer, null);
+                settings.change.connect (on_setting_change);
+                destroy.connect (on_destroy);
             } catch (Error e) {
                 error ("Cannot instantiate editor view: " + e.message);
             }
 
-            settings.change.connect (on_setting_change);
-
-            destroy.connect (on_destroy);
         }
 
-        public Models.DocumentChunk chunk {
+        public weak Models.DocumentChunk chunk {
             get {
                 return _chunk;
             }
@@ -75,7 +72,6 @@ namespace Manuscript {
         }
 
         protected void init_editor () throws GLib.Error {
-
             get_style_context ().add_provider (get_editor_style (), Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             pixels_below_lines = 0;
             right_margin = 100;
@@ -88,29 +84,33 @@ namespace Manuscript {
 
         protected void load_buffer (Gtk.SourceBuffer new_buffer) {
             buffer = new_buffer;
-            //  document.change.connect (this.on_document_change);
-            //  _chunk.saved.connect (on_document_saved);
-            update_settings ();
+            update_settings (null);
         }
 
-        protected void update_settings () {
-            if (buffer != null) {
-                if (settings.zen) {
-                    set_focused_paragraph ();
-                    buffer.notify["cursor-position"].connect (set_focused_paragraph);
+        protected void update_settings (string ? key = null) {
+            try {
+                if (buffer != null) {
+                    if (settings.zen) {
+                        set_focused_paragraph ();
+                        buffer.notify["cursor-position"].connect (set_focused_paragraph);
+                    } else {
+                        if (key == "prefer_dark_style") {
+                            Gtk.TextIter start, end;
+                            Gtk.TextTag[] tags =
+                                (buffer.tag_table as DocumentTagTable).for_theme (
+                                    settings.prefer_dark_style ? "dark" : "light"
+                                );
+                            buffer.get_bounds (out start, out end);
+                            buffer.remove_tag (tags[1], start, end);
+                            buffer.remove_tag (tags[0], start, end);
+                            buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
+                        }
+                    }
                 } else {
-                    Gtk.TextIter start, end;
-                    Gtk.TextTag[] tags =
-                        (buffer.tag_table as DocumentTagTable).for_theme (
-                            settings.prefer_dark_style ? "dark" : "light"
-                        );
-                    buffer.get_bounds (out start, out end);
-                    buffer.remove_tag (tags[1], start, end);
-                    buffer.remove_tag (tags[0], start, end);
-                    buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
+                    warning ("Settings not updated, current buffer is null");
                 }
-            } else {
-                warning ("Settings not updated, current buffer is null");
+            } catch (Error err) {
+                critical (@"Error on Editor.update_settings -> $(err.message)");
             }
         }
 
@@ -166,7 +166,7 @@ namespace Manuscript {
         }
 
         protected void on_setting_change (string key) {
-            update_settings ();
+            update_settings (key);
         }
 
         protected void on_document_change () {
@@ -179,9 +179,6 @@ namespace Manuscript {
 
         protected void on_destroy () {
             settings.change.disconnect (on_setting_change);
-            //  if (_chunk != null) {
-            //      _chunk.saved.disconnect (on_document_saved);
-            //  }
         }
     }
 }
