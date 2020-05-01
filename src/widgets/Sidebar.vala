@@ -1,4 +1,7 @@
 namespace Manuscript.Widgets {
+
+    public interface SidebarListEntry : Granite.Widgets.SourceList.Item {}
+
     public class Sidebar : Gtk.Box {
         protected Granite.Widgets.SourceList root_list;
         protected Granite.Widgets.SourceList.ExpandableItem chapters_root;
@@ -53,6 +56,9 @@ namespace Manuscript.Widgets {
             root_list.item_selected.connect (on_item_selected);
 
             pack_start (root_list);
+
+            Gtk.TargetEntry uri_list_entry = { "text/uri-list", Gtk.TargetFlags.SAME_APP, 0 };
+            root_list.enable_drag_dest ({ uri_list_entry }, Gdk.DragAction.COPY);
 
             show_all ();
         }

@@ -41,6 +41,8 @@ executable(
 	'models/Document.vala',
 	'models/LoadState.vala',
 
+    'protocols/Editor.vala',
+
 	'utils/StringUtils.vala',
 	'utils/StyleProvider.vala',
 	'utils/Easing.vala',

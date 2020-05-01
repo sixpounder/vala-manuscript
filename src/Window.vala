@@ -83,7 +83,7 @@ namespace Manuscript {
 
             // Sidebar
             sidebar = new Widgets.Sidebar (this);
-            sidebar.width_request = 10;
+            sidebar.width_request = 250;
 
             // Setup header
             header = new Header (this);
@@ -91,14 +91,13 @@ namespace Manuscript {
 
             // Tabs
             tabs = new Widgets.EditorsNotebook (this);
-            tabs.width_request = 500;
 
             // Grid
             editor_grid = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
             editor_grid.get_style_context ().add_class ("editor_grid");
             editor_grid.valign = Gtk.Align.FILL;
-            editor_grid.pack1 (sidebar, true, false);
-            editor_grid.pack2 (tabs, false, false);
+            editor_grid.pack1 (sidebar, false, true);
+            editor_grid.pack2 (tabs, true, false);
 
             // Setup welcome view
             welcome_view = new WelcomeView ();

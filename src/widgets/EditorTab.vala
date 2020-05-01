@@ -1,5 +1,5 @@
 namespace Manuscript {
-    public class EditorTab: Granite.Widgets.Tab {
+    public class EditorTab: Granite.Widgets.Tab, Protocols.EditorController {
         public Editor editor { get; private set; }
         public weak Models.DocumentChunk chunk { get; construct; }
 
@@ -19,6 +19,17 @@ namespace Manuscript {
             chunk.notify["title"].connect (() => {
                 label = chunk.title;
             });
+        }
+
+        public void focus_editor () {
+            editor.focus (Gtk.DirectionType.DOWN);
+        }
+
+        // Editor controller protocol
+
+        public bool has_changes () {
+            // TODO: return an actual meaningful value
+            return false;
         }
     }
 }

@@ -94,17 +94,15 @@ namespace Manuscript {
                         set_focused_paragraph ();
                         buffer.notify["cursor-position"].connect (set_focused_paragraph);
                     } else {
-                        if (key == "prefer_dark_style") {
-                            Gtk.TextIter start, end;
-                            Gtk.TextTag[] tags =
-                                (buffer.tag_table as DocumentTagTable).for_theme (
-                                    settings.prefer_dark_style ? "dark" : "light"
-                                );
-                            buffer.get_bounds (out start, out end);
-                            buffer.remove_tag (tags[1], start, end);
-                            buffer.remove_tag (tags[0], start, end);
-                            buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
-                        }
+                        Gtk.TextIter start, end;
+                        Gtk.TextTag[] tags =
+                            (buffer.tag_table as DocumentTagTable).for_theme (
+                                settings.prefer_dark_style ? "dark" : "light"
+                            );
+                        buffer.get_bounds (out start, out end);
+                        buffer.remove_tag (tags[1], start, end);
+                        buffer.remove_tag (tags[0], start, end);
+                        buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
                     }
                 } else {
                     warning ("Settings not updated, current buffer is null");
