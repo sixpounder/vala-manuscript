@@ -59,7 +59,7 @@ namespace Manuscript {
             FileUtils.save (buffer.text, path);
         }
 
-        public static void save (string text, string path) throws Error {
+        public static long save (string text, string path) throws Error {
             File file = File.new_for_path (path);
 
             // delete if file already exists
@@ -77,6 +77,8 @@ namespace Manuscript {
                 // sum of the bytes of 'text' that already have been written to the stream
                 written += dos.write (data[written:data.length]);
             }
+
+            return written;
         }
     }
 }

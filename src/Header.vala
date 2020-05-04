@@ -57,13 +57,16 @@ namespace Manuscript {
         private void build_ui () {
             menu_button = new Widgets.MenuButton.with_properties ("folder", "Menu");
             menu_button.popover = build_main_menu_popover ();
+            menu_button.sensitive = document_manager.has_document;
             pack_start (menu_button);
 
             add_element_button = new Widgets.MenuButton.with_properties ("insert-object", "Insert");
+            add_element_button.sensitive = document_manager.has_document;
             add_element_button.popover = build_add_element_menu ();
             pack_start (add_element_button);
 
             export_button = new Widgets.MenuButton.with_properties ("document-export", "Export");
+            export_button.sensitive = document_manager.has_document;
             export_button.activated.connect (() => {
                 if (export_popover.visible) {
                     export_popover.popdown ();
@@ -226,7 +229,9 @@ namespace Manuscript {
 
         protected void update_ui () {
             zen_switch.sensitive = document != null;
-            export_button.sensitive = document != null;
+            menu_button.sensitive = document_manager.has_document;
+            add_element_button.sensitive = document_manager.has_document;
+            export_button.sensitive = document_manager.has_document;
             zen_switch.active = settings.zen;
         }
 

@@ -73,12 +73,12 @@ namespace Manuscript {
 
         protected void init_editor () throws GLib.Error {
             get_style_context ().add_provider (get_editor_style (), Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-            pixels_below_lines = 0;
             right_margin = 100;
             left_margin = 100;
             top_margin = 50;
             bottom_margin = 50;
             wrap_mode = Gtk.WrapMode.WORD;
+            indent = 20;
             input_hints = Gtk.InputHints.SPELLCHECK | Gtk.InputHints.NO_EMOJI;
         }
 
@@ -88,27 +88,23 @@ namespace Manuscript {
         }
 
         protected void update_settings (string ? key = null) {
-            try {
-                if (buffer != null) {
-                    if (settings.zen) {
-                        set_focused_paragraph ();
-                        buffer.notify["cursor-position"].connect (set_focused_paragraph);
-                    } else {
-                        Gtk.TextIter start, end;
-                        Gtk.TextTag[] tags =
-                            (buffer.tag_table as DocumentTagTable).for_theme (
-                                settings.prefer_dark_style ? "dark" : "light"
-                            );
-                        buffer.get_bounds (out start, out end);
-                        buffer.remove_tag (tags[1], start, end);
-                        buffer.remove_tag (tags[0], start, end);
-                        buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
-                    }
+            if (buffer != null) {
+                if (settings.zen) {
+                    set_focused_paragraph ();
+                    buffer.notify["cursor-position"].connect (set_focused_paragraph);
                 } else {
-                    warning ("Settings not updated, current buffer is null");
+                    Gtk.TextIter start, end;
+                    Gtk.TextTag[] tags =
+                        (buffer.tag_table as DocumentTagTable).for_theme (
+                            settings.prefer_dark_style ? "dark" : "light"
+                        );
+                    buffer.get_bounds (out start, out end);
+                    buffer.remove_tag (tags[1], start, end);
+                    buffer.remove_tag (tags[0], start, end);
+                    buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
                 }
-            } catch (Error err) {
-                critical (@"Error on Editor.update_settings -> $(err.message)");
+            } else {
+                warning ("Settings not updated, current buffer is null");
             }
         }
 

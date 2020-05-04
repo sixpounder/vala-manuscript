@@ -77,5 +77,25 @@ namespace Manuscript.Services {
                 stop_editing (chunk);
             }
         }
+
+        // FS ops
+
+        public void save () {
+            if (document.temporary) {
+                // Ask where to save this
+                save_as ();
+            } else {
+                document.save ();
+            }
+        }
+
+        public void save_as () {
+            var dialog = new FileSaveDialog (window, document);
+            int res = dialog.run ();
+            if (res == Gtk.ResponseType.ACCEPT) {
+                document.save (dialog.get_filename () );
+            }
+            dialog.destroy ();
+        }
     }
 }

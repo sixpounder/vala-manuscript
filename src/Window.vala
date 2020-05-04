@@ -11,7 +11,7 @@ namespace Manuscript {
         protected SearchBar search_bar;
         protected Gtk.Bin body;
         protected Gtk.Paned editor_grid;
-        protected Widgets.EditorsNotebook tabs;
+        protected Widgets.EditorsController tabs;
         protected weak Models.Document selected_document = null;
         public Services.DocumentManager document_manager;
 
@@ -90,7 +90,7 @@ namespace Manuscript {
             set_titlebar (header);
 
             // Tabs
-            tabs = new Widgets.EditorsNotebook (this);
+            tabs = new Widgets.EditorsController (this);
 
             // Grid
             editor_grid = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
@@ -113,7 +113,6 @@ namespace Manuscript {
             container.add (layout);
 
             connect_events ();
-            configure_key_events ();
 
             container.show_all ();
 
@@ -163,45 +162,11 @@ namespace Manuscript {
         public void configure_searchbar () {
             search_bar = new SearchBar (this, current_editor);
             layout.pack_start (search_bar, false, false, 0);
-            settings.change.connect ( (k) => {
+            settings.change.connect ((k) => {
                 if (k == "searchbar") {
                     show_searchbar ();
                 }
             } );
-        }
-
-        public bool configure_key_events () {
-            key_press_event.connect ( (e) => {
-                uint keycode = e.hardware_keycode;
-
-                if ( (e.state & Gdk.ModifierType.CONTROL_MASK) != 0 ) {
-                    if (Manuscript.Utils.Keys.match_keycode (Gdk.Key.f, keycode) ) {
-                        if (settings.searchbar == false) {
-                            debug ("Searchbar on");
-                            settings.searchbar = true;
-                        } else {
-                            debug ("Searchbar off");
-                            settings.searchbar = false;
-                        }
-                    } else if (Manuscript.Utils.Keys.match_keycode (Gdk.Key.s, keycode) ) {
-                        if (document.temporary) {
-                            // Ask where to save this
-                            var dialog = new FileSaveDialog (this, document);
-                            int res = dialog.run ();
-                            if (res == Gtk.ResponseType.ACCEPT) {
-                                document.save (dialog.get_filename () );
-                            }
-                            dialog.destroy ();
-                        } else {
-                            document.save ();
-                        }
-                    }
-                }
-
-                return false;
-            } );
-
-            return false;
         }
 
         public override bool configure_event (Gdk.EventConfigure event) {
@@ -291,9 +256,9 @@ namespace Manuscript {
         }
 
         // Opens file at path and sets up the editor
-        public void open_file_at_path (string path, bool temporary = false) {
+        public void open_file_at_path (string path, bool temporary = false) requires (path != null) {
             try {
-                document_manager.set_current_document (Models.Document.from_file (path));
+                document_manager.set_current_document (new Models.Document.from_file (path));
                 set_layout_body (editor_grid);
             } catch (GLib.Error error) {
                 var invalid_file_dialog = new InvalidFileDialog (this);

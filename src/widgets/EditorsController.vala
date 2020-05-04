@@ -1,5 +1,5 @@
 namespace Manuscript.Widgets {
-    public class EditorsNotebook : Gtk.Stack, Protocols.EditorViewController {
+    public class EditorsController : Gtk.Stack, Protocols.EditorViewController {
 
         protected bool _on_viewport = true;
         protected Services.AppSettings settings;
@@ -35,7 +35,7 @@ namespace Manuscript.Widgets {
             }
         }
 
-        public EditorsNotebook (Manuscript.Window parent_window) {
+        public EditorsController (Manuscript.Window parent_window) {
             Object (
                 parent_window: parent_window
             );
@@ -70,7 +70,7 @@ namespace Manuscript.Widgets {
             update_ui ();
         }
 
-        ~ EditorsNotebook () {
+        ~ EditorsController () {
             if (document_manager.document != null) {
                 on_document_unload (document_manager.document);
             }
@@ -109,12 +109,12 @@ namespace Manuscript.Widgets {
             }
         }
 
-        private EditorTab ? get_tab_for_chunk (Models.DocumentChunk chunk) {
-            EditorTab? existing_tab = null;
+        private EditorView ? get_tab_for_chunk (Models.DocumentChunk chunk) {
+            EditorView? existing_tab = null;
             tabs.@foreach ((item) => {
-                assert (item is EditorTab);
-                if (existing_tab == null && ((EditorTab) item).chunk == chunk) {
-                    existing_tab = (EditorTab) item;
+                assert (item is EditorView);
+                if (existing_tab == null && ((EditorView) item).chunk == chunk) {
+                    existing_tab = (EditorView) item;
                 }
             });
 
@@ -126,11 +126,11 @@ namespace Manuscript.Widgets {
             update_ui ();
         }
 
-        public void add_chunk (Models.DocumentChunk chunk, bool active = true) {
+        private void add_chunk (Models.DocumentChunk chunk, bool active = true) {
             assert (chunk != null);
             var existing_tab = get_tab_for_chunk (chunk);
             if (existing_tab == null) {
-                EditorTab new_tab = new EditorTab (chunk);
+                EditorView new_tab = new EditorView (chunk);
                 notebook.insert_tab (new_tab, 0);
                 if (active) {
                     notebook.current = new_tab;
@@ -143,10 +143,10 @@ namespace Manuscript.Widgets {
             }
         }
 
-        public void remove_chunk (Models.DocumentChunk chunk) {
+        private void remove_chunk (Models.DocumentChunk chunk) {
             assert (chunk != null);
             for (int i = 0; i < notebook.tabs.length (); i++) {
-                EditorTab t = (EditorTab) notebook.tabs.nth (i);
+                EditorView t = (EditorView) notebook.tabs.nth (i);
                 if (t.chunk == chunk) {
                     notebook.remove_tab (t);
                     return;
@@ -155,10 +155,10 @@ namespace Manuscript.Widgets {
             update_ui ();
         }
 
-        public void select_chunk (Models.DocumentChunk chunk) {
+        private void select_chunk (Models.DocumentChunk chunk) {
             assert (chunk != null);
             for (int i = 0; i < notebook.tabs.length (); i++) {
-                EditorTab t = (EditorTab) notebook.tabs.nth (i);
+                EditorView t = (EditorView) notebook.tabs.nth (i);
                 if (t.chunk != null && t.chunk == chunk) {
                     notebook.current = t;
                     document_manager.document.set_active (chunk);

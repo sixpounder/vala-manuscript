@@ -30,8 +30,8 @@ executable(
 	'widgets/ThemeButton.vala',
 	'widgets/FileNotFound.vala',
 	'widgets/SearchBar.vala',
-	'widgets/EditorsNotebook.vala',
-	'widgets/EditorTab.vala',
+	'widgets/EditorsController.vala',
+	'widgets/EditorView.vala',
 	'widgets/ChunkPreview.vala',
     'widgets/SourceListChunkItem.vala',
 

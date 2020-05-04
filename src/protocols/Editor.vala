@@ -1,4 +1,9 @@
 namespace Manuscript.Protocols {
+    public interface DocumentStats {
+        public abstract uint words_count { get; }
+        public abstract uint[] estimated_reading_time { get; }
+    }
+
     public interface EditorViewController {
         public abstract unowned List<EditorController> list_editors ();
         public abstract EditorController get_editor (Models.DocumentChunk chunk);
@@ -7,8 +12,10 @@ namespace Manuscript.Protocols {
         public abstract void show_editor (Models.DocumentChunk chunk);
     }
 
-    public interface EditorController {
+    public interface EditorController : Object {
+        public abstract weak Models.DocumentChunk chunk { get; construct; }
         public abstract bool has_changes ();
         public abstract void focus_editor ();
+        public abstract void on_stats_updated (DocumentStats stats);
     }
 }

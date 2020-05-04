@@ -3,19 +3,34 @@ namespace Manuscript.Models {
         READ
     }
 
-    public interface DocumentBase : Object {
+    public interface DocumentBase {
         public abstract string title { get; set; }
-        public abstract void copy_from (DocumentBase base_data);
+        public abstract DocumentChunk[] chunks { owned get; }
     }
+
 
     public class DocumentData : Object, DocumentBase {
         public string title { get; set; }
-        public void copy_from (DocumentBase base_data) {
-            title = base_data.title;
-        }
+        public DocumentChunk[] chunks { owned get; }
     }
 
-    public class Document : DocumentData {
+    public void copy_from (DocumentBase source, DocumentBase dest) {
+        dest.title = source.title;
+    }
+
+    public class Document : Object, DocumentBase, Json.Serializable {
+        protected const string[] SERIALIZABLE_PROPERIES = {
+            "title",
+            "chunks"
+        };
+
+        public Document.from_file (string path, bool temporary = false) throws GLib.Error {
+            this (path, temporary);
+        }
+
+        public Document.empty () throws GLib.Error {
+            this (null, true);
+        }
 
         public signal void saved (string target_path);
         public signal void load ();
@@ -27,19 +42,28 @@ namespace Manuscript.Models {
         public signal void drain ();
 
         protected Gtk.SourceBuffer _buffer;
-        protected string _raw_content;
         private string original_path;
         private string modified_path;
-        private uint words_counter_timer = 0;
         private uint _load_state = DocumentLoadState.EMPTY;
 
         public uint words_count { get; private set; }
         public double estimate_reading_time { get; private set; }
         public bool has_changes { get; private set; }
-        public bool temporary { get; construct; }
+        public bool temporary { get; private set; }
         public string uuid { get; construct; }
 
+        public string title { get; set; }
+
         private Gee.ArrayList<DocumentChunk> _chunks;
+        public DocumentChunk[] chunks {
+            owned get {
+                if (_chunks != null) {
+                    return _chunks.to_array ();
+                } else {
+                    return {};
+                }
+            }
+        }
 
         public DocumentChunk active_chunk { get; private set; }
 
@@ -95,13 +119,13 @@ namespace Manuscript.Models {
             }
         }
 
-        protected Document (string ? file_path, bool temporary = false) throws GLib.Error {
+        protected Document (string ? file_path, bool temporary_doc = false) throws GLib.Error {
             Object (
-                temporary: temporary,
                 file_path: file_path,
                 uuid: GLib.Uuid.string_random ()
             );
             try {
+                temporary = temporary_doc;
                 _chunks = new Gee.ArrayList<DocumentChunk> ();
                 if (file_path != null) {
                     load_state = DocumentLoadState.LOADING;
@@ -122,7 +146,7 @@ namespace Manuscript.Models {
 
         ~Document () {
             debug (@"Unloading document $uuid");
-            unload ();
+            // unload ();
         }
 
         protected void build_document (string content) throws GLib.Error {
@@ -130,21 +154,17 @@ namespace Manuscript.Models {
                 Json.Parser parser = new Json.Parser ();
                 parser.load_from_data (content);
                 Json.Node node = parser.get_root ();
-
-                DocumentBase obj = Json.gobject_deserialize (typeof (DocumentData), node) as DocumentData;
+                DocumentData obj = Json.gobject_deserialize (typeof (DocumentData), node) as DocumentData;
                 if (obj == null) {
                     throw new DocumentError.READ (@"Cannot parse manuscript from content of $file_path");
                 } else {
-                    copy_from (obj);
+                    copy_from (obj, this);
                     load_state = DocumentLoadState.LOADED;
                 }
             } catch (GLib.Error error) {
+                critical (@"Error building document: $(error.message)");
                 throw error;
             }
-        }
-
-        public DocumentChunk[] get_chunks () {
-            return _chunks.to_array ();
         }
 
         /**
@@ -170,13 +190,17 @@ namespace Manuscript.Models {
             }
         }
 
-        public void save (string path = "@") {
+        public void save (string ? path = null) {
             try {
-                if (path != "@") {
+                if (path != null) {
                     modified_path = path;
                 }
-                FileUtils.save_buffer (_buffer, file_path);
+                // FileUtils.save_buffer (_buffer, file_path);
+                string data = Json.gobject_to_data (flatten (), null);
+                long written_bytes = FileUtils.save (data, file_path);
+                debug (@"Written $written_bytes bytes");
                 this.has_changes = false;
+                this.temporary = false;
                 this.saved (file_path);
             } catch (Error e) {
                 this.save_error (e);
@@ -191,12 +215,45 @@ namespace Manuscript.Models {
             }
         }
 
-        public static Document from_file (string path, bool temporary = false) throws GLib.Error {
-            return new Document (path, temporary);
+        public DocumentData flatten () {
+            DocumentData ret = new DocumentData ();
+            foreach (ParamSpec spec in list_properties ()) {
+                ret.set_property (spec.get_name (), get_property (spec));
+            }
+
+            return ret;
         }
 
-        public static Document empty () throws GLib.Error {
-            return new Document (null, true);
+        // ******
+        // Json serializable impl
+        // ******
+
+        //  public bool deserialize_property (string property_name, out Value value, ParamSpec pspec, Json.Node property_node) {
+
+        //  }
+
+        //  public Value get_property (ParamSpec pspec) {}
+
+        /**
+         * Only list serializable properties
+         */
+        public (unowned ParamSpec)[] list_properties () {
+            ParamSpec[] specs = new ParamSpec[Document.SERIALIZABLE_PROPERIES.length];
+            Type type = typeof (Document);
+            ObjectClass ocl = (ObjectClass) type.class_ref ();
+            var i = 0;
+            foreach (string prop in Document.SERIALIZABLE_PROPERIES) {
+                specs[i] = ocl.find_property (prop);
+                i++;
+            }
+
+            return specs;
         }
+
+        //  public Json.Node serialize_property (string property_name, Value value, ParamSpec pspec) {
+
+        //  }
+
+        //  public virtual void set_property (ParamSpec pspec, Value value) {}
     }
 }

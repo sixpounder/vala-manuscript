@@ -5,12 +5,15 @@ namespace Manuscript.Models {
     }
 
     public enum ChunkType {
+        COVER,
         CHAPTER,
         CHARACTER_SHEET,
         NOTE;
 
         public string to_string () {
             switch (this) {
+                case COVER:
+                    return "Cover";
                 case CHAPTER:
                     return "Chapter";
                 case CHARACTER_SHEET:
@@ -29,6 +32,9 @@ namespace Manuscript.Models {
             };
 
             switch (this) {
+                case COVER:
+                    icon_info.name = "insert-text";
+                    break;
                 case CHAPTER:
                     icon_info.name = "insert-text";
                     break;
@@ -36,7 +42,7 @@ namespace Manuscript.Models {
                     icon_info.name = "avatar-default";
                     break;
                 case NOTE:
-                    icon_info.name = "note";
+                    icon_info.name = "text-x-generic";
                     icon_info.themed = false;
                     break;
                 default:

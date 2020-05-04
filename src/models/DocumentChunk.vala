@@ -7,17 +7,29 @@ namespace Manuscript.Models {
         public signal void redo ();
         public signal void analyze ();
 
-        protected Gtk.SourceBuffer _buffer;
         protected uint words_counter_timer = 0;
         public virtual ChunkType chunk_type { get; construct; }
         public bool has_changes { get; private set; }
         public uint words_count { get; private set; }
         public double estimate_reading_time { get; private set; }
         public string notes { get; set; }
-        public string title { get; set; }
         public string raw_content { get; set; }
         public uint index { get; set; }
 
+        protected string _title;
+        public string title {
+            get {
+                return _title;
+            }
+            set {
+                assert (value != null);
+                if (value != "") {
+                    _title = value;
+                }
+            }
+        }
+
+        protected Gtk.SourceBuffer _buffer;
         public Gtk.SourceBuffer buffer {
             get {
                 return _buffer;
@@ -56,6 +68,8 @@ namespace Manuscript.Models {
                 case ChunkType.NOTE:
                     title = _("New note");
                     break;
+                default:
+                    assert_not_reached ();
             }
 
             buffer = new Gtk.SourceBuffer (new DocumentTagTable () );

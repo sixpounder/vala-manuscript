@@ -10,6 +10,8 @@ namespace Manuscript.Services {
         public const string ACTION_SAVE_AS = "action_save_as";
         public const string ACTION_QUIT = "action_quit";
 
+        public const string ACTION_FIND = "action_find";
+
         public const string ACTION_ADD_CHAPTER = "action_add_chapter";
         public const string ACTION_ADD_CHARACTER_SHEET = "action_add_character_sheet";
         public const string ACTION_ADD_NOTE = "action_add_note";
@@ -22,6 +24,8 @@ namespace Manuscript.Services {
             { ACTION_SAVE_AS, action_save_as },
             { ACTION_QUIT, action_quit },
 
+            { ACTION_FIND, action_find },
+
             { ACTION_ADD_CHAPTER, action_add_chapter },
             { ACTION_ADD_CHARACTER_SHEET, action_add_character_sheet },
             { ACTION_ADD_NOTE, action_add_note },
@@ -30,13 +34,14 @@ namespace Manuscript.Services {
 
         public weak Manuscript.Application application { get; construct; }
         public weak Manuscript.Window window { get; construct; }
-
+        public weak Manuscript.Services.AppSettings settings { get; private set; }
         public SimpleActionGroup actions { get; construct; }
 
         static construct {
             action_accelerators.set (ACTION_OPEN, "<Control>o");
             action_accelerators.set (ACTION_SAVE, "<Control>s");
             action_accelerators.set (ACTION_SAVE_AS, "<Control><Shift>s");
+            action_accelerators.set (ACTION_FIND, "<Control>f");
             action_accelerators.set (ACTION_QUIT, "<Control>q");
             action_accelerators.set (ACTION_ADD_CHAPTER, "<Alt>1");
             action_accelerators.set (ACTION_ADD_CHARACTER_SHEET, "<Alt>2");
@@ -52,6 +57,7 @@ namespace Manuscript.Services {
 
 
         construct {
+            settings = Services.AppSettings.get_default ();
             actions = new SimpleActionGroup ();
             actions.add_action_entries (ACTION_ENTRIES, this);
             window.insert_action_group ("win", actions);
@@ -67,13 +73,27 @@ namespace Manuscript.Services {
             window.open_file_dialog ();
         }
 
-        protected void action_save () {}
+        protected void action_save () {
+            window.document_manager.save ();
+        }
 
-        protected void action_save_as () {}
+        protected void action_save_as () {
+            window.document_manager.save_as ();
+        }
 
         protected void action_quit () {
             if (window != null) {
                 window.close ();
+            }
+        }
+
+        protected void action_find () {
+            if (settings.searchbar == false) {
+                debug ("Searchbar on");
+                settings.searchbar = true;
+            } else {
+                debug ("Searchbar off");
+                settings.searchbar = false;
             }
         }
 
