@@ -3,13 +3,15 @@ namespace Manuscript.Models {
         READ
     }
 
-    public interface DocumentBase {
+    public interface DocumentBase : Object {
+        public abstract string uuid { get; set; }
         public abstract string title { get; set; }
         public abstract DocumentChunk[] chunks { owned get; }
     }
 
 
     public class DocumentData : Object, DocumentBase {
+        public string uuid { get; set; }
         public string title { get; set; }
         public DocumentChunk[] chunks { owned get; }
     }
@@ -18,8 +20,9 @@ namespace Manuscript.Models {
         dest.title = source.title;
     }
 
-    public class Document : Object, DocumentBase, Json.Serializable {
+    public class Document : DocumentData, DocumentBase, Json.Serializable {
         protected const string[] SERIALIZABLE_PROPERIES = {
+            "uuid",
             "title",
             "chunks"
         };
@@ -41,7 +44,6 @@ namespace Manuscript.Models {
         public signal void active_changed (DocumentChunk chunk);
         public signal void drain ();
 
-        protected Gtk.SourceBuffer _buffer;
         private string original_path;
         private string modified_path;
         private uint _load_state = DocumentLoadState.EMPTY;
@@ -50,12 +52,9 @@ namespace Manuscript.Models {
         public double estimate_reading_time { get; private set; }
         public bool has_changes { get; private set; }
         public bool temporary { get; private set; }
-        public string uuid { get; construct; }
-
-        public string title { get; set; }
 
         private Gee.ArrayList<DocumentChunk> _chunks;
-        public DocumentChunk[] chunks {
+        public new DocumentChunk[] chunks {
             owned get {
                 if (_chunks != null) {
                     return _chunks.to_array ();
@@ -87,15 +86,15 @@ namespace Manuscript.Models {
             }
         }
 
-        public Gtk.SourceBuffer buffer {
-            get {
-                return this._buffer;
-            }
+        //  public Gtk.SourceBuffer buffer {
+        //      get {
+        //          return this._buffer;
+        //      }
 
-            set {
-                this._buffer = value;
-            }
-        }
+        //      set {
+        //          this._buffer = value;
+        //      }
+        //  }
 
         public bool loaded {
             get {
@@ -103,11 +102,11 @@ namespace Manuscript.Models {
             }
         }
 
-        public string text {
-            owned get {
-                return this.buffer != null ? this.buffer.text : null;
-            }
-        }
+        //  public string text {
+        //      owned get {
+        //          return this.buffer != null ? this.buffer.text : null;
+        //      }
+        //  }
 
         public string filename {
             owned get {
@@ -146,7 +145,6 @@ namespace Manuscript.Models {
 
         ~Document () {
             debug (@"Unloading document $uuid");
-            // unload ();
         }
 
         protected void build_document (string content) throws GLib.Error {
@@ -207,13 +205,13 @@ namespace Manuscript.Models {
             }
         }
 
-        public void unload () {
-            if (buffer != null) {
-                buffer.dispose ();
-            } else {
-                warning ("Document buffer already disposed");
-            }
-        }
+        //  public void unload () {
+        //      if (buffer != null) {
+        //          buffer.dispose ();
+        //      } else {
+        //          warning ("Document buffer already disposed");
+        //      }
+        //  }
 
         public DocumentData flatten () {
             DocumentData ret = new DocumentData ();

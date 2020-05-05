@@ -34,6 +34,7 @@ executable(
 	'widgets/EditorView.vala',
 	'widgets/ChunkPreview.vala',
     'widgets/SourceListChunkItem.vala',
+    'widgets/DocumentSettings.vala',
 
 	'models/ChunkType.vala',
 	'models/DocumentChunk.vala',
@@ -49,6 +50,7 @@ executable(
 	'utils/Keys.vala',
 	'utils/Math.vala',
 
+    'dialogs/GenericDialog.vala',
 	'dialogs/QuitDialog.vala',
 	'dialogs/FileSaveDialog.vala',
 	'dialogs/InvalidFileDialog.vala',

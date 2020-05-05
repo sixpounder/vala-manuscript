@@ -6,5 +6,6 @@
 
     <gresource prefix="/com/github/sixpounder/manuscript/icons">
         <file alias="note-symbolic.svg">icons/symbolic/notes-symbolic.svg</file>
+        <file alias="document-settings-symbolic.svg">icons/symbolic/document-settings-symbolic.svg</file>
     </gresource>
 </gresources>

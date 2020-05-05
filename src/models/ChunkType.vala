@@ -1,7 +1,6 @@
 namespace Manuscript.Models {
     public struct ChunkTypeIconInfo {
         public string? name;
-        public bool themed;
     }
 
     public enum ChunkType {
@@ -27,13 +26,12 @@ namespace Manuscript.Models {
 
         public ChunkTypeIconInfo to_icon_info (bool symbolic = true) {
             ChunkTypeIconInfo icon_info = ChunkTypeIconInfo () {
-                name = "",
-                themed = true
+                name = ""
             };
 
             switch (this) {
                 case COVER:
-                    icon_info.name = "insert-text";
+                    icon_info.name = "image-x-generic";
                     break;
                 case CHAPTER:
                     icon_info.name = "insert-text";
@@ -42,8 +40,7 @@ namespace Manuscript.Models {
                     icon_info.name = "avatar-default";
                     break;
                 case NOTE:
-                    icon_info.name = "text-x-generic";
-                    icon_info.themed = false;
+                    icon_info.name = "note";
                     break;
                 default:
                     assert_not_reached ();

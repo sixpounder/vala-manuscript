@@ -57,6 +57,7 @@ namespace Manuscript {
         private void build_ui () {
             menu_button = new Widgets.MenuButton.with_properties ("folder", "Menu");
             menu_button.popover = build_main_menu_popover ();
+            menu_button.popover.width_request = 350;
             menu_button.sensitive = document_manager.has_document;
             pack_start (menu_button);
 
@@ -140,9 +141,32 @@ namespace Manuscript {
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_SAVE_AS)"
             );
 
+            var document_settings_button = create_model_button (
+                _("Document settings"),
+                "document-settings-symbolic",
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_DOCUMENT_SETTINGS)"
+            );
+
+            var document_close_button = create_model_button (
+                _("Close document"),
+                "folder-symbolic",
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_CLOSE_DOCUMENT)"
+            );
+
+            var quit_button = create_model_button (
+                _("Quit"),
+                "application-exit-symbolic",
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_QUIT)"
+            );
+
             grid.add (open_button);
             grid.add (save_button);
             grid.add (save_as_button);
+            grid.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
+            grid.add (document_settings_button);
+            grid.add (document_close_button);
+            grid.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
+            grid.add (quit_button);
             grid.show_all ();
 
             var popover = new Gtk.PopoverMenu ();
@@ -171,6 +195,12 @@ namespace Manuscript {
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_ADD_CHARACTER_SHEET)"
             );
 
+            var add_cover_button = create_model_button (
+                _("Cover"),
+                Models.ChunkType.COVER.to_icon_name (),
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_ADD_COVER)"
+            );
+
             var add_note_button = create_model_button (
                 _("Note"),
                 Models.ChunkType.NOTE.to_icon_name (),
@@ -185,6 +215,7 @@ namespace Manuscript {
 
             grid.add (add_chapter_button);
             grid.add (add_character_sheet_button);
+            grid.add (add_cover_button);
             grid.add (add_note_button);
             grid.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
             grid.add (import_button);

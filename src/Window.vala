@@ -13,10 +13,9 @@ namespace Manuscript {
         protected Gtk.Paned editor_grid;
         protected Widgets.EditorsController tabs;
         protected weak Models.Document selected_document = null;
+
         public Services.DocumentManager document_manager;
-
         public Services.ActionManager action_manager { get; private set; }
-
         public string initial_document_path { get; construct; }
 
         public Editor ? current_editor {
@@ -49,10 +48,9 @@ namespace Manuscript {
                 initial_document_path: document_path
             );
 
+            settings = Services.AppSettings.get_default ();
             action_manager = new Services.ActionManager ((Manuscript.Application) application, this);
             document_manager = new Services.DocumentManager ((Manuscript.Application) application, this);
-
-            settings = Services.AppSettings.get_default ();
 
             // Load some styles
             var css_provider = new Gtk.CssProvider ();
@@ -266,6 +264,15 @@ namespace Manuscript {
                 invalid_file_dialog.destroy ();
                 settings.last_opened_document = "";
             }
+        }
+
+        public void show_document_settings () {
+            var document_settings_dialog = new Dialogs.GenericDialog (this, new Widgets.DocumentSettings ());
+            document_settings_dialog.destroy_with_parent = true;
+            document_settings_dialog.modal = false;
+            document_settings_dialog.close.connect (() => { document_settings_dialog.destroy (); });
+            document_settings_dialog.response.connect (() => { document_settings_dialog.destroy (); });
+            document_settings_dialog.run ();
         }
 
         protected void set_layout_body (Gtk.Widget widget) {

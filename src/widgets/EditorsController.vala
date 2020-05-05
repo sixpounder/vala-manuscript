@@ -90,6 +90,7 @@ namespace Manuscript.Widgets {
             doc.chunk_added.disconnect (add_chunk);
             doc.chunk_removed.disconnect (remove_chunk);
             doc.active_changed.disconnect (select_chunk);
+            update_ui ();
         }
 
         private void on_start_chunk_editing (Models.DocumentChunk chunk) {
