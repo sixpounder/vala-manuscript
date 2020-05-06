@@ -36,11 +36,14 @@ executable(
     'widgets/SourceListChunkItem.vala',
     'widgets/DocumentSettings.vala',
 
+    'widgets/settings/Metrics.vala',
+
 	'models/ChunkType.vala',
 	'models/DocumentChunk.vala',
 	'models/Chapter.vala',
 	'models/Document.vala',
 	'models/LoadState.vala',
+    'models/DocumentSettings.vala',
 
     'protocols/Editor.vala',
 

@@ -267,7 +267,7 @@ namespace Manuscript {
         }
 
         public void show_document_settings () {
-            var document_settings_dialog = new Dialogs.GenericDialog (this, new Widgets.DocumentSettings ());
+            var document_settings_dialog = new Dialogs.GenericDialog (this, new Widgets.DocumentSettings (this));
             document_settings_dialog.destroy_with_parent = true;
             document_settings_dialog.modal = false;
             document_settings_dialog.close.connect (() => { document_settings_dialog.destroy (); });
