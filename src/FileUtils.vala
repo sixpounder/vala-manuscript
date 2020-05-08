@@ -10,7 +10,7 @@ namespace Manuscript {
 
             FileOutputStream os = file.create (FileCreateFlags.PRIVATE);
             var title = _("New manuscript");
-            os.write (@"{\"title\": \"$title\"}".data);
+            os.write (@"{\"title\": \"$title\", \"settings\": { \"paragraph_spacing\": 20 }}".data);
             return file;
         }
 

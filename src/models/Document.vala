@@ -6,25 +6,50 @@ namespace Manuscript.Models {
     public interface DocumentBase : Object {
         public abstract string uuid { get; set; }
         public abstract string title { get; set; }
-        public abstract DocumentChunk[] chunks { owned get; }
+        public abstract DocumentSettings settings { get; set; }
+        public abstract List<DocumentChunk> chunks { owned get; set; }
+
+        public abstract DocumentBase get_empty ();
     }
 
 
     public class DocumentData : Object, DocumentBase {
         public string uuid { get; set; }
         public string title { get; set; }
-        public DocumentChunk[] chunks { owned get; }
-    }
+        public DocumentSettings settings { get; set; }
 
-    public void copy_from (DocumentBase source, DocumentBase dest) {
-        dest.title = source.title;
+        private Gee.ArrayList<DocumentChunk> _chunks;
+        public new List<DocumentChunk> chunks {
+            owned get {
+                if (_chunks != null) {
+                    return Conversion.to_list (_chunks);
+                } else {
+                    return new List<DocumentChunk> ();
+                }
+            }
+            set {
+                _chunks = Conversion.to_array_list (value);
+            }
+        }
+
+        public void copy_from (DocumentBase source) {
+            title = source.title;
+            uuid = source.uuid;
+            settings = source.settings;
+            chunks = source.chunks;
+        }
+
+        public DocumentBase get_empty () {
+            return new DocumentData ();
+        }
     }
 
     public class Document : DocumentData, DocumentBase, Json.Serializable {
         protected const string[] SERIALIZABLE_PROPERIES = {
             "uuid",
             "title",
-            "chunks"
+            "chunks",
+            "settings"
         };
 
         public Document.from_file (string path, bool temporary = false) throws GLib.Error {
@@ -54,13 +79,17 @@ namespace Manuscript.Models {
         public bool temporary { get; private set; }
 
         private Gee.ArrayList<DocumentChunk> _chunks;
-        public new DocumentChunk[] chunks {
+        public new List<DocumentChunk> chunks {
             owned get {
                 if (_chunks != null) {
-                    return _chunks.to_array ();
+                    return Conversion.to_list (_chunks);
                 } else {
-                    return {};
+                    return new List<DocumentChunk> ();
                 }
+            }
+
+            set {
+                _chunks = Conversion.to_array_list (value);
             }
         }
 
@@ -86,27 +115,11 @@ namespace Manuscript.Models {
             }
         }
 
-        //  public Gtk.SourceBuffer buffer {
-        //      get {
-        //          return this._buffer;
-        //      }
-
-        //      set {
-        //          this._buffer = value;
-        //      }
-        //  }
-
         public bool loaded {
             get {
                 return load_state == DocumentLoadState.LOADED;
             }
         }
-
-        //  public string text {
-        //      owned get {
-        //          return this.buffer != null ? this.buffer.text : null;
-        //      }
-        //  }
 
         public string filename {
             owned get {
@@ -126,6 +139,7 @@ namespace Manuscript.Models {
             try {
                 temporary = temporary_doc;
                 _chunks = new Gee.ArrayList<DocumentChunk> ();
+                settings = new DocumentSettings ();
                 if (file_path != null) {
                     load_state = DocumentLoadState.LOADING;
                     var res = FileUtils.read (file_path);
@@ -156,7 +170,7 @@ namespace Manuscript.Models {
                 if (obj == null) {
                     throw new DocumentError.READ (@"Cannot parse manuscript from content of $file_path");
                 } else {
-                    copy_from (obj, this);
+                    copy_from (obj);
                     load_state = DocumentLoadState.LOADED;
                 }
             } catch (GLib.Error error) {
@@ -197,6 +211,7 @@ namespace Manuscript.Models {
                 string data = Json.gobject_to_data (flatten (), null);
                 long written_bytes = FileUtils.save (data, file_path);
                 debug (@"Written $written_bytes bytes");
+                debug (data);
                 this.has_changes = false;
                 this.temporary = false;
                 this.saved (file_path);
@@ -205,32 +220,18 @@ namespace Manuscript.Models {
             }
         }
 
-        //  public void unload () {
-        //      if (buffer != null) {
-        //          buffer.dispose ();
-        //      } else {
-        //          warning ("Document buffer already disposed");
-        //      }
-        //  }
-
         public DocumentData flatten () {
-            DocumentData ret = new DocumentData ();
-            foreach (ParamSpec spec in list_properties ()) {
-                ret.set_property (spec.get_name (), get_property (spec));
-            }
-
-            return ret;
+            return this as DocumentData;
         }
 
         // ******
         // Json serializable impl
         // ******
 
-        //  public bool deserialize_property (string property_name, out Value value, ParamSpec pspec, Json.Node property_node) {
+        // public bool deserialize_property (string property_name, out Value value, ParamSpec pspec, Json.Node property_node) {
+        // }
 
-        //  }
-
-        //  public Value get_property (ParamSpec pspec) {}
+        // public new Value get_property (ParamSpec pspec) {}
 
         /**
          * Only list serializable properties
@@ -241,7 +242,10 @@ namespace Manuscript.Models {
             ObjectClass ocl = (ObjectClass) type.class_ref ();
             var i = 0;
             foreach (string prop in Document.SERIALIZABLE_PROPERIES) {
-                specs[i] = ocl.find_property (prop);
+                debug (@"Getting prop $prop");
+                ParamSpec p = ocl.find_property (prop);
+                assert (p != null);
+                specs[i] = p;
                 i++;
             }
 

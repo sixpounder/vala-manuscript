@@ -36,6 +36,7 @@ namespace Manuscript.Widgets.Settings {
         }
 
         public void load_document_settings (Models.Document document) {
+            paragraph_spacing_input.value = document.settings.paragraph_spacing;
         }
     }
 }

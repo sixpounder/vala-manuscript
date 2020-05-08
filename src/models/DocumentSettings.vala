@@ -9,6 +9,6 @@ namespace Manuscript.Models {
     public class DocumentSettings : Object, Json.Serializable {
         public string font_family { get; set; }
         public FontSize font_size { get; set; }
-        public int paragraps_spacing { get; set; }
+        public int paragraph_spacing { get; set; }
     }
 }

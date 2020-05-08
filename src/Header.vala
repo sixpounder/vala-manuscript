@@ -48,6 +48,7 @@ namespace Manuscript {
         ~ Header () {
             settings.change.disconnect (update_ui);
             document_manager.load.disconnect (update_ui);
+            document_manager.unload.disconnect (update_ui);
             document_manager.change.disconnect (update_ui);
         }
 
@@ -79,9 +80,6 @@ namespace Manuscript {
             pack_start (export_button);
             export_popover = new Widgets.ExportPopover (export_button);
 
-
-            update_icons ();
-
             settings_button = new Gtk.Button.from_icon_name ("open-menu", Gtk.IconSize.LARGE_TOOLBAR);
             settings_button.tooltip_text = _ ("Settings");
             settings_button.clicked.connect (() => {
@@ -110,8 +108,8 @@ namespace Manuscript {
             update_ui ();
 
             settings.change.connect (update_ui);
-
             document_manager.load.connect (update_ui);
+            document_manager.unload.connect (update_ui);
             document_manager.change.connect (update_ui);
         }
 
@@ -253,12 +251,8 @@ namespace Manuscript {
             subtitle = document.filename + (has_changes ? " (" + _ ("modified") + ")" : "");
         }
 
-        protected void update_icons () {
-            //  save_file_button.sensitive = has_changes;
-            //  save_file_as_button.sensitive = has_changes;
-        }
-
         protected void update_ui () {
+            subtitle = document_manager.has_document ? document_manager.document.title : null;
             zen_switch.sensitive = document != null;
             menu_button.sensitive = document_manager.has_document;
             add_element_button.sensitive = document_manager.has_document;
@@ -266,24 +260,8 @@ namespace Manuscript {
             zen_switch.active = settings.zen;
         }
 
-        protected void on_document_change () {
-            update_subtitle ();
-            update_icons ();
-        }
-
-        protected void on_document_saved (string to_path) {
-            update_subtitle ();
-            update_icons ();
-        }
-
         protected void update_settings () {
             settings.zen = zen_switch.active;
-        }
-
-        protected void load_document () {
-            document.saved.connect (on_document_saved);
-            update_subtitle ();
-            update_icons ();
         }
     }
 }
