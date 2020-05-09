@@ -26,6 +26,7 @@ namespace Manuscript.Widgets {
             document_manager.load.connect (on_document_set);
             document_manager.change.connect (on_document_set);
             document_manager.unload.connect (on_document_unload);
+            //  document_manager.unloaded.connect (on_document_unload);
 
             build_ui ();
         }
@@ -68,10 +69,11 @@ namespace Manuscript.Widgets {
         }
 
         private void on_document_set (Models.Document doc) {
-            assert (doc != null);
-            doc.chunk_added.connect (add_chunk);
-            doc.chunk_removed.connect (remove_chunk);
-            doc.active_changed.connect (select_chunk);
+            if (doc != null) {
+                doc.chunk_added.connect (add_chunk);
+                doc.chunk_removed.connect (remove_chunk);
+                doc.active_changed.connect (select_chunk);
+            }
         }
 
         private void on_document_unload (Models.Document doc) {

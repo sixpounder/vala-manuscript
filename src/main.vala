@@ -15,25 +15,38 @@ namespace Manuscript {
 
         protected override void activate () {
             Services.AppSettings settings = Services.AppSettings.get_default ();
-            Window main_window;
 
             weak Gtk.IconTheme default_theme = Gtk.IconTheme.get_default ();
             default_theme.add_resource_path ("/com/github/sixpounder/manuscript/icons");
 
+            Manuscript.Window main_window;
+
             if (settings.last_opened_document != "") {
-                debug ("Opening with document - " + settings.last_opened_document);
-                main_window = new Window.with_document (this, settings.last_opened_document);
+                main_window = this.new_window (settings.last_opened_document);
             } else {
-                debug ("Opening with welcome view");
-                main_window = new Window.with_document (this);
+                main_window = this.new_window ();
             }
-
-            main_window.title = Constants.APP_NAME;
-
-            main_window.show_all ();
 
             Globals.application = this;
             Globals.window = main_window;
+        }
+
+        public Manuscript.Window new_window (string ? document_path = null) {
+            Manuscript.Window window;
+
+            if (document_path != null && document_path != "") {
+                debug ("Opening with document - " + document_path);
+                window = new Manuscript.Window.with_document (this, document_path);
+            } else {
+                debug ("Opening with welcome view");
+                window = new Manuscript.Window.with_document (this);
+            }
+
+            window.title = Constants.APP_NAME;
+
+            window.show_all ();
+
+            return window;
         }
 
         public static int main (string[] args) {

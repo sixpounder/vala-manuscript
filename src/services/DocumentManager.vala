@@ -2,8 +2,9 @@ namespace Manuscript.Services {
     public class DocumentManager : Object {
 
         public signal void load (Models.Document document);
-        public signal void unload (Models.Document old_document);
         public signal void change (Models.Document new_document);
+        public signal void unload (Models.Document old_document);
+        public signal void unloaded ();
         public signal void start_editing (Models.DocumentChunk chunk);
         public signal void stop_editing (Models.DocumentChunk chunk);
 
@@ -48,12 +49,17 @@ namespace Manuscript.Services {
 
         public void set_current_document (owned Models.Document? doc) {
             debug (@"Setting current document: $(doc == null ? "null" : doc.uuid)");
-            if (document == null && doc != null) {
+            if (doc == null) {
+                unload (document);
+                settings.last_opened_document = "";
+                document = null;
+                unloaded ();
+            } else if (document == null && doc != null) {
                 document = doc;
                 settings.last_opened_document = document.file_path;
                 _opened_chunks.clear ();
                 load (document);
-            } else if (document != null && document != doc) {
+            } else if (doc != null && document != null && document != doc) {
                 document = doc;
                 settings.last_opened_document = document.file_path;
                 _opened_chunks.clear ();
@@ -61,6 +67,7 @@ namespace Manuscript.Services {
             } else {
                 unload (document);
                 document = null;
+                unloaded ();
             }
         }
 

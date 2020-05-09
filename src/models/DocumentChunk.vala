@@ -1,6 +1,13 @@
 namespace Manuscript.Models {
     public class DocumentChunk : Object, Json.Serializable {
 
+        protected const string[] SERIALIZABLE_PROPERIES = {
+            "notes",
+            "raw_content",
+            "index",
+            "chunk_type"
+        };
+
         public signal void change ();
         public signal void undo_queue_drain ();
         public signal void undo ();
@@ -143,6 +150,25 @@ namespace Manuscript.Models {
             });
 
             change ();
+        }
+
+        // Json impls
+
+        public (unowned ParamSpec)[] list_properties () {
+            debug (@"AAAA");
+            ParamSpec[] specs = new ParamSpec[DocumentChunk.SERIALIZABLE_PROPERIES.length];
+            Type type = typeof (DocumentChunk);
+            ObjectClass ocl = (ObjectClass) type.class_ref ();
+            var i = 0;
+            foreach (string prop in DocumentChunk.SERIALIZABLE_PROPERIES) {
+                debug (@"Getting prop $prop");
+                ParamSpec p = ocl.find_property (prop);
+                assert (p != null);
+                specs[i] = p;
+                i++;
+            }
+            
+            return specs;
         }
     }
 }

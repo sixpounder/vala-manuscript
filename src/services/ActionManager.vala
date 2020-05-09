@@ -51,6 +51,7 @@ namespace Manuscript.Services {
         }
 
         static construct {
+            action_accelerators.set (ACTION_NEW_WINDOW, "<Control>n");
             action_accelerators.set (ACTION_OPEN, "<Control>o");
             action_accelerators.set (ACTION_SAVE, "<Control>s");
             action_accelerators.set (ACTION_SAVE_AS, "<Control><Shift>s");
@@ -75,7 +76,9 @@ namespace Manuscript.Services {
             }
         }
 
-        protected void action_new_window () {}
+        protected void action_new_window () {
+            application.new_window ();
+        }
 
         protected void action_open () {
             window.open_file_dialog ();

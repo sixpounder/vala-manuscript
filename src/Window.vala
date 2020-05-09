@@ -52,6 +52,15 @@ namespace Manuscript {
             action_manager = new Services.ActionManager ((Manuscript.Application) application, this);
             document_manager = new Services.DocumentManager ((Manuscript.Application) application, this);
 
+            // Connect document manager events
+            document_manager.load.connect (() => {
+                set_layout_body (editor_grid);
+            });
+
+            document_manager.unloaded.connect (() => {
+                set_layout_body (welcome_view);
+            });
+
             // Load some styles
             var css_provider = new Gtk.CssProvider ();
             css_provider.load_from_resource (Manuscript.Constants.MAIN_CSS_URI);
@@ -129,29 +138,29 @@ namespace Manuscript {
             //      document_manager.document.add_chunk (new Models.DocumentChunk.empty (Models.ChunkType.CHAPTER));
             //  } );
 
-            header.open_file.connect ( () => {
-                if (document != null && document.has_changes) {
-                    if (quit_dialog () ) {
-                        open_file_dialog ();
-                    }
-                } else {
-                    open_file_dialog ();
-                }
-            } );
+            //  header.open_file.connect ( () => {
+            //      if (document != null && document.has_changes) {
+            //          if (quit_dialog () ) {
+            //              open_file_dialog ();
+            //          }
+            //      } else {
+            //          open_file_dialog ();
+            //      }
+            //  } );
 
-            header.save_file.connect ((choose_path) => {
-                if (choose_path) {
-                    var dialog = new FileSaveDialog (this, document);
-                    int res = dialog.run ();
-                    if (res == Gtk.ResponseType.ACCEPT) {
-                        document.save (dialog.get_filename () );
-                        settings.last_opened_document = this.document.file_path;
-                    }
-                    dialog.destroy ();
-                } else {
-                    document.save ();
-                }
-            });
+            //  header.save_file.connect ((choose_path) => {
+            //      if (choose_path) {
+            //          var dialog = new FileSaveDialog (this, document);
+            //          int res = dialog.run ();
+            //          if (res == Gtk.ResponseType.ACCEPT) {
+            //              document.save (dialog.get_filename () );
+            //              settings.last_opened_document = this.document.file_path;
+            //          }
+            //          dialog.destroy ();
+            //      } else {
+            //          document.save ();
+            //      }
+            //  });
 
             welcome_view.should_open_file.connect (open_file_dialog);
             welcome_view.should_create_new_file.connect (open_with_temp_file);
@@ -257,7 +266,7 @@ namespace Manuscript {
         public void open_file_at_path (string path, bool temporary = false) requires (path != null) {
             try {
                 document_manager.set_current_document (new Models.Document.from_file (path));
-                set_layout_body (editor_grid);
+                //  set_layout_body (editor_grid);
             } catch (GLib.Error error) {
                 var invalid_file_dialog = new InvalidFileDialog (this);
                 invalid_file_dialog.run ();

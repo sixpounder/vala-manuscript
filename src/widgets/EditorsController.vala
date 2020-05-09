@@ -51,6 +51,7 @@ namespace Manuscript.Widgets {
             document_manager.load.connect (on_document_set);
             document_manager.change.connect (on_document_set);
             document_manager.unload.connect (on_document_unload);
+            document_manager.unloaded.connect (update_ui);
             document_manager.start_editing.connect (on_start_chunk_editing);
 
             on_viewport = !settings.zen;
@@ -79,10 +80,11 @@ namespace Manuscript.Widgets {
         }
 
         private void on_document_set (Models.Document doc) {
-            assert (doc != null);
-            doc.chunk_added.connect (add_chunk);
-            doc.chunk_removed.connect (remove_chunk);
-            doc.active_changed.connect (select_chunk);
+            if (doc != null) {
+                doc.chunk_added.connect (add_chunk);
+                doc.chunk_removed.connect (remove_chunk);
+                doc.active_changed.connect (select_chunk);
+            }
         }
 
         private void on_document_unload (Models.Document doc) {
@@ -103,7 +105,7 @@ namespace Manuscript.Widgets {
         }
 
         private void update_ui () {
-            if (document_manager.document != null && document_manager.opened_chunks.size != 0) {
+            if (document_manager.has_document && document_manager.opened_chunks.size != 0) {
                 visible_child = notebook;
             } else {
                 visible_child = editors_courtesy_view;

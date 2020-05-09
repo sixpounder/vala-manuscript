@@ -4,7 +4,7 @@ namespace Manuscript {
             File file = File.new_for_path (
                 Path.build_filename (
                     Granite.Services.Paths.user_cache_folder.get_path (),
-                    GLib.Uuid.string_random ()
+                    @"$(GLib.Uuid.string_random ()).manuscript"
                 )
             );
 

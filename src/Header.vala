@@ -109,7 +109,8 @@ namespace Manuscript {
 
             settings.change.connect (update_ui);
             document_manager.load.connect (update_ui);
-            document_manager.unload.connect (update_ui);
+            //  document_manager.unload.connect (update_ui);
+            document_manager.unloaded.connect (update_ui);
             document_manager.change.connect (update_ui);
         }
 
@@ -120,6 +121,12 @@ namespace Manuscript {
             grid.orientation = Gtk.Orientation.VERTICAL;
             grid.width_request = 240;
             grid.name = "main";
+
+            var new_window_button = create_model_button (
+                _("New window"),
+                "document-new-symbolic",
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_NEW_WINDOW)"
+            );
 
             var open_button = create_model_button (
                 _("Open"),
@@ -157,6 +164,7 @@ namespace Manuscript {
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_QUIT)"
             );
 
+            grid.add (new_window_button);
             grid.add (open_button);
             grid.add (save_button);
             grid.add (save_as_button);
@@ -253,11 +261,15 @@ namespace Manuscript {
 
         protected void update_ui () {
             subtitle = document_manager.has_document ? document_manager.document.title : null;
-            zen_switch.sensitive = document != null;
+            zen_switch.sensitive = document_manager.has_document;
             menu_button.sensitive = document_manager.has_document;
             add_element_button.sensitive = document_manager.has_document;
             export_button.sensitive = document_manager.has_document;
             zen_switch.active = settings.zen;
+        }
+
+        protected void on_document_unloaded () {
+            
         }
 
         protected void update_settings () {

@@ -13,7 +13,7 @@ namespace Manuscript.Models {
     }
 
 
-    public class DocumentData : Object, DocumentBase {
+    public class DocumentData : Object, DocumentBase, Json.Serializable {
         public string uuid { get; set; }
         public string title { get; set; }
         public DocumentSettings settings { get; set; }
@@ -208,7 +208,7 @@ namespace Manuscript.Models {
                     modified_path = path;
                 }
                 // FileUtils.save_buffer (_buffer, file_path);
-                string data = Json.gobject_to_data (flatten (), null);
+                string data = Json.gobject_to_data (this, null);
                 long written_bytes = FileUtils.save (data, file_path);
                 debug (@"Written $written_bytes bytes");
                 debug (data);
@@ -220,9 +220,9 @@ namespace Manuscript.Models {
             }
         }
 
-        public DocumentData flatten () {
-            return this as DocumentData;
-        }
+        //  public DocumentData flatten () {
+        //      return this as DocumentData;
+        //  }
 
         // ******
         // Json serializable impl
@@ -248,13 +248,57 @@ namespace Manuscript.Models {
                 specs[i] = p;
                 i++;
             }
-
+            
             return specs;
         }
 
-        //  public Json.Node serialize_property (string property_name, Value value, ParamSpec pspec) {
+        public Json.Node serialize_property (string property_name, Value value, ParamSpec pspec) {
+            var node = new Json.Node.alloc ();
+            Type prop_type = value.type ();
+            debug (@"$property_name/$prop_type");
+            switch (prop_type) {
+                case Type.STRING:
+                    var v = value.get_string ();
+                    if (v == null) {
+                        node.init_null ();
+                    } else {
+                        node.init_string (v);
+                    }
+                    break;
+                case Type.OBJECT:
+                    var v = value.get_object ();
+                    if (v == null) {
+                        node.init_null ();
+                    } else {
+                        node = Json.gobject_serialize ();
+                    }
+                    break;
+                default:
+                    switch (property_name) {
+                        case "settings":
+                            debug ("Serializing settings");
+                            node = Json.gobject_serialize (value.get_object ());
+                            break;
+                        case "chunks":
+                            debug ("Serializing chunks");
+                            var json_array = new Json.Array.sized (chunks.length ());
+                            var it = _chunks.iterator ();
+                            while (it.has_next ()) {
+                                it.next ();
+                                json_array.add_element (Json.gobject_serialize (it.@get ()));
+                            }
+                            node.init_array (json_array);
+                            break;
+                        default:
+                            node.init_null ();
+                            break;
+                    }
+                    break;
+            }
 
-        //  }
+            return node;
+        }
+
 
         //  public virtual void set_property (ParamSpec pspec, Value value) {}
     }
