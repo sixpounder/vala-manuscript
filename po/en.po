@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-03 16:42+0200\n"
+"POT-Creation-Date: 2020-05-10 16:18+0200\n"
 "PO-Revision-Date: 2019-07-05 11:20+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,75 +17,102 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/Window.vala:245
+#: src/Window.vala:218
 msgid "Open document"
 msgstr ""
 
-#: src/Window.vala:248
+#: src/Window.vala:221
 msgid "Cancel"
 msgstr ""
 
-#: src/Window.vala:250 src/Header.vala:123 src/WelcomeView.vala:12
+#: src/Window.vala:223 src/Header.vala:132 src/WelcomeView.vala:12
 msgid "Open"
 msgstr ""
 
-#: src/Window.vala:258
+#: src/Window.vala:231
 msgid "Manuscripts"
 msgstr ""
 
-#: src/Window.vala:266
+#: src/Window.vala:239
 msgid "All files"
 msgstr ""
 
-#: src/Window.vala:288
+#: src/Window.vala:261
 msgid "Unable to create temporary document"
 msgstr ""
 
-#: src/StatusBar.vala:22 src/StatusBar.vala:53
+#: src/Window.vala:273
+#, c-format
+msgid "File at %s could not be found. It may have been moved or deleted."
+msgstr ""
+
+#: src/StatusBar.vala:24 src/StatusBar.vala:55
 msgid "words"
 msgstr "words"
 
-#: src/StatusBar.vala:26
+#: src/StatusBar.vala:28
 msgid "Estimated reading time"
 msgstr "Estimated reading time"
 
-#: src/StatusBar.vala:81
+#: src/StatusBar.vala:79
 msgid "minute"
 msgstr "minute"
 
-#: src/StatusBar.vala:82
+#: src/StatusBar.vala:80
 msgid "minutes"
 msgstr "minutes"
 
-#: src/Header.vala:82
+#: src/Header.vala:84
 msgid "Settings"
 msgstr ""
 
-#: src/Header.vala:129
+#: src/Header.vala:126
+msgid "New window"
+msgstr ""
+
+#: src/Header.vala:138
 msgid "Save"
 msgstr ""
 
-#: src/Header.vala:135
+#: src/Header.vala:144
 msgid "Save as"
 msgstr ""
 
-#: src/Header.vala:160
+#: src/Header.vala:150
+#, fuzzy
+msgid "Document settings"
+msgstr "This manuscript has unsaved changes"
+
+#: src/Header.vala:156
+#, fuzzy
+msgid "Close document"
+msgstr "Close this manuscript"
+
+#: src/Header.vala:162
+msgid "Quit"
+msgstr ""
+
+#: src/Header.vala:193
 msgid "Chapter"
 msgstr ""
 
-#: src/Header.vala:166
+#: src/Header.vala:199
 msgid "Character sheet"
 msgstr ""
 
-#: src/Header.vala:172
+#: src/Header.vala:205
+msgid "Cover"
+msgstr ""
+
+#: src/Header.vala:211
 msgid "Note"
 msgstr ""
 
-#: src/Header.vala:178
+#: src/Header.vala:217
 msgid "Import"
 msgstr ""
 
-#: src/Header.vala:219
+#: src/Header.vala:259
 msgid "modified"
 msgstr ""
 

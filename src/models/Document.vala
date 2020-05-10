@@ -1,5 +1,6 @@
 namespace Manuscript.Models {
     public errordomain DocumentError {
+        NOT_FOUND,
         READ
     }
 
@@ -41,6 +42,16 @@ namespace Manuscript.Models {
 
         public DocumentBase get_empty () {
             return new DocumentData ();
+        }
+
+        public bool deserialize_property (string property_name, out Value value, ParamSpec pspec, Json.Node property_node) {
+            switch (property_name) {
+                case "chunks":
+                    //  chunks = new List<DocumentChunk> ();
+                    return true;
+                default:
+                    return default_deserialize_property (property_name, out value, pspec, property_node);
+            }
         }
     }
 
@@ -131,7 +142,7 @@ namespace Manuscript.Models {
             }
         }
 
-        protected Document (string ? file_path, bool temporary_doc = false) throws GLib.Error {
+        protected Document (string ? file_path, bool temporary_doc = false) throws GLib.Error, DocumentError {
             Object (
                 file_path: file_path,
                 uuid: GLib.Uuid.string_random ()
@@ -146,6 +157,7 @@ namespace Manuscript.Models {
                     if (res == null) {
                         warning ("File not read (not found?)");
                         load_state = DocumentLoadState.ERROR;
+                        throw new DocumentError.NOT_FOUND ("File not found");
                     } else {
                         debug ("File read");
                         build_document (res);
@@ -153,7 +165,7 @@ namespace Manuscript.Models {
                 }
             } catch (GLib.Error error) {
                 critical ("Cannot create document: %s\n", error.message);
-                throw error;
+                throw new DocumentError.NOT_FOUND ("File not found");
             }
         }
 
@@ -228,8 +240,15 @@ namespace Manuscript.Models {
         // Json serializable impl
         // ******
 
-        // public bool deserialize_property (string property_name, out Value value, ParamSpec pspec, Json.Node property_node) {
-        // }
+        //  public bool deserialize_property (string property_name, out Value value, ParamSpec pspec, Json.Node property_node) {
+        //      switch (property_name) {
+        //          case "chunks":
+        //              //  chunks = new List<DocumentChunk> ();
+        //              return true;
+        //          default:
+        //              return default_deserialize_property (property_name, out value, pspec, property_node);
+        //      }
+        //  }
 
         // public new Value get_property (ParamSpec pspec) {}
 
@@ -255,7 +274,7 @@ namespace Manuscript.Models {
         public Json.Node serialize_property (string property_name, Value value, ParamSpec pspec) {
             var node = new Json.Node.alloc ();
             Type prop_type = value.type ();
-            debug (@"$property_name/$prop_type");
+            //  debug (@"$property_name/$prop_type");
             switch (prop_type) {
                 case Type.STRING:
                     var v = value.get_string ();
@@ -270,7 +289,7 @@ namespace Manuscript.Models {
                     if (v == null) {
                         node.init_null ();
                     } else {
-                        node = Json.gobject_serialize ();
+                        node = Json.gobject_serialize (v);
                     }
                     break;
                 default:

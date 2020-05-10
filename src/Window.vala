@@ -13,6 +13,7 @@ namespace Manuscript {
         protected Gtk.Paned editor_grid;
         protected Widgets.EditorsController tabs;
         protected weak Models.Document selected_document = null;
+        protected Gtk.InfoBar infobar;
 
         public Services.DocumentManager document_manager;
         public Services.ActionManager action_manager { get; private set; }
@@ -268,10 +269,10 @@ namespace Manuscript {
                 document_manager.set_current_document (new Models.Document.from_file (path));
                 //  set_layout_body (editor_grid);
             } catch (GLib.Error error) {
-                var invalid_file_dialog = new InvalidFileDialog (this);
-                invalid_file_dialog.run ();
-                invalid_file_dialog.destroy ();
-                settings.last_opened_document = "";
+                warning (error.message);
+                string msg = _("File at %s could not be found. It may have been moved or deleted.");
+                show_infobar (Gtk.MessageType.WARNING, msg.printf(path));
+                set_layout_body (welcome_view);
             }
         }
 
@@ -324,6 +325,27 @@ namespace Manuscript {
         protected void show_not_found_alert () {
             FileNotFound fnf = new FileNotFound (document.file_path);
             set_layout_body (fnf);
+        }
+
+        protected void show_infobar (Gtk.MessageType level, string message) {
+            if (infobar != null) {
+                infobar.destroy ();
+                infobar.unref ();
+            }
+            infobar = new Gtk.InfoBar ();
+            infobar.message_type = level;
+            infobar.show_close_button = true;
+            infobar.revealed = true;
+            var label = new Gtk.Label (message);
+            label.lines = 2;
+            label.wrap = true;
+            infobar.get_content_area ().add (label);
+            infobar.response.connect (() => {
+                infobar.destroy ();
+            });
+            infobar.show_all ();
+            layout.pack_start (infobar, false, true);
+            layout.reorder_child (infobar, 0);
         }
     }
 }
