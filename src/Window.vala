@@ -22,14 +22,14 @@ namespace Manuscript {
         public Editor ? current_editor {
             get {
                 if (tabs.tabs.length () != 0) {
-                    return ((Widgets.EditorPage) tabs.current_tab.page).editor;
+                    return ((Widgets.EditorPage)tabs.current_tab.page).editor;
                 } else {
                     return null;
                 }
             }
         }
 
-        public Models.Document? document {
+        public Models.Document ? document {
             get {
                 if (document_manager != null && document_manager.has_document) {
                     return document_manager.document;
@@ -47,11 +47,11 @@ namespace Manuscript {
             Object (
                 application: app,
                 initial_document_path: document_path
-            );
+                );
 
             settings = Services.AppSettings.get_default ();
-            action_manager = new Services.ActionManager ((Manuscript.Application) application, this);
-            document_manager = new Services.DocumentManager ((Manuscript.Application) application, this);
+            action_manager = new Services.ActionManager ((Manuscript.Application)application, this);
+            document_manager = new Services.DocumentManager ((Manuscript.Application)application, this);
 
             // Connect document manager events
             document_manager.load.connect (() => {
@@ -222,13 +222,13 @@ namespace Manuscript {
                 Gtk.ResponseType.CANCEL,
                 _ ("Open"),
                 Gtk.ResponseType.ACCEPT
-            );
+                );
 
             dialog.select_multiple = false;
             dialog.do_overwrite_confirmation = false;
 
             Gtk.FileFilter file_filter = new Gtk.FileFilter ();
-            file_filter.set_filter_name (_("Manuscripts") + " (*.manuscript)");
+            file_filter.set_filter_name (_ ("Manuscripts") + " (*.manuscript)");
 
             foreach (string ext in settings.supported_extensions) {
                 file_filter.add_pattern (ext);
@@ -236,7 +236,7 @@ namespace Manuscript {
             dialog.add_filter (file_filter);
 
             Gtk.FileFilter all_files = new Gtk.FileFilter ();
-            all_files.set_filter_name (_("All files"));
+            all_files.set_filter_name (_ ("All files"));
             foreach (string mime in settings.supported_mime_types) {
                 all_files.add_mime_type (mime);
             }
@@ -264,15 +264,42 @@ namespace Manuscript {
         }
 
         // Opens file at path and sets up the editor
-        public void open_file_at_path (string path, bool temporary = false) requires (path != null) {
+        public void open_file_at_path (string path, bool temporary = false)
+        requires (path != null) {
             try {
+                hide_infobar ();
                 document_manager.set_current_document (new Models.Document.from_file (path));
                 //  set_layout_body (editor_grid);
-            } catch (GLib.Error error) {
+            } catch (Error error) {
                 warning (error.message);
-                string msg = _("File at %s could not be found. It may have been moved or deleted.");
-                show_infobar (Gtk.MessageType.WARNING, msg.printf(path));
-                set_layout_body (welcome_view);
+                string msg;
+                if (error is Models.DocumentError.NOT_FOUND) {
+                    msg = _("File at %s could not be found. It may have been moved or deleted.");
+                    if (settings.last_opened_document == path) {
+                        settings.last_opened_document = "";
+                        set_layout_body (welcome_view);
+                    }
+                } else if (error is Models.DocumentError.READ) {
+                    msg = "<b>%s</b><br><span>%s</span>"
+                        .printf(
+                            _("Cannot read %s").printf(path),
+                            _("The file you selected does not appear to be a valid Manuscript file")
+                        );
+                } else {
+                    msg = _("Some strange error happened while trying to open file at %s").printf(path);
+                }
+
+                var infobar_instance = show_infobar (Gtk.MessageType.WARNING, msg.printf (@"<b>$path</b>"));
+                infobar_instance.add_button (_ ("Dismiss"), Gtk.ResponseType.CLOSE);
+                infobar_instance.response.connect ((res) => {
+                    switch (res) {
+                    case Gtk.ResponseType.CLOSE:
+                        infobar_instance.destroy ();
+                        break;
+                    default:
+                        assert_not_reached ();
+                    }
+                });
             }
         }
 
@@ -309,7 +336,7 @@ namespace Manuscript {
                 Gtk.MessageType.ERROR,
                 Gtk.ButtonsType.OK,
                 message
-            );
+                );
             messagedialog.show ();
         }
 
@@ -327,25 +354,30 @@ namespace Manuscript {
             set_layout_body (fnf);
         }
 
-        protected void show_infobar (Gtk.MessageType level, string message) {
+        protected Gtk.InfoBar show_infobar (Gtk.MessageType level, string message) {
+            var label = new Gtk.Label (message);
+            label.lines = 2;
+            label.wrap = true;
+            label.use_markup = true;
+
+            hide_infobar ();
+            infobar = new Gtk.InfoBar ();
+            infobar.message_type = level;
+            infobar.show_close_button = false;
+            infobar.revealed = true;
+            infobar.get_content_area ().add (label);
+            infobar.show_all ();
+
+            layout.pack_start (infobar, false, true);
+            layout.reorder_child (infobar, 0);
+            return infobar;
+        }
+
+        protected void hide_infobar () {
             if (infobar != null) {
                 infobar.destroy ();
                 infobar.unref ();
             }
-            infobar = new Gtk.InfoBar ();
-            infobar.message_type = level;
-            infobar.show_close_button = true;
-            infobar.revealed = true;
-            var label = new Gtk.Label (message);
-            label.lines = 2;
-            label.wrap = true;
-            infobar.get_content_area ().add (label);
-            infobar.response.connect (() => {
-                infobar.destroy ();
-            });
-            infobar.show_all ();
-            layout.pack_start (infobar, false, true);
-            layout.reorder_child (infobar, 0);
         }
     }
 }

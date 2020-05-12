@@ -25,11 +25,10 @@ namespace Manuscript {
 
                     return (string) contents;
                 } catch (Error e) {
-                    warning ("Cannot read \"%s\": %s", file.get_basename (), e.message);
-                    throw e;
+                    throw new Models.DocumentError.READ (e.message);
                 }
             } else {
-                return null;
+                throw new Models.DocumentError.NOT_FOUND ("File not found");
             }
         }
 

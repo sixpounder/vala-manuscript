@@ -1,5 +1,5 @@
 namespace Manuscript.Models {
-    public class DocumentChunk : Object, Json.Serializable {
+    public class DocumentChunk : Object {
 
         protected const string[] SERIALIZABLE_PROPERIES = {
             "notes",
@@ -15,13 +15,13 @@ namespace Manuscript.Models {
         public signal void analyze ();
 
         protected uint words_counter_timer = 0;
-        public virtual ChunkType chunk_type { get; construct; }
+        public virtual ChunkType chunk_type { get; set; }
         public bool has_changes { get; private set; }
         public uint words_count { get; private set; }
         public double estimate_reading_time { get; private set; }
         public string notes { get; set; }
         public string raw_content { get; set; }
-        public uint index { get; set; }
+        public int64 index { get; set; }
 
         protected string _title;
         public string title {
@@ -54,15 +54,21 @@ namespace Manuscript.Models {
             build ();
         }
 
-        public DocumentChunk.from_data (string data) {
+        public DocumentChunk.from_json_object (Json.Object? obj) {
+            if (obj != null) {
+                raw_content = obj.get_string_member ("raw_content");
+                notes = obj.get_string_member ("notes");
+                index = obj.get_int_member ("index");
+                chunk_type = (Models.ChunkType) obj.get_int_member ("chunk_type");
+            }
         }
 
-        public static DocumentChunk from_node (Json.Node node) {
-            var chunk = Json.gobject_deserialize (typeof (DocumentChunk), node) as DocumentChunk;
-            chunk.build (chunk.raw_content);
+        //  public static DocumentChunk from_node (Json.Node node) {
+        //      var chunk = Json.gobject_deserialize (typeof (DocumentChunk), node) as DocumentChunk;
+        //      chunk.build (chunk.raw_content);
 
-            return chunk;
-        }
+        //      return chunk;
+        //  }
 
         protected void build (string content = "") {
             switch (chunk_type) {
@@ -154,21 +160,21 @@ namespace Manuscript.Models {
 
         // Json impls
 
-        public (unowned ParamSpec)[] list_properties () {
-            debug (@"AAAA");
-            ParamSpec[] specs = new ParamSpec[DocumentChunk.SERIALIZABLE_PROPERIES.length];
-            Type type = typeof (DocumentChunk);
-            ObjectClass ocl = (ObjectClass) type.class_ref ();
-            var i = 0;
-            foreach (string prop in DocumentChunk.SERIALIZABLE_PROPERIES) {
-                debug (@"Getting prop $prop");
-                ParamSpec p = ocl.find_property (prop);
-                assert (p != null);
-                specs[i] = p;
-                i++;
-            }
+        //  public (unowned ParamSpec)[] list_properties () {
+        //      debug (@"AAAA");
+        //      ParamSpec[] specs = new ParamSpec[DocumentChunk.SERIALIZABLE_PROPERIES.length];
+        //      Type type = typeof (DocumentChunk);
+        //      ObjectClass ocl = (ObjectClass) type.class_ref ();
+        //      var i = 0;
+        //      foreach (string prop in DocumentChunk.SERIALIZABLE_PROPERIES) {
+        //          debug (@"Getting prop $prop");
+        //          ParamSpec p = ocl.find_property (prop);
+        //          assert (p != null);
+        //          specs[i] = p;
+        //          i++;
+        //      }
             
-            return specs;
-        }
+        //      return specs;
+        //  }
     }
 }

@@ -1,35 +1,55 @@
 namespace Manuscript.Models {
     public errordomain DocumentError {
         NOT_FOUND,
-        READ
+        READ,
+        PARSE
     }
 
     public interface DocumentBase : Object {
         public abstract string uuid { get; set; }
         public abstract string title { get; set; }
         public abstract DocumentSettings settings { get; set; }
-        public abstract List<DocumentChunk> chunks { owned get; set; }
-
-        public abstract DocumentBase get_empty ();
+        public abstract Gee.ArrayList<DocumentChunk> chunks { get; set; }
     }
 
 
-    public class DocumentData : Object, DocumentBase, Json.Serializable {
+    public class DocumentData : Object, DocumentBase {
         public string uuid { get; set; }
         public string title { get; set; }
         public DocumentSettings settings { get; set; }
-
+        
         private Gee.ArrayList<DocumentChunk> _chunks;
-        public new List<DocumentChunk> chunks {
-            owned get {
-                if (_chunks != null) {
-                    return Conversion.to_list (_chunks);
-                } else {
-                    return new List<DocumentChunk> ();
-                }
+        public new Gee.ArrayList<DocumentChunk> chunks {
+            get {
+                return _chunks;
             }
             set {
-                _chunks = Conversion.to_array_list (value);
+                _chunks = value;
+            }
+        }
+
+        public DocumentData.from_json (string data) throws DocumentError {
+            var parser = new Json.Parser ();
+            try {
+                parser.load_from_data (data, -1);
+            } catch (Error error) {
+                throw new DocumentError.PARSE (@"Cannot parse manuscript file: $(error.message)");
+            }
+
+            var root_object = parser.get_root ().get_object ();
+
+            uuid = root_object.get_string_member ("uuid");
+            title = root_object.get_string_member ("title");
+
+            // Settings parsing
+            var settings_object = root_object.get_object_member ("settings");
+            settings = new DocumentSettings.from_json_object (settings_object);
+
+            // Chunks parsing
+            var chunks_array = root_object.get_array_member ("chunks");
+            chunks = new Gee.ArrayList<DocumentChunk> ();
+            foreach (var el in chunks_array.get_elements ()) {
+                chunks.add (new DocumentChunk.from_json_object (el.get_object ()));
             }
         }
 
@@ -38,25 +58,17 @@ namespace Manuscript.Models {
             uuid = source.uuid;
             settings = source.settings;
             chunks = source.chunks;
+
+            assert (chunks != null);
+            assert (settings != null);
         }
 
-        public DocumentBase get_empty () {
-            return new DocumentData ();
-        }
+        //  public Json.Node as_json () {}
 
-        public bool deserialize_property (string property_name, out Value value, ParamSpec pspec, Json.Node property_node) {
-            switch (property_name) {
-                case "chunks":
-                    //  chunks = new List<DocumentChunk> ();
-                    return true;
-                default:
-                    return default_deserialize_property (property_name, out value, pspec, property_node);
-            }
-        }
     }
 
-    public class Document : DocumentData, DocumentBase, Json.Serializable {
-        protected const string[] SERIALIZABLE_PROPERIES = {
+    public class Document : DocumentData, DocumentBase {
+        public const string[] SERIALIZABLE_PROPERIES = {
             "uuid",
             "title",
             "chunks",
@@ -88,21 +100,6 @@ namespace Manuscript.Models {
         public double estimate_reading_time { get; private set; }
         public bool has_changes { get; private set; }
         public bool temporary { get; private set; }
-
-        private Gee.ArrayList<DocumentChunk> _chunks;
-        public new List<DocumentChunk> chunks {
-            owned get {
-                if (_chunks != null) {
-                    return Conversion.to_list (_chunks);
-                } else {
-                    return new List<DocumentChunk> ();
-                }
-            }
-
-            set {
-                _chunks = Conversion.to_array_list (value);
-            }
-        }
 
         public DocumentChunk active_chunk { get; private set; }
 
@@ -149,7 +146,7 @@ namespace Manuscript.Models {
             );
             try {
                 temporary = temporary_doc;
-                _chunks = new Gee.ArrayList<DocumentChunk> ();
+                chunks = new Gee.ArrayList<DocumentChunk> ();
                 settings = new DocumentSettings ();
                 if (file_path != null) {
                     load_state = DocumentLoadState.LOADING;
@@ -165,7 +162,7 @@ namespace Manuscript.Models {
                 }
             } catch (GLib.Error error) {
                 critical ("Cannot create document: %s\n", error.message);
-                throw new DocumentError.NOT_FOUND ("File not found");
+                throw error;
             }
         }
 
@@ -175,19 +172,15 @@ namespace Manuscript.Models {
 
         protected void build_document (string content) throws GLib.Error {
             try {
-                Json.Parser parser = new Json.Parser ();
-                parser.load_from_data (content);
-                Json.Node node = parser.get_root ();
-                DocumentData obj = Json.gobject_deserialize (typeof (DocumentData), node) as DocumentData;
+                DocumentData obj = new DocumentData.from_json (content);
                 if (obj == null) {
                     throw new DocumentError.READ (@"Cannot parse manuscript from content of $file_path");
                 } else {
                     copy_from (obj);
                     load_state = DocumentLoadState.LOADED;
                 }
-            } catch (GLib.Error error) {
-                critical (@"Error building document: $(error.message)");
-                throw error;
+            } catch (Error err) {
+                throw new DocumentError.READ (@"Cannot parse manuscript from content of $file_path");
             }
         }
 
@@ -195,20 +188,20 @@ namespace Manuscript.Models {
          * Adds a chunk to the collection, making it active by default
          */
         public void add_chunk (DocumentChunk chunk, bool activate = true) {
-            _chunks.add (chunk);
+            chunks.add (chunk);
             chunk_added (chunk, activate);
         }
 
         public void remove_chunk (DocumentChunk chunk) {
-            _chunks.remove (chunk);
+            chunks.remove (chunk);
             chunk_removed (chunk);
-            if (_chunks.size == 0) {
+            if (chunks.size == 0) {
                 drain ();
             }
         }
 
         public void set_active (DocumentChunk chunk) {
-            if (chunk != active_chunk && _chunks.contains (chunk) ) {
+            if (chunk != active_chunk && chunks.contains (chunk) ) {
                 active_chunk = chunk;
                 active_changed (active_chunk);
             }
@@ -231,94 +224,5 @@ namespace Manuscript.Models {
                 this.save_error (e);
             }
         }
-
-        //  public DocumentData flatten () {
-        //      return this as DocumentData;
-        //  }
-
-        // ******
-        // Json serializable impl
-        // ******
-
-        //  public bool deserialize_property (string property_name, out Value value, ParamSpec pspec, Json.Node property_node) {
-        //      switch (property_name) {
-        //          case "chunks":
-        //              //  chunks = new List<DocumentChunk> ();
-        //              return true;
-        //          default:
-        //              return default_deserialize_property (property_name, out value, pspec, property_node);
-        //      }
-        //  }
-
-        // public new Value get_property (ParamSpec pspec) {}
-
-        /**
-         * Only list serializable properties
-         */
-        public (unowned ParamSpec)[] list_properties () {
-            ParamSpec[] specs = new ParamSpec[Document.SERIALIZABLE_PROPERIES.length];
-            Type type = typeof (Document);
-            ObjectClass ocl = (ObjectClass) type.class_ref ();
-            var i = 0;
-            foreach (string prop in Document.SERIALIZABLE_PROPERIES) {
-                debug (@"Getting prop $prop");
-                ParamSpec p = ocl.find_property (prop);
-                assert (p != null);
-                specs[i] = p;
-                i++;
-            }
-            
-            return specs;
-        }
-
-        public Json.Node serialize_property (string property_name, Value value, ParamSpec pspec) {
-            var node = new Json.Node.alloc ();
-            Type prop_type = value.type ();
-            //  debug (@"$property_name/$prop_type");
-            switch (prop_type) {
-                case Type.STRING:
-                    var v = value.get_string ();
-                    if (v == null) {
-                        node.init_null ();
-                    } else {
-                        node.init_string (v);
-                    }
-                    break;
-                case Type.OBJECT:
-                    var v = value.get_object ();
-                    if (v == null) {
-                        node.init_null ();
-                    } else {
-                        node = Json.gobject_serialize (v);
-                    }
-                    break;
-                default:
-                    switch (property_name) {
-                        case "settings":
-                            debug ("Serializing settings");
-                            node = Json.gobject_serialize (value.get_object ());
-                            break;
-                        case "chunks":
-                            debug ("Serializing chunks");
-                            var json_array = new Json.Array.sized (chunks.length ());
-                            var it = _chunks.iterator ();
-                            while (it.has_next ()) {
-                                it.next ();
-                                json_array.add_element (Json.gobject_serialize (it.@get ()));
-                            }
-                            node.init_array (json_array);
-                            break;
-                        default:
-                            node.init_null ();
-                            break;
-                    }
-                    break;
-            }
-
-            return node;
-        }
-
-
-        //  public virtual void set_property (ParamSpec pspec, Value value) {}
     }
 }
