@@ -58,17 +58,23 @@ namespace Manuscript.Models {
             if (obj != null) {
                 raw_content = obj.get_string_member ("raw_content");
                 notes = obj.get_string_member ("notes");
+                title = obj.get_string_member ("title");
                 index = obj.get_int_member ("index");
                 chunk_type = (Models.ChunkType) obj.get_int_member ("chunk_type");
+                build (raw_content);
             }
         }
 
-        //  public static DocumentChunk from_node (Json.Node node) {
-        //      var chunk = Json.gobject_deserialize (typeof (DocumentChunk), node) as DocumentChunk;
-        //      chunk.build (chunk.raw_content);
+        public Json.Object to_json_object () {
+            var root = new Json.Object ();
+            root.set_string_member ("raw_content", buffer.text);
+            root.set_string_member ("title", title);
+            root.set_string_member ("notes", notes);
+            root.set_int_member ("index", index);
+            root.set_int_member ("chunk_type", (int64) chunk_type);
 
-        //      return chunk;
-        //  }
+            return root;
+        }
 
         protected void build (string content = "") {
             switch (chunk_type) {
@@ -89,7 +95,7 @@ namespace Manuscript.Models {
             buffer.highlight_matching_brackets = false;
             buffer.max_undo_levels = -1;
             buffer.highlight_syntax = false;
-            // buffer.language = manager.guess_language (this.file_path, null);
+
             buffer.begin_not_undoable_action ();
             buffer.set_text (content, content.length);
             buffer.end_not_undoable_action ();

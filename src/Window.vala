@@ -134,35 +134,6 @@ namespace Manuscript {
 
         public void connect_events () {
             delete_event.connect (on_destroy);
-
-            //  header.new_file.connect ( () => {
-            //      document_manager.document.add_chunk (new Models.DocumentChunk.empty (Models.ChunkType.CHAPTER));
-            //  } );
-
-            //  header.open_file.connect ( () => {
-            //      if (document != null && document.has_changes) {
-            //          if (quit_dialog () ) {
-            //              open_file_dialog ();
-            //          }
-            //      } else {
-            //          open_file_dialog ();
-            //      }
-            //  } );
-
-            //  header.save_file.connect ((choose_path) => {
-            //      if (choose_path) {
-            //          var dialog = new FileSaveDialog (this, document);
-            //          int res = dialog.run ();
-            //          if (res == Gtk.ResponseType.ACCEPT) {
-            //              document.save (dialog.get_filename () );
-            //              settings.last_opened_document = this.document.file_path;
-            //          }
-            //          dialog.destroy ();
-            //      } else {
-            //          document.save ();
-            //      }
-            //  });
-
             welcome_view.should_open_file.connect (open_file_dialog);
             welcome_view.should_create_new_file.connect (open_with_temp_file);
         }

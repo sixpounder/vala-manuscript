@@ -49,21 +49,35 @@ namespace Manuscript.Models {
             var chunks_array = root_object.get_array_member ("chunks");
             chunks = new Gee.ArrayList<DocumentChunk> ();
             foreach (var el in chunks_array.get_elements ()) {
-                chunks.add (new DocumentChunk.from_json_object (el.get_object ()));
+                add_chunk (new DocumentChunk.from_json_object (el.get_object ()), false);
             }
         }
 
-        public void copy_from (DocumentBase source) {
-            title = source.title;
-            uuid = source.uuid;
-            settings = source.settings;
-            chunks = source.chunks;
+        public string to_json () {
+            var gen = new Json.Generator();
+            var root = new Json.Node(Json.NodeType.OBJECT);
+            var object = new Json.Object();
+            root.set_object(object);
+            gen.set_root(root);
 
-            assert (chunks != null);
-            assert (settings != null);
+            object.set_string_member("uuid", uuid);
+            object.set_string_member("title", title);
+            object.set_object_member("settings", settings.to_json_object ());
+            
+            // Serialize chunks
+
+            Json.Array chunks_array = new Json.Array.sized (chunks.size);
+            var it = chunks.iterator ();
+            while (it.next ()) {
+                chunks_array.add_object_element (it.@get ().to_json_object ());
+            }
+            object.set_array_member ("chunks", chunks_array);
+
+            return gen.to_data (null);
         }
 
-        //  public Json.Node as_json () {}
+        public virtual void add_chunk (DocumentChunk chunk, bool activate = true) {}
+        public virtual void remove_chunk (DocumentChunk chunk, bool activate = true) {}
 
     }
 
@@ -157,7 +171,28 @@ namespace Manuscript.Models {
                         throw new DocumentError.NOT_FOUND ("File not found");
                     } else {
                         debug ("File read");
-                        build_document (res);
+                        var parser = new Json.Parser ();
+                        try {
+                            parser.load_from_data (res, -1);
+                        } catch (Error error) {
+                            throw new DocumentError.PARSE (@"Cannot parse manuscript file: $(error.message)");
+                        }
+
+                        var root_object = parser.get_root ().get_object ();
+
+                        uuid = root_object.get_string_member ("uuid");
+                        title = root_object.get_string_member ("title");
+
+                        // Settings parsing
+                        var settings_object = root_object.get_object_member ("settings");
+                        settings = new DocumentSettings.from_json_object (settings_object);
+
+                        // Chunks parsing
+                        var chunks_array = root_object.get_array_member ("chunks");
+                        chunks = new Gee.ArrayList<DocumentChunk> ();
+                        foreach (var el in chunks_array.get_elements ()) {
+                            add_chunk (new DocumentChunk.from_json_object (el.get_object ()), false);
+                        }
                     }
                 }
             } catch (GLib.Error error) {
@@ -176,7 +211,6 @@ namespace Manuscript.Models {
                 if (obj == null) {
                     throw new DocumentError.READ (@"Cannot parse manuscript from content of $file_path");
                 } else {
-                    copy_from (obj);
                     load_state = DocumentLoadState.LOADED;
                 }
             } catch (Error err) {
@@ -187,12 +221,12 @@ namespace Manuscript.Models {
         /**
          * Adds a chunk to the collection, making it active by default
          */
-        public void add_chunk (DocumentChunk chunk, bool activate = true) {
+        public new void add_chunk (DocumentChunk chunk, bool activate = true) {
             chunks.add (chunk);
             chunk_added (chunk, activate);
         }
 
-        public void remove_chunk (DocumentChunk chunk) {
+        public new void remove_chunk (DocumentChunk chunk) {
             chunks.remove (chunk);
             chunk_removed (chunk);
             if (chunks.size == 0) {
@@ -212,8 +246,7 @@ namespace Manuscript.Models {
                 if (path != null) {
                     modified_path = path;
                 }
-                // FileUtils.save_buffer (_buffer, file_path);
-                string data = Json.gobject_to_data (this, null);
+                string data = to_json ();
                 long written_bytes = FileUtils.save (data, file_path);
                 debug (@"Written $written_bytes bytes");
                 debug (data);

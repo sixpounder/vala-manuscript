@@ -26,7 +26,6 @@ namespace Manuscript.Widgets {
             document_manager.load.connect (on_document_set);
             document_manager.change.connect (on_document_set);
             document_manager.unload.connect (on_document_unload);
-            //  document_manager.unloaded.connect (on_document_unload);
 
             build_ui ();
         }
@@ -62,6 +61,14 @@ namespace Manuscript.Widgets {
             root_list.enable_drag_dest ({ uri_list_entry }, Gdk.DragAction.COPY);
 
             show_all ();
+
+            //  if (document_manager.has_document) {
+            //      on_document_set (document_manager.document);
+            //      var it = document_manager.document.chunks.iterator ();
+            //      while (it.next ()) {
+            //          add_chunk (it.@get (), false);
+            //      }
+            //  }
         }
 
         private void update_ui () {
@@ -85,7 +92,7 @@ namespace Manuscript.Widgets {
 
         private void on_item_selected (Granite.Widgets.SourceList.Item? item) {
             if (item != null && item is SourceListChunkItem) {
-                select_chunk ( ((SourceListChunkItem) item).chunk );
+                select_chunk (((SourceListChunkItem) item).chunk);
             }
         }
 
