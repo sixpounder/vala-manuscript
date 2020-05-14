@@ -61,22 +61,29 @@ namespace Manuscript.Widgets {
             root_list.enable_drag_dest ({ uri_list_entry }, Gdk.DragAction.COPY);
 
             show_all ();
-
-            //  if (document_manager.has_document) {
-            //      on_document_set (document_manager.document);
-            //      var it = document_manager.document.chunks.iterator ();
-            //      while (it.next ()) {
-            //          add_chunk (it.@get (), false);
-            //      }
-            //  }
         }
 
         private void update_ui () {
 
         }
 
+        public void reset_tree (Models.Document doc) {
+            assert (doc != null);
+            chapters_root.clear ();
+            characters_root.clear ();
+            notes_root.clear ();
+            var it = doc.chunks.iterator ();
+            while (it.next ()) {
+                add_chunk (it.@get (), false);
+            }
+            chapters_root.expand_all ();
+            characters_root.expand_all ();
+            notes_root.expand_all ();
+        }
+
         private void on_document_set (Models.Document doc) {
             if (doc != null) {
+                reset_tree (doc);
                 doc.chunk_added.connect (add_chunk);
                 doc.chunk_removed.connect (remove_chunk);
                 doc.active_changed.connect (select_chunk);
@@ -116,8 +123,10 @@ namespace Manuscript.Widgets {
 
             root_node.add (item_to_add);
 
-            root_list.scroll_to_item (item_to_add);
-            root_list.start_editing_item (item_to_add);
+            if (active) {
+                root_list.scroll_to_item (item_to_add);
+                root_list.start_editing_item (item_to_add);
+            }
         }
 
         public void remove_chunk (Models.DocumentChunk chunk) {

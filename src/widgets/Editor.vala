@@ -1,4 +1,4 @@
-namespace Manuscript {
+namespace Manuscript.Widgets {
     public class Editor : Gtk.SourceView {
         public bool has_changes { get; private set; }
         public Gtk.SourceSearchContext search_context = null;
@@ -33,13 +33,8 @@ namespace Manuscript {
             }
             set {
                 _chunk = value;
-                if (_chunk.buffer != null) {
-                    debug ("Loading buffer");
-                    load_buffer (_chunk.buffer);
-                } else {
-                    debug ("Loading buffer");
-                    load_buffer (_chunk.buffer);
-                }
+                debug (@"Loading buffer for $(_chunk.title)");
+                load_buffer (_chunk.buffer);
             }
         }
 

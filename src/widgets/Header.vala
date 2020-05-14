@@ -1,4 +1,4 @@
-namespace Manuscript {
+namespace Manuscript.Widgets {
     public class Header : Gtk.HeaderBar {
         public weak Manuscript.Window parent_window { get; construct; }
 

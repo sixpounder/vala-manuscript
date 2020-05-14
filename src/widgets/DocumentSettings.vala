@@ -7,7 +7,11 @@ namespace Manuscript.Widgets {
         public DocumentSettings (Manuscript.Window parent_window) {
             Object (
                 parent_window: parent_window,
-                orientation: Gtk.Orientation.VERTICAL
+                orientation: Gtk.Orientation.VERTICAL,
+                expand: true,
+                valign: Gtk.Align.FILL,
+                width_request: 600,
+                height_request: 400
             );
         }
 
@@ -15,8 +19,8 @@ namespace Manuscript.Widgets {
             settings_views = new Gtk.Stack ();
             settings_views.get_style_context ().add_class ("horizontal linked stack-switcher");
             settings_views.margin_top = 20;
-            settings_views.add_titled (new Gtk.Grid (), "general", _("General"));
-            settings_views.add_titled (new Settings.DocumentMetricsView(parent_window), "metrics", _("Fonts & Metrics"));
+            settings_views.add_titled (new Settings.DocumentGeneralSettingsView (parent_window), "general", _("General"));
+            settings_views.add_titled (new Settings.DocumentMetricsView(parent_window), "typography", _("Typography"));
 
             Gtk.StackSwitcher view_switchers = new Gtk.StackSwitcher ();
             view_switchers.orientation = Gtk.Orientation.HORIZONTAL;

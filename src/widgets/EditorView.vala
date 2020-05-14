@@ -1,4 +1,4 @@
-namespace Manuscript {
+namespace Manuscript.Widgets{
     public class EditorView: Granite.Widgets.Tab, Protocols.EditorController {
         public Editor editor { get; private set; }
         public weak Models.DocumentChunk chunk { get; construct; }

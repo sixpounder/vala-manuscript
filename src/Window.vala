@@ -6,9 +6,9 @@ namespace Manuscript {
         protected Widgets.Sidebar sidebar;
         protected Gtk.Box layout;
         protected WelcomeView welcome_view;
-        protected Header header;
-        protected StatusBar status_bar;
-        protected SearchBar search_bar;
+        protected Widgets.Header header;
+        protected Widgets.StatusBar status_bar;
+        protected Widgets.SearchBar search_bar;
         protected Gtk.Bin body;
         protected Gtk.Paned editor_grid;
         protected Widgets.EditorsController tabs;
@@ -18,16 +18,6 @@ namespace Manuscript {
         public Services.DocumentManager document_manager;
         public Services.ActionManager action_manager { get; private set; }
         public string initial_document_path { get; construct; }
-
-        public Editor ? current_editor {
-            get {
-                if (tabs.tabs.length () != 0) {
-                    return ((Widgets.EditorPage)tabs.current_tab.page).editor;
-                } else {
-                    return null;
-                }
-            }
-        }
 
         public Models.Document ? document {
             get {
@@ -94,7 +84,7 @@ namespace Manuscript {
             sidebar.width_request = 250;
 
             // Setup header
-            header = new Header (this);
+            header = new Widgets.Header (this);
             set_titlebar (header);
 
             // Tabs
@@ -116,7 +106,7 @@ namespace Manuscript {
             layout.pack_start (body);
 
             // Status bar (bottom)
-            layout.pack_end (status_bar = new StatusBar (), false, false, 0);
+            layout.pack_end (status_bar = new Widgets.StatusBar (), false, false, 0);
 
             container.add (layout);
 
@@ -138,15 +128,15 @@ namespace Manuscript {
             welcome_view.should_create_new_file.connect (open_with_temp_file);
         }
 
-        public void configure_searchbar () {
-            search_bar = new SearchBar (this, current_editor);
-            layout.pack_start (search_bar, false, false, 0);
-            settings.change.connect ((k) => {
-                if (k == "searchbar") {
-                    show_searchbar ();
-                }
-            } );
-        }
+        //  public void configure_searchbar () {
+        //      search_bar = new SearchBar (this, current_editor);
+        //      layout.pack_start (search_bar, false, false, 0);
+        //      settings.change.connect ((k) => {
+        //          if (k == "searchbar") {
+        //              show_searchbar ();
+        //          }
+        //      } );
+        //  }
 
         public override bool configure_event (Gdk.EventConfigure event) {
             if (configure_id != 0) {
@@ -173,13 +163,13 @@ namespace Manuscript {
             return base.configure_event (event);
         }
 
-        public void show_searchbar () {
-            search_bar.rebind (current_editor);
-            search_bar.reveal_child = settings.searchbar;
-            if (settings.searchbar == true) {
-                search_bar.search_entry.grab_focus_without_selecting ();
-            }
-        }
+        //  public void show_searchbar () {
+        //      search_bar.rebind (current_editor);
+        //      search_bar.reveal_child = settings.searchbar;
+        //      if (settings.searchbar == true) {
+        //          search_bar.search_entry.grab_focus_without_selecting ();
+        //      }
+        //  }
 
         /**
          * Shows the open document dialog

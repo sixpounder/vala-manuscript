@@ -1,4 +1,4 @@
-namespace Manuscript {
+namespace Manuscript.Widgets {
     public class SearchBar : Gtk.Revealer {
         public Gtk.Grid grid;
         public Gtk.SearchEntry search_entry;

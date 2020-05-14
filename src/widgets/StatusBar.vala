@@ -1,4 +1,4 @@
-namespace Manuscript {
+namespace Manuscript.Widgets {
     public class StatusBar : Gtk.ActionBar {
         private uint _words_count = 0;
         private double _reading_time = 0;

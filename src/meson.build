@@ -10,9 +10,6 @@ executable(
 	'Constants.vala',
 	'Window.vala',
 	'WelcomeView.vala',
-	'Editor.vala',
-	'Header.vala',
-	'StatusBar.vala',
 	'FileUtils.vala',
 	'Palettes.vala',
 	'DocumentTagTable.vala',
@@ -21,9 +18,11 @@ executable(
 	'services/DocumentManager.vala',
 	'services/ActionManager.vala',
 
+	'widgets/Header.vala',
+	'widgets/Editor.vala',
+	'widgets/StatusBar.vala',
 	'widgets/MenuButton.vala',
 	'widgets/Sidebar.vala',
-	'widgets/EditorPage.vala',
 	'widgets/SettingsPopover.vala',
 	'widgets/ExportPopover.vala',
 	'widgets/SidebarRow.vala',
@@ -37,6 +36,7 @@ executable(
     'widgets/DocumentSettings.vala',
 
     'widgets/settings/Metrics.vala',
+    'widgets/settings/General.vala',
 
 	'models/ChunkType.vala',
 	'models/DocumentChunk.vala',
