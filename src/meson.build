@@ -29,6 +29,7 @@ executable(
 	'widgets/ThemeButton.vala',
 	'widgets/FileNotFound.vala',
 	'widgets/SearchBar.vala',
+    'widgets/ScrollProgress.vala',
 	'widgets/EditorsController.vala',
 	'widgets/EditorView.vala',
 	'widgets/ChunkPreview.vala',

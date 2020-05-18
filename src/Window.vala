@@ -7,13 +7,13 @@ namespace Manuscript {
         protected Gtk.Box layout;
         protected WelcomeView welcome_view;
         protected Widgets.Header header;
-        protected Widgets.StatusBar status_bar;
         protected Widgets.SearchBar search_bar;
         protected Gtk.Bin body;
-        protected Gtk.Paned editor_grid;
+        protected Granite.Widgets.CollapsiblePaned editor_grid;
         protected Widgets.EditorsController tabs;
         protected weak Models.Document selected_document = null;
         protected Gtk.InfoBar infobar;
+        protected int last_editor_grid_panel_position;
 
         public Services.DocumentManager document_manager;
         public Services.ActionManager action_manager { get; private set; }
@@ -91,7 +91,7 @@ namespace Manuscript {
             tabs = new Widgets.EditorsController (this);
 
             // Grid
-            editor_grid = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
+            editor_grid = new Granite.Widgets.CollapsiblePaned (Gtk.Orientation.HORIZONTAL);
             editor_grid.get_style_context ().add_class ("editor_grid");
             editor_grid.valign = Gtk.Align.FILL;
             editor_grid.pack1 (sidebar, false, true);
@@ -106,7 +106,7 @@ namespace Manuscript {
             layout.pack_start (body);
 
             // Status bar (bottom)
-            layout.pack_end (status_bar = new Widgets.StatusBar (), false, false, 0);
+            //  layout.pack_end (status_bar = new Widgets.StatusBar (), false, false, 0);
 
             container.add (layout);
 
@@ -123,6 +123,16 @@ namespace Manuscript {
         }
 
         public void connect_events () {
+            settings.change.connect (() => {
+                if (settings.zen) {
+                    last_editor_grid_panel_position = editor_grid.position;
+                    editor_grid.position = 0;
+                } else {
+                    if (editor_grid.position == 0 && last_editor_grid_panel_position != 0) {
+                        editor_grid.position = last_editor_grid_panel_position;
+                    }
+                }
+            });
             delete_event.connect (on_destroy);
             welcome_view.should_open_file.connect (open_file_dialog);
             welcome_view.should_create_new_file.connect (open_with_temp_file);

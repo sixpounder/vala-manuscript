@@ -30,3 +30,19 @@ button.theme-button-sepia {
     margin-top: -70px;
     transition: 500ms linear;
 }
+
+sourceview {
+    background-color: @bg_color;
+}
+
+.status-bar {
+    transition: color 300ms ease-in-out;
+    color: @SILVER_700;
+    border: none;
+    background-color: @bg_color;
+    background-image: none;
+}
+
+.status-bar:hover {
+    color: @BLACK_500;
+}

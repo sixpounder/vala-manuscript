@@ -81,6 +81,7 @@ namespace Manuscript.Widgets {
             export_popover = new Widgets.ExportPopover (export_button);
 
             settings_button = new Gtk.Button.from_icon_name ("open-menu", Gtk.IconSize.LARGE_TOOLBAR);
+            settings_button.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
             settings_button.tooltip_text = _ ("Settings");
             settings_button.clicked.connect (() => {
                 if (settings_popover.visible) {

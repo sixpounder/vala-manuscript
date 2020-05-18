@@ -1,5 +1,6 @@
 namespace Manuscript.Widgets{
     public class EditorView: Granite.Widgets.Tab, Protocols.EditorController {
+        public Widgets.StatusBar status_bar { get; set; }
         public Editor editor { get; private set; }
         public weak Models.DocumentChunk chunk { get; construct; }
 
@@ -12,10 +13,18 @@ namespace Manuscript.Widgets{
 
         construct {
             get_style_context ().add_class ("editor-view");
+            var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+            box.expand = true;
+            box.homogeneous = false;
+            box.halign = Gtk.Align.FILL;
             var scrolled_container = new Gtk.ScrolledWindow (null, null);
             editor = new Editor (chunk);
+            status_bar = new Widgets.StatusBar ();
+            status_bar.height_request = 50;
             scrolled_container.add (editor);
-            page = scrolled_container;
+            box.pack_start (scrolled_container);
+            box.pack_start (status_bar, false, true, 0);
+            page = box;
 
             chunk.notify["title"].connect (() => {
                 label = chunk.title;

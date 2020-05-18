@@ -5,6 +5,7 @@ namespace Manuscript.Widgets {
         protected Gtk.Label words_label;
         protected Gtk.Label reading_time_label;
         protected Gtk.Image reading_time_icon;
+        protected ScrollProgress scroll_progress_indicator { get; set; }
         protected Models.Document _document;
         public Models.Document document {
             get {
@@ -23,6 +24,9 @@ namespace Manuscript.Widgets {
 
             words_label = new Gtk.Label ("0 " + _("words"));
             pack_start (words_label);
+
+            scroll_progress_indicator = new Widgets.ScrollProgress (null);
+            pack_start (scroll_progress_indicator);
 
             reading_time_label = new Gtk.Label ("");
             reading_time_label.tooltip_text = _("Estimated reading time");
