@@ -1,4 +1,8 @@
 namespace Manuscript.Widgets {
+
+    /**
+     * Serves as controller for a group of `EditorView`s.
+     */
     public class EditorsController : Gtk.Stack, Protocols.EditorViewController {
 
         protected bool _on_viewport = true;

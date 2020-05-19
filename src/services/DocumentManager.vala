@@ -74,14 +74,14 @@ namespace Manuscript.Services {
         public void open_chunk (Models.DocumentChunk chunk) {
             if (!opened_chunks.contains (chunk)) {
                 opened_chunks.add (chunk);
-                start_editing (chunk);
             }
+            start_editing (chunk);
         }
 
         public void close_chunk (Models.DocumentChunk chunk) {
             if (opened_chunks.contains (chunk)) {
-                opened_chunks.remove (chunk);
                 stop_editing (chunk);
+                opened_chunks.remove (chunk);
             }
         }
 

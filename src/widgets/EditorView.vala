@@ -1,4 +1,7 @@
 namespace Manuscript.Widgets{
+    /**
+     * Groups all the items relative to a single editor view
+     */
     public class EditorView: Granite.Widgets.Tab, Protocols.EditorController {
         public Widgets.StatusBar status_bar { get; set; }
         public Editor editor { get; private set; }

@@ -2,7 +2,7 @@ namespace Manuscript.Widgets {
     public class ScrollProgress : Gtk.DrawingArea {
         private bool first_run = true;
         public Gdk.RGBA color { get; set; }
-        public Manuscript.Window parent_window { get; set; }
+        public weak Manuscript.Window parent_window { get; set; }
 
         public ScrollProgress (Manuscript.Window ? parent_window, double initial_value = 0, double min = 0, double max = 100) {
             Object (
@@ -17,6 +17,20 @@ namespace Manuscript.Widgets {
 
         construct {
             draw.connect (draw_callback);
+        }
+
+        protected bool _show_label = true;
+        public book show_label {
+            get {
+                return _show_label;
+            }
+
+            set {
+                if (value != _show_label) {
+                    _show_label = value;
+                    redraw ();
+                }
+            }
         }
 
         protected double _value;
@@ -79,7 +93,6 @@ namespace Manuscript.Widgets {
             var pad_right = 60.0;
             
             var available_len = w - pad_right - pad_left;
-            // Calculate progress% for w
             var w_amount_percent = (available_len / 100) * progress;
             var target_len = (available_len / 100) * w_amount_percent;
 
