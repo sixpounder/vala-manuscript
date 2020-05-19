@@ -133,7 +133,7 @@ namespace Manuscript.Widgets {
             assert (chunk != null);
             var existing_tab = get_tab_for_chunk (chunk);
             if (existing_tab == null) {
-                EditorView new_tab = new EditorView (chunk);
+                EditorView new_tab = new EditorView (parent_window, chunk);
                 notebook.insert_tab (new_tab, 0);
                 if (active) {
                     notebook.current = new_tab;

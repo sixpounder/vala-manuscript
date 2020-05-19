@@ -62,14 +62,16 @@ executable(
 	'dialogs/InfoBar.vala',
 	asresources,
 	dependencies: [
+        dependency('glib-2.0'),
 		dependency('gtk+-3.0'),
+        meson.get_compiler('c').find_library('m', required: false),
 		dependency('gio-2.0', version: '>= 2.56.0'),
+		dependency('granite', version : '>= 5.3.0'),
 		dependency('gee-0.8', version : '>= 0.8'),
 		dependency('cairo', version : '>= 1.15'),
 		dependency('pangocairo', version : '>= 1.40'),
 		dependency('json-glib-1.0'),
-		dependency('gtksourceview-3.0'),
-		dependency('granite', version : '>= 5.3.0')
+		dependency('gtksourceview-3.0')
 	],
 	install: true
 )

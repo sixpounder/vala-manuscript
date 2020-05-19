@@ -2,10 +2,12 @@ namespace Manuscript.Widgets{
     public class EditorView: Granite.Widgets.Tab, Protocols.EditorController {
         public Widgets.StatusBar status_bar { get; set; }
         public Editor editor { get; private set; }
+        public weak Manuscript.Window parent_window { get; construct; }
         public weak Models.DocumentChunk chunk { get; construct; }
 
-        public EditorView (Models.DocumentChunk chunk) {
+        public EditorView (Manuscript.Window parent_window, Models.DocumentChunk chunk) {
             Object (
+                parent_window: parent_window,
                 chunk: chunk,
                 label: chunk.title
             );
@@ -18,8 +20,14 @@ namespace Manuscript.Widgets{
             box.homogeneous = false;
             box.halign = Gtk.Align.FILL;
             var scrolled_container = new Gtk.ScrolledWindow (null, null);
+            scrolled_container.vadjustment.changed.connect (() => {
+                status_bar.update_scroll_progress (scrolled_container.vadjustment.value, scrolled_container.vadjustment.lower, scrolled_container.vadjustment.upper);
+            });
+            scrolled_container.vadjustment.value_changed.connect (() => {
+                status_bar.update_scroll_progress (scrolled_container.vadjustment.value, scrolled_container.vadjustment.lower, scrolled_container.vadjustment.upper);
+            });
             editor = new Editor (chunk);
-            status_bar = new Widgets.StatusBar ();
+            status_bar = new Widgets.StatusBar (parent_window, chunk);
             status_bar.height_request = 50;
             scrolled_container.add (editor);
             box.pack_start (scrolled_container);

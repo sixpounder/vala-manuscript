@@ -1,22 +1,24 @@
 namespace Manuscript.Widgets {
     public class StatusBar : Gtk.ActionBar {
-        private uint _words_count = 0;
-        private double _reading_time = 0;
         protected Gtk.Label words_label;
         protected Gtk.Label reading_time_label;
         protected Gtk.Image reading_time_icon;
         protected ScrollProgress scroll_progress_indicator { get; set; }
-        protected Models.Document _document;
-        public Models.Document document {
+        
+        public weak Manuscript.Window parent_window { get; construct; }
+        public weak Models.Document document {
             get {
-                return _document;
+                return parent_window.document_manager.document;
             }
-            set {
-                _document = value;
-                if (_document != null) {
-                    init ();
-                }
-            }
+        }
+
+        public weak Models.DocumentChunk chunk { get; set; }
+
+        public StatusBar (Manuscript.Window parent_window, Models.DocumentChunk chunk) {
+            Object (
+                parent_window: parent_window,
+                chunk: chunk
+            );
         }
 
         construct {
@@ -26,7 +28,7 @@ namespace Manuscript.Widgets {
             pack_start (words_label);
 
             scroll_progress_indicator = new Widgets.ScrollProgress (null);
-            pack_start (scroll_progress_indicator);
+            set_center_widget (scroll_progress_indicator);
 
             reading_time_label = new Gtk.Label ("");
             reading_time_label.tooltip_text = _("Estimated reading time");
@@ -40,16 +42,7 @@ namespace Manuscript.Widgets {
             init ();
         }
 
-        protected void init () {
-            if (document != null) {
-                if (document.load_state == DocumentLoadState.LOADED) {
-                    load_document ();
-                } else {
-                    document.load.connect (load_document);
-                }
-            }
-        }
-
+        private uint _words_count = 0;
         public uint words {
             get {
                 return _words_count;
@@ -61,12 +54,7 @@ namespace Manuscript.Widgets {
             }
         }
 
-        protected void load_document () {
-            if (document != null) {
-                words = document.words_count;
-            }
-        }
-
+        private double _reading_time = 0;
         public double reading_time {
             get {
                 return _reading_time;
@@ -78,10 +66,22 @@ namespace Manuscript.Widgets {
             }
         }
 
-        private string format_reading_time (double minutes) {
+        protected string format_reading_time (double minutes) {
             return minutes <= 1
                 ? "< 1 " + _("minute")
                 : minutes.to_string () + " " + _("minutes");
+        }
+
+        protected void init () {
+            if (chunk != null) {
+                words = chunk.words_count;
+            }
+        }
+
+        public void update_scroll_progress (double value, double min, double max) {
+            scroll_progress_indicator.current_value = value;
+            scroll_progress_indicator.min_value = min;
+            scroll_progress_indicator.max_value = max;
         }
     }
 }
