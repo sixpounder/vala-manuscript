@@ -23,11 +23,27 @@ namespace Manuscript.Widgets{
             box.homogeneous = false;
             box.halign = Gtk.Align.FILL;
             var scrolled_container = new Gtk.ScrolledWindow (null, null);
-            scrolled_container.vadjustment.changed.connect (() => {
-                status_bar.update_scroll_progress (scrolled_container.vadjustment.value, scrolled_container.vadjustment.lower, scrolled_container.vadjustment.upper);
-            });
+            scrolled_container.kinetic_scrolling = true;
+            scrolled_container.overlay_scrolling = true;
+            scrolled_container.hscrollbar_policy = Gtk.PolicyType.AUTOMATIC;
+            scrolled_container.vscrollbar_policy = Gtk.PolicyType.AUTOMATIC;
+            //  scrolled_container.vadjustment.changed.connect (() => {
+            //      Gtk.Allocation allocation;
+            //      editor.get_allocation (out allocation);
+            //      status_bar.update_scroll_progress (
+            //          scrolled_container.vadjustment.value,
+            //          scrolled_container.vadjustment.lower,
+            //          scrolled_container.vadjustment.upper - allocation.height
+            //      );
+            //  });
             scrolled_container.vadjustment.value_changed.connect (() => {
-                status_bar.update_scroll_progress (scrolled_container.vadjustment.value, scrolled_container.vadjustment.lower, scrolled_container.vadjustment.upper);
+                Gtk.Allocation allocation;
+                editor.get_allocation (out allocation);
+                status_bar.update_scroll_progress (
+                    scrolled_container.vadjustment.value,
+                    scrolled_container.vadjustment.lower,
+                    scrolled_container.vadjustment.upper - allocation.height
+                );
             });
             editor = new Editor (chunk);
             status_bar = new Widgets.StatusBar (parent_window, chunk);
@@ -53,6 +69,6 @@ namespace Manuscript.Widgets{
             return false;
         }
 
-        public void on_stats_updated (Protocols.DocumentStats stats) {}
+        public void content_event (Protocols.ContentEvent event) {}
     }
 }

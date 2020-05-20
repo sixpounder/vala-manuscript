@@ -1,4 +1,9 @@
 namespace Manuscript.Protocols {
+    public enum ContentEvent {
+        CONTENT_CHANGE,
+        ATTRIBUTE_CHANGE
+    }
+
     public interface DocumentStats {
         public abstract uint words_count { get; }
         public abstract uint[] estimated_reading_time { get; }
@@ -16,6 +21,6 @@ namespace Manuscript.Protocols {
         public abstract weak Models.DocumentChunk chunk { get; construct; }
         public abstract bool has_changes ();
         public abstract void focus_editor ();
-        public abstract void on_stats_updated (DocumentStats stats);
+        public abstract void content_event (ContentEvent event);
     }
 }

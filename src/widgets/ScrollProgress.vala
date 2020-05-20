@@ -19,8 +19,21 @@ namespace Manuscript.Widgets {
             draw.connect (draw_callback);
         }
 
+        protected double _line_width = 10;
+        public double line_width {
+            get {
+                return _line_width;
+            }
+            set {
+                if (value != _line_width) {
+                    _line_width = value;
+                    redraw ();
+                }
+            }
+        }
+
         protected bool _show_label = true;
-        public book show_label {
+        public bool show_label {
             get {
                 return _show_label;
             }
@@ -74,7 +87,11 @@ namespace Manuscript.Widgets {
 
         public double progress {
             get {
-                return ((current_value - min_value) * 100) / (max_value - min_value);
+                if (max_value - min_value != 0) {
+                    return ((current_value - min_value) * 100) / (max_value - min_value);
+                } else {
+                    return 0;
+                }
             }
         }
 
@@ -90,7 +107,7 @@ namespace Manuscript.Widgets {
             var baseline = (get_allocated_height () / 2);
             var w = get_allocated_width ();
             var pad_left = 10.0;
-            var pad_right = 60.0;
+            var pad_right = show_label ? 60 : 0;
             
             var available_len = w - pad_right - pad_left;
             var w_amount_percent = (available_len / 100) * progress;
@@ -99,15 +116,16 @@ namespace Manuscript.Widgets {
             cr.move_to (pad_left, baseline);
             cr.set_source_rgba (color.red, color.green, color.blue, color.alpha);
             cr.set_line_cap (Cairo.LineCap.ROUND);
-            cr.set_line_width (10);
+            cr.set_line_width (line_width);
             cr.line_to (target_len + pad_left, baseline);
             cr.stroke ();
 
-            cr.move_to (w - pad_right, baseline + 5);
-            cr.set_font_size (16);
-            cr.select_font_face ("Sans", Cairo.FontSlant.NORMAL, Cairo.FontWeight.NORMAL);
-            cr.show_text (@"$(Math.ceil (progress).to_string ())%");
-            //  cr.stroke ();
+            if (show_label) {
+                cr.move_to (w - pad_right, baseline + 5);
+                cr.set_font_size (16);
+                cr.select_font_face ("Sans", Cairo.FontSlant.NORMAL, Cairo.FontWeight.NORMAL);
+                cr.show_text (@"$(Math.ceil (progress).to_string ())%");
+            }
 
             return false;
         }

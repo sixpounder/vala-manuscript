@@ -6,6 +6,7 @@ namespace Manuscript.Models {
     }
 
     public interface DocumentBase : Object {
+        public abstract string version { get; set; }
         public abstract string uuid { get; set; }
         public abstract string title { get; set; }
         public abstract DocumentSettings settings { get; set; }
@@ -14,6 +15,7 @@ namespace Manuscript.Models {
 
 
     public class DocumentData : Object, DocumentBase {
+        public string version { get; set; }
         public string uuid { get; set; }
         public string title { get; set; }
         public DocumentSettings settings { get; set; }
@@ -60,6 +62,7 @@ namespace Manuscript.Models {
             root.set_object(object);
             gen.set_root(root);
 
+            object.set_string_member("version", version);
             object.set_string_member("uuid", uuid);
             object.set_string_member("title", title);
             object.set_object_member("settings", settings.to_json_object ());
@@ -83,6 +86,7 @@ namespace Manuscript.Models {
 
     public class Document : DocumentData, DocumentBase {
         public const string[] SERIALIZABLE_PROPERIES = {
+            "version",
             "uuid",
             "title",
             "chunks",
@@ -156,7 +160,9 @@ namespace Manuscript.Models {
         protected Document (string ? file_path, bool temporary_doc = false) throws GLib.Error, DocumentError {
             Object (
                 file_path: file_path,
-                uuid: GLib.Uuid.string_random ()
+                uuid: GLib.Uuid.string_random (),
+                version: "1.0",
+                temporary: true
             );
             try {
                 temporary = temporary_doc;
@@ -180,6 +186,7 @@ namespace Manuscript.Models {
 
                         var root_object = parser.get_root ().get_object ();
 
+                        version = root_object.get_string_member ("version");
                         uuid = root_object.get_string_member ("uuid");
                         title = root_object.get_string_member ("title");
 
