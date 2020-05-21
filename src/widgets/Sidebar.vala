@@ -39,6 +39,7 @@ namespace Manuscript.Widgets {
         }
 
         private void build_ui () {
+            // One expandable items per category
             chapters_root = new Granite.Widgets.SourceList.ExpandableItem (_("Chapters"));
             characters_root = new Granite.Widgets.SourceList.ExpandableItem ("Characters sheets");
             notes_root = new Granite.Widgets.SourceList.ExpandableItem (_("Notes"));
