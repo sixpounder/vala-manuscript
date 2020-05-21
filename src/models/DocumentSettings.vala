@@ -1,8 +1,8 @@
 namespace Manuscript.Models {
     public class DocumentSettings : Object, Json.Serializable {
-        public string font_family { get; set; }
-        public int64 font_size { get; set; }
+        public string font { get; set; }
         public double paragraph_spacing { get; set; }
+        public double paragraph_start_padding { get; set; }
 
         public DocumentSettings () {
             set_defaults ();
@@ -10,25 +10,25 @@ namespace Manuscript.Models {
 
         public DocumentSettings.from_json_object (Json.Object? obj) {
             if (obj != null) {
-                font_family = obj.get_string_member ("font_family");
-                font_size = obj.get_int_member ("font_size");
+                font = obj.get_string_member ("font");
                 paragraph_spacing = obj.get_double_member ("paragraph_spacing");
+                paragraph_start_padding = obj.get_double_member ("paragraph_start_padding");
             } else {
                 set_defaults ();
             }
         }
 
         public void set_defaults () {
-            font_size = 10;
             paragraph_spacing = 20;
-            font_family = "iA Writer Duospace";
+            paragraph_start_padding = 10;
+            font = "iA Writer Duospace 18";
         }
 
         public Json.Object to_json_object () {
             var root = new Json.Object ();
-            root.set_string_member ("font_family", font_family);
-            root.set_int_member ("font_size", font_size);
+            root.set_string_member ("font", font);
             root.set_double_member ("paragraph_spacing", paragraph_spacing);
+            root.set_double_member ("paragraph_start_padding", paragraph_start_padding);
 
             return root;
         }

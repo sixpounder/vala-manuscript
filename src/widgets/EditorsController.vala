@@ -48,6 +48,7 @@ namespace Manuscript.Widgets {
             notebook.add_button_visible = false;
             notebook.allow_new_window = false;
             notebook.tab_removed.connect (on_editor_closed);
+            notebook.tab_switched.connect (on_tab_switched);
 
             get_style_context ().add_class ("documents-notebook");
             settings = Services.AppSettings.get_default ();
@@ -131,6 +132,10 @@ namespace Manuscript.Widgets {
         // Editors events
         private void on_editor_closed () {
             update_ui ();
+        }
+
+        private void on_tab_switched (Granite.Widgets.Tab? old_tab, Granite.Widgets.Tab new_tab) {
+            document_manager.select_chunk ((new_tab as Protocols.EditorController).chunk);
         }
 
         private void add_chunk (Models.DocumentChunk chunk, bool active = true) {

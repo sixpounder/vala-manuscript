@@ -35,7 +35,7 @@ namespace Manuscript.Widgets {
             pack_end (reading_time_label);
 
             reading_time_icon = new Gtk.Image ();
-            reading_time_icon.gicon = new ThemedIcon ("preferences-system-time");
+            reading_time_icon.gicon = new ThemedIcon ("preferences-system-time-symbolic");
             reading_time_icon.pixel_size = 16;
             pack_end (reading_time_icon);
 

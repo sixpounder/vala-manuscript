@@ -26,6 +26,8 @@ namespace Manuscript.Widgets {
             document_manager.load.connect (on_document_set);
             document_manager.change.connect (on_document_set);
             document_manager.unload.connect (on_document_unload);
+            document_manager.start_editing.connect (on_start_edit);
+            document_manager.selected.connect (on_start_edit);
 
             build_ui ();
         }
@@ -103,6 +105,39 @@ namespace Manuscript.Widgets {
             }
         }
 
+        public SourceListChunkItem? find_node (Models.DocumentChunk chunk) {
+            assert (chunk != null);
+            Granite.Widgets.SourceList.ExpandableItem root_node;
+            switch (chunk.chunk_type) {
+                case Models.ChunkType.CHAPTER:
+                    root_node = chapters_root;
+                    break;
+                case Models.ChunkType.CHARACTER_SHEET:
+                    root_node = characters_root;
+                    break;
+                case Models.ChunkType.COVER:
+                    root_node = chapters_root;
+                    break;
+                case Models.ChunkType.NOTE:
+                    root_node = notes_root;
+                    break;
+                default:
+                    assert_not_reached ();
+            }
+
+            var it = root_node.children.iterator ();
+            SourceListChunkItem found_item = null;
+            while (it.next ()) {
+                SourceListChunkItem item = it.@get () as SourceListChunkItem;
+                if (item.chunk == chunk) {
+                    found_item = item;
+                    break;
+                }
+            }
+
+            return found_item;
+        }
+
         public void add_chunk (Models.DocumentChunk chunk, bool active = true) {
             assert (chunk != null);
             SourceListChunkItem item_to_add = new SourceListChunkItem.with_chunk (chunk);
@@ -137,6 +172,14 @@ namespace Manuscript.Widgets {
         public void select_chunk (Models.DocumentChunk chunk) {
             assert (chunk != null);
             document_manager.open_chunk (chunk);
+        }
+
+        public void on_start_edit (Models.DocumentChunk chunk) {
+            SourceListChunkItem node = find_node (chunk);
+            if (node != null) {
+                root_list.selected = node;
+                root_list.scroll_to_item (node);
+            }
         }
     }
 }

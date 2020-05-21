@@ -7,6 +7,7 @@ namespace Manuscript.Services {
         public signal void unloaded ();
         public signal void start_editing (Models.DocumentChunk chunk);
         public signal void stop_editing (Models.DocumentChunk chunk);
+        public signal void selected (Models.DocumentChunk chunk);
 
         private Models.Document _document = null;
         private Gee.ArrayList<Models.DocumentChunk> _opened_chunks;
@@ -76,6 +77,10 @@ namespace Manuscript.Services {
                 opened_chunks.add (chunk);
             }
             start_editing (chunk);
+        }
+
+        public void select_chunk (Models.DocumentChunk chunk) {
+            selected (chunk);
         }
 
         public void close_chunk (Models.DocumentChunk chunk) {

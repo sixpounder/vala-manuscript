@@ -46,6 +46,7 @@ namespace Manuscript.Widgets{
                 );
             });
             editor = new Editor (chunk);
+            reflect_document_settings ();
             status_bar = new Widgets.StatusBar (parent_window, chunk);
             status_bar.height_request = 50;
             scrolled_container.add (editor);
@@ -56,8 +57,20 @@ namespace Manuscript.Widgets{
             chunk.notify["title"].connect (() => {
                 label = chunk.title;
             });
+
+            parent_window.document_manager.document.settings.notify.connect (reflect_document_settings);
         }
 
+        protected void reflect_document_settings () {
+            set_font (Pango.FontDescription.from_string (parent_window.document_manager.document.settings.font));
+            editor.indent = (int) parent_window.document_manager.document.settings.paragraph_start_padding;
+            editor.pixels_below_lines = (int) parent_window.document_manager.document.settings.paragraph_spacing;
+
+        }
+
+        public void set_font (Pango.FontDescription font) {
+            editor.override_font (font);
+        }
         
         // Editor controller protocol
         public void focus_editor () {

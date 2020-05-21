@@ -278,8 +278,18 @@ namespace Manuscript {
             var document_settings_dialog = new Dialogs.GenericDialog (this, new Widgets.DocumentSettings (this));
             document_settings_dialog.destroy_with_parent = true;
             document_settings_dialog.modal = false;
-            document_settings_dialog.close.connect (() => { document_settings_dialog.destroy (); });
-            document_settings_dialog.response.connect (() => { document_settings_dialog.destroy (); });
+            document_settings_dialog.close.connect (() => {
+                if (!document_manager.document.temporary) {
+                    document_manager.document.save ();
+                }
+                document_settings_dialog.destroy ();
+            });
+            document_settings_dialog.response.connect (() => {
+                if (!document_manager.document.temporary) {
+                    document_manager.document.save ();
+                }
+                document_settings_dialog.destroy ();
+            });
             document_settings_dialog.run ();
         }
 
