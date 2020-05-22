@@ -90,6 +90,10 @@ namespace Manuscript.Services {
             }
         }
 
+        public Protocols.SearchResult[] search (string word) {
+            return {};
+        }
+
         // FS ops
 
         public void save () {

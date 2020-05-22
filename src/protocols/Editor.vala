@@ -4,6 +4,11 @@ namespace Manuscript.Protocols {
         ATTRIBUTE_CHANGE
     }
 
+    public class SearchResult : Object {
+        public weak EditorController editor { get; set; }
+        public Gtk.TextIter? iter;
+    }
+
     public interface DocumentStats {
         public abstract uint words_count { get; }
         public abstract uint[] estimated_reading_time { get; }
@@ -22,5 +27,6 @@ namespace Manuscript.Protocols {
         public abstract bool has_changes ();
         public abstract void focus_editor ();
         public abstract void content_event (ContentEvent event);
+        public abstract SearchResult[] search (string word);
     }
 }

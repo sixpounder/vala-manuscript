@@ -13,6 +13,7 @@ namespace Manuscript.Services {
         public const string ACTION_QUIT = "action_quit";
 
         public const string ACTION_FIND = "action_find";
+        public const string ACTION_ESC = "action_esc";
 
         public const string ACTION_ADD_CHAPTER = "action_add_chapter";
         public const string ACTION_ADD_CHARACTER_SHEET = "action_add_character_sheet";
@@ -30,6 +31,7 @@ namespace Manuscript.Services {
             { ACTION_QUIT, action_quit },
 
             { ACTION_FIND, action_find },
+            { ACTION_ESC, action_esc },
 
             { ACTION_ADD_CHAPTER, action_add_chapter },
             { ACTION_ADD_CHARACTER_SHEET, action_add_character_sheet },
@@ -99,11 +101,11 @@ namespace Manuscript.Services {
         }
 
         protected void action_find () {
-            if (settings.searchbar == false) {
-                debug ("Searchbar on");
-                settings.searchbar = true;
-            } else {
-                debug ("Searchbar off");
+            settings.searchbar = !settings.searchbar;
+        }
+
+        protected void action_esc () {
+            if (settings.searchbar) {
                 settings.searchbar = false;
             }
         }

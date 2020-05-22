@@ -7,13 +7,13 @@ namespace Manuscript {
         protected Gtk.Box layout;
         protected WelcomeView welcome_view;
         protected Widgets.Header header;
-        protected Widgets.SearchBar search_bar;
         protected Gtk.Bin body;
         protected Granite.Widgets.CollapsiblePaned editor_grid;
         protected Widgets.EditorsController tabs;
         protected weak Models.Document selected_document = null;
         protected Gtk.InfoBar infobar;
         protected int last_editor_grid_panel_position;
+        public Widgets.SearchPanel search_panel { get; private set; }
 
         public Services.DocumentManager document_manager;
         public Services.ActionManager action_manager { get; private set; }
@@ -77,7 +77,8 @@ namespace Manuscript {
             container.transition_type = Gtk.StackTransitionType.OVER_LEFT;
             add (container);
 
-            layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+            // Search panel
+            search_panel = new Widgets.SearchPanel (this);
 
             // Sidebar
             sidebar = new Widgets.Sidebar (this);
@@ -103,10 +104,11 @@ namespace Manuscript {
             body = new Gtk.EventBox ();
             body.vexpand = true;
             body.hexpand = true;
-            layout.pack_start (body);
 
-            // Status bar (bottom)
-            //  layout.pack_end (status_bar = new Widgets.StatusBar (), false, false, 0);
+            layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+            layout.homogeneous = false;
+            layout.pack_start (search_panel, false, false, 0);
+            layout.pack_start (body);
 
             container.add (layout);
 
@@ -131,6 +133,9 @@ namespace Manuscript {
                     if (editor_grid.position == 0 && last_editor_grid_panel_position != 0) {
                         editor_grid.position = last_editor_grid_panel_position;
                     }
+
+                    search_panel.reveal_child = settings.searchbar;
+                    search_panel.search_entry.grab_focus_without_selecting ();
                 }
             });
             delete_event.connect (on_destroy);

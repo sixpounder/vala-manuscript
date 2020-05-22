@@ -117,7 +117,7 @@ namespace Manuscript.Models {
         public uint words_count { get; private set; }
         public double estimate_reading_time { get; private set; }
         public bool has_changes { get; private set; }
-        public bool temporary { get; private set; }
+        public bool temporary { get; set; }
 
         public DocumentChunk active_chunk { get; private set; }
 
@@ -255,8 +255,7 @@ namespace Manuscript.Models {
                 }
                 string data = to_json ();
                 long written_bytes = FileUtils.save (data, file_path);
-                debug (@"Written $written_bytes bytes");
-                debug (data);
+                debug (@"Document saved to $file_path ($written_bytes bytes written)");
                 this.has_changes = false;
                 this.temporary = false;
                 this.saved (file_path);

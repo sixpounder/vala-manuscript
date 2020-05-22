@@ -70,18 +70,19 @@ namespace Manuscript.Widgets {
 
         }
 
-        public void reset_tree (Models.Document doc) {
-            assert (doc != null);
+        public void reset_tree (Models.Document? doc = null) {
             chapters_root.clear ();
             characters_root.clear ();
             notes_root.clear ();
-            var it = doc.chunks.iterator ();
-            while (it.next ()) {
-                add_chunk (it.@get (), false);
+            if (doc != null) {
+                var it = doc.chunks.iterator ();
+                while (it.next ()) {
+                    add_chunk (it.@get (), false);
+                }
+                chapters_root.expand_all ();
+                characters_root.expand_all ();
+                notes_root.expand_all ();
             }
-            chapters_root.expand_all ();
-            characters_root.expand_all ();
-            notes_root.expand_all ();
         }
 
         private void on_document_set (Models.Document doc) {
@@ -95,6 +96,7 @@ namespace Manuscript.Widgets {
 
         private void on_document_unload (Models.Document doc) {
             assert (doc != null);
+            reset_tree ();
             doc.chunk_added.disconnect (add_chunk);
             doc.chunk_removed.disconnect (remove_chunk);
             doc.active_changed.disconnect (select_chunk);

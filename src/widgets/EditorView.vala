@@ -27,15 +27,6 @@ namespace Manuscript.Widgets{
             scrolled_container.overlay_scrolling = true;
             scrolled_container.hscrollbar_policy = Gtk.PolicyType.AUTOMATIC;
             scrolled_container.vscrollbar_policy = Gtk.PolicyType.AUTOMATIC;
-            //  scrolled_container.vadjustment.changed.connect (() => {
-            //      Gtk.Allocation allocation;
-            //      editor.get_allocation (out allocation);
-            //      status_bar.update_scroll_progress (
-            //          scrolled_container.vadjustment.value,
-            //          scrolled_container.vadjustment.lower,
-            //          scrolled_container.vadjustment.upper - allocation.height
-            //      );
-            //  });
             scrolled_container.vadjustment.value_changed.connect (() => {
                 Gtk.Allocation allocation;
                 editor.get_allocation (out allocation);
@@ -80,6 +71,10 @@ namespace Manuscript.Widgets{
         public bool has_changes () {
             // TODO: return an actually meaningful value
             return false;
+        }
+
+        public Protocols.SearchResult[] search (string word) {
+            return {};
         }
 
         public void content_event (Protocols.ContentEvent event) {}
