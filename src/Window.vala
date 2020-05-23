@@ -88,32 +88,35 @@ namespace Manuscript {
             header = new Widgets.Header (this);
             set_titlebar (header);
 
-            // Tabs
+            // right panel layout (search + tabs)
+            var right_panel = new Gtk.Box (Gtk.Align.VERTICAL, 0);
             tabs = new Widgets.EditorsController (this);
+            right_panel.pack_start (search_panel, false, false, 0);
+            right_panel.pack_start (tabs);
 
             // Grid
             editor_grid = new Granite.Widgets.CollapsiblePaned (Gtk.Orientation.HORIZONTAL);
             editor_grid.get_style_context ().add_class ("editor_grid");
             editor_grid.valign = Gtk.Align.FILL;
             editor_grid.pack1 (sidebar, false, true);
-            editor_grid.pack2 (tabs, true, false);
+            editor_grid.pack2 (right_panel, true, false);
 
             // Setup welcome view
             welcome_view = new WelcomeView ();
 
+            // A convenience wrapper to switch between welcome view and editor view
             body = new Gtk.EventBox ();
-            body.vexpand = true;
-            body.hexpand = true;
+            body.expand = true;
 
+            // This is used to eventually pack an infobar at the top.
+            // Otherwise it just contains the body
             layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             layout.homogeneous = false;
-            layout.pack_start (search_panel, false, false, 0);
             layout.pack_start (body);
-
-            container.add (layout);
 
             connect_events ();
 
+            container.add (layout);
             container.show_all ();
 
             // Lift off
@@ -142,16 +145,6 @@ namespace Manuscript {
             welcome_view.should_open_file.connect (open_file_dialog);
             welcome_view.should_create_new_file.connect (open_with_temp_file);
         }
-
-        //  public void configure_searchbar () {
-        //      search_bar = new SearchBar (this, current_editor);
-        //      layout.pack_start (search_bar, false, false, 0);
-        //      settings.change.connect ((k) => {
-        //          if (k == "searchbar") {
-        //              show_searchbar ();
-        //          }
-        //      } );
-        //  }
 
         public override bool configure_event (Gdk.EventConfigure event) {
             if (configure_id != 0) {

@@ -9,7 +9,7 @@ namespace Manuscript.Widgets {
         public Gtk.SearchEntry replace_entry;
         public Gtk.Button replace_tool_button;
         public Gtk.Button replace_all_tool_button;
-        //  public Gtk.TextBuffer? text_buffer = null;
+        public Gtk.TextBuffer? text_buffer = null;
         public Gtk.SourceSearchContext search_context = null;
 
         public SearchPanel (Manuscript.Window parent_window) {
@@ -85,6 +85,14 @@ namespace Manuscript.Widgets {
 
             //  results_panel = new SearchResultsOverlay ();
             //  child = results_panel;
+
+            parent_window.document_manager.selected.connect ((chunk) => {
+                text_buffer = chunk.buffer;
+            });
+
+            parent_window.document_manager.start_editing.connect ((chunk) => {
+                text_buffer = chunk.buffer;
+            });
         }
 
         private bool on_search_entry_key_press (Gdk.EventKey event) {

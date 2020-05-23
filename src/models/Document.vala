@@ -93,14 +93,6 @@ namespace Manuscript.Models {
             "settings"
         };
 
-        public Document.from_file (string path, bool temporary = false) throws GLib.Error {
-            this (path, temporary);
-        }
-
-        public Document.empty () throws GLib.Error {
-            this (null, true);
-        }
-
         public signal void saved (string target_path);
         public signal void load ();
         public signal void read_error (GLib.Error error);
@@ -116,7 +108,20 @@ namespace Manuscript.Models {
 
         public uint words_count { get; private set; }
         public double estimate_reading_time { get; private set; }
-        public bool has_changes { get; private set; }
+
+        public bool has_changes {
+            get {
+                bool changes_found = false;
+                var it = chunks.iterator ();
+                while (it.next () && !changes_found) {
+                    if (it.@get ().has_changes) {
+                        changes_found = true;
+                    }
+                }
+                return changes_found;
+            }
+        }
+
         public bool temporary { get; set; }
 
         public DocumentChunk active_chunk { get; private set; }
@@ -157,15 +162,25 @@ namespace Manuscript.Models {
             }
         }
 
+        public Document.from_file (string path, bool temporary = false) throws GLib.Error {
+            this (path, temporary);
+        }
+
+        public Document.empty () throws GLib.Error {
+            this (null, true);
+        }
+
         protected Document (string ? file_path, bool temporary_doc = false) throws GLib.Error, DocumentError {
             Object (
                 file_path: file_path,
                 uuid: GLib.Uuid.string_random (),
                 version: "1.0",
-                temporary: true
+                temporary: temporary_doc
             );
+        }
+
+        construct {
             try {
-                temporary = temporary_doc;
                 chunks = new Gee.ArrayList<DocumentChunk> ();
                 settings = new DocumentSettings ();
                 if (file_path != null) {
@@ -176,7 +191,6 @@ namespace Manuscript.Models {
                         load_state = DocumentLoadState.ERROR;
                         throw new DocumentError.NOT_FOUND ("File not found");
                     } else {
-                        debug ("File read");
                         var parser = new Json.Parser ();
                         try {
                             parser.load_from_data (res, -1);
@@ -256,12 +270,24 @@ namespace Manuscript.Models {
                 string data = to_json ();
                 long written_bytes = FileUtils.save (data, file_path);
                 debug (@"Document saved to $file_path ($written_bytes bytes written)");
-                this.has_changes = false;
                 this.temporary = false;
                 this.saved (file_path);
             } catch (Error e) {
                 this.save_error (e);
             }
+        }
+
+        public DocumentChunk[] chunks_with_changes () {
+            Gee.ArrayList<DocumentChunk> changed = new Gee.ArrayList<DocumentChunk> ();
+            var it = chunks.iterator ();
+            while (it.next ()) {
+                var item = it.@get ();
+                if (item.has_changes) {
+                    changed.add (item);
+                }
+            }
+
+            return changed.to_array ();
         }
     }
 }
