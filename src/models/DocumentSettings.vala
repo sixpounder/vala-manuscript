@@ -21,7 +21,7 @@ namespace Manuscript.Models {
         public void set_defaults () {
             paragraph_spacing = 20;
             paragraph_start_padding = 10;
-            font = "iA Writer Duospace 18";
+            font = Constants.DEFAULT_FONT;
         }
 
         public Json.Object to_json_object () {

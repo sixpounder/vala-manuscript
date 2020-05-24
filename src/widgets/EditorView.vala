@@ -53,7 +53,13 @@ namespace Manuscript.Widgets{
         }
 
         protected void reflect_document_settings () {
-            set_font (Pango.FontDescription.from_string (parent_window.document_manager.document.settings.font));
+            set_font (
+                Pango.FontDescription.from_string (
+                    parent_window.document_manager.document.settings.font != null
+                        ? parent_window.document_manager.document.settings.font
+                        : Constants.DEFAULT_FONT
+                )
+            );
             editor.indent = (int) parent_window.document_manager.document.settings.paragraph_start_padding;
             editor.pixels_below_lines = (int) parent_window.document_manager.document.settings.paragraph_spacing;
 
