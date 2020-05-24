@@ -283,7 +283,7 @@ namespace Manuscript {
                 document_settings_dialog.destroy ();
             });
             document_settings_dialog.response.connect (() => {
-                if (!document_manager.document.temporary) {
+                if (!document_manager.document.is_temporary ()) {
                     document_manager.document.save ();
                 }
                 document_settings_dialog.destroy ();

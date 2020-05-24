@@ -162,6 +162,11 @@ namespace Manuscript.Models {
             }
         }
 
+        // A file is considered to be temporary if it is located into the user's cache folder
+        public bool is_temporary () {
+            return Path.get_dirname (file_path) == Granite.Services.Paths.user_cache_folder.get_path ();
+        }
+
         public Document.from_file (string path, bool temporary = false) throws GLib.Error {
             this (path, temporary);
         }

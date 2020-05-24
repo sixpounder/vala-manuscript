@@ -1,8 +1,9 @@
 namespace Manuscript.Widgets.Settings {
     public class DocumentGeneralSettingsView : Gtk.Grid {
-        public Manuscript.Window parent_window { get; construct; }
-        public Services.DocumentManager document_manager { get; private set; }
+        public weak Manuscript.Window parent_window { get; construct; }
+        public weak Services.DocumentManager document_manager { get; private set; }
         public Gtk.Entry title_input { get; private set; }
+        public Gtk.Switch autosave_switch { get; private set; }
 
         public DocumentGeneralSettingsView (Manuscript.Window parent_window) {
             Object (
@@ -32,6 +33,16 @@ namespace Manuscript.Widgets.Settings {
 
             attach (title_label, 0, 0, 1, 1);
             attach (title_input, 1, 0, 1, 1);
+
+            Gtk.Label autosave_label = new Gtk.Label (_("Autosave"));
+            autosave_label.halign = Gtk.Align.END;
+
+            autosave_switch = new Gtk.Switch ();
+            autosave_switch.expand = false;
+            autosave_switch.halign = Gtk.Align.START;
+
+            attach (autosave_label, 0, 1, 1, 1);
+            attach (autosave_switch, 1, 1, 1, 1);
         }
     }
 }

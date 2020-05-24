@@ -5,6 +5,7 @@ namespace Manuscript.Services {
         public signal void change (Models.Document new_document);
         public signal void unload (Models.Document old_document);
         public signal void unloaded ();
+        public signal void property_change (string property_name);
         public signal void start_editing (Models.DocumentChunk chunk);
         public signal void stop_editing (Models.DocumentChunk chunk);
         public signal void selected (Models.DocumentChunk chunk);
@@ -58,12 +59,18 @@ namespace Manuscript.Services {
             } else if (document == null && doc != null) {
                 document = doc;
                 settings.last_opened_document = document.file_path;
+                document.notify.connect((pspec) => {
+                    property_change (pspec.get_nick ());
+                });
                 _opened_chunks.clear ();
                 load (document);
             } else if (doc != null && document != null && document != doc) {
                 document = doc;
                 settings.last_opened_document = document.file_path;
                 _opened_chunks.clear ();
+                document.notify.connect((pspec) => {
+                    property_change (pspec.get_nick ());
+                });
                 change (document);
             } else {
                 unload (document);
@@ -97,7 +104,7 @@ namespace Manuscript.Services {
         // FS ops
 
         public void save () {
-            if (document.temporary) {
+            if (document.is_temporary ()) {
                 // Ask where to save this
                 save_as ();
             } else {
@@ -109,7 +116,8 @@ namespace Manuscript.Services {
             var dialog = new FileSaveDialog (window, document);
             int res = dialog.run ();
             if (res == Gtk.ResponseType.ACCEPT) {
-                document.save (dialog.get_filename () );
+                document.save (dialog.get_filename ());
+                settings.last_opened_document = document.file_path;
             }
             dialog.destroy ();
         }

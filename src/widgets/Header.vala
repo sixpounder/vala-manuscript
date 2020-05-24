@@ -110,9 +110,10 @@ namespace Manuscript.Widgets {
 
             settings.change.connect (update_ui);
             document_manager.load.connect (update_ui);
-            //  document_manager.unload.connect (update_ui);
+            // document_manager.unload.connect (update_ui);
             document_manager.unloaded.connect (update_ui);
             document_manager.change.connect (update_ui);
+            document_manager.property_change.connect (update_ui);
         }
 
         private Gtk.PopoverMenu build_main_menu_popover () {

@@ -23,7 +23,7 @@ namespace Manuscript.Widgets.Settings {
             Gtk.Label font_label = new Gtk.Label (_("Font"));
             font_label.halign = Gtk.Align.END;
             font_button = new Gtk.FontButton.with_font (
-                document_manager.document.settings.font
+                document_manager.document.settings.font != null ? document_manager.document.settings.font : "iA Writer Duospace 14"
             );
             font_button.use_font = true;
             font_button.show_size = true;
