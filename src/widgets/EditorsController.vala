@@ -67,7 +67,7 @@ namespace Manuscript.Widgets {
                 }
             });
 
-            editors_courtesy_view = new Gtk.Label (_("Use the sidebar to open an editor"));
+            editors_courtesy_view = new Gtk.Label (_("Opened editors will appear here"));
             editors_courtesy_view.get_style_context ().add_class (Granite.STYLE_CLASS_H2_LABEL);
 
             add_named (editors_courtesy_view, "editors-courtesy-view");

@@ -3,10 +3,10 @@ namespace Manuscript.Widgets{
      * Groups all the items relative to a single editor view
      */
     public class EditorView: Granite.Widgets.Tab, Protocols.EditorController {
+        public weak Manuscript.Window parent_window { get; construct; }
         public Widgets.StatusBar status_bar { get; set; }
         public Editor editor { get; private set; }
-        public weak Manuscript.Window parent_window { get; construct; }
-        public weak Models.DocumentChunk chunk { get; construct; }
+        public Models.DocumentChunk chunk { get; construct; }
 
         public EditorView (Manuscript.Window parent_window, Models.DocumentChunk chunk) {
             Object (
@@ -17,6 +17,7 @@ namespace Manuscript.Widgets{
         }
 
         construct {
+            assert (chunk != null);
             get_style_context ().add_class ("editor-view");
             var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             box.expand = true;
