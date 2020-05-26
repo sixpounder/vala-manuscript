@@ -29,13 +29,13 @@ namespace Manuscript.Widgets {
 
             theme_layout = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
 
-            dark_theme_button = new ThemeButton ("dark");
-            light_theme_button = new ThemeButton ("light");
-            sepia_theme_button = new ThemeButton ("sepia");
+            light_theme_button = new ThemeButton ("Light");
+            sepia_theme_button = new ThemeButton ("Sepia");
+            dark_theme_button = new ThemeButton ("Dark");
 
             light_theme_button.selected.connect (on_theme_set);
-            dark_theme_button.selected.connect (on_theme_set);
             sepia_theme_button.selected.connect (on_theme_set);
+            dark_theme_button.selected.connect (on_theme_set);
 
             theme_layout.pack_start (light_theme_button, false, true, 15);
             theme_layout.pack_start (sepia_theme_button, false, true, 15);
@@ -70,7 +70,7 @@ namespace Manuscript.Widgets {
 
         protected void on_theme_set (string theme) {
             var settings = Services.AppSettings.get_default ();
-            settings.prefer_dark_style = (theme == "dark");
+            settings.theme = theme;
         }
 
         protected void update_settings () {

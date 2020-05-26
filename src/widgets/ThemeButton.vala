@@ -15,7 +15,7 @@ namespace Manuscript {
             var color_context = get_style_context ();
             color_context.add_class ("theme-button");
             color_context.add_class ("circular");
-            color_context.add_class (@"theme-button-$theme_name");
+            color_context.add_class (@"theme-button-$(theme_name.down ())");
             clicked.connect (on_click);
         }
 

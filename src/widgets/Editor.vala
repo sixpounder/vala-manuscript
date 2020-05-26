@@ -91,7 +91,7 @@ namespace Manuscript.Widgets {
                     Gtk.TextIter start, end;
                     Gtk.TextTag[] tags =
                         (buffer.tag_table as DocumentTagTable).for_theme (
-                            settings.prefer_dark_style ? "dark" : "light"
+                            settings.theme
                         );
                     buffer.get_bounds (out start, out end);
                     buffer.remove_tag (tags[1], start, end);
