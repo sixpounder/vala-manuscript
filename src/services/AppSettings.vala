@@ -11,6 +11,7 @@ namespace Manuscript.Services {
         public string last_opened_document { get; set; }
         public bool searchbar { get; set; }
         public bool zen { get; set; }
+        public bool autosave { get; set; }
         //  public bool prefer_dark_style { get; set; }
         public string theme { get; set; }
         public double text_scale_factor { get; set; }
@@ -30,6 +31,7 @@ namespace Manuscript.Services {
             settings.bind ("window-y", this, "window_y", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("last-opened-document", this, "last_opened_document", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("zen", this, "zen", GLib.SettingsBindFlags.DEFAULT);
+            settings.bind ("autosave", this, "autosave", GLib.SettingsBindFlags.DEFAULT);
             //    settings.bind ("prefer-dark-style", this, "prefer_dark_style", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("theme", this, "theme", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("text-scale-factor", this, "text_scale_factor", GLib.SettingsBindFlags.DEFAULT);

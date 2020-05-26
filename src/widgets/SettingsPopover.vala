@@ -6,11 +6,12 @@ namespace Manuscript.Widgets {
         protected ThemeButton dark_theme_button;
         protected ThemeButton sepia_theme_button;
         public Gtk.Switch zen_switch { get; private set; }
+        public Gtk.Switch autosave_switch { get; private set; }
         public Services.AppSettings settings { get; private set; }
 
-        public SettingsPopover (Gtk.Widget relative_to) {
+        public SettingsPopover () {
             Object (
-                relative_to: relative_to
+                modal: true
             );
         }
 
@@ -45,8 +46,8 @@ namespace Manuscript.Widgets {
 
             layout.attach (new Gtk.Separator (Gtk.Align.HORIZONTAL), 0, 1, 2, 1);
 
-            Gtk.Label autosave_label = new Gtk.Label (_("Focus mode"));
-            autosave_label.halign = Gtk.Align.START;
+            Gtk.Label zen_label = new Gtk.Label (_("Focus mode"));
+            zen_label.halign = Gtk.Align.START;
 
             zen_switch = new Gtk.Switch ();
             zen_switch.expand = false;
@@ -57,8 +58,25 @@ namespace Manuscript.Widgets {
                 return false;
             });
 
-            layout.attach (autosave_label, 0, 2, 1, 1);
+            layout.attach (zen_label, 0, 2, 1, 1);
             layout.attach (zen_switch, 1, 2, 1, 1);
+
+            Gtk.Label autosave_label = new Gtk.Label (_("Autosave"));
+            autosave_label.halign = Gtk.Align.START;
+
+            autosave_switch = new Gtk.Switch ();
+            autosave_switch.expand = false;
+            autosave_switch.halign = Gtk.Align.END;
+            autosave_switch.active = settings.autosave;
+            autosave_switch.state_set.connect (() => {
+                update_settings ();
+                return false;
+            });
+
+            layout.attach (autosave_label, 0, 3, 1, 1);
+            layout.attach (autosave_switch, 1, 3, 1, 1);
+
+            layout.show_all ();
 
             add (layout);
         }

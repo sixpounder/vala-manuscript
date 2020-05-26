@@ -7,7 +7,7 @@ namespace Manuscript.Widgets {
         public signal void save_file (bool choose_path);
 
         protected Gtk.Switch zen_switch;
-        protected Gtk.Button settings_button;
+        protected Widgets.MenuButton settings_button;
         protected Widgets.MenuButton menu_button;
         protected Widgets.MenuButton add_element_button;
         protected Widgets.MenuButton export_button;
@@ -67,53 +67,24 @@ namespace Manuscript.Widgets {
             add_element_button.popover = build_add_element_menu ();
             pack_start (add_element_button);
 
+            //  export_popover = new Widgets.ExportPopover (export_button);
             export_button = new Widgets.MenuButton.with_properties ("document-export", "Export");
             export_button.sensitive = document_manager.has_document;
-            export_button.activated.connect (() => {
-                if (export_popover.visible) {
-                    export_popover.popdown ();
-                } else {
-                    export_popover.popup ();
-                    export_popover.show_all ();
-                }
-            });
             pack_start (export_button);
-            export_popover = new Widgets.ExportPopover (export_button);
 
-            settings_button = new Gtk.Button.from_icon_name ("open-menu", Gtk.IconSize.LARGE_TOOLBAR);
-            settings_button.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
-            settings_button.tooltip_text = _ ("Settings");
-            settings_button.clicked.connect (() => {
-                if (settings_popover.visible) {
-                    settings_popover.popdown ();
-                } else {
-                    settings_popover.popup ();
-                    settings_popover.show_all ();
-                }
-            });
+            settings_popover = new Widgets.SettingsPopover ();
+            settings_button = new Widgets.MenuButton.with_properties ("open-menu", _("Settings"));
+            settings_button.tooltip_text = _ ("Application settings");
+            settings_button.popover = settings_popover;
             pack_end (settings_button);
-            settings_popover = new Widgets.SettingsPopover (settings_button);
-
-            zen_switch = new Gtk.Switch ();
-            zen_switch.set_vexpand (false);
-            zen_switch.set_hexpand (false);
-            zen_switch.halign = Gtk.Align.CENTER;
-            zen_switch.valign = Gtk.Align.CENTER;
-            zen_switch.active = settings.zen;
-            zen_switch.state_set.connect (() => {
-                update_settings ();
-                return false;
-            });
-            //  pack_end (zen_switch);
-
-            update_ui ();
 
             settings.change.connect (update_ui);
             document_manager.load.connect (update_ui);
-            // document_manager.unload.connect (update_ui);
             document_manager.unloaded.connect (update_ui);
             document_manager.change.connect (update_ui);
             document_manager.property_change.connect (update_ui);
+
+            update_ui ();
         }
 
         private Gtk.PopoverMenu build_main_menu_popover () {
@@ -263,19 +234,13 @@ namespace Manuscript.Widgets {
 
         protected void update_ui () {
             subtitle = document_manager.has_document ? document_manager.document.title : null;
-            zen_switch.sensitive = document_manager.has_document;
             menu_button.sensitive = document_manager.has_document;
             add_element_button.sensitive = document_manager.has_document;
             export_button.sensitive = document_manager.has_document;
-            zen_switch.active = settings.zen;
         }
 
         protected void on_document_unloaded () {
             
-        }
-
-        protected void update_settings () {
-            settings.zen = zen_switch.active;
         }
     }
 }
