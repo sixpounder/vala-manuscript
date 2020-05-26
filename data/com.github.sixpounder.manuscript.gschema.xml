@@ -61,6 +61,11 @@
 	    <summary>Zen (focus) mode on or off</summary>
 	    <description>Determines if focus mode is activated or not</description>
 	  </key>
+    <key name="autosave" type="b">
+	    <default>false</default>
+	    <summary>Autosave documents at specific checkpoints</summary>
+	    <description>The application will try to save opened documents at specific points in its lifecycle</description>
+	  </key>
 	  <key name="prefer-dark-style" type="b">
 	    <default>false</default>
 	    <summary>Dark variant</summary>

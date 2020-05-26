@@ -104,7 +104,7 @@ namespace Manuscript.Widgets {
                 update_settings ();
                 return false;
             });
-            pack_end (zen_switch);
+            //  pack_end (zen_switch);
 
             update_ui ();
 

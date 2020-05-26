@@ -51,18 +51,30 @@ namespace Manuscript.Models {
             Object (
                 chunk_type: chunk_type
             );
+            switch (chunk_type) {
+                case ChunkType.CHAPTER:
+                    title = _("New chapter");
+                    break;
+                case ChunkType.CHARACTER_SHEET:
+                    title = _("New character sheet");
+                    break;
+                case ChunkType.NOTE:
+                    title = _("New note");
+                    break;
+                default:
+                    assert_not_reached ();
+            }
             build ();
         }
 
-        public DocumentChunk.from_json_object (Json.Object? obj) {
-            if (obj != null) {
-                raw_content = obj.get_string_member ("raw_content");
-                notes = obj.get_string_member ("notes");
-                title = obj.get_string_member ("title");
-                index = obj.get_int_member ("index");
-                chunk_type = (Models.ChunkType) obj.get_int_member ("chunk_type");
-                build (raw_content);
-            }
+        public DocumentChunk.from_json_object (Json.Object obj) {
+            assert (obj != null);
+            raw_content = obj.get_string_member ("raw_content");
+            notes = obj.get_string_member ("notes");
+            title = obj.get_string_member ("title");
+            index = obj.get_int_member ("index");
+            chunk_type = (Models.ChunkType) obj.get_int_member ("chunk_type");
+            build (raw_content);
         }
 
         public Json.Object to_json_object () {
@@ -77,19 +89,6 @@ namespace Manuscript.Models {
         }
 
         protected void build (string content = "") {
-            switch (chunk_type) {
-                case ChunkType.CHAPTER:
-                    title = _("New chapter");
-                    break;
-                case ChunkType.CHARACTER_SHEET:
-                    title = _("New character sheet");
-                    break;
-                case ChunkType.NOTE:
-                    title = _("New note");
-                    break;
-                default:
-                    assert_not_reached ();
-            }
 
             buffer = new Gtk.SourceBuffer (new DocumentTagTable () );
             buffer.highlight_matching_brackets = false;

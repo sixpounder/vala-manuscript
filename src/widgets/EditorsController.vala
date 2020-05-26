@@ -47,6 +47,7 @@ namespace Manuscript.Widgets {
             notebook = new Granite.Widgets.DynamicNotebook ();
             notebook.add_button_visible = false;
             notebook.allow_new_window = false;
+            notebook.allow_drag = true;
             notebook.tab_removed.connect (on_editor_closed);
             notebook.tab_switched.connect (on_tab_switched);
 

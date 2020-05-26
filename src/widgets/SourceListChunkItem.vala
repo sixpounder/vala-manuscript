@@ -6,7 +6,8 @@ namespace Manuscript.Widgets {
             Object (
                 chunk: chunk,
                 editable: true,
-                selectable: true
+                selectable: true,
+                name: chunk.title
             );
         }
 
@@ -28,6 +29,12 @@ namespace Manuscript.Widgets {
             }
         }
 
+        public bool has_changes {
+            get {
+                return chunk.has_changes;
+            }
+        }
+
         private void on_edited (string new_name) {
             chunk.title = new_name;
         }
@@ -35,7 +42,6 @@ namespace Manuscript.Widgets {
         // Drag interface
 
         private bool data_drop_possible (Gdk.DragContext context, Gtk.SelectionData data) {
-            critical ("PEIHNJFIEN");
             return data.get_target () == Gdk.Atom.intern_static_string ("text/uri-list");
         }
     

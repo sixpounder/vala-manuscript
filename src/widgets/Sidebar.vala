@@ -63,6 +63,8 @@ namespace Manuscript.Widgets {
             Gtk.TargetEntry uri_list_entry = { "text/uri-list", Gtk.TargetFlags.SAME_APP, 0 };
             root_list.enable_drag_dest ({ uri_list_entry }, Gdk.DragAction.COPY);
 
+            reset_tree (document);
+
             show_all ();
         }
 
@@ -77,7 +79,9 @@ namespace Manuscript.Widgets {
             if (doc != null) {
                 var it = doc.chunks.iterator ();
                 while (it.next ()) {
-                    add_chunk (it.@get (), false);
+                    var item = it.@get ();
+                    debug (@"Adding $(item.title)");
+                    add_chunk (item, false);
                 }
                 chapters_root.expand_all ();
                 characters_root.expand_all ();
@@ -86,12 +90,11 @@ namespace Manuscript.Widgets {
         }
 
         private void on_document_set (Models.Document doc) {
-            if (doc != null) {
-                reset_tree (doc);
-                doc.chunk_added.connect (add_chunk);
-                doc.chunk_removed.connect (remove_chunk);
-                doc.active_changed.connect (select_chunk);
-            }
+            assert (doc != null);
+            reset_tree (doc);
+            doc.chunk_added.connect (add_chunk);
+            doc.chunk_removed.connect (remove_chunk);
+            doc.active_changed.connect (select_chunk);
         }
 
         private void on_document_unload (Models.Document doc) {
