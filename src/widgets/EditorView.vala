@@ -85,5 +85,21 @@ namespace Manuscript.Widgets{
         }
 
         public void content_event (Protocols.ContentEvent event) {}
+
+        public Gtk.TextBuffer get_buffer () {
+            return chunk.buffer;
+        }
+
+        public bool scroll_to_iter (Gtk.TextIter iter, double within_margin, bool use_align, double xalign, double yalign) {
+            return editor.scroll_to_iter (iter, within_margin, use_align, xalign, yalign);
+        }
+
+        public bool search_for_iter (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
+            return editor.search_for_iter (start_iter, out end_iter);
+        }
+
+        public bool search_for_iter_backward (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
+            return editor.search_for_iter_backward (start_iter, out end_iter);
+        }
     }
 }

@@ -64,7 +64,7 @@ namespace Manuscript.Models {
                 default:
                     assert_not_reached ();
             }
-            build ();
+            build_buffer ();
         }
 
         public DocumentChunk.from_json_object (Json.Object obj) {
@@ -74,7 +74,7 @@ namespace Manuscript.Models {
             title = obj.get_string_member ("title");
             index = obj.get_int_member ("index");
             chunk_type = (Models.ChunkType) obj.get_int_member ("chunk_type");
-            build (raw_content);
+            build_buffer (raw_content);
         }
 
         public Json.Object to_json_object () {
@@ -88,7 +88,7 @@ namespace Manuscript.Models {
             return root;
         }
 
-        protected void build (string content = "") {
+        protected void build_buffer (string content = "") {
 
             buffer = new Gtk.SourceBuffer (new DocumentTagTable () );
             buffer.highlight_matching_brackets = false;

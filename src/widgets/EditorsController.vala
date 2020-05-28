@@ -186,6 +186,10 @@ namespace Manuscript.Widgets {
             return (List<Protocols.EditorController>) notebook.tabs;
         }
 
+        public unowned Protocols.EditorController get_current_editor () {
+            return current_tab as Protocols.EditorController;
+        }
+
         public Protocols.EditorController get_editor (Models.DocumentChunk chunk) {
             return get_tab_for_chunk (chunk);
         }

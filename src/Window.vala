@@ -33,11 +33,17 @@ namespace Manuscript {
             }
         }
 
+        public weak Protocols.EditorController current_editor {
+            get {
+                return tabs.get_current_editor ();
+            }
+        }
+
         public Window.with_document (Manuscript.Application app, string ? document_path = null) {
             Object (
                 application: app,
                 initial_document_path: document_path
-                );
+            );
 
             settings = Services.AppSettings.get_default ();
             action_manager = new Services.ActionManager ((Manuscript.Application)application, this);
