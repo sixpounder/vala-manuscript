@@ -96,12 +96,14 @@ namespace Manuscript.Widgets {
             add (grid);
 
             parent_window.document_manager.selected.connect ((chunk) => {
-                text_buffer = parent_window.current_editor.chunk.buffer;
+                assert(chunk != null);
+                text_buffer = chunk.buffer;
                 search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
             });
 
             parent_window.document_manager.start_editing.connect ((chunk) => {
-                text_buffer = parent_window.current_editor.chunk.buffer;
+                assert(chunk != null);
+                text_buffer = chunk.buffer;
                 search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
             });
 

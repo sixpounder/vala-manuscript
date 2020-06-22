@@ -32,6 +32,7 @@ namespace Manuscript.Protocols {
         public abstract bool scroll_to_iter (Gtk.TextIter iter, double within_margin, bool use_align, double xalign, double yalign);
         public abstract bool search_for_iter (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter);
         public abstract bool search_for_iter_backward (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter);
-        //  public abstract SearchResult[] search (string word);
+        public abstract SearchResult[] search (string word);
+        public abstract void scroll_to_search_result (SearchResult result);
     }
 }

@@ -14,6 +14,10 @@ namespace Manuscript {
         }
 
         protected override void activate () {
+            int monitor;
+            Gdk.Rectangle monitor_geometry;
+            Gdk.Screen.get_default ().get_monitor_geometry (0, out monitor_geometry);
+            debug (@"$(monitor_geometry.x) $(monitor_geometry.y) $(monitor_geometry.width) $(monitor_geometry.height)");
             Services.AppSettings settings = Services.AppSettings.get_default ();
 
             weak Gtk.IconTheme default_theme = Gtk.IconTheme.get_default ();

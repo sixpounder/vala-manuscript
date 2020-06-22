@@ -48,10 +48,6 @@ namespace Manuscript.Widgets.Settings {
             attach (paragraph_spacing_label, 0, 1, 1, 1);
             attach (paragraph_spacing_input, 1, 1, 1, 1);
 
-            if (document_manager.has_document) {
-                load_document_settings (document_manager.document);
-            }
-
             Gtk.Label paragraph_start_padding_label = new Gtk.Label (_("Paragraph initial padding"));
             paragraph_start_padding_label.halign = Gtk.Align.END;
             paragraph_start_padding_input = new Gtk.SpinButton.with_range (0, 1000, 1);
@@ -65,6 +61,10 @@ namespace Manuscript.Widgets.Settings {
             attach (paragraph_start_padding_input, 1, 2, 1, 1);
 
             document_manager.load.connect (load_document_settings);
+
+            if (document_manager.has_document) {
+                load_document_settings (document_manager.document);
+            }
         }
 
         ~DocumentMetricsView () {
@@ -72,7 +72,7 @@ namespace Manuscript.Widgets.Settings {
         }
 
         public void load_document_settings (Models.Document document) {
-            font_button.font = document.settings.font;
+            font_button.font = document_manager.document.settings.font != null ? document_manager.document.settings.font : Constants.DEFAULT_FONT;
             paragraph_spacing_input.value = document.settings.paragraph_spacing;
             paragraph_start_padding_input.value = document.settings.paragraph_start_padding;
         }
