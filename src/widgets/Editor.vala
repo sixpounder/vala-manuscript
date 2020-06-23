@@ -103,6 +103,10 @@ namespace Manuscript.Widgets {
             }
         }
 
+        protected void unselect (Gtk.TextBuffer buffer) {
+            if (buffer.has_selection) {}
+        }
+
         protected void set_focused_paragraph () {
             Gtk.TextIter cursor_iter;
             Gtk.TextIter start, end;

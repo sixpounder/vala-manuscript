@@ -3,7 +3,7 @@ namespace Manuscript.Widgets {
     public interface SidebarListEntry : Granite.Widgets.SourceList.Item {}
 
     public class Sidebar : Gtk.Box {
-        protected Granite.Widgets.SourceList root_list;
+        protected DocumentSourceList root_list;
         protected Granite.Widgets.SourceList.ExpandableItem chapters_root;
         protected Granite.Widgets.SourceList.ExpandableItem characters_root;
         protected Granite.Widgets.SourceList.ExpandableItem notes_root;
@@ -40,11 +40,11 @@ namespace Manuscript.Widgets {
 
         private void build_ui () {
             // One expandable items per category
-            chapters_root = new Granite.Widgets.SourceList.ExpandableItem (_("Chapters"));
-            characters_root = new Granite.Widgets.SourceList.ExpandableItem ("Characters sheets");
-            notes_root = new Granite.Widgets.SourceList.ExpandableItem (_("Notes"));
+            chapters_root = new SourceListCategoryItem (_("Chapters"));
+            characters_root = new SourceListCategoryItem ("Characters sheets");
+            notes_root = new SourceListCategoryItem (_("Notes"));
 
-            root_list = new Granite.Widgets.SourceList ();
+            root_list = new DocumentSourceList ();
 
             var root = root_list.root;
 
@@ -62,6 +62,7 @@ namespace Manuscript.Widgets {
 
             Gtk.TargetEntry uri_list_entry = { "text/uri-list", Gtk.TargetFlags.SAME_APP, 0 };
             root_list.enable_drag_dest ({ uri_list_entry }, Gdk.DragAction.COPY);
+            root_list.enable_drag_source ({ uri_list_entry });
 
             reset_tree (document);
 

@@ -9,9 +9,9 @@
         <p>A distraction free writing environment</p>
     </description>
     <custom>
-      <value key="x-appcenter-color-primary">#F6F6F6</value>
-      <value key="x-appcenter-color-primary-text">rgb(33, 33, 33)</value>
-      <value key="x-appcenter-suggested-price">0</value>
+        <value key="x-appcenter-color-primary">#F6F6F6</value>
+        <value key="x-appcenter-color-primary-text">rgb(33, 33, 33)</value>
+        <value key="x-appcenter-suggested-price">0</value>
     </custom>
 </component>
 

@@ -1,80 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <enum id="com.github.sixpounder.manuscript.themes">
-    <value nick="Light" value="0" />
-    <value nick="Sepia" value="1" />
-    <value nick="Dark" value="2" />
-  </enum>
-	<schema id="com.github.sixpounder.manuscript" path="/com/github/sixpounder/manuscript/" gettext-domain="manuscript">
-		<key name="mime-types" type="as">
-			<default>["text/plain", "application/json"]</default>
-			<summary>Supported mime types</summary>
-			<description>Cached supported mime types which the app can open and handle</description>
-		</key>
-	  <key name="extensions" type="as">
-			<default>["*.manuscript"]</default>
-			<summary>Supported files by extension</summary>
-			<description>Cached supported extensions which the app can open and handle</description>
-		</key>
-		<key name="window-width" type="i">
-			<default>650</default>
-			<summary>Width of the window</summary>
-			<description>The width of the window</description>
-		</key>
-		<key name="window-height" type="i">
-			<default>550</default>
-			<summary>Height of the window</summary>
-			<description>The height of the window</description>
-		</key>
-		<key name="window-x" type="i">
-			<default>-1</default>
-			<summary>Window position</summary>
-			<description>The x axis of window position</description>
-		</key>
-		<key name="window-y" type="i">
-			<default>-1</default>
-			<summary>Window position</summary>
-			<description>The y axis of window position</description>
-		</key>
-		<key name="window-maximized" type="b">
-			<default>false</default>
-			<summary>Window maximized</summary>
-			<description>If window should be maximized</description>
-		</key>
-		<key name="always-on-top" type="b">
-			<default>false</default>
-			<summary>If the main window should be shown always on top</summary>
-			<description>Determines if the window will be always above other windows</description>
-		</key>
-	  <key name="searchbar" type="b">
-			<default>false</default>
-			<summary>Search bar visibility</summary>
-			<description>Determines if the search bar should be popped up</description>
-		</key>
-	  <key name="last-opened-document" type="s">
-	    <default>""</default>
-	    <summary>The last opened document</summary>
-	    <description>The absolute path to the last opened document</description>
-	  </key>
-	  <key name="zen" type="b">
-	    <default>false</default>
-	    <summary>Zen (focus) mode on or off</summary>
-	    <description>Determines if focus mode is activated or not</description>
-	  </key>
-    <key name="autosave" type="b">
-	    <default>false</default>
-	    <summary>Autosave documents at specific checkpoints</summary>
-	    <description>The application will try to save opened documents at specific points in its lifecycle</description>
-	  </key>
-	  <key name="theme" enum="com.github.sixpounder.manuscript.themes">
-	    <default>"Light"</default>
-	    <summary>Application theme</summary>
-	    <description>Sets the theme to use for the application</description>
-	  </key>
-	  <key name="text-scale-factor" type="d">
-			<default>1.0</default>
-			<summary>Text scale factor</summary>
-			<description>The percentage value representing the text scaling on the app default basis</description>
-		</key>
-	</schema>
+    <enum id="com.github.sixpounder.manuscript.themes">
+        <value nick="Light" value="0" />
+        <value nick="Sepia" value="1" />
+        <value nick="Dark" value="2" />
+    </enum>
+    <schema id="com.github.sixpounder.manuscript" path="/com/github/sixpounder/manuscript/" gettext-domain="manuscript">
+        <key name="mime-types" type="as">
+            <default>["text/plain", "application/json"]</default>
+            <summary>Supported mime types</summary>
+            <description>Cached supported mime types which the app can open and handle</description>
+        </key>
+        <key name="extensions" type="as">
+            <default>["*.manuscript"]</default>
+            <summary>Supported files by extension</summary>
+            <description>Cached supported extensions which the app can open and handle</description>
+        </key>
+        <key name="window-width" type="i">
+            <default>650</default>
+            <summary>Width of the window</summary>
+            <description>The width of the window</description>
+        </key>
+        <key name="window-height" type="i">
+            <default>550</default>
+            <summary>Height of the window</summary>
+            <description>The height of the window</description>
+        </key>
+        <key name="window-x" type="i">
+            <default>-1</default>
+            <summary>Window position</summary>
+            <description>The x axis of window position</description>
+        </key>
+        <key name="window-y" type="i">
+            <default>-1</default>
+            <summary>Window position</summary>
+            <description>The y axis of window position</description>
+        </key>
+        <key name="window-maximized" type="b">
+            <default>false</default>
+            <summary>Window maximized</summary>
+            <description>If window should be maximized</description>
+        </key>
+        <key name="always-on-top" type="b">
+            <default>false</default>
+            <summary>If the main window should be shown always on top</summary>
+            <description>Determines if the window will be always above other windows</description>
+        </key>
+        <key name="searchbar" type="b">
+            <default>false</default>
+            <summary>Search bar visibility</summary>
+            <description>Determines if the search bar should be popped up</description>
+        </key>
+        <key name="last-opened-document" type="s">
+            <default>""</default>
+            <summary>The last opened document</summary>
+            <description>The absolute path to the last opened document</description>
+        </key>
+        <key name="zen" type="b">
+            <default>false</default>
+            <summary>Zen (focus) mode on or off</summary>
+            <description>Determines if focus mode is activated or not</description>
+        </key>
+        <key name="autosave" type="b">
+            <default>false</default>
+            <summary>Autosave documents at specific checkpoints</summary>
+            <description>The application will try to save opened documents at specific points in its lifecycle</description>
+        </key>
+        <key name="theme" enum="com.github.sixpounder.manuscript.themes">
+            <default>"Light"</default>
+            <summary>Application theme</summary>
+            <description>Sets the theme to use for the application</description>
+        </key>
+        <key name="text-scale-factor" type="d">
+            <default>1.0</default>
+            <summary>Text scale factor</summary>
+            <description>The percentage value representing the text scaling on the app default basis</description>
+        </key>
+    </schema>
 </schemalist>

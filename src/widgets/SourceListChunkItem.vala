@@ -1,5 +1,20 @@
 namespace Manuscript.Widgets {
-    public class SourceListChunkItem : Granite.Widgets.SourceList.Item, Granite.Widgets.SourceListDragDest {
+    public class SourceListCategoryItem: Granite.Widgets.SourceList.ExpandableItem, Granite.Widgets.SourceListDragDest {
+        public SourceListCategoryItem (string name = "") {
+            base(name);
+        }
+
+        public bool data_drop_possible (Gdk.DragContext context, Gtk.SelectionData data) {
+            return data.get_target () == Gdk.Atom.intern_static_string ("text/uri-list");
+        }
+    
+        public Gdk.DragAction data_received (Gdk.DragContext context, Gtk.SelectionData data) {
+            debug (data.get_text ());
+            return Gdk.DragAction.COPY;
+        }
+    }
+
+    public class SourceListChunkItem : Granite.Widgets.SourceList.Item, Granite.Widgets.SourceListDragSource {
         protected Models.DocumentChunk _chunk;
 
         public SourceListChunkItem.with_chunk (Models.DocumentChunk chunk) {
@@ -41,13 +56,12 @@ namespace Manuscript.Widgets {
 
         // Drag interface
 
-        private bool data_drop_possible (Gdk.DragContext context, Gtk.SelectionData data) {
-            return data.get_target () == Gdk.Atom.intern_static_string ("text/uri-list");
+        public bool draggable () {
+            return true;
         }
-    
-        private Gdk.DragAction data_received (Gdk.DragContext context, Gtk.SelectionData data) {
-            debug (data.get_uris ()[0]);
-            return Gdk.DragAction.COPY;
+
+        public void prepare_selection_data (Gtk.SelectionData selection_data) {
+            debug (selection_data.get_text ());
         }
     }
 }

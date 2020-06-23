@@ -2,7 +2,6 @@ namespace Manuscript.Widgets {
     public class SearchPanel : Gtk.Revealer {
         public weak Services.AppSettings settings { get; set; }
         public weak Manuscript.Window parent_window { get; construct; }
-        public SearchResultsOverlay results_panel { get; private set; }
 
         public Gtk.Grid grid;
         public Gtk.SearchEntry search_entry;
@@ -97,17 +96,20 @@ namespace Manuscript.Widgets {
 
             parent_window.document_manager.selected.connect ((chunk) => {
                 assert(chunk != null);
+                unselect ();
                 text_buffer = chunk.buffer;
                 search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
             });
 
             parent_window.document_manager.start_editing.connect ((chunk) => {
                 assert(chunk != null);
+                unselect ();
                 text_buffer = chunk.buffer;
                 search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
             });
 
             parent_window.document_manager.stop_editing.connect ((chunk) => {
+                unselect ();
                 text_buffer = null;
                 search_context = null;
             });
@@ -212,6 +214,12 @@ namespace Manuscript.Widgets {
             }
         }
 
+        public void unselect () {
+            if (text_buffer != null && text_buffer.has_selection) {
+                // TODO: Unselect
+            }
+        }
+
         private bool search_for_iter (Gtk.TextIter? start_iter, out Gtk.TextIter? end_iter) {
             end_iter = start_iter;
             bool found = search_context.forward2 (start_iter, out start_iter, out end_iter, null);
@@ -256,7 +264,6 @@ namespace Manuscript.Widgets {
             }
         }
 
-
         private void on_replace_all_entry_activate () {
             this.text_buffer = editor.get_buffer ();
             if (text_buffer == null) {
@@ -278,15 +285,6 @@ namespace Manuscript.Widgets {
         private void update_replace_tool_sensitivities (string search_text) {
             replace_tool_button.sensitive = search_text != "";
             replace_all_tool_button.sensitive = search_text != "";
-        }
-    }
-
-    public class SearchResultsOverlay : Gtk.Overlay {
-        construct {
-            Gtk.Grid layout = new Gtk.Grid ();
-            layout.halign = Gtk.Align.CENTER;
-            layout.valign = Gtk.Align.CENTER;
-            layout.expand = true;
         }
     }
 }

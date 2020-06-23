@@ -30,7 +30,7 @@ namespace Manuscript.Widgets.Settings {
             font_button.show_style = true;
             font_button.font_set.connect (() => {
                 var font = font_button.font_desc;
-                debug (@"$(font.get_family ()) $(font.get_size ()) $(font.get_size_is_absolute ())");
+                //  debug (@"$(font.get_family ()) $(font.get_size ()) $(font.get_size_is_absolute ())");
                 document_manager.document.settings.font = @"$(font_button.font_desc.get_family ()) $(font_button.font_desc.get_size () / 1000)";
             });
             attach (font_label, 0, 0, 1, 1);
