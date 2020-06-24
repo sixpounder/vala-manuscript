@@ -60,9 +60,9 @@ namespace Manuscript.Widgets {
 
             pack_start (root_list);
 
-            Gtk.TargetEntry uri_list_entry = { "text/uri-list", Gtk.TargetFlags.SAME_APP, 0 };
-            root_list.enable_drag_dest ({ uri_list_entry }, Gdk.DragAction.COPY);
-            root_list.enable_drag_source ({ uri_list_entry });
+            //  Gtk.TargetEntry uri_list_entry = { "text/uri-list", Gtk.TargetFlags.SAME_APP, 0 };
+            //  root_list.enable_drag_dest ({ uri_list_entry }, Gdk.DragAction.MOVE);
+            //  root_list.enable_drag_source ({ uri_list_entry });
 
             reset_tree (document);
 
@@ -110,6 +110,11 @@ namespace Manuscript.Widgets {
             if (item != null && item is SourceListChunkItem) {
                 select_chunk (((SourceListChunkItem) item).chunk);
             }
+        }
+
+        private void on_entry_moved (Granite.Widgets.SourceList.Item entry) {
+            var item = entry as SourceListChunkItem;
+            var category = entry.parent as SourceListCategoryItem;
         }
 
         public SourceListChunkItem? find_node (Models.DocumentChunk chunk) {

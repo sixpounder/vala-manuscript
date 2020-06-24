@@ -5,6 +5,18 @@ namespace Manuscript.Models {
         PARSE
     }
 
+    public class IndexedItem<G> : Object {
+        public G data { get; set; }
+        public int index { get; set; }
+
+        public IndexedItem (G data, int index) {
+            Object (
+                data: data,
+                index: index
+            );
+        }
+    }
+
     public interface DocumentBase : Object {
         public abstract string version { get; set; }
         public abstract string uuid { get; set; }
@@ -81,6 +93,7 @@ namespace Manuscript.Models {
 
         public virtual void add_chunk (DocumentChunk chunk, bool activate = true) {}
         public virtual void remove_chunk (DocumentChunk chunk, bool activate = true) {}
+        public virtual bool move_chunk (DocumentChunk chunk, int index) { return false; }
 
     }
 
@@ -96,9 +109,10 @@ namespace Manuscript.Models {
         public signal void saved (string target_path);
         public signal void load ();
         public signal void read_error (GLib.Error error);
-        public signal void save_error (Error e);
+        public signal void save_error (Glib.Error e);
         public signal void chunk_added (DocumentChunk chunk, bool active);
         public signal void chunk_removed (DocumentChunk chunk);
+        public signal void chunk_moved (DocumentChunk chunk);
         public signal void active_changed (DocumentChunk chunk);
         public signal void drain ();
 
@@ -258,6 +272,27 @@ namespace Manuscript.Models {
             if (chunks.size == 0) {
                 drain ();
             }
+        }
+
+        /**
+         * Moves `chunk` to `index`, where `index` is supposed to be an index representing
+         * a flattened value for chunks of the same type
+         */
+        public new bool move_chunk (DocumentChunk chunk, int index) {
+            int i = 0;
+            Gee.Iterator<IndexedItem<DocumentChunk>> iter = chunks.filter ((item) => {
+                return item.chunk_type == chunk.chunk_type;
+            }).map<IndexedItem<DocumentChunk>> ((item) => {
+                return new IndexedItem<DocumentChunk> (item, i);
+                i += 1;
+            });
+
+            while (iter.next ()) {
+                var indexed_item = iter.@get ();
+                chunk_moved (indexed_item.data);
+            }
+
+            return true;
         }
 
         public void set_active (DocumentChunk chunk) {

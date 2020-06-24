@@ -1,16 +1,16 @@
 namespace Manuscript.Widgets {
-    public class SourceListCategoryItem: Granite.Widgets.SourceList.ExpandableItem, Granite.Widgets.SourceListDragDest {
+    public class SourceListCategoryItem: Granite.Widgets.SourceList.ExpandableItem, Granite.Widgets.SourceListSortable {
         public SourceListCategoryItem (string name = "") {
             base(name);
         }
 
-        public bool data_drop_possible (Gdk.DragContext context, Gtk.SelectionData data) {
-            return data.get_target () == Gdk.Atom.intern_static_string ("text/uri-list");
+        private bool allow_dnd_sorting () {
+            return true;
         }
-    
-        public Gdk.DragAction data_received (Gdk.DragContext context, Gtk.SelectionData data) {
-            debug (data.get_text ());
-            return Gdk.DragAction.COPY;
+
+        private int compare (Granite.Widgets.SourceList.Item a, Granite.Widgets.SourceList.Item b) {
+            // Allow undefined ordering, this will be handled by document model
+            return 0;
         }
     }
 

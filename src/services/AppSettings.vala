@@ -12,7 +12,6 @@ namespace Manuscript.Services {
         public bool searchbar { get; set; }
         public bool zen { get; set; }
         public bool autosave { get; set; }
-        //  public bool prefer_dark_style { get; set; }
         public string theme { get; set; }
         public double text_scale_factor { get; set; }
 

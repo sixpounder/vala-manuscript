@@ -7,6 +7,7 @@ namespace Manuscript.Protocols {
     public class SearchResult : Object {
         public weak EditorController editor { get; set; }
         public Gtk.TextIter? iter;
+        public string? field_name { get; set; }
     }
 
     public interface DocumentStats {

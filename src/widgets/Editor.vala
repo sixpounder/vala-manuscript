@@ -21,7 +21,7 @@ namespace Manuscript.Widgets {
                 search_context = new Gtk.SourceSearchContext (buffer as Gtk.SourceBuffer, null);
                 settings.change.connect (on_setting_change);
                 destroy.connect (on_destroy);
-            } catch (Error e) {
+            } catch (GLib.Error e) {
                 error ("Cannot instantiate editor view: " + e.message);
             }
 

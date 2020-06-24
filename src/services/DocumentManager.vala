@@ -90,6 +90,14 @@ namespace Manuscript.Services {
             selected (chunk);
         }
 
+        public void move_chunk (Models.DocumentChunk chunk, int index) {
+            document.move_chunk (chunk, index);
+
+            if (settings.autosave) {
+                save ();
+            }
+        }
+
         public void close_chunk (Models.DocumentChunk chunk) {
             if (opened_chunks.contains (chunk)) {
                 stop_editing (chunk);
@@ -103,8 +111,8 @@ namespace Manuscript.Services {
 
         // FS ops
 
-        public void save () {
-            if (document.is_temporary ()) {
+        public void save (bool ignore_temporary = false) {
+            if (document.is_temporary () && !ignore_temporary) {
                 // Ask where to save this
                 save_as ();
             } else {
