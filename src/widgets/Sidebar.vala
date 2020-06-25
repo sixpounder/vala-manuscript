@@ -4,9 +4,9 @@ namespace Manuscript.Widgets {
 
     public class Sidebar : Gtk.Box {
         protected DocumentSourceList root_list;
-        protected Granite.Widgets.SourceList.ExpandableItem chapters_root;
-        protected Granite.Widgets.SourceList.ExpandableItem characters_root;
-        protected Granite.Widgets.SourceList.ExpandableItem notes_root;
+        protected SourceListCategoryItem chapters_root;
+        protected SourceListCategoryItem characters_root;
+        protected SourceListCategoryItem notes_root;
 
         public weak Services.DocumentManager document_manager { get; private set; }
         public weak Manuscript.Window parent_window { get; construct; }
@@ -32,6 +32,17 @@ namespace Manuscript.Widgets {
             build_ui ();
         }
 
+        ~ Sidebar () {
+            document_manager.load.disconnect (on_document_set);
+            document_manager.change.disconnect (on_document_set);
+            document_manager.unload.disconnect (on_document_unload);
+            document_manager.start_editing.disconnect (on_start_edit);
+            document_manager.selected.disconnect (on_start_edit);
+            //  chapters_root.user_moved_item.disconnect(on_entry_moved);
+            //  characters_root.user_moved_item.disconnect(on_entry_moved);
+            //  notes_root.user_moved_item.disconnect(on_entry_moved);
+        }
+
         public Models.Document document {
             get {
                 return document_manager.document;
@@ -40,9 +51,16 @@ namespace Manuscript.Widgets {
 
         private void build_ui () {
             // One expandable items per category
-            chapters_root = new SourceListCategoryItem (_("Chapters"));
-            characters_root = new SourceListCategoryItem ("Characters sheets");
-            notes_root = new SourceListCategoryItem (_("Notes"));
+            chapters_root = new SourceListCategoryItem (_("Chapters"), Models.ChunkType.CHAPTER);
+            chapters_root.document_manager = document_manager;
+            characters_root = new SourceListCategoryItem ("Characters sheets", Models.ChunkType.CHARACTER_SHEET);
+            characters_root.document_manager = document_manager;
+            notes_root = new SourceListCategoryItem (_("Notes"), Models.ChunkType.NOTE);
+            notes_root.document_manager = document_manager;
+
+            //  chapters_root.user_moved_item.connect(on_entry_moved);
+            //  characters_root.user_moved_item.connect(on_entry_moved);
+            //  notes_root.user_moved_item.connect(on_entry_moved);
 
             root_list = new DocumentSourceList ();
 
@@ -59,10 +77,6 @@ namespace Manuscript.Widgets {
             root_list.item_selected.connect (on_item_selected);
 
             pack_start (root_list);
-
-            //  Gtk.TargetEntry uri_list_entry = { "text/uri-list", Gtk.TargetFlags.SAME_APP, 0 };
-            //  root_list.enable_drag_dest ({ uri_list_entry }, Gdk.DragAction.MOVE);
-            //  root_list.enable_drag_source ({ uri_list_entry });
 
             reset_tree (document);
 
@@ -110,11 +124,6 @@ namespace Manuscript.Widgets {
             if (item != null && item is SourceListChunkItem) {
                 select_chunk (((SourceListChunkItem) item).chunk);
             }
-        }
-
-        private void on_entry_moved (Granite.Widgets.SourceList.Item entry) {
-            var item = entry as SourceListChunkItem;
-            var category = entry.parent as SourceListCategoryItem;
         }
 
         public SourceListChunkItem? find_node (Models.DocumentChunk chunk) {

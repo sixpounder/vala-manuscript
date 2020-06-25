@@ -109,7 +109,7 @@ namespace Manuscript.Models {
         public signal void saved (string target_path);
         public signal void load ();
         public signal void read_error (GLib.Error error);
-        public signal void save_error (Glib.Error e);
+        public signal void save_error (GLib.Error e);
         public signal void chunk_added (DocumentChunk chunk, bool active);
         public signal void chunk_removed (DocumentChunk chunk);
         public signal void chunk_moved (DocumentChunk chunk);
@@ -279,17 +279,18 @@ namespace Manuscript.Models {
          * a flattened value for chunks of the same type
          */
         public new bool move_chunk (DocumentChunk chunk, int index) {
-            int i = 0;
+            int i = -1;
             Gee.Iterator<IndexedItem<DocumentChunk>> iter = chunks.filter ((item) => {
                 return item.chunk_type == chunk.chunk_type;
             }).map<IndexedItem<DocumentChunk>> ((item) => {
-                return new IndexedItem<DocumentChunk> (item, i);
                 i += 1;
+                return new IndexedItem<DocumentChunk> (item, i);
             });
 
             while (iter.next ()) {
                 var indexed_item = iter.@get ();
-                chunk_moved (indexed_item.data);
+                var real_index = chunks.index_of (indexed_item.data);
+                debug (@"Real index: $real_index");
             }
 
             return true;
@@ -320,12 +321,12 @@ namespace Manuscript.Models {
         public DocumentChunk[] chunks_with_changes () {
             Gee.ArrayList<DocumentChunk> changed = new Gee.ArrayList<DocumentChunk> ();
             var it = chunks.iterator ();
-            while (it.next ()) {
-                var item = it.@get ();
-                if (item.has_changes) {
-                    changed.add (item);
-                }
-            }
+            it.filter((item) => {
+                return item.has_changes;
+            }).@foreach((item) => {
+                changed.add(item);
+                return true;
+            });
 
             return changed.to_array ();
         }
