@@ -3,7 +3,8 @@ namespace Manuscript {
         public static File new_temp_file () throws GLib.Error {
             File file = File.new_for_path (
                 Path.build_filename (
-                    Granite.Services.Paths.user_cache_folder.get_path (),
+                    Environment.get_user_cache_dir (),
+                    Constants.APP_ID,
                     @"$(GLib.Uuid.string_random ()).manuscript"
                 )
             );

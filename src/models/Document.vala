@@ -65,6 +65,10 @@ namespace Manuscript.Models {
             foreach (var el in chunks_array.get_elements ()) {
                 add_chunk (new DocumentChunk.from_json_object (el.get_object ()), false);
             }
+
+            chunks.sort ((a, b) => {
+                return (int) (a.index - b.index);
+            });
         }
 
         public string to_json () {
@@ -178,7 +182,7 @@ namespace Manuscript.Models {
 
         // A file is considered to be temporary if it is located into the user's cache folder
         public bool is_temporary () {
-            return Path.get_dirname (file_path) == Granite.Services.Paths.user_cache_folder.get_path ();
+            return Path.get_dirname (file_path) == Path.build_path(Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID);
         }
 
         public Document.from_file (string path, bool temporary = false) throws GLib.Error {
@@ -219,6 +223,9 @@ namespace Manuscript.Models {
 
                         var root_object = parser.get_root ().get_object ();
 
+
+                        debug (@"$(Json.to_string(parser.get_root (), true))");
+
                         version = root_object.get_string_member ("version");
                         uuid = root_object.get_string_member ("uuid");
                         title = root_object.get_string_member ("title");
@@ -233,6 +240,10 @@ namespace Manuscript.Models {
                         foreach (var el in chunks_array.get_elements ()) {
                             add_chunk (new DocumentChunk.from_json_object (el.get_object ()), false);
                         }
+
+                        chunks.sort ((a, b) => {
+                            return (int) (a.index - b.index);
+                        });
                     }
                 }
             } catch (GLib.Error error) {
@@ -258,6 +269,19 @@ namespace Manuscript.Models {
             }
         }
 
+        protected Gee.Iterator<IndexedItem<DocumentChunk>> get_chunks_group (ChunkType chunk_type) {
+            int i = 0;
+            Gee.Iterator<IndexedItem<DocumentChunk>> filtered_iter = chunks.filter ((item) => {
+                return item.chunk_type == chunk_type;
+            }).map<IndexedItem<DocumentChunk>> ((item) => {
+                var c_item = new IndexedItem<DocumentChunk> (item, i);
+                i += 1;
+                return c_item;
+            });
+
+            return filtered_iter;
+        }
+
         /**
          * Adds a chunk to the collection, making it active by default
          */
@@ -279,21 +303,31 @@ namespace Manuscript.Models {
          * a flattened value for chunks of the same type
          */
         public new bool move_chunk (DocumentChunk chunk, int index) {
-            int i = -1;
-            Gee.Iterator<IndexedItem<DocumentChunk>> iter = chunks.filter ((item) => {
-                return item.chunk_type == chunk.chunk_type;
-            }).map<IndexedItem<DocumentChunk>> ((item) => {
-                i += 1;
-                return new IndexedItem<DocumentChunk> (item, i);
+            bool r = true;
+            Gee.Iterator<IndexedItem<DocumentChunk>> filtered_iter = get_chunks_group (chunk.chunk_type);
+
+            filtered_iter.@foreach((indexed_item) => {
+                chunks.filter ((item) => {
+                    return item.chunk_type == chunk.chunk_type;
+                }).@foreach((item) => {
+                    if (item == indexed_item.data) {
+                        //  var real_index = chunks.index_of (indexed_item.data);
+                        //  debug (@"Index in local collection for $(chunk.title): $real_index - Wanted index: $index");
+                        //  chunk.index = index;
+                        item.index = indexed_item.index;
+                        r = true;
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
+
+                return true;
             });
 
-            while (iter.next ()) {
-                var indexed_item = iter.@get ();
-                var real_index = chunks.index_of (indexed_item.data);
-                debug (@"Real index: $real_index");
-            }
+            chunk_moved (chunk);
 
-            return true;
+            return r;
         }
 
         public void set_active (DocumentChunk chunk) {

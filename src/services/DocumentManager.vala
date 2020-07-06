@@ -62,6 +62,9 @@ namespace Manuscript.Services {
                 document.notify.connect((pspec) => {
                     property_change (pspec.get_nick ());
                 });
+                document.chunk_moved.connect (() => {
+                    save ();
+                });
                 _opened_chunks.clear ();
                 load (document);
             } else if (doc != null && document != null && document != doc) {
@@ -70,6 +73,9 @@ namespace Manuscript.Services {
                 _opened_chunks.clear ();
                 document.notify.connect((pspec) => {
                     property_change (pspec.get_nick ());
+                });
+                document.chunk_moved.connect (() => {
+                    save ();
                 });
                 change (document);
             } else {

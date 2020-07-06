@@ -8,7 +8,7 @@ namespace Manuscript {
         protected WelcomeView welcome_view;
         protected Widgets.Header header;
         protected Gtk.Bin body;
-        protected Granite.Widgets.CollapsiblePaned editor_grid;
+        protected Gtk.Paned editor_grid;
         protected Widgets.EditorsController tabs;
         protected weak Models.Document selected_document = null;
         protected Gtk.InfoBar infobar;
@@ -101,7 +101,7 @@ namespace Manuscript {
             right_panel.pack_start (tabs);
 
             // Grid
-            editor_grid = new Granite.Widgets.CollapsiblePaned (Gtk.Orientation.HORIZONTAL);
+            editor_grid = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
             editor_grid.get_style_context ().add_class ("editor_grid");
             editor_grid.valign = Gtk.Align.FILL;
             editor_grid.pack1 (sidebar, false, true);

@@ -9,8 +9,10 @@ namespace Manuscript {
         }
 
         construct {
-            Granite.Services.Paths.initialize (Constants.APP_ID, Constants.APP_ID);
-            Granite.Services.Paths.ensure_directory_exists (Granite.Services.Paths.user_cache_folder);
+            Environment.set_application_name ("Manuscript");
+            //  Granite.Services.Paths.initialize (Constants.APP_ID, Constants.APP_ID);
+            //  Granite.Services.Paths.ensure_directory_exists (Environment.get_user_cache_dir ());
+            debug (@"Cache folder: $(Path.build_path(Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID))");
         }
 
         protected override void activate () {
