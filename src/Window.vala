@@ -18,6 +18,7 @@ namespace Manuscript {
         public Services.DocumentManager document_manager;
         public Services.ActionManager action_manager { get; private set; }
         public string initial_document_path { get; construct; }
+        public string cache_folder { get; construct; }
 
         public Models.Document ? document {
             get {
@@ -42,7 +43,8 @@ namespace Manuscript {
         public Window.with_document (Manuscript.Application app, string ? document_path = null) {
             Object (
                 application: app,
-                initial_document_path: document_path
+                initial_document_path: document_path,
+                cache_folder: Path.build_path(Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID)
             );
 
             settings = Services.AppSettings.get_default ();
@@ -131,29 +133,33 @@ namespace Manuscript {
             } else {
                 set_layout_body (welcome_view);
             }
+            editor_grid.position = 300;
+            update_ui ();
         }
 
         public void connect_events () {
-            settings.change.connect (() => {
-                if (settings.zen) {
-                    last_editor_grid_panel_position = editor_grid.position;
-                    editor_grid.position = 0;
-                } else {
-                    if (editor_grid.position == 0 && last_editor_grid_panel_position != 0) {
-                        editor_grid.position = last_editor_grid_panel_position;
-                    }
-
-                    search_panel.reveal_child = settings.searchbar;
-                    search_panel.search_entry.grab_focus_without_selecting ();
-
-                    if (settings.searchbar == false) {
-                        search_panel.unselect ();
-                    }
-                }
-            });
+            settings.change.connect (update_ui);
             delete_event.connect (on_destroy);
             welcome_view.should_open_file.connect (open_file_dialog);
             welcome_view.should_create_new_file.connect (open_with_temp_file);
+        }
+
+        public void update_ui () {
+            if (settings.zen) {
+                last_editor_grid_panel_position = editor_grid.position;
+                editor_grid.position = 0;
+            } else {
+                if (editor_grid.position == 0 && last_editor_grid_panel_position != 0) {
+                    editor_grid.position = last_editor_grid_panel_position;
+                }
+
+                search_panel.reveal_child = settings.searchbar;
+                search_panel.search_entry.grab_focus_without_selecting ();
+
+                if (settings.searchbar == false) {
+                    search_panel.unselect ();
+                }
+            }
         }
 
         public override bool configure_event (Gdk.EventConfigure event) {
@@ -180,14 +186,6 @@ namespace Manuscript {
 
             return base.configure_event (event);
         }
-
-        //  public void show_searchbar () {
-        //      search_bar.rebind (current_editor);
-        //      search_bar.reveal_child = settings.searchbar;
-        //      if (settings.searchbar == true) {
-        //          search_bar.search_entry.grab_focus_without_selecting ();
-        //      }
-        //  }
 
         /**
          * Shows the open document dialog
@@ -234,7 +232,9 @@ namespace Manuscript {
         // Like open_file_at_path, but with a temporary file
         public void open_with_temp_file () {
             try {
-                File tmp_file = FileUtils.new_temp_file ();
+                File tmp_file = FileUtils.new_temp_file (
+                    new Manuscript.Models.Document.empty ().to_json ()
+                );
                 open_file_at_path (tmp_file.get_path (), true);
             } catch (GLib.Error err) {
                 message (_ ("Unable to create temporary document") );
@@ -247,15 +247,15 @@ namespace Manuscript {
         requires (path != null) {
             try {
                 hide_infobar ();
-                document_manager.set_current_document (new Models.Document.from_file (path));
-                //  set_layout_body (editor_grid);
-            } catch (Error error) {
+                document_manager.set_current_document (
+                    new Models.Document.from_file (path)
+                );
+            } catch (GLib.Error error) {
                 warning (error.message);
                 string msg;
                 if (error is Models.DocumentError.NOT_FOUND) {
                     msg = _("File at %s could not be found. It may have been moved or deleted.");
                     if (settings.last_opened_document == path) {
-                        settings.last_opened_document = "";
                         set_layout_body (welcome_view);
                     }
                 } else if (error is Models.DocumentError.READ) {

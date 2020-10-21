@@ -16,9 +16,9 @@ namespace Manuscript.Protocols {
     }
 
     public interface EditorViewController {
-        public abstract unowned List<EditorController> list_editors ();
-        public abstract EditorController get_editor (Models.DocumentChunk chunk);
-        public abstract unowned EditorController get_current_editor ();
+        //  public abstract List<weak EditorController>? list_editors ();
+        public abstract EditorController? get_editor (Models.DocumentChunk chunk);
+        public abstract unowned EditorController? get_current_editor ();
         public abstract void add_editor (Models.DocumentChunk chunk);
         public abstract void remove_editor (Models.DocumentChunk chunk);
         public abstract void show_editor (Models.DocumentChunk chunk);

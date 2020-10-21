@@ -1,15 +1,36 @@
-namespace Manuscript.Widgets{
+/*
+ * Copyright 2020 Andrea Coronese <sixpounder@protonmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+namespace Manuscript.Widgets {
     /**
      * Groups all the items relative to a single editor view
      */
-    public class EditorView: Granite.Widgets.Tab, Protocols.EditorController {
+    public class EditorView: Gtk.Box, Protocols.EditorController {
         public weak Manuscript.Window parent_window { get; construct; }
         public Widgets.StatusBar status_bar { get; set; }
         public Editor editor { get; private set; }
-        public Models.DocumentChunk chunk { get; construct; }
+        public string label { get; set; }
+        public weak Models.DocumentChunk chunk { get; construct; }
 
         public EditorView (Manuscript.Window parent_window, Models.DocumentChunk chunk) {
             Object (
+                orientation: Gtk.Orientation.VERTICAL,
                 parent_window: parent_window,
                 chunk: chunk,
                 label: chunk.title
@@ -19,11 +40,10 @@ namespace Manuscript.Widgets{
         construct {
             assert (chunk != null);
             get_style_context ().add_class ("editor-view");
-            var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
-            box.expand = true;
-            box.homogeneous = false;
-            box.halign = Gtk.Align.FILL;
-            var scrolled_container = new Gtk.ScrolledWindow (null, null);
+            expand = true;
+            homogeneous = false;
+            halign = Gtk.Align.FILL;
+            Gtk.ScrolledWindow scrolled_container = new Gtk.ScrolledWindow (null, null);
             scrolled_container.kinetic_scrolling = true;
             scrolled_container.overlay_scrolling = true;
             scrolled_container.hscrollbar_policy = Gtk.PolicyType.AUTOMATIC;
@@ -42,12 +62,15 @@ namespace Manuscript.Widgets{
             status_bar = new Widgets.StatusBar (parent_window, chunk);
             status_bar.height_request = 50;
             scrolled_container.add (editor);
-            box.pack_start (scrolled_container);
-            box.pack_start (status_bar, false, true, 0);
-            page = box;
 
+            pack_start (scrolled_container);
+            pack_start (status_bar, false, true, 0);
+
+            label = chunk.title;
             chunk.notify["title"].connect (() => {
-                label = chunk.title;
+                if (chunk != null) {
+                    label = chunk.title;
+                }
             });
 
             parent_window.document_manager.document.settings.notify.connect (reflect_document_settings);
@@ -87,7 +110,7 @@ namespace Manuscript.Widgets{
         public void content_event (Protocols.ContentEvent event) {}
 
         public Gtk.TextBuffer get_buffer () {
-            return chunk.buffer;
+            return chunk != null ? chunk.buffer : null;
         }
 
         public void scroll_to_search_result (Protocols.SearchResult result) {}

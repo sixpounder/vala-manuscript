@@ -1,3 +1,22 @@
+/*
+ * Copyright 2020 Andrea Coronese <sixpounder@protonmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 namespace Manuscript.Services {
     public class AppSettings : Object {
 
@@ -31,7 +50,6 @@ namespace Manuscript.Services {
             settings.bind ("last-opened-document", this, "last_opened_document", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("zen", this, "zen", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("autosave", this, "autosave", GLib.SettingsBindFlags.DEFAULT);
-            //    settings.bind ("prefer-dark-style", this, "prefer_dark_style", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("theme", this, "theme", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("text-scale-factor", this, "text_scale_factor", GLib.SettingsBindFlags.DEFAULT);
 
@@ -47,6 +65,7 @@ namespace Manuscript.Services {
         }
 
         protected void on_change (string key) {
+            //  debug (@"Changed $key");
             change (key);
         }
     }

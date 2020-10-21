@@ -1,3 +1,22 @@
+/*
+ * Copyright 2020 Andrea Coronese <sixpounder@protonmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 namespace Manuscript.Models {
     public class DocumentChunk : Object {
 
@@ -22,6 +41,7 @@ namespace Manuscript.Models {
         public string notes { get; set; }
         public string raw_content { get; set; }
         public int64 index { get; set; }
+        public string uuid { get; set; }
 
         protected string _title;
         public string title {
@@ -49,7 +69,8 @@ namespace Manuscript.Models {
 
         public DocumentChunk.empty (ChunkType chunk_type) {
             Object (
-                chunk_type: chunk_type
+                chunk_type: chunk_type,
+                uuid: GLib.Uuid.string_random ()
             );
             switch (chunk_type) {
                 case ChunkType.CHAPTER:
@@ -69,16 +90,40 @@ namespace Manuscript.Models {
 
         public DocumentChunk.from_json_object (Json.Object obj) {
             assert (obj != null);
-            raw_content = obj.get_string_member ("raw_content");
-            notes = obj.get_string_member ("notes");
+            if (obj.has_member ("uuid")) {
+                uuid = obj.get_string_member ("uuid");
+            } else {
+                info ("Chunk has no uuid, generating one now");
+                uuid = GLib.Uuid.string_random ();
+            }
+
+            if (obj.has_member ("raw_content")) {
+                raw_content = obj.get_string_member ("raw_content");
+            } else {
+                raw_content = "";
+            }
+            
+            if (obj.has_member ("notes")) {
+                notes = obj.get_string_member ("notes");
+            } else {
+                notes = null;
+            }
+
             title = obj.get_string_member ("title");
-            index = obj.get_int_member ("index");
+
+            if (obj.has_member ("index")) {
+                index = obj.get_int_member ("index");
+            } else  {
+                index = 0;
+            }
+
             chunk_type = (Models.ChunkType) obj.get_int_member ("chunk_type");
             build_buffer (raw_content);
         }
 
         public Json.Object to_json_object () {
             var root = new Json.Object ();
+            root.set_string_member ("uuid", uuid);
             root.set_string_member ("raw_content", buffer.text);
             root.set_string_member ("title", title);
             root.set_string_member ("notes", notes);
@@ -147,15 +192,15 @@ namespace Manuscript.Models {
          * Emit content_changed event to listeners
          */
         private void on_content_changed () {
-            if (this.words_counter_timer != 0) {
+            if (words_counter_timer != 0) {
                 GLib.Source.remove (words_counter_timer);
             }
 
             // Count words every 200 milliseconds to avoid thrashing the CPU
             this.words_counter_timer = Timeout.add (200, () => {
                 words_counter_timer = 0;
-                words_count = Utils.Strings.count_words (this.buffer.text);
-                estimate_reading_time = Utils.Strings.estimate_reading_time (this.words_count);
+                words_count = Utils.Strings.count_words (buffer.text);
+                estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
                 analyze ();
                 return false;
             });

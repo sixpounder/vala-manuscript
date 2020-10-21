@@ -1,6 +1,6 @@
 namespace Manuscript {
     public class FileUtils : Object {
-        public static File new_temp_file () throws GLib.Error {
+        public static File new_temp_file (string buffer) throws GLib.Error {
             File file = File.new_for_path (
                 Path.build_filename (
                     Environment.get_user_cache_dir (),
@@ -10,8 +10,7 @@ namespace Manuscript {
             );
 
             FileOutputStream os = file.create (FileCreateFlags.PRIVATE);
-            var title = _("New manuscript");
-            os.write (@"{\"title\": \"$title\", \"settings\": { \"paragraph_spacing\": 20 }}".data);
+            os.write (buffer.data);
             return file;
         }
 

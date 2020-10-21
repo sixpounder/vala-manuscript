@@ -71,7 +71,7 @@ executable(
 		dependency('gee-0.8', version : '>= 0.8'),
 		dependency('cairo', version : '>= 1.15'),
 		dependency('pangocairo', version : '>= 1.40'),
-		dependency('json-glib-1.0'),
+		dependency('json-glib-1.0', version : '>= 1.4.2'),
 		dependency('gtksourceview-3.0')
 	],
 	install: true

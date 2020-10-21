@@ -1,3 +1,22 @@
+/*
+ * Copyright 2020 Andrea Coronese <sixpounder@protonmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 namespace Manuscript.Widgets {
 
     /**
@@ -8,8 +27,9 @@ namespace Manuscript.Widgets {
         protected bool _on_viewport = true;
         protected Services.AppSettings settings;
         protected Services.DocumentManager document_manager;
-        protected Granite.Widgets.DynamicNotebook notebook;
         protected Gtk.Label editors_courtesy_view;
+        protected Gtk.EventBox editor_view_wrapper;
+        protected List<EditorView> editors_cache;
 
         public weak Manuscript.Window parent_window { get; construct; }
 
@@ -27,41 +47,27 @@ namespace Manuscript.Widgets {
             }
         }
 
-        public GLib.List<Granite.Widgets.Tab> tabs {
-            get {
-                return notebook.tabs;
-            }
-        }
-
-        public Granite.Widgets.Tab current_tab {
-            get {
-                return notebook.current;
-            }
-        }
-
         public EditorsController (Manuscript.Window parent_window) {
             Object (
-                parent_window: parent_window
+                parent_window: parent_window,
+                transition_type: Gtk.StackTransitionType.CROSSFADE
             );
-
-            notebook = new Granite.Widgets.DynamicNotebook ();
-            notebook.add_button_visible = false;
-            notebook.allow_new_window = false;
-            notebook.allow_drag = true;
-            notebook.tab_removed.connect (on_editor_closed);
-            notebook.tab_switched.connect (on_tab_switched);
-
+            
             get_style_context ().add_class ("documents-notebook");
-            settings = Services.AppSettings.get_default ();
+            
+            editors_cache = new List<EditorView> ();
+
             document_manager = parent_window.document_manager;
             document_manager.load.connect (on_document_set);
             document_manager.change.connect (on_document_set);
             document_manager.unload.connect (on_document_unload);
             document_manager.unloaded.connect (update_ui);
+            document_manager.selected.connect (on_start_chunk_editing);
             document_manager.start_editing.connect (on_start_chunk_editing);
+            document_manager.stop_editing.connect (on_stop_chunk_editing);
 
+            settings = Services.AppSettings.get_default ();
             on_viewport = !settings.zen;
-
             settings.change.connect ((key) => {
                 if (key == "zen") {
                     on_viewport = !settings.zen;
@@ -71,8 +77,13 @@ namespace Manuscript.Widgets {
             editors_courtesy_view = new Gtk.Label (_("Opened editors will appear here"));
             editors_courtesy_view.get_style_context ().add_class (Granite.STYLE_CLASS_H2_LABEL);
 
+            editor_view_wrapper = new Gtk.EventBox ();
+            editor_view_wrapper.show_all ();
+
             add_named (editors_courtesy_view, "editors-courtesy-view");
-            add_named (notebook, "editors");
+            add_named (editor_view_wrapper, "editor-view");
+
+            visible_child = editors_courtesy_view;
 
             update_ui ();
         }
@@ -82,7 +93,7 @@ namespace Manuscript.Widgets {
                 on_document_unload (document_manager.document);
             }
 
-            notebook.tab_removed.disconnect (on_editor_closed);
+            //  notebook.tab_removed.disconnect (on_editor_closed);
         }
 
         private void on_document_set (Models.Document doc) {
@@ -98,36 +109,60 @@ namespace Manuscript.Widgets {
             doc.chunk_added.disconnect (add_chunk);
             doc.chunk_removed.disconnect (remove_chunk);
             doc.active_changed.disconnect (select_chunk);
+            editors_cache = new List<EditorView> ();
             update_ui ();
         }
 
         private void on_start_chunk_editing (Models.DocumentChunk chunk) {
-            var existing_tab = get_tab_for_chunk (chunk);
-            if (existing_tab == null) {
-                add_chunk (chunk, true);
-            } else {
-                notebook.current = existing_tab;
+            add_editor_view_for_chunk (chunk, true);
+        }
+
+        private void on_stop_chunk_editing (Models.DocumentChunk? chunk) {
+            var get_editor_view_for_chunk = get_editor_view_for_chunk (chunk);
+            if (get_editor_view_for_chunk == null) {
+                // remove_editor (chunk);
             }
         }
 
+        // Updates various components of this widget to reflect current
+        // document status
+        //
         private void update_ui () {
             if (document_manager.has_document && document_manager.opened_chunks.size != 0) {
-                visible_child = notebook;
+                add_editor_view_for_chunk (document_manager.opened_chunks.first as Models.DocumentChunk, true);
             } else {
                 visible_child = editors_courtesy_view;
             }
         }
 
-        private EditorView ? get_tab_for_chunk (Models.DocumentChunk chunk) {
-            EditorView? existing_tab = null;
-            tabs.@foreach ((item) => {
-                assert (item is EditorView);
-                if (existing_tab == null && ((EditorView) item).chunk == chunk) {
-                    existing_tab = (EditorView) item;
-                }
+        private EditorView? get_editor_view_for_chunk (Models.DocumentChunk chunk) {
+            EditorView? existing_view = null;
+            editors_cache.@foreach((view) => {
+               if (existing_view.chunk == chunk) {
+                   existing_view = view;
+               }
             });
+            return existing_view;
+        }
 
-            return existing_tab;
+        private EditorView add_editor_view_for_chunk (Models.DocumentChunk chunk, bool active = true) {
+            assert (chunk != null);
+            assert (chunk.uuid != null);
+            var existing_child = get_editor_view_for_chunk (chunk);
+            if (existing_child == null) {
+                EditorView new_editor = new EditorView (parent_window, chunk);
+                editors_cache.append (new_editor);
+                
+                if (active == true) {
+                    if (editor_view_wrapper.get_child () != null) {
+                        editor_view_wrapper.remove (editor_view_wrapper.get_child ());
+                    }
+                    editor_view_wrapper.child = new_editor;
+                }
+                return new_editor;
+            } else {
+                return existing_child as EditorView;
+            }
         }
 
         // Editors events
@@ -135,75 +170,69 @@ namespace Manuscript.Widgets {
             update_ui ();
         }
 
-        private void on_tab_switched (Granite.Widgets.Tab? old_tab, Granite.Widgets.Tab new_tab) {
-            document_manager.select_chunk ((new_tab as Protocols.EditorController).chunk);
-        }
+        // private void on_tab_switched (Granite.Widgets.Tab? old_tab, Granite.Widgets.Tab new_tab) {
+        //     document_manager.select_chunk ((new_tab as Protocols.EditorController).chunk);
+        // }
 
         private void add_chunk (Models.DocumentChunk chunk, bool active = true) {
             assert (chunk != null);
-            var existing_tab = get_tab_for_chunk (chunk);
-            if (existing_tab == null) {
-                EditorView new_tab = new EditorView (parent_window, chunk);
-                notebook.insert_tab (new_tab, 0);
-                if (active) {
-                    notebook.current = new_tab;
-                    new_tab.focus_editor ();
-                }
-                update_ui ();
-            } else {
-                notebook.current = existing_tab;
-                existing_tab.focus_editor ();
-            }
+            add_editor_view_for_chunk (chunk);
         }
 
         private void remove_chunk (Models.DocumentChunk chunk) {
-            assert (chunk != null);
-            for (int i = 0; i < notebook.tabs.length (); i++) {
-                EditorView t = (EditorView) notebook.tabs.nth (i);
-                if (t.chunk == chunk) {
-                    notebook.remove_tab (t);
-                    return;
-                }
-            }
+        //      assert (chunk != null);0
+        //      for (int i = 0; i < notebook.tabs.length (); i++) {
+        //          if (notebook.tabs.nth (i) != null) {
+        //              var editor = (EditorView) notebook.tabs.nth (i);
+        //              if (editor != null && editor.chunk == chunk) {
+        //                  notebook.remove_tab (editor);
+        //                  return;
+        //              }
+        //          }
+        //      }
             update_ui ();
         }
 
         private void select_chunk (Models.DocumentChunk chunk) {
-            assert (chunk != null);
-            for (int i = 0; i < notebook.tabs.length (); i++) {
-                EditorView t = (EditorView) notebook.tabs.nth (i);
-                if (t.chunk != null && t.chunk == chunk) {
-                    notebook.current = t;
-                    document_manager.document.set_active (chunk);
-                    return;
-                }
-            }
+        //      assert (chunk != null);
+        //      for (int i = 0; i < notebook.tabs.length (); i++) {
+        //          //  var t = notebook.tabs.nth (i);
+        //          if (notebook.tabs.nth (i) != null) {
+        //              var editor = (EditorView) notebook.tabs.nth (i);
+        //              if (editor.chunk != null && editor.chunk == chunk) {
+        //                  notebook.current = editor;
+        //                  document_manager.document.set_active (chunk);
+        //                  return;
+        //              }
+        //          }
+        //      }
         }
 
         // Editor view protocol
 
-        public unowned List<Protocols.EditorController> list_editors () {
-            return (List<Protocols.EditorController>) notebook.tabs;
+        //  public List<weak Protocols.EditorController>? list_editors () {
+        //      return get_children ();
+        //  }
+
+        public unowned Protocols.EditorController? get_current_editor () {
+            return null;
         }
 
-        public unowned Protocols.EditorController get_current_editor () {
-            return current_tab as Protocols.EditorController;
-        }
-
-        public Protocols.EditorController get_editor (Models.DocumentChunk chunk) {
-            return get_tab_for_chunk (chunk);
+        public Protocols.EditorController? get_editor (Models.DocumentChunk chunk) {
+            //  return get_tab_for_chunk (chunk);
+            return editor_view_wrapper.get_child () as Protocols.EditorController;
         }
 
         public void add_editor (Models.DocumentChunk chunk) {
-            add_chunk (chunk);
+            add_editor_view_for_chunk (chunk);
         }
 
         public void remove_editor (Models.DocumentChunk chunk) {
-            remove_chunk (chunk);
+            //  remove_chunk (chunk);
         }
 
         public void show_editor (Models.DocumentChunk chunk) {
-            select_chunk (chunk);
+            //  select_chunk (chunk);
         }
     }
 }

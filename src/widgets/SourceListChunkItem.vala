@@ -2,7 +2,7 @@ namespace Manuscript.Widgets {
     public class SourceListCategoryItem: Granite.Widgets.SourceList.ExpandableItem, Granite.Widgets.SourceListSortable {
         public Gee.ArrayList<SourceListChunkItem> child_chunks { get; private set; }
         public Models.ChunkType category_type { get; private set; }
-        public Services.DocumentManager document_manager { get; set; }
+        public weak Services.DocumentManager document_manager { get; set; }
 
         public SourceListCategoryItem (string name = "", Models.ChunkType category_type) {
             base(name);
@@ -26,11 +26,15 @@ namespace Manuscript.Widgets {
         }
 
         private void on_child_added (Granite.Widgets.SourceList.Item item) {
-            child_chunks.add (item as SourceListChunkItem);
+            var it = item as SourceListChunkItem;
+            child_chunks.add (it);
+            it.item_should_be_deleted.connect (remove);
         }
 
         private void on_child_removed (Granite.Widgets.SourceList.Item item) {
-            child_chunks.remove (item as SourceListChunkItem);
+            var it = item as SourceListChunkItem;
+            document_manager.remove_chunk (it.chunk);
+            child_chunks.remove (it);
         }
 
         private void on_child_moved (Granite.Widgets.SourceList.Item item) {
@@ -40,13 +44,15 @@ namespace Manuscript.Widgets {
 
             if (entry.chunk.chunk_type == category_type) {
                 // Same category move
-                document_manager.document.move_chunk (entry.chunk, child_chunks.index_of (entry));
+                document_manager.move_chunk (entry.chunk, child_chunks.index_of (entry));
             }
         }
     }
 
     public class SourceListChunkItem : Granite.Widgets.SourceList.Item, Granite.Widgets.SourceListDragSource {
+        public signal void item_should_be_deleted (SourceListChunkItem item);
         protected Models.DocumentChunk _chunk;
+        protected Gtk.Menu? item_menu;
 
         public SourceListChunkItem.with_chunk (Models.DocumentChunk chunk) {
             Object (
@@ -58,6 +64,13 @@ namespace Manuscript.Widgets {
         }
 
         construct {
+            item_menu = new Gtk.Menu ();
+            var delete_menu_entry = new Gtk.MenuItem.with_label (_("Remove"));
+            delete_menu_entry.activate.connect (() => {
+                item_should_be_deleted (this);
+            });
+            item_menu.append (delete_menu_entry);
+            item_menu.show_all ();
             edited.connect (on_edited);
         }
 
@@ -83,6 +96,10 @@ namespace Manuscript.Widgets {
 
         private void on_edited (string new_name) {
             chunk.title = new_name;
+        }
+
+        public override Gtk.Menu? get_context_menu () {
+            return item_menu;
         }
 
         // Drag interface

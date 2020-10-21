@@ -1,3 +1,22 @@
+/*
+ * Copyright 2020 Andrea Coronese <sixpounder@protonmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 namespace Manuscript.Models {
     public errordomain DocumentError {
         NOT_FOUND,
@@ -21,6 +40,7 @@ namespace Manuscript.Models {
         public abstract string version { get; set; }
         public abstract string uuid { get; set; }
         public abstract string title { get; set; }
+        public abstract string synopsis { get; set; }
         public abstract DocumentSettings settings { get; set; }
         public abstract Gee.ArrayList<DocumentChunk> chunks { get; set; }
     }
@@ -30,6 +50,7 @@ namespace Manuscript.Models {
         public string version { get; set; }
         public string uuid { get; set; }
         public string title { get; set; }
+        public string synopsis { get; set; }
         public DocumentSettings settings { get; set; }
         
         private Gee.ArrayList<DocumentChunk> _chunks;
@@ -42,7 +63,7 @@ namespace Manuscript.Models {
             }
         }
 
-        public DocumentData.from_json (string data) throws DocumentError {
+        public void from_json (string data) throws DocumentError {
             var parser = new Json.Parser ();
             try {
                 parser.load_from_data (data, -1);
@@ -52,8 +73,26 @@ namespace Manuscript.Models {
 
             var root_object = parser.get_root ().get_object ();
 
-            uuid = root_object.get_string_member ("uuid");
+            if (root_object.has_member ("version")) {
+                version = root_object.get_string_member ("version");
+            } else {
+                version = "1.0";
+            }
+
+            if (root_object.has_member ("uuid")) {
+                uuid = root_object.get_string_member ("uuid");
+            } else {
+                info ("Document has no uuid, generating one now");
+                uuid = GLib.Uuid.string_random ();
+            }
+
             title = root_object.get_string_member ("title");
+
+            if (root_object.has_member ("synopsis")) {
+                synopsis = root_object.get_string_member ("synopsis");
+            } else {
+                synopsis = "";
+            }
 
             // Settings parsing
             var settings_object = root_object.get_object_member ("settings");
@@ -66,6 +105,7 @@ namespace Manuscript.Models {
                 add_chunk (new DocumentChunk.from_json_object (el.get_object ()), false);
             }
 
+            // Sort chunks by their index
             chunks.sort ((a, b) => {
                 return (int) (a.index - b.index);
             });
@@ -78,10 +118,11 @@ namespace Manuscript.Models {
             root.set_object(object);
             gen.set_root(root);
 
-            object.set_string_member("version", version);
-            object.set_string_member("uuid", uuid);
-            object.set_string_member("title", title);
-            object.set_object_member("settings", settings.to_json_object ());
+            object.set_string_member ("version", version);
+            object.set_string_member ("uuid", uuid);
+            object.set_string_member ("title", title);
+            object.set_string_member ("synopsis", synopsis);
+            object.set_object_member ("settings", settings.to_json_object ());
             
             // Serialize chunks
 
@@ -96,7 +137,7 @@ namespace Manuscript.Models {
         }
 
         public virtual void add_chunk (DocumentChunk chunk, bool activate = true) {}
-        public virtual void remove_chunk (DocumentChunk chunk, bool activate = true) {}
+        public virtual void remove_chunk (DocumentChunk chunk) {}
         public virtual bool move_chunk (DocumentChunk chunk, int index) { return false; }
 
     }
@@ -187,6 +228,12 @@ namespace Manuscript.Models {
 
         public Document.from_file (string path, bool temporary = false) throws GLib.Error {
             this (path, temporary);
+            try {
+                this.load_from_file (path);
+            } catch (Models.DocumentError document_error) {
+                critical ("Cannot create document: %s\n", document_error.message);
+                throw document_error;
+            }
         }
 
         public Document.empty () throws GLib.Error {
@@ -203,69 +250,25 @@ namespace Manuscript.Models {
         }
 
         construct {
-            try {
-                chunks = new Gee.ArrayList<DocumentChunk> ();
-                settings = new DocumentSettings ();
-                if (file_path != null) {
-                    load_state = DocumentLoadState.LOADING;
-                    var res = FileUtils.read (file_path);
-                    if (res == null) {
-                        warning ("File not read (not found?)");
-                        load_state = DocumentLoadState.ERROR;
-                        throw new DocumentError.NOT_FOUND ("File not found");
-                    } else {
-                        var parser = new Json.Parser ();
-                        try {
-                            parser.load_from_data (res, -1);
-                        } catch (Error error) {
-                            throw new DocumentError.PARSE (@"Cannot parse manuscript file: $(error.message)");
-                        }
-
-                        var root_object = parser.get_root ().get_object ();
-
-
-                        debug (@"$(Json.to_string(parser.get_root (), true))");
-
-                        version = root_object.get_string_member ("version");
-                        uuid = root_object.get_string_member ("uuid");
-                        title = root_object.get_string_member ("title");
-
-                        // Settings parsing
-                        var settings_object = root_object.get_object_member ("settings");
-                        settings = new DocumentSettings.from_json_object (settings_object);
-
-                        // Chunks parsing
-                        var chunks_array = root_object.get_array_member ("chunks");
-                        chunks = new Gee.ArrayList<DocumentChunk> ();
-                        foreach (var el in chunks_array.get_elements ()) {
-                            add_chunk (new DocumentChunk.from_json_object (el.get_object ()), false);
-                        }
-
-                        chunks.sort ((a, b) => {
-                            return (int) (a.index - b.index);
-                        });
-                    }
-                }
-            } catch (GLib.Error error) {
-                critical ("Cannot create document: %s\n", error.message);
-                throw error;
-            }
+            chunks = new Gee.ArrayList<DocumentChunk> ();
+            settings = new DocumentSettings ();
         }
 
         ~Document () {
             debug (@"Unloading document $uuid");
         }
 
-        protected void build_document (string content) throws GLib.Error {
-            try {
-                DocumentData obj = new DocumentData.from_json (content);
-                if (obj == null) {
-                    throw new DocumentError.READ (@"Cannot parse manuscript from content of $file_path");
-                } else {
-                    load_state = DocumentLoadState.LOADED;
-                }
-            } catch (Error err) {
-                throw new DocumentError.READ (@"Cannot parse manuscript from content of $file_path");
+        private void load_from_file (string file_path) throws DocumentError {
+            load_state = DocumentLoadState.LOADING;
+            var res = FileUtils.read (file_path);
+            if (res == null) {
+                warning ("File not read (not found?)");
+                load_state = DocumentLoadState.ERROR;
+                throw new DocumentError.NOT_FOUND ("File not found");
+            } else {
+                from_json (res);
+
+                debug (chunks.size.to_string ());
             }
         }
 
@@ -285,12 +288,12 @@ namespace Manuscript.Models {
         /**
          * Adds a chunk to the collection, making it active by default
          */
-        public new void add_chunk (DocumentChunk chunk, bool activate = true) {
+        public override void add_chunk (DocumentChunk chunk, bool activate = true) {
             chunks.add (chunk);
             chunk_added (chunk, activate);
         }
 
-        public new void remove_chunk (DocumentChunk chunk) {
+        public override void remove_chunk (DocumentChunk chunk) {
             chunks.remove (chunk);
             chunk_removed (chunk);
             if (chunks.size == 0) {
@@ -302,7 +305,7 @@ namespace Manuscript.Models {
          * Moves `chunk` to `index`, where `index` is supposed to be an index representing
          * a flattened value for chunks of the same type
          */
-        public new bool move_chunk (DocumentChunk chunk, int index) {
+        public override bool move_chunk (DocumentChunk chunk, int index) {
             bool r = true;
             Gee.Iterator<IndexedItem<DocumentChunk>> filtered_iter = get_chunks_group (chunk.chunk_type);
 

@@ -1,3 +1,22 @@
+/*
+ * Copyright 2020 Andrea Coronese <sixpounder@protonmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 namespace Manuscript.Services {
     public class DocumentManager : Object {
 
@@ -49,7 +68,7 @@ namespace Manuscript.Services {
             _opened_chunks = new Gee.ArrayList<Models.DocumentChunk> ();
         }
 
-        public void set_current_document (owned Models.Document? doc) {
+        public void set_current_document (owned Models.Document? doc) throws GLib.Error {
             debug (@"Setting current document: $(doc == null ? "null" : doc.uuid)");
             if (doc == null) {
                 unload (document);
@@ -62,9 +81,6 @@ namespace Manuscript.Services {
                 document.notify.connect((pspec) => {
                     property_change (pspec.get_nick ());
                 });
-                document.chunk_moved.connect (() => {
-                    save ();
-                });
                 _opened_chunks.clear ();
                 load (document);
             } else if (doc != null && document != null && document != doc) {
@@ -73,9 +89,6 @@ namespace Manuscript.Services {
                 _opened_chunks.clear ();
                 document.notify.connect((pspec) => {
                     property_change (pspec.get_nick ());
-                });
-                document.chunk_moved.connect (() => {
-                    save ();
                 });
                 change (document);
             } else {
@@ -90,6 +103,11 @@ namespace Manuscript.Services {
                 opened_chunks.add (chunk);
             }
             start_editing (chunk);
+        }
+
+        public void remove_chunk (Models.DocumentChunk chunk) {
+            close_chunk (chunk);
+            document.remove_chunk (chunk);
         }
 
         public void select_chunk (Models.DocumentChunk chunk) {

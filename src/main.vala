@@ -1,6 +1,19 @@
 namespace Manuscript {
     public class Application : Gtk.Application {
 
+        public static bool ensure_directory_exists (File dir) {
+
+            if (!dir.query_exists ())
+                try {
+                    dir.make_directory_with_parents ();
+                    return true;
+                } catch {
+                    error ("Could not access or create the directory '%s'.", dir.get_path ());
+                }
+
+            return false;
+        }
+
         public Application () {
             Object (
                 application_id: Constants.APP_ID,
@@ -9,10 +22,13 @@ namespace Manuscript {
         }
 
         construct {
-            Environment.set_application_name ("Manuscript");
-            //  Granite.Services.Paths.initialize (Constants.APP_ID, Constants.APP_ID);
-            //  Granite.Services.Paths.ensure_directory_exists (Environment.get_user_cache_dir ());
             debug (@"Cache folder: $(Path.build_path(Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID))");
+            Environment.set_application_name ("Manuscript");
+            Application.ensure_directory_exists (
+                File.new_for_path(
+                    Path.build_path(Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID)
+                )
+            );
         }
 
         protected override void activate () {
