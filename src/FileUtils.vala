@@ -14,7 +14,7 @@ namespace Manuscript {
             return file;
         }
 
-        public static string? read (string path) throws Error {
+        public static string? read (string path) throws Models.DocumentError {
             File file = File.new_for_path (path);
             if (file.query_exists ()) {
                 try {

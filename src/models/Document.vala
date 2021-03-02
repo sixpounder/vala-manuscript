@@ -267,7 +267,6 @@ namespace Manuscript.Models {
                 throw new DocumentError.NOT_FOUND ("File not found");
             } else {
                 from_json (res);
-
                 debug (chunks.size.to_string ());
             }
         }
