@@ -36,6 +36,7 @@ executable(
     'widgets/SourceListChunkItem.vala',
     'widgets/DocumentSettings.vala',
     'widgets/SearchPanel.vala',
+	'widgets/QuickOpenPanel.vala',
 
     'widgets/settings/Metrics.vala',
     'widgets/settings/General.vala',

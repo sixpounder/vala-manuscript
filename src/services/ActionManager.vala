@@ -31,6 +31,7 @@ namespace Manuscript.Services {
         public const string ACTION_CLOSE_DOCUMENT = "action_close_document";
         public const string ACTION_QUIT = "action_quit";
 
+        public const string ACTION_QUICK_OPEN = "action_quick_open";
         public const string ACTION_FIND = "action_find";
         public const string ACTION_ESC = "action_esc";
 
@@ -49,6 +50,7 @@ namespace Manuscript.Services {
             { ACTION_CLOSE_DOCUMENT, action_close_document },
             { ACTION_QUIT, action_quit },
 
+            { ACTION_QUICK_OPEN, action_quick_open },
             { ACTION_FIND, action_find },
             { ACTION_ESC, action_esc },
 
@@ -78,6 +80,7 @@ namespace Manuscript.Services {
             action_accelerators.set (ACTION_SAVE_AS, "<Control><Shift>s");
             action_accelerators.set (ACTION_DOCUMENT_SETTINGS, "<Control>comma");
             action_accelerators.set (ACTION_CLOSE_DOCUMENT, "<Control><alt>c");
+            action_accelerators.set (ACTION_QUICK_OPEN, "<Control>p");
             action_accelerators.set (ACTION_FIND, "<Control>f");
             action_accelerators.set (ACTION_QUIT, "<Control>q");
             action_accelerators.set (ACTION_ADD_CHAPTER, "<Alt>1");
@@ -117,6 +120,11 @@ namespace Manuscript.Services {
             if (window != null) {
                 window.close ();
             }
+        }
+
+        protected void action_quick_open () {
+            assert (window != null);
+            window.show_quick_open_panel ();
         }
 
         protected void action_find () {

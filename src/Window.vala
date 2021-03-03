@@ -2,7 +2,7 @@ namespace Manuscript {
     public class Window : Gtk.ApplicationWindow {
         protected uint configure_id = 0;
         protected Services.AppSettings settings;
-        protected Gtk.Stack container;
+        protected Gtk.Overlay container;
         protected Widgets.Sidebar sidebar;
         protected Gtk.Box layout;
         protected WelcomeView welcome_view;
@@ -12,6 +12,7 @@ namespace Manuscript {
         protected Widgets.EditorsController tabs;
         protected weak Models.Document selected_document = null;
         protected Gtk.InfoBar infobar;
+        protected Manuscript.Widgets.QuickOpenPanel quick_open_panel;
         protected int last_editor_grid_panel_position;
         public Widgets.SearchPanel search_panel { get; private set; }
 
@@ -79,10 +80,14 @@ namespace Manuscript {
                 move (x, y);
             }
 
+            // Quick open panel
+            quick_open_panel = new Manuscript.Widgets.QuickOpenPanel ();
+            quick_open_panel.no_show_all = true;
+
             // Main layout containers
-            container = new Gtk.Stack ();
-            container.homogeneous = true;
-            container.transition_type = Gtk.StackTransitionType.OVER_LEFT;
+            container = new Gtk.Overlay ();
+            //  container.homogeneous = true;
+            //  container.transition_type = Gtk.StackTransitionType.OVER_LEFT;
             add (container);
 
             // Search panel
@@ -125,6 +130,8 @@ namespace Manuscript {
             connect_events ();
 
             container.add (layout);
+            container.add_overlay (quick_open_panel);
+            quick_open_panel.hide ();
             container.show_all ();
 
             // Lift off
@@ -167,7 +174,7 @@ namespace Manuscript {
                 GLib.Source.remove (configure_id);
             }
 
-            // Avoid trashing the disc
+            // Avoid trashing the disk
             configure_id = Timeout.add (100, () => {
                 configure_id = 0;
 
@@ -279,6 +286,14 @@ namespace Manuscript {
                         assert_not_reached ();
                     }
                 });
+            }
+        }
+
+        public void show_quick_open_panel () {
+            if (quick_open_panel.visible) {
+                quick_open_panel.hide ();
+            } else {
+                quick_open_panel.show ();     
             }
         }
 

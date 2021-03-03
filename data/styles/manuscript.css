@@ -42,3 +42,7 @@ sourceview {
 .status-bar:hover {
     color: @BLACK_500;
 }
+
+.quick-open-panel {
+    background-color: @BLACK_500;
+}
