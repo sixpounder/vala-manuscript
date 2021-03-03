@@ -143,7 +143,7 @@ namespace Manuscript.Widgets {
         private EditorView? get_editor_view_for_chunk (Models.DocumentChunk chunk) {
             EditorView? existing_view = null;
             editors_cache.@foreach((view) => {
-               if (existing_view.chunk == chunk) {
+               if (view.chunk == chunk) {
                    existing_view = view;
                }
             });
@@ -154,21 +154,24 @@ namespace Manuscript.Widgets {
             assert (chunk != null);
             assert (chunk.uuid != null);
             var existing_child = get_editor_view_for_chunk (chunk);
+            EditorView returned_view;
             if (existing_child == null) {
                 EditorView new_editor = new EditorView (parent_window, chunk);
                 editors_cache.append (new_editor);
-                
-                if (active == true) {
-                    if (editor_view_wrapper.get_child () != null) {
-                        editor_view_wrapper.remove (editor_view_wrapper.get_child ());
-                    }
-                    editor_view_wrapper.child = new_editor;
-                    editor_view_wrapper.show_all();
-                }
-                return new_editor;
+                returned_view = new_editor;
             } else {
-                return existing_child as EditorView;
+                returned_view = existing_child as EditorView;
             }
+
+            if (active == true) {
+                if (editor_view_wrapper.get_child () != null) {
+                    editor_view_wrapper.remove (editor_view_wrapper.get_child ());
+                }
+                editor_view_wrapper.child = returned_view;
+                editor_view_wrapper.show_all();
+            }
+
+            return returned_view;
         }
 
         // Editors events

@@ -14,7 +14,10 @@ namespace Manuscript {
             light_focused.foreground = "#333";
 
             dark_dimmed = new Gtk.TextTag ("dark-dimmed");
+            dark_dimmed.foreground = "#666666";
+
             dark_focused = new Gtk.TextTag ("dark-focused");
+            dark_focused.foreground = "#fafafa";
 
             add (light_dimmed);
             add (light_focused);

@@ -68,5 +68,11 @@ namespace Manuscript.Services {
             //  debug (@"Changed $key");
             change (key);
         }
+
+        public bool desktop_prefers_dark_theme {
+            get {
+                return Gtk.Settings.get_default().gtk_application_prefer_dark_theme;
+            }
+        }
     }
 }

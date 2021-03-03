@@ -89,13 +89,22 @@ namespace Manuscript.Widgets {
                     buffer.notify["cursor-position"].connect (set_focused_paragraph);
                 } else {
                     Gtk.TextIter start, end;
-                    Gtk.TextTag[] tags =
-                        (buffer.tag_table as DocumentTagTable).for_theme (
-                            settings.theme
-                        );
+                    //  Gtk.TextTag[] tags =
+                    //      (buffer.tag_table as DocumentTagTable).for_theme (
+                    //          settings.theme
+                    //      );
+                    string focused_tag;
+                    string dimmed_tag;
+                    if (settings.desktop_prefers_dark_theme) {
+                        focused_tag = "dark-focused";
+                        dimmed_tag = "dark-dimmed";
+                    } else {
+                        focused_tag = "light-focused";
+                        dimmed_tag = "light-dimmed";
+                    }
                     buffer.get_bounds (out start, out end);
-                    buffer.remove_tag (tags[1], start, end);
-                    buffer.remove_tag (tags[0], start, end);
+                    buffer.remove_tag (buffer.tag_table.lookup (focused_tag), start, end);
+                    buffer.remove_tag (buffer.tag_table.lookup (dimmed_tag), start, end);
                     buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
                 }
             } else {
@@ -128,9 +137,20 @@ namespace Manuscript.Widgets {
                     sentence_end.forward_sentence_end ();
                 }
 
-                buffer.remove_tag (buffer.tag_table.lookup ("light-focused"), start, end);
-                buffer.apply_tag (buffer.tag_table.lookup ("light-dimmed"), start, end);
-                buffer.apply_tag (buffer.tag_table.lookup ("light-focused"), sentence_start, sentence_end);
+                string focused_tag;
+                string dimmed_tag;
+                if (settings.desktop_prefers_dark_theme) {
+                    focused_tag = "dark-focused";
+                    dimmed_tag = "dark-dimmed";
+                } else {
+                    focused_tag = "light-focused";
+                    dimmed_tag = "light-dimmed";
+                }
+
+                buffer.remove_tag (buffer.tag_table.lookup (focused_tag), start, end);
+                buffer.apply_tag (buffer.tag_table.lookup (dimmed_tag), start, end);
+                buffer.apply_tag (buffer.tag_table.lookup (focused_tag), sentence_start, sentence_end);
+                
 
                 scroll_to_cursor ();
             }

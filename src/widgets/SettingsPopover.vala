@@ -47,23 +47,23 @@ namespace Manuscript.Widgets {
             layout.column_spacing = 15;
             layout.column_homogeneous = true;
 
-            theme_layout = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
+            //  theme_layout = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
 
-            light_theme_button = new ThemeButton ("Light");
-            sepia_theme_button = new ThemeButton ("Sepia");
-            dark_theme_button = new ThemeButton ("Dark");
+            //  light_theme_button = new ThemeButton ("Light");
+            //  sepia_theme_button = new ThemeButton ("Sepia");
+            //  dark_theme_button = new ThemeButton ("Dark");
 
-            light_theme_button.selected.connect (on_theme_set);
-            sepia_theme_button.selected.connect (on_theme_set);
-            dark_theme_button.selected.connect (on_theme_set);
+            //  light_theme_button.selected.connect (on_theme_set);
+            //  sepia_theme_button.selected.connect (on_theme_set);
+            //  dark_theme_button.selected.connect (on_theme_set);
 
-            theme_layout.pack_start (light_theme_button, false, true, 15);
-            theme_layout.pack_start (sepia_theme_button, false, true, 15);
-            theme_layout.pack_start (dark_theme_button, false, true, 15);
+            //  theme_layout.pack_start (light_theme_button, false, true, 15);
+            //  theme_layout.pack_start (sepia_theme_button, false, true, 15);
+            //  theme_layout.pack_start (dark_theme_button, false, true, 15);
 
-            layout.attach (theme_layout, 0, 0, 2, 1);
+            //  layout.attach (theme_layout, 0, 0, 2, 1);
 
-            layout.attach (new Gtk.Separator (Gtk.Align.HORIZONTAL), 0, 1, 2, 1);
+            //  layout.attach (new Gtk.Separator (Gtk.Align.HORIZONTAL), 0, 1, 2, 1);
 
             Gtk.Label zen_label = new Gtk.Label (_("Focus mode"));
             zen_label.halign = Gtk.Align.START;
