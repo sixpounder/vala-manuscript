@@ -44,5 +44,5 @@ sourceview {
 }
 
 .quick-open-panel {
-    background-color: @BLACK_500;
+    padding: 20px;
 }

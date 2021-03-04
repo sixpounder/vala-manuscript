@@ -81,7 +81,7 @@ namespace Manuscript {
             }
 
             // Quick open panel
-            quick_open_panel = new Manuscript.Widgets.QuickOpenPanel ();
+            quick_open_panel = new Manuscript.Widgets.QuickOpenPanel (document_manager);
             quick_open_panel.no_show_all = true;
 
             // Main layout containers

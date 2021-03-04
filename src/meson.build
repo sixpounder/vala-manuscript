@@ -37,6 +37,7 @@ executable(
     'widgets/DocumentSettings.vala',
     'widgets/SearchPanel.vala',
 	'widgets/QuickOpenPanel.vala',
+	'widgets/QuickOpenEntry.vala',
 
     'widgets/settings/Metrics.vala',
     'widgets/settings/General.vala',

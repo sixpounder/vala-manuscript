@@ -1,9 +1,11 @@
 src/Window.vala
-src/Editor.vala
-src/StatusBar.vala
-src/Header.vala
 src/WelcomeView.vala
 src/dialogs/QuitDialog.vala
+src/widgets/Header.vala
+src/widgets/StatusBar.vala
+src/widgets/Editor.vala
 src/widgets/FileNotFound.vala
 src/widgets/ThemeButton.vala
 src/widgets/SearchBar.vala
+src/widgets/QuickOpenPanel.vala
+src/widgets/QuickOpenEntry.vala
