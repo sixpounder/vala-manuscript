@@ -46,7 +46,7 @@ namespace Manuscript {
             }
 
             Globals.application = this;
-            Globals.window = main_window;
+            //  Globals.window = main_window;
         }
 
         protected override void open (File[] files, string hint) {
@@ -58,7 +58,10 @@ namespace Manuscript {
             Manuscript.Window main_window;
 
             if (files.length != 0) {
-                main_window = this.new_window (files[0].get_path ());
+                foreach (File f in files) {
+                    main_window = this.new_window (f.get_path ());
+                }
+                //  main_window = this.new_window (files[0].get_path ());
             } else {
                 if (settings.last_opened_document != "") {
                     main_window = this.new_window (settings.last_opened_document);
@@ -68,7 +71,7 @@ namespace Manuscript {
             }
 
             Globals.application = this;
-            Globals.window = main_window;
+            //  Globals.window = main_window;
         }
 
         public Manuscript.Window new_window (string ? document_path = null) {
