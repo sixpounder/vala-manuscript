@@ -288,6 +288,8 @@ namespace Manuscript {
                         assert_not_reached ();
                     }
                 });
+
+                document_manager.close ();
             }
         }
 

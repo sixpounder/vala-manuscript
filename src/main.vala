@@ -17,7 +17,7 @@ namespace Manuscript {
         public Application () {
             Object (
                 application_id: Constants.APP_ID,
-                flags: ApplicationFlags.FLAGS_NONE
+                flags: ApplicationFlags.HANDLES_OPEN
             );
         }
 
@@ -43,6 +43,28 @@ namespace Manuscript {
                 main_window = this.new_window (settings.last_opened_document);
             } else {
                 main_window = this.new_window ();
+            }
+
+            Globals.application = this;
+            Globals.window = main_window;
+        }
+
+        protected override void open (File[] files, string hint) {
+            Services.AppSettings settings = Services.AppSettings.get_default ();
+
+            weak Gtk.IconTheme default_theme = Gtk.IconTheme.get_default ();
+            default_theme.add_resource_path ("/com/github/sixpounder/manuscript/icons");
+
+            Manuscript.Window main_window;
+
+            if (files.length != 0) {
+                main_window = this.new_window (files[0].get_path ());
+            } else {
+                if (settings.last_opened_document != "") {
+                    main_window = this.new_window (settings.last_opened_document);
+                } else {
+                    main_window = this.new_window ();
+                }
             }
 
             Globals.application = this;

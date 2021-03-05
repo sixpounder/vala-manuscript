@@ -153,5 +153,13 @@ namespace Manuscript.Services {
             }
             dialog.destroy ();
         }
+
+        public void close () {
+            if (document != null) {
+                unload (document);
+                document = null;
+            }
+            unloaded ();
+        }
     }
 }
