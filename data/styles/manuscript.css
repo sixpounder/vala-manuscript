@@ -45,4 +45,17 @@ sourceview {
 
 .quick-open-panel {
     padding: 20px;
+    background-color: @bg_color;
+}
+
+.quick-open-panel list {
+    background-color: @bg_color;
+}
+
+.quick-open-query-entry {
+    margin-top: 5px;
+}
+
+.quick-open-entry {
+    padding: 5px 10px;
 }

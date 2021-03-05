@@ -1,6 +1,9 @@
 namespace Manuscript.Widgets {
     public class QuickOpenPanel: Gtk.Frame {
         public virtual signal void action (Manuscript.Models.DocumentChunk? chunk) {
+            if (chunk != null) {
+                document_manager.open_chunk (chunk);
+            }
             hide ();
         }
 
@@ -8,12 +11,19 @@ namespace Manuscript.Widgets {
         protected uint search_timer_id = 0;
         protected Gtk.Entry query_input;
         protected Gtk.ListBox results_grid;
+        protected int selected_index = 0;
+
+        public Manuscript.Widgets.QuickOpenEntry? selected {
+            get {
+                return results_grid.get_row_at_index (selected_index) as Manuscript.Widgets.QuickOpenEntry;
+            }
+        }
 
         public QuickOpenPanel (Manuscript.Services.DocumentManager document_manager) {
             Object (
                 document_manager: document_manager,
                 label: _("Quick open"),
-                width_request: 500,
+                width_request: 550,
                 expand: false,
                 halign: Gtk.Align.CENTER,
                 valign: Gtk.Align.START,
@@ -36,11 +46,11 @@ namespace Manuscript.Widgets {
             query_input = new Gtk.Entry ();
             query_input.valign = Gtk.Align.START;
             query_input.placeholder_text = _("Type to search");
+            query_input.get_style_context ().add_class ("quick-open-query-entry");
 
             box.pack_start (query_input);
 
             results_grid = new Gtk.ListBox ();
-            results_grid.no_show_all = true;
             results_grid.selection_mode = Gtk.SelectionMode.SINGLE;
 
             box.pack_start (results_grid);
@@ -63,16 +73,17 @@ namespace Manuscript.Widgets {
                 action (null);
                 return true;
             } else if (event.keyval == Gdk.Key.Return) {
-                debug ("Return");
-                action (null);
+                if (selected != null) {
+                    action (selected.chunk);
+                } else {
+                    action (null);
+                }
                 return true;
-            } else if (event.keyval == Gdk.Key.downarrow) {
-                debug ("Next result");
-                action (null);
+            } else if (event.keyval == Gdk.Key.Down) {
+                select_next_result ();
                 return true;
-            } else if (event.keyval == Gdk.Key.uparrow) {
-                debug ("Previous result");
-                action (null);
+            } else if (event.keyval == Gdk.Key.Up) {
+                select_previous_result ();
                 return true;
             } else {
                 return false;
@@ -115,6 +126,8 @@ namespace Manuscript.Widgets {
             results_grid.@foreach ((child) => {
                 results_grid.remove (child);
             });
+
+            debug ("Quick open list cleared");
         }
 
         protected void build_results_interface_from_iterator (owned Gee.Iterator<Manuscript.Models.DocumentChunk> iter) {
@@ -123,7 +136,8 @@ namespace Manuscript.Widgets {
             while (iter.has_next ()) {
                 iter.next();
                 var item = iter.@get ();
-                var widget = new Manuscript.Widgets.QuickOpenEntry (item);
+                var widget = new Manuscript.Widgets.QuickOpenEntry (item, query_input.text);
+                results_grid.add (widget);
                 i++;
             }
 
@@ -133,7 +147,31 @@ namespace Manuscript.Widgets {
                 results_grid.hide ();
             }
 
+            selected_index = 0;
+            results_grid.select_row (
+                results_grid.get_row_at_index (selected_index)
+            );
+            results_grid.show_all ();
+
             debug(@"$(i) results shown");
+        }
+
+        public void select_next_result () {
+            if (selected_index < results_grid.get_children ().length () - 1) {
+                selected_index ++;
+            }
+            results_grid.select_row (
+                results_grid.get_row_at_index (selected_index)
+            );
+        }
+
+        public void select_previous_result () {
+            if (selected_index != 0) {
+                selected_index --;
+            }
+            results_grid.select_row (
+                results_grid.get_row_at_index (selected_index)
+            );
         }
     }
 }
