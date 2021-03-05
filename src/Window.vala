@@ -161,7 +161,9 @@ namespace Manuscript {
                 }
 
                 search_panel.reveal_child = settings.searchbar;
-                search_panel.search_entry.grab_focus_without_selecting ();
+                if (search_panel.search_entry != null && search_panel.reveal_child) {
+                    search_panel.search_entry.grab_focus_without_selecting ();
+                }
 
                 if (settings.searchbar == false) {
                     search_panel.unselect ();
