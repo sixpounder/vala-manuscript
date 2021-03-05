@@ -170,7 +170,8 @@ namespace Manuscript.Widgets {
                 editor_view_wrapper.child = returned_view;
                 editor_view_wrapper.show_all();
             }
-
+            returned_view.focus_editor ();
+            returned_view.scroll_to_cursor ();
             return returned_view;
         }
 

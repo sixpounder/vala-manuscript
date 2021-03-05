@@ -92,10 +92,14 @@ namespace Manuscript.Widgets {
         public void set_font (Pango.FontDescription font) {
             editor.override_font (font);
         }
+
+        public void scroll_to_cursor () {
+            editor.scroll_to_cursor ();
+        }
         
         // Editor controller protocol
         public void focus_editor () {
-            editor.focus (Gtk.DirectionType.DOWN);
+            editor.focus (Gtk.DirectionType.UP);
         }
 
         public bool has_changes () {
