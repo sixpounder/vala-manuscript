@@ -7,6 +7,10 @@ gnome = import('gnome')
 
 add_global_arguments('-DGETTEXT_PACKAGE="@0@"'.format (meson.project_name()), language:'c')
 
+add_project_arguments('-D', 'EXPORT_COMPILER_PDF', language: 'vala')
+# add_project_arguments('-D', 'EXPORT_COMPILER_MARKDOWN', language: 'vala')
+# add_project_arguments('-D', 'EXPORT_COMPILER_PLAIN', language: 'vala')
+
 vala_lint = find_program('io.elementary.vala-lint', required : false)
 if vala_lint.found()
     test (

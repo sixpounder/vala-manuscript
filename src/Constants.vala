@@ -8,5 +8,9 @@ namespace Manuscript {
         public const string DEFAULT_FONT = "iA Writer Duospace 18";
 
         public const uint QUICK_SEARCH_DEBOUNCE_TIME = 100;
+
+        public const uint A4_WIDHT_IN_POINTS = 595;
+
+        public const uint A4_HEIGHT_IN_POINTS = 842;
     }
 }

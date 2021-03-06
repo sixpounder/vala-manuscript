@@ -23,6 +23,11 @@ install_data(
     install_dir: join_paths(get_option('datadir'), 'metainfo')
 )
 
+install_data(
+    join_paths('application-manuscript.xml'),
+    install_dir: join_paths('usr', 'share', 'mime', 'packages')
+)
+
 desktop_utils = find_program('desktop-file-validate', required: true)
 if desktop_utils.found()
     test('Validate desktop file', desktop_utils,

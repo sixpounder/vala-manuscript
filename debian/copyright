@@ -3,7 +3,7 @@ Upstream-Name: cmake-hello-world
 Source: https://github.com/sixpounder/manuscript
 
 Files: src/* data/* debian/*
-Copyright: 2019 Alain M. <alain23@protonmail.com>
+Copyright: 2021 Andrea Coronese <sixpounder@protonmail.com>
 License: GPL-3.0+
 
 License: GPL-3.0+

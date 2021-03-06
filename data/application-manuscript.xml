@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+    <mime-type type="application/manuscript">
+      <subclass-of type="application/json">
+      <comment>Manuscript file</comment>
+      <icon name="application-x-manuscript" />
+      <glob pattern="*.manuscript"/>
+    </mime-type>
+</mime-info>

@@ -61,7 +61,6 @@ namespace Manuscript {
                 foreach (File f in files) {
                     main_window = this.new_window (f.get_path ());
                 }
-                //  main_window = this.new_window (files[0].get_path ());
             } else {
                 if (settings.last_opened_document != "") {
                     main_window = this.new_window (settings.last_opened_document);

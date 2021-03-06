@@ -1,7 +1,7 @@
 Source: com.github.sixpounder.manuscript
 Section: office
 Priority: extra
-Maintainer: Andrea C. <sixpounder@protonmail.com>
+Maintainer: Andrea Coronese <sixpounder@protonmail.com>
 Build-Depends: appstream,
                debhelper (>= 10.5.1),
                gettext,
