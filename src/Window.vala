@@ -5,7 +5,7 @@ namespace Manuscript {
         protected Gtk.Overlay container;
         protected Widgets.Sidebar sidebar;
         protected Gtk.Box layout;
-        protected WelcomeView welcome_view;
+        protected Widgets.WelcomeView welcome_view;
         protected Widgets.Header header;
         protected Gtk.Bin body;
         protected Gtk.Paned editor_grid;
@@ -115,7 +115,7 @@ namespace Manuscript {
             editor_grid.pack2 (right_panel, true, false);
 
             // Setup welcome view
-            welcome_view = new WelcomeView ();
+            welcome_view = new Widgets.WelcomeView ();
 
             // A convenience wrapper to switch between welcome view and editor view
             body = new Gtk.EventBox ();
@@ -129,9 +129,10 @@ namespace Manuscript {
 
             connect_events ();
 
+            quick_open_panel.hide ();
+
             container.add (layout);
             container.add_overlay (quick_open_panel);
-            quick_open_panel.hide ();
             container.show_all ();
 
             // Lift off

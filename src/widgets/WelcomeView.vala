@@ -1,4 +1,4 @@
-namespace Manuscript {
+namespace Manuscript.Widgets {
     public class WelcomeView : Gtk.Grid {
         public signal void should_open_file ();
         public signal void should_create_new_file ();

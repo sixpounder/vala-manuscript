@@ -9,18 +9,14 @@ executable(
 	'Globals.vala',
 	'Constants.vala',
 	'Window.vala',
-	'WelcomeView.vala',
-	'FileUtils.vala',
-	'Palettes.vala',
-	'DocumentTagTable.vala',
 
 	'services/AppSettings.vala',
 	'services/DocumentManager.vala',
 	'services/ActionManager.vala',
 	'services/Notification.vala',
 
+	'widgets/WelcomeView.vala',
 	'widgets/Header.vala',
-	'widgets/Editor.vala',
 	'widgets/StatusBar.vala',
 	'widgets/MenuButton.vala',
 	'widgets/Sidebar.vala',
@@ -30,8 +26,6 @@ executable(
 	'widgets/ThemeButton.vala',
 	'widgets/FileNotFound.vala',
     'widgets/ScrollProgress.vala',
-	'widgets/EditorsController.vala',
-	'widgets/EditorView.vala',
 	'widgets/ChunkPreview.vala',
 	'widgets/DocumentSourceList.vala',
 	'widgets/SourceListCategoryItem.vala',
@@ -40,6 +34,11 @@ executable(
     'widgets/SearchPanel.vala',
 	'widgets/QuickOpenPanel.vala',
 	'widgets/QuickOpenEntry.vala',
+
+	'widgets/editors/EditorsController.vala',
+	'widgets/editors/EditorView.vala',
+	'widgets/editors/Editor.vala',
+	'widgets/editors/DocumentTagTable.vala',
 
     'widgets/settings/Metrics.vala',
     'widgets/settings/General.vala',
@@ -64,6 +63,7 @@ executable(
 	'utils/Easing.vala',
 	'utils/Keys.vala',
 	'utils/Math.vala',
+	'utils/FileUtils.vala',
 
     'dialogs/GenericDialog.vala',
 	'dialogs/ExportDialog.vala',
