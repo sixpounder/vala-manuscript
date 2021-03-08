@@ -171,6 +171,14 @@ namespace Manuscript {
             }
         }
 
+        public override bool delete_event (Gdk.EventAny event) {
+            if (document_manager.has_document && settings.autosave) {
+                document_manager.save ();
+            }
+
+            return base.delete_event (event);
+        }
+
         public override bool configure_event (Gdk.EventConfigure event) {
             if (configure_id != 0) {
                 GLib.Source.remove (configure_id);

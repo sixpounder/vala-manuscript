@@ -34,6 +34,7 @@ executable(
 	'widgets/EditorView.vala',
 	'widgets/ChunkPreview.vala',
 	'widgets/DocumentSourceList.vala',
+	'widgets/SourceListCategoryItem.vala',
     'widgets/SourceListChunkItem.vala',
     'widgets/DocumentSettings.vala',
     'widgets/SearchPanel.vala',
