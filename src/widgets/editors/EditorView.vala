@@ -24,7 +24,7 @@ namespace Manuscript.Widgets {
     public class EditorView: Gtk.Box, Protocols.EditorController {
         public weak Manuscript.Window parent_window { get; construct; }
         public Widgets.StatusBar status_bar { get; set; }
-        public Editor editor { get; private set; }
+        public TextEditor editor { get; private set; }
         public string label { get; set; }
         public weak Models.DocumentChunk chunk { get; construct; }
 
@@ -57,7 +57,7 @@ namespace Manuscript.Widgets {
                     scrolled_container.vadjustment.upper - allocation.height
                 );
             });
-            editor = new Editor (chunk);
+            editor = new TextEditor (chunk);
             reflect_document_settings ();
             status_bar = new Widgets.StatusBar (parent_window, chunk);
             status_bar.height_request = 50;
@@ -97,7 +97,13 @@ namespace Manuscript.Widgets {
             editor.scroll_to_cursor ();
         }
         
-        // Editor controller protocol
+        /**
+        * --------------------------------------------------------------------------------------------
+        *
+        *         Editor controller protocol
+        *
+        * --------------------------------------------------------------------------------------------
+        */
         public void focus_editor () {
             editor.focus (Gtk.DirectionType.UP);
         }

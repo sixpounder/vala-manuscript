@@ -37,7 +37,7 @@ executable(
 
 	'widgets/editors/EditorsController.vala',
 	'widgets/editors/EditorView.vala',
-	'widgets/editors/Editor.vala',
+	'widgets/editors/TextEditor.vala',
 	'widgets/editors/DocumentTagTable.vala',
 
     'widgets/settings/Metrics.vala',

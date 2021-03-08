@@ -1,13 +1,25 @@
-# icon_sizes = ['16', '24', '32', '48', '64', '128']
-
-icon_sizes = ['128']
-
-foreach i : icon_sizes
+icon_sizes = ['16', '24', '32', '48', '64', '128']
+icons_dir = join_paths(manuscript_datadir, 'icons', 'hicolor')
+foreach size : icon_sizes
     install_data(
-        join_paths('icons', i, meson.project_name() + '.svg'),
-        install_dir: join_paths(get_option('datadir'), 'icons', 'hicolor', i + 'x' + i, 'apps')
+        join_paths('icons', size, application_id + '.svg'),
+        install_dir: join_paths(icons_dir, size + 'x' + size, 'apps')
+    )
+    install_data(
+        join_paths('icons', size, application_id + '.svg'),
+        install_dir: join_paths(icons_dir, size + 'x' + size + '@2', 'apps')
+    )
+    install_data(
+        join_paths('icons', size, 'application-x-manuscript.svg'),
+        install_dir: join_paths(icons_dir, size + 'x' + size, 'mimetypes')
     )
 endforeach
+
+install_data(
+    'icons/128/' + meson.project_name() + '.svg',
+    rename: application_id + '.svg',
+    install_dir: join_paths(icons_dir, 'scalable', 'apps')
+)
 
 install_data(meson.project_name() + '.gschema.xml',
     install_dir: join_paths(get_option('datadir'), 'glib-2.0', 'schemas')

@@ -7,5 +7,6 @@ Exec=com.github.sixpounder.manuscript
 Icon=com.github.sixpounder.manuscript
 Terminal=false
 Type=Application
-Keywords=Writing;Markdown;
+Keywords=Writing;Books;
 X-GNOME-UsesNotifications=true
+MimeType=application/x-manuscript;

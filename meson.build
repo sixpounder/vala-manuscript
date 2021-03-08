@@ -1,9 +1,14 @@
 project('com.github.sixpounder.manuscript', ['vala', 'c'],        version: '1.0.0',
-  meson_version: '>= 0.40.0',
+  meson_version: '>= 0.46.0',
 )
 
 i18n = import('i18n')
 gnome = import('gnome')
+
+manuscript_prefix = get_option('prefix')
+manuscript_datadir = join_paths(manuscript_prefix, get_option('datadir'))
+manuscript_pkgdatadir = join_paths(manuscript_datadir, meson.project_name())
+application_id = meson.project_name()
 
 add_global_arguments('-DGETTEXT_PACKAGE="@0@"'.format (meson.project_name()), language:'c')
 

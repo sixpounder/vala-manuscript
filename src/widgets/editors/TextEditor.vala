@@ -1,12 +1,12 @@
 namespace Manuscript.Widgets {
-    public class Editor : Gtk.SourceView {
+    public class TextEditor : Gtk.SourceView {
         public bool has_changes { get; private set; }
         public Gtk.SourceSearchContext search_context = null;
         protected weak Models.DocumentChunk _chunk;
         protected Gtk.CssProvider provider;
         protected Services.AppSettings settings = Services.AppSettings.get_default ();
 
-        public Editor (Models.DocumentChunk chunk) {
+        public TextEditor (Models.DocumentChunk chunk) {
             Object (
                 chunk: chunk,
                 has_focus: true,
