@@ -1,6 +1,5 @@
 namespace Manuscript {
     public class Application : Gtk.Application {
-
         public static bool ensure_directory_exists (File dir) {
 
             if (!dir.query_exists ())
@@ -24,6 +23,7 @@ namespace Manuscript {
         construct {
             debug (@"Cache folder: $(Path.build_path(Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID))");
             Environment.set_application_name ("Manuscript");
+            Manuscript.Services.Notification.init (this);
             Application.ensure_directory_exists (
                 File.new_for_path(
                     Path.build_path(Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID)

@@ -176,9 +176,9 @@ namespace Manuscript.Widgets {
         }
 
         // Editors events
-        private void on_editor_closed () {
-            update_ui ();
-        }
+        //  private void on_editor_closed () {
+        //      update_ui ();
+        //  }
 
         // private void on_tab_switched (Granite.Widgets.Tab? old_tab, Granite.Widgets.Tab new_tab) {
         //     document_manager.select_chunk ((new_tab as Protocols.EditorController).chunk);

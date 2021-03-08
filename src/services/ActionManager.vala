@@ -27,6 +27,7 @@ namespace Manuscript.Services {
         public const string ACTION_OPEN = "action_open";
         public const string ACTION_SAVE = "action_save";
         public const string ACTION_SAVE_AS = "action_save_as";
+        public const string ACTION_EXPORT = "action_export";
         public const string ACTION_DOCUMENT_SETTINGS = "action_document_settings";
         public const string ACTION_CLOSE_DOCUMENT = "action_close_document";
         public const string ACTION_QUIT = "action_quit";
@@ -46,6 +47,7 @@ namespace Manuscript.Services {
             { ACTION_OPEN, action_open },
             { ACTION_SAVE, action_save },
             { ACTION_SAVE_AS, action_save_as },
+            { ACTION_EXPORT, action_export },
             { ACTION_DOCUMENT_SETTINGS, action_document_settings },
             { ACTION_CLOSE_DOCUMENT, action_close_document },
             { ACTION_QUIT, action_quit },
@@ -164,6 +166,18 @@ namespace Manuscript.Services {
 
         protected void action_close_document () {
             window.document_manager.set_current_document (null);
+        }
+
+        protected void action_export () {
+            if (window.document_manager.has_document) {
+                var dialog = new Manuscript.Dialogs.ExportDialog (window, window.document_manager.document);
+                int res = dialog.run ();
+                dialog.response.connect ((res) => {
+                    if (res == Gtk.ResponseType.ACCEPT || res == Gtk.ResponseType.CLOSE) {
+                        dialog.destroy ();
+                    }
+                });
+            }
         }
 
         protected void action_import () {}

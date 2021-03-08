@@ -68,7 +68,7 @@ namespace Manuscript.Services {
             _opened_chunks = new Gee.ArrayList<Models.DocumentChunk> ();
         }
 
-        public void set_current_document (owned Models.Document? doc) throws GLib.Error {
+        public void set_current_document (owned Models.Document? doc) {
             debug (@"Setting current document: $(doc == null ? "null" : doc.uuid)");
             if (doc == null) {
                 unload (document);

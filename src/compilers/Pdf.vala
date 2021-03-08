@@ -2,9 +2,7 @@ namespace Manuscript.Compilers {
     public class PDFCompiler : Compiler {
         protected Cairo.PdfSurface surface;
 
-        public PDFCompiler (string filename) {
-            base (filename);
-        }
+        internal PDFCompiler () {}
 
         construct {
             surface = new Cairo.PdfSurface (
@@ -14,6 +12,6 @@ namespace Manuscript.Compilers {
             );
         }
 
-        public void compile (Manuscript.Models.Document document) {}
+        public override void compile (Manuscript.Models.Document document) {}
     }
 }

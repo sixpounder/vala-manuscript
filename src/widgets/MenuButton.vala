@@ -29,7 +29,7 @@ namespace Manuscript.Widgets {
             this.with_properties (icon_name, "");
         }
 
-        public MenuButton.with_properties (string icon_name, string title, string[]? accels = null) {
+        public MenuButton.with_properties (string icon_name, string title, string? accels = null) {
             button = new Gtk.MenuButton ();
             button.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
             button.can_focus = false;
@@ -41,10 +41,14 @@ namespace Manuscript.Widgets {
                 on_activate (button);
             });
 
-            button.touch_event.connect (() => {
-                on_activate ();
-                return true;
-            });
+            if (accels != null) {
+                button.action_name = accels;
+            } else {
+                button.touch_event.connect (() => {
+                    on_activate ();
+                    return true;
+                });
+            }
 
             label = new Gtk.Label (null);
             label.set_markup (@"<small>$title</small>");

@@ -8,3 +8,4 @@ Icon=com.github.sixpounder.manuscript
 Terminal=false
 Type=Application
 Keywords=Writing;Markdown;
+X-GNOME-UsesNotifications=true

@@ -17,6 +17,7 @@ executable(
 	'services/AppSettings.vala',
 	'services/DocumentManager.vala',
 	'services/ActionManager.vala',
+	'services/Notification.vala',
 
 	'widgets/Header.vala',
 	'widgets/Editor.vala',
@@ -48,7 +49,12 @@ executable(
 	'models/Document.vala',
 	'models/LoadState.vala',
     'models/DocumentSettings.vala',
+	'models/ExportFormat.vala',
     'models/Utils.vala',
+
+	'compilers/Base.vala',
+	'compilers/Pdf.vala',
+	'compilers/Markdown.vala',
 
     'protocols/Editor.vala',
 
@@ -59,6 +65,7 @@ executable(
 	'utils/Math.vala',
 
     'dialogs/GenericDialog.vala',
+	'dialogs/ExportDialog.vala',
 	'dialogs/QuitDialog.vala',
 	'dialogs/FileSaveDialog.vala',
 	'dialogs/InvalidFileDialog.vala',
@@ -75,6 +82,7 @@ executable(
 		dependency('pangocairo', version : '>= 1.40'),
 		dependency('json-glib-1.0', version : '>= 1.4.2'),
 		dependency('gtksourceview-3.0')
+		# dependency('libnotify', version: '>=0.7.2')
 	],
 	install: true
 )

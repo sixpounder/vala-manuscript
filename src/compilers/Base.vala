@@ -1,13 +1,18 @@
 namespace Manuscript.Compilers {
-    public class Compiler : Object {
+    public abstract class Compiler : Object {
         public string filename { get; construct; }
 
-        public Compiler (string filename) {
-            Object (
-                filename: filename
-            )
+        public static Compiler for_format (Manuscript.Models.ExportFormat format) {
+            switch (format) {
+                case Manuscript.Models.ExportFormat.PDF:
+                    return new PDFCompiler ();
+                case Manuscript.Models.ExportFormat.MARKDOWN:
+                    return new MarkdownCompiler ();
+                default:
+                    assert_not_reached ();
+            }
         }
 
-        public abstract void compile (Manuscript.Models.Document document) {}
+        public abstract void compile (Manuscript.Models.Document document);
     }
 }
