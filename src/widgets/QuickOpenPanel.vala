@@ -35,7 +35,7 @@ namespace Manuscript.Widgets {
             var style_context = get_style_context ();
             style_context.add_class ("quick-open-panel");
 
-            var box = new Gtk.Box (Gtk.Align.VERTICAL, 0);
+            var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             box.orientation = Gtk.Orientation.VERTICAL;
             box.homogeneous = true;
             box.halign = Gtk.Align.FILL;

@@ -102,7 +102,7 @@ namespace Manuscript {
             set_titlebar (header);
 
             // right panel layout (search + tabs)
-            var right_panel = new Gtk.Box (Gtk.Align.VERTICAL, 0);
+            var right_panel = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             tabs = new Widgets.EditorsController (this);
             right_panel.pack_start (search_panel, false, false, 0);
             right_panel.pack_start (tabs);

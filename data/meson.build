@@ -37,7 +37,7 @@ install_data(
 
 install_data(
     join_paths('application-manuscript.xml'),
-    install_dir: join_paths('usr', 'share', 'mime', 'packages')
+    install_dir: join_paths(manuscript_datadir, 'mime', 'packages')
 )
 
 desktop_utils = find_program('desktop-file-validate', required: true)

@@ -2,3 +2,5 @@ build
 *.log
 *.compiled
 *.*~
+.flatpak-builder
+build-dir

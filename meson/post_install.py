@@ -19,4 +19,6 @@ if not destdir:
     call(['glib-compile-schemas', path.join(datadir, 'glib-2.0', 'schemas')])
 
 print('Updating mime database...')
-call(['update-mime-database', path.join('usr', 'share', 'mime')])
+call(
+    ['update-mime-database', path.join(datadir, 'mime')]
+)

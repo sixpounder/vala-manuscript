@@ -13,16 +13,10 @@ namespace Manuscript {
             return false;
         }
 
-        public Application () {
-            Object (
-                application_id: Constants.APP_ID,
-                flags: ApplicationFlags.HANDLES_OPEN
-            );
-        }
-
         construct {
+            application_id = Constants.APP_ID;
+            flags |= ApplicationFlags.HANDLES_OPEN;
             debug (@"Cache folder: $(Path.build_path(Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID))");
-            Environment.set_application_name ("Manuscript");
             Manuscript.Services.Notification.init (this);
             Application.ensure_directory_exists (
                 File.new_for_path(
@@ -93,6 +87,9 @@ namespace Manuscript {
 
         public static int main (string[] args) {
             var app = new Manuscript.Application ();
+            Environment.set_application_name (Constants.APP_NAME);
+            Environment.set_prgname (Constants.APP_NAME);
+
             return app.run (args);
         }
     }
