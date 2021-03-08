@@ -7,11 +7,13 @@ namespace Manuscript.Services {
         }
 
         public static void show (string title, string? body) {
+#if NOTIFICATIONS
             var notification = new GLib.Notification (title);
             if (body != null) {
                 notification.set_body (body);
             }
             application.send_notification (Manuscript.Constants.APP_ID, notification);
+#endif
         }
     }
 }

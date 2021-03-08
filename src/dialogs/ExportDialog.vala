@@ -1,12 +1,15 @@
 namespace Manuscript.Dialogs {
     public class ExportDialog : Gtk.Dialog {
+        public const int ICON_SIZE = 64;
         public weak Manuscript.Window parent_window { get; construct; }
         public weak Manuscript.Models.Document document { get; construct; }
         public Manuscript.Models.ExportFormat export_format { get; private set; }
 
-        protected Gtk.Button confirm_btn;
-        protected Gtk.Button cancel_btn;
+        protected Gtk.Button export_button;
+        protected Gtk.Button close_button;
         protected Gtk.Box format_selection_grid;
+        protected Gtk.Spinner progress_indicator;
+        protected Gtk.Widget export_button_label;
 
         public ExportDialog (Manuscript.Window parent_window, Manuscript.Models.Document document) {
             Object (
@@ -18,14 +21,17 @@ namespace Manuscript.Dialogs {
         }
 
         construct {
-            confirm_btn = new Gtk.Button.with_label (_("Export"));
-            confirm_btn.get_style_context ().add_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
-            confirm_btn.activate.connect (on_confirm);
+            export_button = new Gtk.Button.with_label (_("Export"));
+            export_button.get_style_context ().add_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
+            export_button_label = export_button.get_child ();
 
-            cancel_btn = new Gtk.Button.with_label (_("Cancel"));
+            close_button = new Gtk.Button.with_label (_("Cancel"));
 
-            add_action_widget (cancel_btn, Gtk.ResponseType.CLOSE);
-            add_action_widget (confirm_btn, Gtk.ResponseType.NONE);
+            progress_indicator = new Gtk.Spinner ();
+            progress_indicator.no_show_all = true;
+
+            add_action_widget (close_button, Gtk.ResponseType.CLOSE);
+            add_action_widget (export_button, Gtk.ResponseType.NONE);
 
             var layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             layout.width_request = 500;
@@ -50,7 +56,7 @@ namespace Manuscript.Dialogs {
             var pdf_radio = new Gtk.RadioButton.from_widget (json_radio);
             var pdf_icon = new Gtk.Image ();
             pdf_icon.gicon = new ThemedIcon ("application-pdf");
-            pdf_icon.pixel_size = 64;
+            pdf_icon.pixel_size = ICON_SIZE;
             pdf_radio.image = pdf_icon;
             pdf_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.PDF;
@@ -62,7 +68,7 @@ namespace Manuscript.Dialogs {
             var markdown_radio = new Gtk.RadioButton.from_widget (json_radio);
             var markdown_icon = new Gtk.Image ();
             markdown_icon.gicon = new ThemedIcon ("text-markdown");
-            markdown_icon.pixel_size = 64;
+            markdown_icon.pixel_size = ICON_SIZE;
             markdown_radio.image = markdown_icon;
             markdown_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.MARKDOWN;
@@ -74,7 +80,7 @@ namespace Manuscript.Dialogs {
             var plain_radio = new Gtk.RadioButton.from_widget (json_radio);
             var plain_icon = new Gtk.Image ();
             plain_icon.gicon = new ThemedIcon ("text-x-generic");
-            plain_icon.pixel_size = 64;
+            plain_icon.pixel_size = ICON_SIZE;
             plain_radio.image = plain_icon;
             plain_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.PLAIN;
@@ -90,26 +96,42 @@ namespace Manuscript.Dialogs {
         }
 
         protected void disable_ui () {
-            confirm_btn.sensitive = false;
-            confirm_btn.visible = false;
-            cancel_btn.sensitive = false;
-            cancel_btn.visible = false;
+            format_selection_grid.sensitive = false;
+            export_button.sensitive = false;
+            close_button.sensitive = false;
+            export_button.remove (export_button.get_child ());
+            export_button.child = progress_indicator;
+            progress_indicator.show ();
+            progress_indicator.start ();
         }
 
         protected void enable_ui () {
-            confirm_btn.sensitive = true;
-            confirm_btn.visible = true;
-            cancel_btn.sensitive = true;
-            cancel_btn.visible = true;
-        }
-
-        protected void on_confirm () {
-            disable_ui ();
-            compile (export_format);
+            format_selection_grid.sensitive = true;
+            export_button.sensitive = true;
+            close_button.sensitive = true;
+            export_button.remove (export_button.get_child ());
+            export_button.child = export_button_label;
+            progress_indicator.hide ();
+            progress_indicator.stop ();
         }
 
         protected void compile (Manuscript.Models.ExportFormat output_format) {
-
+            response (Gtk.ResponseType.ACCEPT);
         }
+
+        public void start_export () {
+            disable_ui ();
+#if EXPORT_DEMO_MODE
+            Timeout.add (5000, () => {
+                response (Gtk.ResponseType.ACCEPT);
+                return false;
+            });
+#else
+            compile (export_format);
+#endif
+        }
+
+        //  ~ ExportDialog () {
+        //  }
     }
 }

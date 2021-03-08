@@ -171,12 +171,17 @@ namespace Manuscript.Services {
         protected void action_export () {
             if (window.document_manager.has_document) {
                 var dialog = new Manuscript.Dialogs.ExportDialog (window, window.document_manager.document);
-                int res = dialog.run ();
                 dialog.response.connect ((res) => {
-                    if (res == Gtk.ResponseType.ACCEPT || res == Gtk.ResponseType.CLOSE) {
+                    if (res == Gtk.ResponseType.ACCEPT) {
                         dialog.destroy ();
+                        Manuscript.Services.Notification.show (_("Export succeeded"), _("Your manuscript has been successfully exported"));
+                    } else if (res == Gtk.ResponseType.CLOSE) {
+                        dialog.destroy ();
+                    } else if (res == Gtk.ResponseType.NONE) {
+                        dialog.start_export ();
                     }
                 });
+                dialog.run ();
             }
         }
 
