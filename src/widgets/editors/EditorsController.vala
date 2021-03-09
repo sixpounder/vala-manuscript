@@ -56,7 +56,7 @@ namespace Manuscript.Widgets {
 
         construct {
             get_style_context ().add_class ("editors-controller");
-            
+
             editors_cache = new List<EditorView> ();
 
             document_manager = parent_window.document_manager;
@@ -80,7 +80,7 @@ namespace Manuscript.Widgets {
             editors_courtesy_view.get_style_context ().add_class (Granite.STYLE_CLASS_H2_LABEL);
 
             editor_view_wrapper = new Gtk.Overlay ();
-            editor_view_wrapper.get_style_context().add_class("editor-view-wrapper");
+            editor_view_wrapper.get_style_context ().add_class ("editor-view-wrapper");
             editor_view_wrapper.show_all ();
 
             add_named (editors_courtesy_view, "editors-courtesy-view");
@@ -115,13 +115,13 @@ namespace Manuscript.Widgets {
         }
 
         private void on_start_chunk_editing (Models.DocumentChunk chunk) {
-            debug(@"EditorsController - Start editing chunk $(chunk.uuid)");
+            debug (@"EditorsController - Start editing chunk $(chunk.uuid)");
             visible_child = editor_view_wrapper;
             add_editor_view_for_chunk (chunk, true);
         }
 
         private void on_stop_chunk_editing (Models.DocumentChunk? chunk) {
-            debug(@"EditorsController - Stop editing chunk $(chunk.uuid)");
+            debug (@"EditorsController - Stop editing chunk $(chunk.uuid)");
             var get_editor_view_for_chunk = get_editor_view_for_chunk (chunk);
             if (get_editor_view_for_chunk == null) {
                 // remove_editor (chunk);
@@ -142,7 +142,7 @@ namespace Manuscript.Widgets {
 
         private EditorView? get_editor_view_for_chunk (Models.DocumentChunk chunk) {
             EditorView? existing_view = null;
-            editors_cache.@foreach((view) => {
+            editors_cache.@foreach ((view) => {
                if (view.chunk == chunk) {
                    existing_view = view;
                }
@@ -168,7 +168,7 @@ namespace Manuscript.Widgets {
                     editor_view_wrapper.remove (editor_view_wrapper.get_child ());
                 }
                 editor_view_wrapper.child = returned_view;
-                editor_view_wrapper.show_all();
+                editor_view_wrapper.show_all ();
             }
             returned_view.focus_editor ();
             returned_view.scroll_to_cursor ();

@@ -47,4 +47,3 @@ namespace Manuscript.Models.Conversion {
         return r;
     }
 }
-

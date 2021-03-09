@@ -21,7 +21,7 @@ namespace Manuscript.Widgets {
             grid.get_style_context ().add_class ("quick-open-entry");
 
             string title = chunk.title;
-            uint index_of_query_start = title.down().index_of (query.down(), 0);
+            uint index_of_query_start = title.down ().index_of (query.down (), 0);
             uint index_of_query_end = index_of_query_start + query.length;
 
             string formatted_title = title;

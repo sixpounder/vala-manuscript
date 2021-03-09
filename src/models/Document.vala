@@ -52,7 +52,7 @@ namespace Manuscript.Models {
         public string title { get; set; }
         public string synopsis { get; set; }
         public DocumentSettings settings { get; set; }
-        
+
         private Gee.ArrayList<DocumentChunk> _chunks;
         public new Gee.ArrayList<DocumentChunk> chunks {
             get {
@@ -112,18 +112,18 @@ namespace Manuscript.Models {
         }
 
         public string to_json () {
-            var gen = new Json.Generator();
-            var root = new Json.Node(Json.NodeType.OBJECT);
-            var object = new Json.Object();
-            root.set_object(object);
-            gen.set_root(root);
+            var gen = new Json.Generator ();
+            var root = new Json.Node (Json.NodeType.OBJECT);
+            var object = new Json.Object ();
+            root.set_object (object);
+            gen.set_root (root);
 
             object.set_string_member ("version", version);
             object.set_string_member ("uuid", uuid);
             object.set_string_member ("title", title);
             object.set_string_member ("synopsis", synopsis);
             object.set_object_member ("settings", settings.to_json_object ());
-            
+
             // Serialize chunks
 
             Json.Array chunks_array = new Json.Array.sized (chunks.size);
@@ -223,7 +223,9 @@ namespace Manuscript.Models {
 
         // A file is considered to be temporary if it is located into the user's cache folder
         public bool is_temporary () {
-            return Path.get_dirname (file_path) == Path.build_path(Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID);
+            return Path.get_dirname (file_path) == Path.build_path (
+                Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID
+            );
         }
 
         public Document.from_file (string path, bool temporary = false) throws GLib.Error {
@@ -308,10 +310,10 @@ namespace Manuscript.Models {
             bool r = true;
             Gee.Iterator<IndexedItem<DocumentChunk>> filtered_iter = get_chunks_group (chunk.chunk_type);
 
-            filtered_iter.@foreach((indexed_item) => {
+            filtered_iter.@foreach ((indexed_item) => {
                 chunks.filter ((item) => {
                     return item.chunk_type == chunk.chunk_type;
-                }).@foreach((item) => {
+                }).@foreach ((item) => {
                     if (item == indexed_item.data) {
                         //  var real_index = chunks.index_of (indexed_item.data);
                         //  debug (@"Index in local collection for $(chunk.title): $real_index - Wanted index: $index");
@@ -357,10 +359,10 @@ namespace Manuscript.Models {
         public DocumentChunk[] chunks_with_changes () {
             Gee.ArrayList<DocumentChunk> changed = new Gee.ArrayList<DocumentChunk> ();
             var it = chunks.iterator ();
-            it.filter((item) => {
+            it.filter ((item) => {
                 return item.has_changes;
-            }).@foreach((item) => {
-                changed.add(item);
+            }).@foreach ((item) => {
+                changed.add (item);
                 return true;
             });
 

@@ -96,7 +96,7 @@ namespace Manuscript.Widgets {
         public void scroll_to_cursor () {
             editor.scroll_to_cursor ();
         }
-        
+
         /**
         * --------------------------------------------------------------------------------------------
         *
@@ -125,7 +125,9 @@ namespace Manuscript.Widgets {
 
         public void scroll_to_search_result (Protocols.SearchResult result) {}
 
-        public bool scroll_to_iter (Gtk.TextIter iter, double within_margin, bool use_align, double xalign, double yalign) {
+        public bool scroll_to_iter (
+            Gtk.TextIter iter, double within_margin, bool use_align, double xalign, double yalign
+        ) {
             return editor.scroll_to_iter (iter, within_margin, use_align, xalign, yalign);
         }
 

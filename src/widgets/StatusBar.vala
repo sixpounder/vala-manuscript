@@ -4,7 +4,7 @@ namespace Manuscript.Widgets {
         protected Gtk.Label reading_time_label;
         protected Gtk.Image reading_time_icon;
         protected ScrollProgress scroll_progress_indicator { get; set; }
-        
+
         public weak Manuscript.Window parent_window { get; construct; }
         public weak Models.Document document {
             get {

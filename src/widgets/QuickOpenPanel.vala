@@ -56,11 +56,11 @@ namespace Manuscript.Widgets {
             box.pack_start (results_grid);
 
             connect_events ();
-            
+
             add (box);
             show_all ();
         }
-        
+
         protected void connect_events () {
             show.connect (on_show);
             key_press_event.connect (on_key_pressed);
@@ -108,12 +108,12 @@ namespace Manuscript.Widgets {
         protected void search () {
             string word = query_input.text;
             if (word.length != 0) {
-                word = word.down();
+                word = word.down ();
                 var chunks = document_manager.document.chunks;
                 if (chunks != null) {
                     debug (@"Searching for $(word)");
                     var results_buffer = chunks.filter ((item) => {
-                        return item.title.down().contains (word);
+                        return item.title.down ().contains (word);
                     });
                     build_results_interface_from_iterator (results_buffer);
                 }
@@ -130,11 +130,13 @@ namespace Manuscript.Widgets {
             debug ("Quick open list cleared");
         }
 
-        protected void build_results_interface_from_iterator (owned Gee.Iterator<Manuscript.Models.DocumentChunk> iter) {
+        protected void build_results_interface_from_iterator (
+            owned Gee.Iterator<Manuscript.Models.DocumentChunk> iter
+        ) {
             reset_results_interface ();
             uint i = 0;
             while (iter.has_next ()) {
-                iter.next();
+                iter.next ();
                 var item = iter.@get ();
                 var widget = new Manuscript.Widgets.QuickOpenEntry (item, query_input.text);
                 results_grid.add (widget);
@@ -153,7 +155,7 @@ namespace Manuscript.Widgets {
             );
             results_grid.show_all ();
 
-            debug(@"$(i) results shown");
+            debug (@"$(i) results shown");
         }
 
         public void select_next_result () {

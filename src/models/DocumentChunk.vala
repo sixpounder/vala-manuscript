@@ -102,7 +102,7 @@ namespace Manuscript.Models {
             } else {
                 raw_content = "";
             }
-            
+
             if (obj.has_member ("notes")) {
                 notes = obj.get_string_member ("notes");
             } else {
@@ -113,7 +113,7 @@ namespace Manuscript.Models {
 
             if (obj.has_member ("index")) {
                 index = obj.get_int_member ("index");
-            } else  {
+            } else {
                 index = 0;
             }
 

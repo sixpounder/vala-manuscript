@@ -19,8 +19,16 @@ namespace Manuscript.Widgets {
             settings_views = new Gtk.Stack ();
             settings_views.get_style_context ().add_class ("horizontal linked stack-switcher");
             settings_views.margin_top = 20;
-            settings_views.add_titled (new Settings.DocumentGeneralSettingsView (parent_window), "general", _("General"));
-            settings_views.add_titled (new Settings.DocumentMetricsView(parent_window), "typography", _("Typography"));
+            settings_views.add_titled (
+                new Settings.DocumentGeneralSettingsView (parent_window),
+                "general",
+                _("General")
+            );
+            settings_views.add_titled (
+                new Settings.DocumentMetricsView (parent_window),
+                "typography",
+                _("Typography")
+            );
 
             Gtk.StackSwitcher view_switchers = new Gtk.StackSwitcher ();
             view_switchers.orientation = Gtk.Orientation.HORIZONTAL;

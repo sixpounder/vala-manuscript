@@ -16,12 +16,15 @@ namespace Manuscript {
         construct {
             application_id = Constants.APP_ID;
             flags |= ApplicationFlags.HANDLES_OPEN;
-            debug (@"Cache folder: $(Path.build_path(Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID))");
+            var cache_path = Path.build_path (
+                Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID
+            );
+            debug (
+                @"Cache folder: $(cache_path)"
+            );
             Manuscript.Services.Notification.init (this);
             Application.ensure_directory_exists (
-                File.new_for_path(
-                    Path.build_path(Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID)
-                )
+                File.new_for_path (cache_path)
             );
         }
 

@@ -68,7 +68,11 @@ namespace Manuscript.Widgets {
             pack_start (add_element_button);
 
             //  export_popover = new Widgets.ExportPopover (export_button);
-            export_button = new Widgets.MenuButton.with_properties ("document-export", "Export", @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_EXPORT)");
+            export_button = new Widgets.MenuButton.with_properties (
+                "document-export",
+                "Export",
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_EXPORT)"
+            );
             export_button.sensitive = document_manager.has_document;
             pack_start (export_button);
 
@@ -239,8 +243,6 @@ namespace Manuscript.Widgets {
             export_button.sensitive = document_manager.has_document;
         }
 
-        protected void on_document_unloaded () {
-            
-        }
+        protected void on_document_unloaded () {}
     }
 }

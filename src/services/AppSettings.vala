@@ -71,7 +71,7 @@ namespace Manuscript.Services {
 
         public bool desktop_prefers_dark_theme {
             get {
-                return Gtk.Settings.get_default().gtk_application_prefer_dark_theme;
+                return Gtk.Settings.get_default ().gtk_application_prefer_dark_theme;
             }
         }
     }

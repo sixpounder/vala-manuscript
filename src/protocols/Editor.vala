@@ -30,7 +30,9 @@ namespace Manuscript.Protocols {
         public abstract void focus_editor ();
         public abstract void content_event (ContentEvent event);
         public abstract Gtk.TextBuffer get_buffer ();
-        public abstract bool scroll_to_iter (Gtk.TextIter iter, double within_margin, bool use_align, double xalign, double yalign);
+        public abstract bool scroll_to_iter (
+            Gtk.TextIter iter, double within_margin, bool use_align, double xalign, double yalign
+        );
         public abstract bool search_for_iter (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter);
         public abstract bool search_for_iter_backward (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter);
         public abstract SearchResult[] search (string word);

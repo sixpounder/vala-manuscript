@@ -77,7 +77,7 @@ namespace Manuscript.Widgets {
             var tool_arrow_up = new Gtk.Button.from_icon_name ("go-up-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
             tool_arrow_up.clicked.connect (search_previous);
             tool_arrow_up.tooltip_text = _("Search previous");
-            
+
             //  search_next_item ();
             var tool_arrow_down = new Gtk.Button.from_icon_name ("go-down-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
             tool_arrow_down.clicked.connect (search_next);
@@ -85,7 +85,7 @@ namespace Manuscript.Widgets {
 
             var style_context = grid.get_style_context ();
             style_context.add_class ("searchbar");
-            
+
             grid.add (tool_arrow_up);
             grid.add (tool_arrow_down);
             grid.add (replace_entry);
@@ -95,14 +95,14 @@ namespace Manuscript.Widgets {
             add (grid);
 
             parent_window.document_manager.selected.connect ((chunk) => {
-                assert(chunk != null);
+                assert (chunk != null);
                 unselect ();
                 text_buffer = chunk.buffer;
                 search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
             });
 
             parent_window.document_manager.start_editing.connect ((chunk) => {
-                assert(chunk != null);
+                assert (chunk != null);
                 unselect ();
                 text_buffer = chunk.buffer;
                 search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
@@ -272,7 +272,7 @@ namespace Manuscript.Widgets {
             }
 
             string replace_string = replace_entry.text;
-            
+
             try {
                 search_context.replace_all (replace_string, replace_string.length);
                 update_replace_tool_sensitivities (search_entry.text);

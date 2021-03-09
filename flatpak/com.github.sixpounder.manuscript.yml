@@ -1,17 +1,42 @@
 app-id: com.github.sixpounder.manuscript
 runtime: org.gnome.Platform
 runtime-version: '3.38'
+sdk: org.gnome.Sdk
 base: io.elementary.BaseApp
 base-version: juno-20.08
-sdk: org.gnome.Sdk
 command: com.github.sixpounder.manuscript
+cleanup:
+  - '/include'
+  - '/lib/pkgconfig'
+  - '/lib/debug'
+  - '/share/vala'
+  - '/man'
+  - '*.a'
+  - '*.l'
+finish-args:
+  # X11 + Common stuff
+  - --share=ipc
+  - --share=network
+  - --socket=x11
+  - --socket=fallback-x11
+  - --device=dri
+  - --socket=pulseaudio
+  # Wayland access
+  - --socket=wayland
+  # Needs to talk to the network:
+  # - --share=network
+  # Needs to save files locally
+  - --filesystem=xdg-documents
+  - --filesystem=xdg
+  # Needs notifications
+  - --talk-name=org.freedesktop.Notifications
 modules:
   - name: gtksourceview
     config-opts: [--enable-gtk-doc=no]
     sources:
       - type: archive
-        url: https://download.gnome.org/sources/gtksourceview/3.24/gtksourceview-3.24.6.tar.xz
-        sha256: 7aa6bdfebcdc73a763dddeaa42f190c40835e6f8495bb9eb8f78587e2577c188
+        url: https://download.gnome.org/sources/gtksourceview/3.24/gtksourceview-3.24.7.tar.xz
+        sha256: a5c20d3a6347533689358f3ea52486409f6dd41d5a69c65eab7570cfaffee8e6
   - name: manuscript
     buildsystem: meson
     sources:

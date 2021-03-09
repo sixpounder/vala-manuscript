@@ -1,7 +1,7 @@
 namespace Manuscript.Services {
     public class Notification : Object {
         protected static Application application { get; set; }
-        
+
         public static void init (Application app) {
             application = app;
         }

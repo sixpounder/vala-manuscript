@@ -4,7 +4,9 @@ namespace Manuscript.Widgets {
         public Gdk.RGBA color { get; set; }
         public weak Manuscript.Window parent_window { get; set; }
 
-        public ScrollProgress (Manuscript.Window ? parent_window, double initial_value = 0, double min = 0, double max = 100) {
+        public ScrollProgress (
+            Manuscript.Window ? parent_window, double initial_value = 0, double min = 0, double max = 100
+        ) {
             Object (
                 parent_window: parent_window,
                 current_value: initial_value,
@@ -108,7 +110,7 @@ namespace Manuscript.Widgets {
             var w = get_allocated_width ();
             var pad_left = 10.0;
             var pad_right = show_label ? 60 : 0;
-            
+
             var available_len = w - pad_right - pad_left;
             var w_amount_percent = (available_len / 100) * progress;
             var target_len = (available_len / 100) * w_amount_percent;

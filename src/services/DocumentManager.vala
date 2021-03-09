@@ -78,7 +78,7 @@ namespace Manuscript.Services {
             } else if (document == null && doc != null) {
                 document = doc;
                 settings.last_opened_document = document.file_path;
-                document.notify.connect((pspec) => {
+                document.notify.connect ((pspec) => {
                     property_change (pspec.get_nick ());
                 });
                 _opened_chunks.clear ();
@@ -87,7 +87,7 @@ namespace Manuscript.Services {
                 document = doc;
                 settings.last_opened_document = document.file_path;
                 _opened_chunks.clear ();
-                document.notify.connect((pspec) => {
+                document.notify.connect ((pspec) => {
                     property_change (pspec.get_nick ());
                 });
                 change (document);

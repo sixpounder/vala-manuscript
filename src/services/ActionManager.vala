@@ -174,7 +174,10 @@ namespace Manuscript.Services {
                 dialog.response.connect ((res) => {
                     if (res == Gtk.ResponseType.ACCEPT) {
                         dialog.destroy ();
-                        Manuscript.Services.Notification.show (_("Export succeeded"), _("Your manuscript has been successfully exported"));
+                        Manuscript.Services.Notification.show (
+                            _("Export succeeded"),
+                            _("Your manuscript has been successfully exported")
+                        );
                     } else if (res == Gtk.ResponseType.CLOSE) {
                         dialog.destroy ();
                     } else if (res == Gtk.ResponseType.NONE) {

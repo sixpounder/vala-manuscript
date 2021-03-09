@@ -45,7 +45,9 @@ namespace Manuscript {
             Object (
                 application: app,
                 initial_document_path: document_path,
-                cache_folder: Path.build_path(Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID)
+                cache_folder: Path.build_path (
+                    Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID
+                )
             );
 
             settings = Services.AppSettings.get_default ();
@@ -174,10 +176,11 @@ namespace Manuscript {
 
         public override bool delete_event (Gdk.EventAny event) {
             if (document_manager.has_document && settings.autosave) {
-                document_manager.save ();
+                document_manager.save (true);
             }
 
-            return base.delete_event (event);
+            // return base.delete_event (event);
+            return false;
         }
 
         public override bool configure_event (Gdk.EventConfigure event) {
@@ -278,12 +281,12 @@ namespace Manuscript {
                     }
                 } else if (error is Models.DocumentError.READ) {
                     msg = "<b>%s</b><br><span>%s</span>"
-                        .printf(
-                            _("Cannot read %s").printf(path),
+                        .printf (
+                            _("Cannot read %s").printf (path),
                             _("The file you selected does not appear to be a valid Manuscript file")
                         );
                 } else {
-                    msg = _("Some strange error happened while trying to open file at %s").printf(path);
+                    msg = _("Some strange error happened while trying to open file at %s").printf (path);
                 }
 
                 var infobar_instance = show_infobar (Gtk.MessageType.WARNING, msg.printf (@"<b>$path</b>"));
@@ -306,7 +309,7 @@ namespace Manuscript {
             if (quick_open_panel.visible) {
                 quick_open_panel.hide ();
             } else {
-                quick_open_panel.show ();     
+                quick_open_panel.show ();
             }
         }
 

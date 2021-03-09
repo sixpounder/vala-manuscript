@@ -1,11 +1,15 @@
 namespace Manuscript.Widgets {
-    public class SourceListCategoryItem: Granite.Widgets.SourceList.ExpandableItem, Granite.Widgets.SourceListSortable {
+    public class SourceListCategoryItem :
+        Granite.Widgets.SourceList.ExpandableItem,
+        Granite.Widgets.SourceListSortable,
+        Granite.Widgets.SourceListDragDest {
+
         public Gee.ArrayList<SourceListChunkItem> child_chunks { get; private set; }
         public Models.ChunkType category_type { get; private set; }
         public weak Services.DocumentManager document_manager { get; set; }
 
         public SourceListCategoryItem (string name = "", Models.ChunkType category_type) {
-            base(name);
+            base (name);
             this.category_type = category_type;
         }
 
@@ -16,14 +20,14 @@ namespace Manuscript.Widgets {
             user_moved_item.connect (on_child_moved);
         }
 
-        private bool allow_dnd_sorting () {
-            return true;
-        }
+        //  private bool allow_dnd_sorting () {
+        //      return true;
+        //  }
 
-        private int compare (Granite.Widgets.SourceList.Item a, Granite.Widgets.SourceList.Item b) {
-            // Allow undefined ordering, this will be handled by document model
-            return 0;
-        }
+        //  private int compare (Granite.Widgets.SourceList.Item a, Granite.Widgets.SourceList.Item b) {
+        //      // Allow undefined ordering, this will be handled by document model
+        //      return 0;
+        //  }
 
         private void on_child_added (Granite.Widgets.SourceList.Item item) {
             var it = item as SourceListChunkItem;
@@ -38,6 +42,7 @@ namespace Manuscript.Widgets {
         }
 
         private void on_child_moved (Granite.Widgets.SourceList.Item item) {
+            debug ("Moved item");
             assert (item != null);
             var entry = item as SourceListChunkItem;
             assert (entry.chunk != null);
@@ -46,6 +51,32 @@ namespace Manuscript.Widgets {
                 // Same category move
                 document_manager.move_chunk (entry.chunk, child_chunks.index_of (entry));
             }
+        }
+
+        public bool allow_dnd_sorting () {
+            return true;
+        }
+
+        public int compare (Granite.Widgets.SourceList.Item a, Granite.Widgets.SourceList.Item b) {
+            var r =
+                (a as Manuscript.Widgets.SourceListChunkItem).chunk.index
+                -
+                (b as Manuscript.Widgets.SourceListChunkItem).chunk.index;
+            if (r < 0) {
+                return -1;
+            } else if (r > 0) {
+                return 1;
+            } else {
+                return 1;
+            }
+        }
+
+        private bool data_drop_possible (Gdk.DragContext context, Gtk.SelectionData data) {
+            return data.get_target () == Gdk.Atom.intern_static_string ("text/uri-list");
+        }
+
+        private Gdk.DragAction data_received (Gdk.DragContext context, Gtk.SelectionData data) {
+            return Gdk.DragAction.COPY;
         }
     }
 }

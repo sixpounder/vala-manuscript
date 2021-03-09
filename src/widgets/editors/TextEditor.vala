@@ -150,7 +150,6 @@ namespace Manuscript.Widgets {
                 buffer.remove_tag (buffer.tag_table.lookup (focused_tag), start, end);
                 buffer.apply_tag (buffer.tag_table.lookup (dimmed_tag), start, end);
                 buffer.apply_tag (buffer.tag_table.lookup (focused_tag), sentence_start, sentence_end);
-                
 
                 scroll_to_cursor ();
             }
