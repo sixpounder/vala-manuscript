@@ -1,8 +1,7 @@
 namespace Manuscript.Widgets {
     public class SourceListCategoryItem :
         Granite.Widgets.SourceList.ExpandableItem,
-        Granite.Widgets.SourceListSortable,
-        Granite.Widgets.SourceListDragDest {
+        Granite.Widgets.SourceListSortable {
 
         public Gee.ArrayList<SourceListChunkItem> child_chunks { get; private set; }
         public Models.ChunkType category_type { get; private set; }
@@ -42,15 +41,47 @@ namespace Manuscript.Widgets {
         }
 
         private void on_child_moved (Granite.Widgets.SourceList.Item item) {
-            debug ("Moved item");
             assert (item != null);
-            var entry = item as SourceListChunkItem;
-            assert (entry.chunk != null);
-
-            if (entry.chunk.chunk_type == category_type) {
-                // Same category move
-                document_manager.move_chunk (entry.chunk, child_chunks.index_of (entry));
+            if (item != null) {
+                debug ("Item moved in list, reflecting changes");
+                var entry = item as SourceListChunkItem;
+                assert (entry.chunk != null);
+                if (entry.chunk != null && entry.chunk.chunk_type == category_type) {
+                    var previous = item_before (entry) as SourceListChunkItem;
+                    var previous_chunk = previous != null ? previous.chunk : null;
+                    document_manager.move_chunk (entry.chunk, previous_chunk);
+                } else {
+                    warning ("Could not move item (item has no chunk associated)");
+                }
+            } else {
+                warning ("Could not move item (NULL)");
             }
+        }
+
+        /**
+         * Finds the `Granite.Widgets.SourceList.Item` that lies before `item` (if any)
+         */
+        public Granite.Widgets.SourceList.Item ? item_before (Granite.Widgets.SourceList.Item item) {
+            Granite.Widgets.SourceList.Item found = null;
+            if (children.size == 1) {
+                found = null;
+            } else {
+                var iter = children.iterator ();
+                Granite.Widgets.SourceList.Item last_checked_item = null;
+                while (iter.has_next ()) {
+                    iter.next ();
+                    var i = iter.@get ();
+                    if (i == item) {
+                        found = last_checked_item;
+                        break;
+                    } else {
+                        last_checked_item = i;
+                        continue;
+                    }
+                }
+            }
+
+            return found;
         }
 
         public bool allow_dnd_sorting () {
@@ -58,25 +89,15 @@ namespace Manuscript.Widgets {
         }
 
         public int compare (Granite.Widgets.SourceList.Item a, Granite.Widgets.SourceList.Item b) {
-            var r =
-                (a as Manuscript.Widgets.SourceListChunkItem).chunk.index
-                -
-                (b as Manuscript.Widgets.SourceListChunkItem).chunk.index;
-            if (r < 0) {
-                return -1;
-            } else if (r > 0) {
-                return 1;
-            } else {
-                return 1;
-            }
+            return 0;
         }
 
-        private bool data_drop_possible (Gdk.DragContext context, Gtk.SelectionData data) {
-            return data.get_target () == Gdk.Atom.intern_static_string ("text/uri-list");
-        }
+        //  private bool data_drop_possible (Gdk.DragContext context, Gtk.SelectionData data) {
+        //      return data.get_target () == Gdk.Atom.intern_static_string ("text/uri-list");
+        //  }
 
-        private Gdk.DragAction data_received (Gdk.DragContext context, Gtk.SelectionData data) {
-            return Gdk.DragAction.COPY;
-        }
+        //  private Gdk.DragAction data_received (Gdk.DragContext context, Gtk.SelectionData data) {
+        //      return Gdk.DragAction.COPY;
+        //  }
     }
 }

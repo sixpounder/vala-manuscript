@@ -114,8 +114,8 @@ namespace Manuscript.Services {
             selected (chunk);
         }
 
-        public void move_chunk (Models.DocumentChunk chunk, int index) {
-            document.move_chunk (chunk, index);
+        public void move_chunk (Models.DocumentChunk chunk, Models.DocumentChunk ? before_this) {
+            document.move_chunk (chunk, before_this);
 
             if (settings.autosave) {
                 save ();

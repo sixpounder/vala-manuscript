@@ -138,7 +138,7 @@ namespace Manuscript.Models {
 
         public virtual void add_chunk (DocumentChunk chunk, bool activate = true) {}
         public virtual void remove_chunk (DocumentChunk chunk) {}
-        public virtual bool move_chunk (DocumentChunk chunk, int index) { return false; }
+        public virtual bool move_chunk (DocumentChunk chunk, DocumentChunk ? before_this) { return false; }
 
     }
 
@@ -303,35 +303,24 @@ namespace Manuscript.Models {
         }
 
         /**
-         * Moves `chunk` to `index`, where `index` is supposed to be an index representing
-         * a flattened value for chunks of the same type
+         * Moves `chunk` updating its `index` to a value that is `before_this.index - 1`.
+         * If `before_this` is null the item is assigned the index 0
          */
-        public override bool move_chunk (DocumentChunk chunk, int index) {
-            bool r = true;
-            Gee.Iterator<IndexedItem<DocumentChunk>> filtered_iter = get_chunks_group (chunk.chunk_type);
-
-            filtered_iter.@foreach ((indexed_item) => {
-                chunks.filter ((item) => {
-                    return item.chunk_type == chunk.chunk_type;
-                }).@foreach ((item) => {
-                    if (item == indexed_item.data) {
-                        //  var real_index = chunks.index_of (indexed_item.data);
-                        //  debug (@"Index in local collection for $(chunk.title): $real_index - Wanted index: $index");
-                        //  chunk.index = index;
-                        item.index = indexed_item.index;
-                        r = true;
-                        return false;
-                    } else {
-                        return true;
-                    }
-                });
-
-                return true;
-            });
+        public override bool move_chunk (DocumentChunk chunk, DocumentChunk ? before_this) {
+            if (before_this == null) {
+                // `chunk` moved to the top
+                debug ("Moving item to the top");
+                chunk.index = 0;
+            } else {
+                debug (@"Moving item $(chunk.title) before $(before_this.title)");
+                debug (@"Moving item with index $(chunk.index) before $(before_this.index)");
+                var tmp_index = before_this.index;
+                before_this.index = chunk.index;
+                chunk.index = tmp_index;
+            }
 
             chunk_moved (chunk);
-
-            return r;
+            return true;
         }
 
         public void set_active (DocumentChunk chunk) {
@@ -356,17 +345,20 @@ namespace Manuscript.Models {
             }
         }
 
-        public DocumentChunk[] chunks_with_changes () {
-            Gee.ArrayList<DocumentChunk> changed = new Gee.ArrayList<DocumentChunk> ();
-            var it = chunks.iterator ();
-            it.filter ((item) => {
+        public Gee.Iterator<DocumentChunk> iter_chunks_with_changes () {
+            return chunks.filter ((item) => {
                 return item.has_changes;
-            }).@foreach ((item) => {
-                changed.add (item);
-                return true;
             });
+        }
 
-            return changed.to_array ();
+        public Gee.Iterator<DocumentChunk> iter_chunks_by_type (ChunkType type) {
+            return chunks.filter ((item) => {
+                return item.chunk_type == type;
+            });
+        }
+
+        protected void reindex_chunks () {
+
         }
     }
 }

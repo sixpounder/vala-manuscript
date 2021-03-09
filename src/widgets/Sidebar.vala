@@ -1,12 +1,10 @@
 namespace Manuscript.Widgets {
 
-    public interface SidebarListEntry : Granite.Widgets.SourceList.Item {}
-
     public class Sidebar : Gtk.Box {
-        protected DocumentSourceList root_list;
-        protected SourceListCategoryItem chapters_root;
-        protected SourceListCategoryItem characters_root;
-        protected SourceListCategoryItem notes_root;
+        protected Manuscript.Widgets.DocumentSourceList root_list;
+        protected Manuscript.Widgets.SourceListCategoryItem chapters_root;
+        protected Manuscript.Widgets.SourceListCategoryItem characters_root;
+        protected Manuscript.Widgets.SourceListCategoryItem notes_root;
 
         public weak Services.DocumentManager document_manager { get; private set; }
         public weak Manuscript.Window parent_window { get; construct; }

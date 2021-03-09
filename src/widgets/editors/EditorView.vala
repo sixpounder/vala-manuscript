@@ -79,9 +79,9 @@ namespace Manuscript.Widgets {
         protected void reflect_document_settings () {
             set_font (
                 Pango.FontDescription.from_string (
-                    parent_window.document_manager.document.settings.font != null
-                        ? parent_window.document_manager.document.settings.font
-                        : Constants.DEFAULT_FONT
+                    parent_window.document_manager.document.settings.font_family != null
+                        ? parent_window.document_manager.document.settings.font_family
+                        : Constants.DEFAULT_FONT_FAMILY
                 )
             );
             editor.indent = (int) parent_window.document_manager.document.settings.paragraph_start_padding;
@@ -90,6 +90,7 @@ namespace Manuscript.Widgets {
         }
 
         public void set_font (Pango.FontDescription font) {
+            // TODO: use css instead
             editor.override_font (font);
         }
 
@@ -109,8 +110,7 @@ namespace Manuscript.Widgets {
         }
 
         public bool has_changes () {
-            // TODO: return an actually meaningful value
-            return false;
+            return chunk != null && chunk.has_changes;
         }
 
         public Protocols.SearchResult[] search (string word) {

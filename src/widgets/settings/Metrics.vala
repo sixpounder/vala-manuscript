@@ -23,17 +23,20 @@ namespace Manuscript.Widgets.Settings {
             Gtk.Label font_label = new Gtk.Label (_("Font"));
             font_label.halign = Gtk.Align.END;
             font_button = new Gtk.FontButton.with_font (
-                document_manager.document.settings.font != null
-                    ? document_manager.document.settings.font
-                    : Constants.DEFAULT_FONT
+                document_manager.document.settings.font_family != null
+                    ? document_manager.document.settings.font_family
+                    : Constants.DEFAULT_FONT_FAMILY
             );
             font_button.use_font = true;
             font_button.show_size = true;
             font_button.show_style = true;
             font_button.font_set.connect (() => {
-                var font = font_button.font_desc;
-                document_manager.document.settings.font =
-                    @"$(font_button.font_desc.get_family ()) $(font_button.font_desc.get_size () / 1000)";
+                Pango.FontDescription font_face = font_button.get_font_desc ();
+                if (font_face != null) {
+                    document_manager.document.settings.font_family = font_face.get_family ();
+                    document_manager.document.settings.font_size = font_face.get_size ();
+                }
+                    //  @"$(font_button.font_desc.get_family ()) $(font_button.font_desc.get_size () / 1000)";
             });
             attach (font_label, 0, 0, 1, 1);
             attach (font_button, 1, 0, 1, 1);
@@ -74,9 +77,19 @@ namespace Manuscript.Widgets.Settings {
         }
 
         public void load_document_settings (Models.Document document) {
-            font_button.font = document_manager.document.settings.font != null
-                ? document_manager.document.settings.font
-                : Constants.DEFAULT_FONT;
+            Pango.FontDescription font = new Pango.FontDescription ();
+
+            font.set_family (
+                document_manager.document.settings.font_family != null
+                    ? document_manager.document.settings.font_family
+                    : Constants.DEFAULT_FONT_FAMILY
+            );
+            int64 size = document_manager.document.settings.font_size != 0
+                ? document_manager.document.settings.font_size
+                : Constants.DEFAULT_FONT_SIZE;
+            font.set_size ((int) size);
+            font_button.set_font_desc (font);
+
             paragraph_spacing_input.value = document.settings.paragraph_spacing;
             paragraph_start_padding_input.value = document.settings.paragraph_start_padding;
         }

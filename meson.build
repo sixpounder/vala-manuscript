@@ -1,4 +1,6 @@
-project = project('com.github.sixpounder.manuscript', ['vala', 'c'],        version: '1.0.0',
+project('com.github.sixpounder.manuscript',
+  ['vala', 'c'],
+  version: '1.0.0',
   meson_version: '>= 0.46.0',
 )
 
