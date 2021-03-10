@@ -47,8 +47,8 @@ namespace Manuscript {
                 initial_document_path: document_path,
                 cache_folder: Path.build_path (
                     Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID
-                )
-            );
+                    )
+                );
 
             settings = Services.AppSettings.get_default ();
             action_manager = new Services.ActionManager ((Manuscript.Application)application, this);
@@ -255,7 +255,7 @@ namespace Manuscript {
             try {
                 File tmp_file = FileUtils.new_temp_file (
                     new Manuscript.Models.Document.empty ().to_json ()
-                );
+                    );
                 open_file_at_path (tmp_file.get_path (), true);
             } catch (GLib.Error err) {
                 message (_ ("Unable to create temporary document") );
@@ -270,23 +270,23 @@ namespace Manuscript {
                 hide_infobar ();
                 document_manager.set_current_document (
                     new Models.Document.from_file (path)
-                );
+                    );
             } catch (GLib.Error error) {
                 warning (error.message);
                 string msg;
                 if (error is Models.DocumentError.NOT_FOUND) {
-                    msg = _("File at %s could not be found. It may have been moved or deleted.");
+                    msg = _ ("File at %s could not be found. It may have been moved or deleted.");
                     if (settings.last_opened_document == path) {
                         set_layout_body (welcome_view);
                     }
                 } else if (error is Models.DocumentError.READ) {
                     msg = "<b>%s</b><br><span>%s</span>"
-                        .printf (
-                            _("Cannot read %s").printf (path),
-                            _("The file you selected does not appear to be a valid Manuscript file")
+                          .printf (
+                        _ ("Cannot read %s").printf (path),
+                        _ ("The file you selected does not appear to be a valid Manuscript file")
                         );
                 } else {
-                    msg = _("Some strange error happened while trying to open file at %s").printf (path);
+                    msg = _ ("Some strange error happened while trying to open file at %s").printf (path);
                 }
 
                 var infobar_instance = show_infobar (Gtk.MessageType.WARNING, msg.printf (@"<b>$path</b>"));
@@ -356,7 +356,7 @@ namespace Manuscript {
                 Gtk.MessageType.ERROR,
                 Gtk.ButtonsType.OK,
                 message
-                );
+            );
             messagedialog.show ();
         }
 
