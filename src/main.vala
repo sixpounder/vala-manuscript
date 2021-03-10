@@ -1,5 +1,7 @@
 namespace Manuscript {
     public class Application : Gtk.Application {
+        protected Services.AppSettings settings { get; set; }
+
         public static bool ensure_directory_exists (File dir) {
 
             if (!dir.query_exists ())
@@ -18,45 +20,43 @@ namespace Manuscript {
             flags |= ApplicationFlags.HANDLES_OPEN;
             var cache_path = Path.build_path (
                 Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID
-                );
+            );
             debug (
                 @"Cache folder: $(cache_path)"
-                );
+            );
             Manuscript.Services.Notification.init (this);
             Application.ensure_directory_exists (
                 File.new_for_path (cache_path)
             );
+
+            settings = Services.AppSettings.get_default ();
         }
 
         protected override void activate () {
-            Services.AppSettings settings = Services.AppSettings.get_default ();
-
-            weak Gtk.IconTheme default_theme = Gtk.IconTheme.get_default ();
-            default_theme.add_resource_path ("/com/github/sixpounder/manuscript/icons");
-
-            Manuscript.Window main_window;
-
-            if (settings.last_opened_document != "") {
-                main_window = this.new_window (settings.last_opened_document);
-            } else {
-                main_window = this.new_window ();
-            }
-
-            Globals.application = this;
-            //  Globals.window = main_window;
+            init ();
         }
 
         protected override void open (File[] files, string hint) {
-            Services.AppSettings settings = Services.AppSettings.get_default ();
+            init (files, hint);
+        }
 
+        protected void init (File[] ? files = null, string ? hint = "") {
             weak Gtk.IconTheme default_theme = Gtk.IconTheme.get_default ();
             default_theme.add_resource_path ("/com/github/sixpounder/manuscript/icons");
 
             Manuscript.Window main_window;
 
-            if (files.length != 0) {
-                foreach (File f in files) {
-                    main_window = this.new_window (f.get_path ());
+            if (files != null) {
+                if (files.length != 0) {
+                    foreach (File f in files) {
+                        main_window = this.new_window (f.get_path ());
+                    }
+                } else {
+                    if (settings.last_opened_document != "") {
+                        main_window = this.new_window (settings.last_opened_document);
+                    } else {
+                        main_window = this.new_window ();
+                    }
                 }
             } else {
                 if (settings.last_opened_document != "") {
@@ -67,7 +67,6 @@ namespace Manuscript {
             }
 
             Globals.application = this;
-            //  Globals.window = main_window;
         }
 
         public Manuscript.Window new_window (string ? document_path = null) {

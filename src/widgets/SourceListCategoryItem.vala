@@ -47,9 +47,9 @@ namespace Manuscript.Widgets {
                 var entry = item as SourceListChunkItem;
                 assert (entry.chunk != null);
                 if (entry.chunk != null && entry.chunk.chunk_type == category_type) {
-                    var previous = item_before (entry) as SourceListChunkItem;
-                    var previous_chunk = previous != null ? previous.chunk : null;
-                    document_manager.move_chunk (entry.chunk, previous_chunk);
+                    var next_item = item_after (entry) as SourceListChunkItem;
+                    var next_chunk = next_item != null ? next_item.chunk : null;
+                    document_manager.move_chunk (entry.chunk, next_chunk);
                 } else {
                     warning ("Could not move item (item has no chunk associated)");
                 }
@@ -77,6 +77,35 @@ namespace Manuscript.Widgets {
                     } else {
                         last_checked_item = i;
                         continue;
+                    }
+                }
+            }
+
+            return found;
+        }
+
+        /**
+         * Finds the `Granite.Widgets.SourceList.Item` that lies after `item` (if any)
+         */
+         public Granite.Widgets.SourceList.Item ? item_after (Granite.Widgets.SourceList.Item item) {
+            Granite.Widgets.SourceList.Item found = null;
+            if (children.size == 0) {
+                found = null;
+            } else {
+                var iter = children.iterator ();
+                while (iter.has_next ()) {
+                    iter.next ();
+                    var i = iter.@get ();
+                    if (i == item) {
+                        // Next item is the item we want to return
+                        if (iter.has_next ()) {
+                            iter.next ();
+                            found = iter.@get ();
+                        } else {
+                            found = null;
+                        }
+
+                        break;
                     }
                 }
             }

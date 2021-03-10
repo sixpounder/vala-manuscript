@@ -269,7 +269,6 @@ namespace Manuscript.Models {
                 throw new DocumentError.NOT_FOUND ("File not found");
             } else {
                 from_json (res);
-                debug (chunks.size.to_string ());
             }
         }
 
@@ -303,17 +302,16 @@ namespace Manuscript.Models {
         }
 
         /**
-         * Moves `chunk` updating its `index` to a value that is `before_this.index - 1`.
-         * If `before_this` is null the item is assigned the index 0
+         * Moves `chunk` to the position prior to `before_this`.
          */
         public override bool move_chunk (DocumentChunk chunk, DocumentChunk ? before_this) {
             if (before_this == null) {
-                // `chunk` moved to the top
-                debug ("Moving item to the top");
-                chunk.index = 0;
+                // `chunk` moved to the bottom
+                debug ("Moving item to the bottom");
+                chunk.index = chunks_by_type_size (chunk.chunk_type) - 1;
             } else {
                 debug (@"Moving item $(chunk.title) before $(before_this.title)");
-                debug (@"Moving item with index $(chunk.index) before $(before_this.index)");
+                //  var same_category_chunks = iter_chunks_by_type (chunk.chunk_type);
                 var tmp_index = before_this.index;
                 before_this.index = chunk.index;
                 chunk.index = tmp_index;
@@ -357,8 +355,16 @@ namespace Manuscript.Models {
             });
         }
 
-        protected void reindex_chunks () {
+        public int chunks_by_type_size (ChunkType type) {
+            int i = 0;
+            chunks.filter ((item) => {
+                return item.chunk_type == type;
+            }).@foreach (() => {
+                i++;
+                return true;
+            });
 
+            return i;
         }
     }
 }

@@ -27,7 +27,6 @@ finish-args:
   # - --share=network
   # Needs to save files locally
   - --filesystem=xdg-documents
-  - --filesystem=xdg
   # Needs notifications
   - --talk-name=org.freedesktop.Notifications
 modules:
