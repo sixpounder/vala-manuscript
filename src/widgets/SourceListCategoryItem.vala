@@ -22,7 +22,10 @@ namespace Manuscript.Widgets {
         private void on_child_added (Granite.Widgets.SourceList.Item item) {
             var it = item as SourceListChunkItem;
             child_chunks.add (it);
-            it.item_should_be_deleted.connect (remove);
+            it.item_should_be_deleted.connect ((item) => {
+                remove (item);
+                document_manager.remove_chunk (it.chunk);
+            });
         }
 
         private void on_child_removed (Granite.Widgets.SourceList.Item item) {
