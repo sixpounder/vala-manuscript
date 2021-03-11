@@ -27,9 +27,8 @@ namespace Manuscript.Widgets {
         protected bool _on_viewport = true;
         protected Services.AppSettings settings;
         protected Services.DocumentManager document_manager;
-        protected Gtk.Label editors_courtesy_view;
-        protected Gtk.Overlay editor_view_wrapper;
-        protected List<EditorView> editors_cache;
+        protected Manuscript.Widgets.EditorCourtesyView editors_courtesy_view;
+        protected Gee.HashMap<string, EditorView> editors_cache;
 
         public weak Manuscript.Window parent_window { get; construct; }
 
@@ -50,14 +49,15 @@ namespace Manuscript.Widgets {
         public EditorsController (Manuscript.Window parent_window) {
             Object (
                 parent_window: parent_window,
-                transition_type: Gtk.StackTransitionType.CROSSFADE
+                transition_type: Gtk.StackTransitionType.CROSSFADE,
+                transition_duration: 200
             );
         }
 
         construct {
             get_style_context ().add_class ("editors-controller");
 
-            editors_cache = new List<EditorView> ();
+            editors_cache = new Gee.HashMap<string, EditorView> ();
 
             document_manager = parent_window.document_manager;
             document_manager.load.connect (on_document_set);
@@ -76,15 +76,10 @@ namespace Manuscript.Widgets {
                 }
             });
 
-            editors_courtesy_view = new Gtk.Label (_("Select something to edit"));
-            editors_courtesy_view.get_style_context ().add_class (Granite.STYLE_CLASS_H2_LABEL);
-
-            editor_view_wrapper = new Gtk.Overlay ();
-            editor_view_wrapper.get_style_context ().add_class ("editor-view-wrapper");
-            editor_view_wrapper.show_all ();
+            editors_courtesy_view = new Manuscript.Widgets.EditorCourtesyView (document_manager);
 
             add_named (editors_courtesy_view, "editors-courtesy-view");
-            add_named (editor_view_wrapper, "editor-view");
+            //  add_named (editor_view_wrapper, "editor-view");
 
             visible_child = editors_courtesy_view;
 
@@ -110,22 +105,17 @@ namespace Manuscript.Widgets {
             doc.chunk_added.disconnect (add_chunk);
             doc.chunk_removed.disconnect (remove_chunk);
             doc.active_changed.disconnect (select_chunk);
-            editors_cache = new List<EditorView> ();
-            update_ui ();
+            //  editors_cache = new List<EditorView> ();
+            editors_cache.clear ();
         }
 
         private void on_start_chunk_editing (Models.DocumentChunk chunk) {
             debug (@"EditorsController - Start editing chunk $(chunk.uuid)");
-            visible_child = editor_view_wrapper;
             add_editor_view_for_chunk (chunk, true);
         }
 
         private void on_stop_chunk_editing (Models.DocumentChunk? chunk) {
             debug (@"EditorsController - Stop editing chunk $(chunk.uuid)");
-            //  var get_editor_view_for_chunk = get_editor_view_for_chunk (chunk);
-            //  if (get_editor_view_for_chunk == null) {
-            //      // remove_editor (chunk);
-            //  }
         }
 
         // Updates various components of this widget to reflect current
@@ -141,48 +131,39 @@ namespace Manuscript.Widgets {
         }
 
         private EditorView? get_editor_view_for_chunk (Models.DocumentChunk chunk) {
-            EditorView? existing_view = null;
-            editors_cache.@foreach ((view) => {
-               if (view.chunk == chunk) {
-                   existing_view = view;
-               }
-            });
-            return existing_view;
+            string k = build_view_id (chunk);
+            return editors_cache.has_key (k) ? editors_cache.@get (k) : null;
         }
 
         private EditorView add_editor_view_for_chunk (Models.DocumentChunk chunk, bool active = true) {
             assert (chunk != null);
             assert (chunk.uuid != null);
             var existing_child = get_editor_view_for_chunk (chunk);
+            string view_id = build_view_id (chunk);
+
             EditorView returned_view;
             if (existing_child == null) {
                 EditorView new_editor = new EditorView (parent_window, chunk);
-                editors_cache.append (new_editor);
+                //  new_editor.get_style_context ().add_class ("editor-view-wrapper");
+                add_named (new_editor, view_id);
+                editors_cache.@set (view_id, new_editor);
                 returned_view = new_editor;
             } else {
                 returned_view = existing_child as EditorView;
             }
 
             if (active == true) {
-                if (editor_view_wrapper.get_child () != null) {
-                    editor_view_wrapper.remove (editor_view_wrapper.get_child ());
-                }
-                editor_view_wrapper.child = returned_view;
-                editor_view_wrapper.show_all ();
+                visible_child_name = view_id;
+                returned_view.focus_editor ();
+                returned_view.scroll_to_cursor ();
             }
-            returned_view.focus_editor ();
-            returned_view.scroll_to_cursor ();
+
             return returned_view;
         }
 
-        // Editors events
-        //  private void on_editor_closed () {
-        //      update_ui ();
-        //  }
-
-        // private void on_tab_switched (Granite.Widgets.Tab? old_tab, Granite.Widgets.Tab new_tab) {
-        //     document_manager.select_chunk ((new_tab as Protocols.EditorController).chunk);
-        // }
+        private string build_view_id (Models.DocumentChunk chunk) {
+            return @"chunk-view-$(chunk.uuid)";
+        }
 
         private void add_chunk (Models.DocumentChunk chunk, bool active = true) {
             assert (chunk != null);
@@ -190,22 +171,20 @@ namespace Manuscript.Widgets {
         }
 
         private void remove_chunk (Models.DocumentChunk chunk) {
+            var view = get_editor_view_for_chunk (chunk);
+            var k = build_view_id (chunk);
+            if (view != null) {
+                remove (view);
+            }
+
+            if (editors_cache.has_key (k)) {
+                editors_cache.unset (k);
+            }
+
             update_ui ();
         }
 
         private void select_chunk (Models.DocumentChunk chunk) {
-        //      assert (chunk != null);
-        //      for (int i = 0; i < notebook.tabs.length (); i++) {
-        //          //  var t = notebook.tabs.nth (i);
-        //          if (notebook.tabs.nth (i) != null) {
-        //              var editor = (EditorView) notebook.tabs.nth (i);
-        //              if (editor.chunk != null && editor.chunk == chunk) {
-        //                  notebook.current = editor;
-        //                  document_manager.document.set_active (chunk);
-        //                  return;
-        //              }
-        //          }
-        //      }
             assert (chunk != null);
             add_editor_view_for_chunk (chunk);
         }
@@ -222,7 +201,11 @@ namespace Manuscript.Widgets {
 
         public Protocols.EditorController? get_editor (Models.DocumentChunk chunk) {
             //  return get_tab_for_chunk (chunk);
-            return editor_view_wrapper.get_child () as Protocols.EditorController;
+            if (visible_child is Protocols.EditorController) {
+                return visible_child as Protocols.EditorController;
+            } else {
+                return null;
+            }
         }
 
         public void add_editor (Models.DocumentChunk chunk) {

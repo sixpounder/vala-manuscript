@@ -37,7 +37,7 @@ namespace Manuscript.Widgets {
 
             var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             box.orientation = Gtk.Orientation.VERTICAL;
-            box.homogeneous = true;
+            box.homogeneous = false;
             box.halign = Gtk.Align.FILL;
             box.valign = Gtk.Align.START;
             box.expand = true;
@@ -51,6 +51,7 @@ namespace Manuscript.Widgets {
             box.pack_start (query_input);
 
             results_grid = new Gtk.ListBox ();
+            results_grid.margin_top = 10;
             results_grid.selection_mode = Gtk.SelectionMode.SINGLE;
 
             box.pack_start (results_grid);

@@ -34,9 +34,11 @@ namespace Manuscript.Widgets.Settings {
                 Pango.FontDescription font_face = font_button.get_font_desc ();
                 if (font_face != null) {
                     document_manager.document.settings.font_family = font_face.get_family ();
-                    document_manager.document.settings.font_size = font_face.get_size ();
+                    document_manager.document.settings.font_size = font_face.get_size_is_absolute ()
+                        ? font_face.get_size ()
+                        : font_face.get_size () / Pango.SCALE;
                 }
-                    //  @"$(font_button.font_desc.get_family ()) $(font_button.font_desc.get_size () / 1000)";
+                //  @"$(font_button.font_desc.get_family ()) $(font_button.font_desc.get_size () / 1000)";
             });
             attach (font_label, 0, 0, 1, 1);
             attach (font_button, 1, 0, 1, 1);
@@ -87,7 +89,7 @@ namespace Manuscript.Widgets.Settings {
             int64 size = document_manager.document.settings.font_size != 0
                 ? document_manager.document.settings.font_size
                 : Constants.DEFAULT_FONT_SIZE;
-            font.set_size ((int) size);
+            font.set_size ((int) size * Pango.SCALE);
             font_button.set_font_desc (font);
 
             paragraph_spacing_input.value = document.settings.paragraph_spacing;

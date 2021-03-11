@@ -38,6 +38,8 @@ namespace Manuscript.Services {
         public signal void stop_editing (Models.DocumentChunk chunk);
         public signal void selected (Models.DocumentChunk chunk);
 
+        public signal void chunk_deleted (Models.DocumentChunk deleted_chunk);
+
         private Models.Document _document = null;
         private Gee.ArrayList<Models.DocumentChunk> _opened_chunks;
         public weak Manuscript.Application application { get; construct; }
@@ -116,6 +118,10 @@ namespace Manuscript.Services {
         public void remove_chunk (Models.DocumentChunk chunk) {
             close_chunk (chunk);
             document.remove_chunk (chunk);
+            chunk_deleted (chunk);
+            if (settings.autosave) {
+                queue_autosave ();
+            }
         }
 
         public void select_chunk (Models.DocumentChunk chunk) {
@@ -170,7 +176,7 @@ namespace Manuscript.Services {
             // Avoid trashing the disk
             autosave_timer_id = Timeout.add (1000, () => {
                 autosave_timer_id = 0;
-                save ();
+                save (true);
                 return false;
             });
         }

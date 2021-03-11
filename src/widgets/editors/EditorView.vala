@@ -74,14 +74,30 @@ namespace Manuscript.Widgets {
             });
 
             parent_window.document_manager.document.settings.notify.connect (reflect_document_settings);
+
+            show_all ();
         }
 
         protected void reflect_document_settings () {
+            var font_family_string = @"$(
+                parent_window.document_manager.document.settings.font_family != null
+                    ? parent_window.document_manager.document.settings.font_family
+                    : Constants.DEFAULT_FONT_FAMILY
+            )";
+            var font_size_string = @"$(
+                parent_window.document_manager.document.settings.font_size != 0
+                    ? parent_window.document_manager.document.settings.font_size
+                    : Constants.DEFAULT_FONT_SIZE
+            )px";
+    
             set_font (
-                Pango.FontDescription.from_string (
-                    parent_window.document_manager.document.settings.font_family != null
-                        ? parent_window.document_manager.document.settings.font_family
-                        : Constants.DEFAULT_FONT_FAMILY
+                Pango.FontDescription.from_string (@"
+                    $(
+                        font_family_string
+                    )
+                    $(
+                        font_size_string
+                    )"
                 )
             );
             editor.indent = (int) parent_window.document_manager.document.settings.paragraph_start_padding;

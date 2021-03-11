@@ -34,6 +34,7 @@ executable(
     'widgets/SearchPanel.vala',
 	'widgets/QuickOpenPanel.vala',
 	'widgets/QuickOpenEntry.vala',
+	'widgets/EditorCourtesyView.vala',
 
 	'widgets/editors/EditorsController.vala',
 	'widgets/editors/EditorView.vala',
