@@ -19,10 +19,19 @@
 
 namespace Manuscript.Services {
     public class DocumentManager : Object {
+        protected uint autosave_timer_id = 0;
 
         public signal void load (Models.Document document);
         public signal void change (Models.Document new_document);
-        public signal void unload (Models.Document old_document);
+        public virtual signal void unload (Models.Document old_document) {
+            if (autosave_timer_id != 0) {
+                GLib.Source.remove (autosave_timer_id);
+            }
+
+            if (settings.autosave) {
+                save (true);
+            }
+        }
         public signal void unloaded ();
         public signal void property_change (string property_name);
         public signal void start_editing (Models.DocumentChunk chunk);
@@ -68,14 +77,10 @@ namespace Manuscript.Services {
             _opened_chunks = new Gee.ArrayList<Models.DocumentChunk> ();
         }
 
-        public void set_current_document (owned Models.Document? doc) {
+        public void set_current_document (owned Models.Document doc) {
+            assert (doc != null);
             debug (@"Setting current document: $(doc == null ? "null" : doc.uuid)");
-            if (doc == null) {
-                unload (document);
-                settings.last_opened_document = "";
-                document = null;
-                unloaded ();
-            } else if (document == null && doc != null) {
+            if (document == null && doc != null) {
                 document = doc;
                 settings.last_opened_document = document.file_path;
                 document.notify.connect ((pspec) => {
@@ -91,10 +96,6 @@ namespace Manuscript.Services {
                     property_change (pspec.get_nick ());
                 });
                 change (document);
-            } else {
-                unload (document);
-                document = null;
-                unloaded ();
             }
         }
 
@@ -103,6 +104,13 @@ namespace Manuscript.Services {
                 opened_chunks.add (chunk);
             }
             start_editing (chunk);
+        }
+
+        public void add_chunk (owned Models.DocumentChunk chunk) {
+            document.add_chunk (chunk);
+            if (settings.autosave) {
+                queue_autosave ();
+            }
         }
 
         public void remove_chunk (Models.DocumentChunk chunk) {
@@ -118,7 +126,7 @@ namespace Manuscript.Services {
             document.move_chunk (chunk, before_this);
 
             if (settings.autosave) {
-                save ();
+                queue_autosave ();
             }
         }
 
@@ -152,6 +160,19 @@ namespace Manuscript.Services {
                 settings.last_opened_document = document.file_path;
             }
             dialog.destroy ();
+        }
+
+        public void queue_autosave () {
+            if (autosave_timer_id != 0) {
+                GLib.Source.remove (autosave_timer_id);
+            }
+
+            // Avoid trashing the disk
+            autosave_timer_id = Timeout.add (1000, () => {
+                autosave_timer_id = 0;
+                save ();
+                return false;
+            });
         }
 
         public void close () {

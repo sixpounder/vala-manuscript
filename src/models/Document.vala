@@ -132,11 +132,12 @@ namespace Manuscript.Models {
                 chunks_array.add_object_element (it.@get ().to_json_object ());
             }
             object.set_array_member ("chunks", chunks_array);
+            debug (@"Document.to_json -> Serializing $(chunks_array.get_length()) chunks");
 
             return gen.to_data (null);
         }
 
-        public virtual void add_chunk (DocumentChunk chunk, bool activate = true) {}
+        public virtual void add_chunk (owned DocumentChunk chunk, bool activate = true) {}
         public virtual void remove_chunk (DocumentChunk chunk) {}
         public virtual bool move_chunk (DocumentChunk chunk, DocumentChunk ? before_this) { return false; }
 
@@ -272,10 +273,10 @@ namespace Manuscript.Models {
             }
         }
 
-        protected Gee.Iterator<IndexedItem<DocumentChunk>> get_chunks_group (ChunkType chunk_type) {
+        protected Gee.Iterator<IndexedItem<DocumentChunk>> get_chunks_group (ChunkType kind) {
             int i = 0;
             Gee.Iterator<IndexedItem<DocumentChunk>> filtered_iter = chunks.filter ((item) => {
-                return item.chunk_type == chunk_type;
+                return item.kind == kind;
             }).map<IndexedItem<DocumentChunk>> ((item) => {
                 var c_item = new IndexedItem<DocumentChunk> (item, i);
                 i += 1;
@@ -288,9 +289,11 @@ namespace Manuscript.Models {
         /**
          * Adds a chunk to the collection, making it active by default
          */
-        public override void add_chunk (DocumentChunk chunk, bool activate = true) {
+        public override void add_chunk (owned DocumentChunk chunk, bool activate = true) {
             chunks.add (chunk);
             chunk_added (chunk, activate);
+
+            debug ("Chunk added to document");
         }
 
         public override void remove_chunk (DocumentChunk chunk) {
@@ -299,6 +302,8 @@ namespace Manuscript.Models {
             if (chunks.size == 0) {
                 drain ();
             }
+
+            debug ("Chunk removed from document");
         }
 
         /**
@@ -308,7 +313,7 @@ namespace Manuscript.Models {
             if (before_this == null) {
                 // `chunk` moved to the bottom
                 debug ("Moving item to the bottom");
-                chunk.index = chunks_by_type_size (chunk.chunk_type) - 1;
+                chunk.index = chunks_by_type_size (chunk.kind) - 1;
             } else {
                 debug (@"Moving item $(chunk.title) before $(before_this.title)");
                 //  var same_category_chunks = iter_chunks_by_type (chunk.chunk_type);
@@ -349,16 +354,16 @@ namespace Manuscript.Models {
             });
         }
 
-        public Gee.Iterator<DocumentChunk> iter_chunks_by_type (ChunkType type) {
+        public Gee.Iterator<DocumentChunk> iter_chunks_by_type (ChunkType kind) {
             return chunks.filter ((item) => {
-                return item.chunk_type == type;
+                return item.kind == kind;
             });
         }
 
-        public int chunks_by_type_size (ChunkType type) {
+        public int chunks_by_type_size (ChunkType kind) {
             int i = 0;
             chunks.filter ((item) => {
-                return item.chunk_type == type;
+                return item.kind == kind;
             }).@foreach (() => {
                 i++;
                 return true;

@@ -127,7 +127,7 @@ namespace Manuscript.Widgets {
         public SourceListChunkItem? find_node (Models.DocumentChunk chunk) {
             assert (chunk != null);
             Granite.Widgets.SourceList.ExpandableItem root_node;
-            switch (chunk.chunk_type) {
+            switch (chunk.kind) {
                 case Models.ChunkType.CHAPTER:
                     root_node = chapters_root;
                     break;
@@ -161,7 +161,7 @@ namespace Manuscript.Widgets {
             assert (chunk != null);
             SourceListChunkItem item_to_add = new SourceListChunkItem.with_chunk (chunk);
             Granite.Widgets.SourceList.ExpandableItem root_node;
-            switch (chunk.chunk_type) {
+            switch (chunk.kind) {
                 case Models.ChunkType.CHAPTER:
                     root_node = chapters_root;
                     break;

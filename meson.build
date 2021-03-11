@@ -1,4 +1,5 @@
-project('com.github.sixpounder.manuscript',
+project(
+  'com.github.sixpounder.manuscript',
   ['vala', 'c'],
   version: '1.0.0',
   meson_version: '>= 0.46.0',
@@ -13,6 +14,9 @@ manuscript_pkgdatadir = join_paths(manuscript_datadir, meson.project_name())
 application_id = meson.project_name()
 
 add_global_arguments('-DGETTEXT_PACKAGE="@0@"'.format (meson.project_name()), language:'c')
+
+# Uncomment to enable import entry in the insert menu
+add_project_arguments('-D', 'IMPORT_ENABLED', language: 'vala')
 
 # Uncomment each export compiler the application should support
 add_project_arguments('-D', 'EXPORT_COMPILER_PDF', language: 'vala')

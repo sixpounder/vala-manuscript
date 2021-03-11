@@ -19,15 +19,6 @@ namespace Manuscript.Widgets {
             user_moved_item.connect (on_child_moved);
         }
 
-        //  private bool allow_dnd_sorting () {
-        //      return true;
-        //  }
-
-        //  private int compare (Granite.Widgets.SourceList.Item a, Granite.Widgets.SourceList.Item b) {
-        //      // Allow undefined ordering, this will be handled by document model
-        //      return 0;
-        //  }
-
         private void on_child_added (Granite.Widgets.SourceList.Item item) {
             var it = item as SourceListChunkItem;
             child_chunks.add (it);
@@ -35,8 +26,8 @@ namespace Manuscript.Widgets {
         }
 
         private void on_child_removed (Granite.Widgets.SourceList.Item item) {
+            debug ("Source list removed chunk item");
             var it = item as SourceListChunkItem;
-            document_manager.remove_chunk (it.chunk);
             child_chunks.remove (it);
         }
 
@@ -46,7 +37,7 @@ namespace Manuscript.Widgets {
                 debug ("Item moved in list, reflecting changes");
                 var entry = item as SourceListChunkItem;
                 assert (entry.chunk != null);
-                if (entry.chunk != null && entry.chunk.chunk_type == category_type) {
+                if (entry.chunk != null && entry.chunk.kind == category_type) {
                     var next_item = item_after (entry) as SourceListChunkItem;
                     var next_chunk = next_item != null ? next_item.chunk : null;
                     document_manager.move_chunk (entry.chunk, next_chunk);
@@ -120,13 +111,5 @@ namespace Manuscript.Widgets {
         public int compare (Granite.Widgets.SourceList.Item a, Granite.Widgets.SourceList.Item b) {
             return 0;
         }
-
-        //  private bool data_drop_possible (Gdk.DragContext context, Gtk.SelectionData data) {
-        //      return data.get_target () == Gdk.Atom.intern_static_string ("text/uri-list");
-        //  }
-
-        //  private Gdk.DragAction data_received (Gdk.DragContext context, Gtk.SelectionData data) {
-        //      return Gdk.DragAction.COPY;
-        //  }
     }
 }

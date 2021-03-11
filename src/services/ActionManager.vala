@@ -140,13 +140,13 @@ namespace Manuscript.Services {
         }
 
         protected void action_add_chapter () {
-            window.document_manager.document.add_chunk (
+            window.document_manager.add_chunk (
                 new Models.DocumentChunk.empty (Models.ChunkType.CHAPTER)
             );
         }
 
         protected void action_add_character_sheet () {
-            window.document_manager.document.add_chunk (
+            window.document_manager.add_chunk (
                 new Models.DocumentChunk.empty (Models.ChunkType.CHARACTER_SHEET)
             );
         }
@@ -155,7 +155,7 @@ namespace Manuscript.Services {
         }
 
         protected void action_add_note () {
-            window.document_manager.document.add_chunk (
+            window.document_manager.add_chunk (
                 new Models.DocumentChunk.empty (Models.ChunkType.NOTE)
             );
         }
@@ -165,7 +165,7 @@ namespace Manuscript.Services {
         }
 
         protected void action_close_document () {
-            window.document_manager.set_current_document (null);
+            window.document_manager.close ();
         }
 
         protected void action_export () {

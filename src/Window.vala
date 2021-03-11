@@ -175,8 +175,8 @@ namespace Manuscript {
         }
 
         public override bool delete_event (Gdk.EventAny event) {
-            if (document_manager.has_document && settings.autosave) {
-                document_manager.save (true);
+            if (document_manager.has_document) {
+                document_manager.close ();
             }
 
             // return base.delete_event (event);
@@ -270,7 +270,7 @@ namespace Manuscript {
                 hide_infobar ();
                 document_manager.set_current_document (
                     new Models.Document.from_file (path)
-                    );
+                );
             } catch (GLib.Error error) {
                 warning (error.message);
                 string msg;
@@ -324,8 +324,11 @@ namespace Manuscript {
                 document_settings_dialog.destroy ();
             });
             document_settings_dialog.response.connect (() => {
-                if (!document_manager.document.is_temporary ()) {
-                    document_manager.document.save ();
+                //  if (!document_manager.document.is_temporary ()) {
+                //      document_manager.document.save ();
+                //  }
+                if (settings.autosave) {
+                    document_manager.queue_autosave ();
                 }
                 document_settings_dialog.destroy ();
             });
@@ -342,7 +345,7 @@ namespace Manuscript {
         }
 
         protected void close_document (Models.Document document) {
-            document_manager.set_current_document (null);
+            document_manager.close ();
         }
 
         protected bool on_destroy () {

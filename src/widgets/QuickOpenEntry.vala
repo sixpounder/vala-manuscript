@@ -45,7 +45,7 @@ namespace Manuscript.Widgets {
             title_label.get_style_context ().add_class ("h3");
             grid.pack_start (title_label);
 
-            var kind_label = new Gtk.Label (chunk.chunk_type.to_string ());
+            var kind_label = new Gtk.Label (chunk.kind.to_string ());
             kind_label.justify = Gtk.Justification.RIGHT;
             kind_label.xalign = 1f;
             kind_label.get_style_context ().add_class ("h4");

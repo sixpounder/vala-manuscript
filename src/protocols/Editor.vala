@@ -1,8 +1,4 @@
 namespace Manuscript.Protocols {
-    public enum ContentEvent {
-        CONTENT_CHANGE,
-        ATTRIBUTE_CHANGE
-    }
 
     public class SearchResult : Object {
         public weak EditorController editor { get; set; }
@@ -16,7 +12,6 @@ namespace Manuscript.Protocols {
     }
 
     public interface EditorViewController {
-        //  public abstract List<weak EditorController>? list_editors ();
         public abstract EditorController? get_editor (Models.DocumentChunk chunk);
         public abstract unowned EditorController? get_current_editor ();
         public abstract void add_editor (Models.DocumentChunk chunk);
@@ -26,16 +21,35 @@ namespace Manuscript.Protocols {
 
     public interface EditorController : Object {
         public abstract weak Models.DocumentChunk chunk { get; construct; }
-        public abstract bool has_changes ();
-        public abstract void focus_editor ();
-        public abstract void content_event (ContentEvent event);
-        public abstract Gtk.TextBuffer get_buffer ();
+
+        public virtual bool has_changes () {
+            return false;
+        }
+
+        public virtual void focus_editor () {}
+
+        public virtual Gtk.TextBuffer ? get_buffer () {
+            return null;
+        }
+
         public abstract bool scroll_to_iter (
             Gtk.TextIter iter, double within_margin, bool use_align, double xalign, double yalign
         );
-        public abstract bool search_for_iter (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter);
-        public abstract bool search_for_iter_backward (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter);
-        public abstract SearchResult[] search (string word);
-        public abstract void scroll_to_search_result (SearchResult result);
+
+        public virtual bool search_for_iter (Gtk.TextIter start_iter, out Gtk.TextIter ? end_iter) {
+            end_iter = null;
+            return false;
+        }
+
+        public virtual bool search_for_iter_backward (Gtk.TextIter start_iter, out Gtk.TextIter ? end_iter) {
+            end_iter = null;
+            return false;
+        }
+
+        public virtual SearchResult[] search (string word) {
+            return {};
+        }
+
+        public virtual void scroll_to_search_result (SearchResult result) {}
     }
 }

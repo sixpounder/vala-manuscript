@@ -122,10 +122,10 @@ namespace Manuscript.Widgets {
 
         private void on_stop_chunk_editing (Models.DocumentChunk? chunk) {
             debug (@"EditorsController - Stop editing chunk $(chunk.uuid)");
-            var get_editor_view_for_chunk = get_editor_view_for_chunk (chunk);
-            if (get_editor_view_for_chunk == null) {
-                // remove_editor (chunk);
-            }
+            //  var get_editor_view_for_chunk = get_editor_view_for_chunk (chunk);
+            //  if (get_editor_view_for_chunk == null) {
+            //      // remove_editor (chunk);
+            //  }
         }
 
         // Updates various components of this widget to reflect current
@@ -190,16 +190,6 @@ namespace Manuscript.Widgets {
         }
 
         private void remove_chunk (Models.DocumentChunk chunk) {
-        //      assert (chunk != null);0
-        //      for (int i = 0; i < notebook.tabs.length (); i++) {
-        //          if (notebook.tabs.nth (i) != null) {
-        //              var editor = (EditorView) notebook.tabs.nth (i);
-        //              if (editor != null && editor.chunk == chunk) {
-        //                  notebook.remove_tab (editor);
-        //                  return;
-        //              }
-        //          }
-        //      }
             update_ui ();
         }
 

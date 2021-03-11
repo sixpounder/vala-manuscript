@@ -189,19 +189,24 @@ namespace Manuscript.Widgets {
                 Models.ChunkType.NOTE.to_icon_name (),
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_ADD_NOTE)"
             );
-
+#if IMPORT_ENABLED
             var import_button = create_model_button (
                 _("Import"),
                 "document-import-symbolic",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_IMPORT)"
             );
+#endif
 
             grid.add (add_chapter_button);
             grid.add (add_character_sheet_button);
             grid.add (add_cover_button);
             grid.add (add_note_button);
+
+#if IMPORT_ENABLED
             grid.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
             grid.add (import_button);
+#endif
+
             grid.show_all ();
 
             var popover = new Gtk.PopoverMenu ();

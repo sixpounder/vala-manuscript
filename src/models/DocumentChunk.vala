@@ -34,7 +34,7 @@ namespace Manuscript.Models {
         public signal void analyze ();
 
         protected uint words_counter_timer = 0;
-        public virtual ChunkType chunk_type { get; set; }
+        public virtual ChunkType kind { get; set; }
         public bool has_changes { get; private set; }
         public uint words_count { get; private set; }
         public double estimate_reading_time { get; private set; }
@@ -67,12 +67,12 @@ namespace Manuscript.Models {
             }
         }
 
-        public DocumentChunk.empty (ChunkType chunk_type) {
+        public DocumentChunk.empty (ChunkType kind) {
             Object (
-                chunk_type: chunk_type,
+                kind: kind,
                 uuid: GLib.Uuid.string_random ()
             );
-            switch (chunk_type) {
+            switch (kind) {
                 case ChunkType.CHAPTER:
                     title = _("New chapter");
                     break;
@@ -117,7 +117,7 @@ namespace Manuscript.Models {
                 index = 0;
             }
 
-            chunk_type = (Models.ChunkType) obj.get_int_member ("chunk_type");
+            kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
             build_buffer (raw_content);
         }
 
@@ -128,7 +128,7 @@ namespace Manuscript.Models {
             root.set_string_member ("title", title);
             root.set_string_member ("notes", notes);
             root.set_int_member ("index", index);
-            root.set_int_member ("chunk_type", (int64) chunk_type);
+            root.set_int_member ("chunk_type", (int64) kind);
 
             return root;
         }

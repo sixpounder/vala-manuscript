@@ -117,9 +117,7 @@ namespace Manuscript.Widgets {
             return {};
         }
 
-        public void content_event (Protocols.ContentEvent event) {}
-
-        public Gtk.TextBuffer get_buffer () {
+        public Gtk.TextBuffer ? get_buffer () {
             return chunk != null ? chunk.buffer : null;
         }
 
@@ -131,11 +129,11 @@ namespace Manuscript.Widgets {
             return editor.scroll_to_iter (iter, within_margin, use_align, xalign, yalign);
         }
 
-        public bool search_for_iter (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
+        public bool search_for_iter (Gtk.TextIter start_iter, out Gtk.TextIter ? end_iter) {
             return editor.search_for_iter (start_iter, out end_iter);
         }
 
-        public bool search_for_iter_backward (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
+        public bool search_for_iter_backward (Gtk.TextIter start_iter, out Gtk.TextIter ? end_iter) {
             return editor.search_for_iter_backward (start_iter, out end_iter);
         }
     }
