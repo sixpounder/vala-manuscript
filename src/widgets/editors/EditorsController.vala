@@ -79,7 +79,6 @@ namespace Manuscript.Widgets {
             editors_courtesy_view = new Manuscript.Widgets.EditorCourtesyView (document_manager);
 
             add_named (editors_courtesy_view, "editors-courtesy-view");
-            //  add_named (editor_view_wrapper, "editor-view");
 
             visible_child = editors_courtesy_view;
 
