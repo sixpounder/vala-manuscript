@@ -1,12 +1,22 @@
-namespace Manuscript.Widgets {
-    public class DocumentSourceList : Granite.Widgets.SourceList {
-        //  public bool data_drop_possible (Gdk.DragContext context, Gtk.SelectionData data) {
-        //      return data.get_target () == Gdk.Atom.intern_static_string ("text/uri-list");
-        //  }
+/*
+ * Copyright 2021 Andrea Coronese <sixpounder@protonmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 
-        //  public Gdk.DragAction data_received (Gdk.DragContext context, Gtk.SelectionData data) {
-        //      debug (data.get_text ());
-        //      return Gdk.DragAction.COPY;
-        //  }
-    }
+namespace Manuscript.Widgets {
+    public class DocumentSourceList : Granite.Widgets.SourceList {}
 }

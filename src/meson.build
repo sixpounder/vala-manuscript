@@ -46,7 +46,6 @@ executable(
 
 	'models/ChunkType.vala',
 	'models/DocumentChunk.vala',
-	'models/Chapter.vala',
 	'models/Document.vala',
 	'models/LoadState.vala',
     'models/DocumentSettings.vala',
