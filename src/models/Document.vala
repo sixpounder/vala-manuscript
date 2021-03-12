@@ -315,12 +315,11 @@ namespace Manuscript.Models {
                 debug ("Moving item to the bottom");
                 chunk.index = chunks_by_type_size (chunk.kind) - 1;
             } else {
-                debug (@"Moving item \"$(chunk.title)\" ($(chunk.index)) before \"$(before_this.title)\" ($(before_this.index))");
                 chunk.index = before_this.index - 1;
 
                 int idx = 0;
                 iter_chunks_by_type (chunk.kind)
-                    .order_by((a, b) => {
+                    .order_by ((a, b) => {
                         if (a.index < b.index) {
                             return -1;
                         } else if (a.index > b.index) {
@@ -331,7 +330,6 @@ namespace Manuscript.Models {
                     })
                     .@foreach ((c) => {
                         if (c.index != idx) {
-                            debug (@"Reindexing $(c.title) from index $(c.index) to $idx");
                             c.index = idx;
                         }
                         idx ++;
@@ -391,7 +389,7 @@ namespace Manuscript.Models {
 
         public void apply_chunk_type (ChunkType kind, ChunkTransformFunc f) {
             iter_chunks_by_type (kind).@foreach ((item) => {
-                f(item);
+                f (item);
                 return true;
             });
         }

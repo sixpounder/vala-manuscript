@@ -110,12 +110,12 @@ namespace Manuscript.Widgets {
         }
 
         private void on_start_chunk_editing (Models.DocumentChunk chunk) {
-            debug (@"EditorsController - Start editing chunk $(chunk.uuid)");
+            debug (@"EditorsController - Start editing chunk $(chunk.title)");
             add_editor_view_for_chunk (chunk, true);
         }
 
         private void on_stop_chunk_editing (Models.DocumentChunk? chunk) {
-            debug (@"EditorsController - Stop editing chunk $(chunk.uuid)");
+            debug (@"EditorsController - Stop editing chunk $(chunk.title)");
         }
 
         // Updates various components of this widget to reflect current

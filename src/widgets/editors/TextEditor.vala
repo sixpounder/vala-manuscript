@@ -22,7 +22,7 @@ namespace Manuscript.Widgets {
         public bool has_changes { get; private set; }
         public Gtk.SourceSearchContext search_context = null;
         protected weak Models.DocumentChunk _chunk;
-        protected Gtk.CssProvider provider;
+        protected Gtk.CssProvider font_style_provider;
         protected Services.AppSettings settings = Services.AppSettings.get_default ();
 
         public TextEditor (Models.DocumentChunk chunk) {
@@ -85,8 +85,25 @@ namespace Manuscript.Widgets {
             return settings.zen;
         }
 
+        public void set_font (string font_family, int64 font_size) {
+            try {
+                // Regenerate a provider with the desired font
+                font_style_provider.load_from_data (@"
+                    .manuscript-text-editor {
+                        font-family: $font_family;
+                        font-size: $(font_size)px;
+                    }
+                ");
+            } catch (Error e) {
+                warning (e.message);
+            }
+        }
+
         protected void init_editor () throws GLib.Error {
+            font_style_provider = new Gtk.CssProvider ();
+            get_style_context ().add_class ("manuscript-text-editor");
             get_style_context ().add_provider (get_editor_style (), Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+            get_style_context ().add_provider (font_style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             right_margin = 100;
             left_margin = 100;
             top_margin = 50;

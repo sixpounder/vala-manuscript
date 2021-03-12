@@ -79,35 +79,23 @@ namespace Manuscript.Widgets {
         }
 
         protected void reflect_document_settings () {
-            var font_family_string = @"$(
+            string font_family_string =
                 parent_window.document_manager.document.settings.font_family != null
                     ? parent_window.document_manager.document.settings.font_family
-                    : Constants.DEFAULT_FONT_FAMILY
-            )";
-            var font_size_string = @"$(
+                    : Constants.DEFAULT_FONT_FAMILY;
+            int64 font_size =
                 parent_window.document_manager.document.settings.font_size != 0
                     ? parent_window.document_manager.document.settings.font_size
-                    : Constants.DEFAULT_FONT_SIZE
-            )px";
-    
-            set_font (
-                Pango.FontDescription.from_string (@"
-                    $(
-                        font_family_string
-                    )
-                    $(
-                        font_size_string
-                    )"
-                )
-            );
+                    : Constants.DEFAULT_FONT_SIZE;
+
+            set_font (font_family_string, font_size);
             editor.indent = (int) parent_window.document_manager.document.settings.paragraph_start_padding;
             editor.pixels_below_lines = (int) parent_window.document_manager.document.settings.paragraph_spacing;
 
         }
 
-        public void set_font (Pango.FontDescription font) {
-            // TODO: use css instead
-            editor.override_font (font);
+        public void set_font (string font_family, int64 font_size) {
+            editor.set_font (font_family, font_size);
         }
 
         public void scroll_to_cursor () {

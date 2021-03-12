@@ -44,13 +44,19 @@ namespace Manuscript.Widgets.Settings {
             title_input.expand = true;
             title_input.halign = Gtk.Align.FILL;
             title_input.placeholder_text = _("Type a title for your manuscript");
-            title_input.text = document_manager.document.title;
+
+            if (document_manager.document.title != null) {
+                title_input.text = document_manager.document.title;
+            }
+
             title_input.changed.connect (() => {
                 document_manager.document.title = title_input.text;
             });
 
             attach (title_label, 0, 0, 1, 1);
             attach (title_input, 1, 0, 1, 1);
+
+            show_all ();
         }
     }
 }

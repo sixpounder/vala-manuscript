@@ -31,6 +31,7 @@ namespace Manuscript.Widgets {
         public Sidebar (Manuscript.Window parent) {
             Object (
                 orientation: Gtk.Orientation.VERTICAL,
+                homogeneous: false,
                 width_request: 250,
                 hexpand: true,
                 vexpand: true,
@@ -79,10 +80,6 @@ namespace Manuscript.Widgets {
             notes_root = new SourceListCategoryItem (_("Notes"), Models.ChunkType.NOTE);
             notes_root.document_manager = document_manager;
             notes_root.user_moved_item.connect (on_item_moved);
-
-            //  chapters_root.user_moved_item.connect(on_entry_moved);
-            //  characters_root.user_moved_item.connect(on_entry_moved);
-            //  notes_root.user_moved_item.connect(on_entry_moved);
 
             root_list = new DocumentSourceList ();
 
@@ -228,9 +225,13 @@ namespace Manuscript.Widgets {
 
         protected void on_item_moved (Granite.Widgets.SourceList.Item moved) {
             SourceListChunkItem moved_item = moved as SourceListChunkItem;
-            var next = root_list.get_next_item (moved_item);
-            var next_chunk = next == null ? null : (next as SourceListChunkItem).chunk;
+            Granite.Widgets.SourceList.Item? next = root_list.get_next_item (moved_item);
+            Manuscript.Models.DocumentChunk next_chunk = next == null ? null : (next as SourceListChunkItem).chunk;
             document_manager.move_chunk (moved_item.chunk, next_chunk);
+
+            // Select and scroll to the moved item to avoid confusion
+            root_list.selected = moved_item;
+            root_list.scroll_to_item (moved_item);
         }
     }
 }

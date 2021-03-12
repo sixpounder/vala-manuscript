@@ -35,14 +35,12 @@ namespace Manuscript.Widgets {
             child_chunks = new Gee.ArrayList<SourceListChunkItem> ();
             child_added.connect (on_child_added);
             child_removed.connect (on_child_removed);
-            //  user_moved_item.connect_after (on_child_moved);
         }
 
         ~ SourceListCategoryItem () {
             child_chunks.clear ();
             child_added.disconnect (on_child_added);
             child_removed.disconnect (on_child_removed);
-            //  user_moved_item.disconnect (on_child_moved);
         }
 
         private void on_child_added (Granite.Widgets.SourceList.Item item) {
@@ -58,79 +56,6 @@ namespace Manuscript.Widgets {
             debug ("Source list removed chunk item");
             var it = item as SourceListChunkItem;
             child_chunks.remove (it);
-        }
-
-        private void on_child_moved (Granite.Widgets.SourceList.Item moved) {
-            assert (moved != null);
-            if (moved != null) {
-                var moved_entry = moved as SourceListChunkItem;
-                assert (moved_entry.chunk != null);
-                if (moved_entry.chunk != null && moved_entry.chunk.kind == category_type) {
-                    SourceListChunkItem next_item = item_after (moved_entry) as SourceListChunkItem;
-                    Manuscript.Models.DocumentChunk next_chunk = next_item != null ? next_item.chunk : null;
-                    debug (@"*** Item moved in list: $(moved_entry.chunk.title) before $(next_chunk != null ? next_chunk.title : "nothing") ***");
-                    document_manager.move_chunk (moved_entry.chunk, next_chunk);
-                } else {
-                    warning ("Could not move item (item has no chunk associated)");
-                }
-            } else {
-                warning ("Could not move item (NULL)");
-            }
-        }
-
-        /**
-         * Finds the `Granite.Widgets.SourceList.Item` that lies before `item` (if any)
-         */
-        public Granite.Widgets.SourceList.Item ? item_before (Granite.Widgets.SourceList.Item item) {
-            Granite.Widgets.SourceList.Item found = null;
-            if (children.size == 1) {
-                found = null;
-            } else {
-                var iter = children.iterator ();
-                Granite.Widgets.SourceList.Item last_checked_item = null;
-                while (iter.has_next ()) {
-                    iter.next ();
-                    var i = iter.@get ();
-                    if (i == item) {
-                        found = last_checked_item;
-                        break;
-                    } else {
-                        last_checked_item = i;
-                        continue;
-                    }
-                }
-            }
-
-            return found;
-        }
-
-        /**
-         * Finds the `Granite.Widgets.SourceList.Item` that lies after `item` (if any)
-         */
-         public Granite.Widgets.SourceList.Item ? item_after (Granite.Widgets.SourceList.Item item) {
-            Granite.Widgets.SourceList.Item found = null;
-            if (children.size == 0) {
-                found = null;
-            } else {
-                var iter = children.iterator ();
-                while (iter.has_next ()) {
-                    iter.next ();
-                    var i = iter.@get ();
-                    if (i == item) {
-                        // Next item is the item we want to return
-                        if (iter.has_next ()) {
-                            iter.next ();
-                            found = iter.@get ();
-                        } else {
-                            found = null;
-                        }
-
-                        break;
-                    }
-                }
-            }
-
-            return found;
         }
 
         public bool allow_dnd_sorting () {
