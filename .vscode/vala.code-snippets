@@ -1,9 +1,23 @@
 {
+    "Vala class": {
+        "scope": "vala",
+        "prefix": "Class",
+        "body": [
+            "namespace Manuscript.$1 {",
+            "   public class $2 {",
+            "       public $2 () {",
+            "           Object ();",
+            "       }",
+            "   }",
+            "}"
+        ],
+        "description": "Basic Manuscript project class declaration"
+    },
     "License header comment": {
         "prefix": "Manuscript license",
         "body": [
             "/*",
-            " * Copyright 2021 Andrea Coronese <sixpounder@protonmail.com>",
+            " * Copyright $CURRENT_YEAR Andrea Coronese <sixpounder@protonmail.com>",
             " *",
             " * This program is free software: you can redistribute it and/or modify",
             " * it under the terms of the GNU General Public License as published by",
@@ -12,7 +26,7 @@
             " *",
             " * This program is distributed in the hope that it will be useful,",
             " * but WITHOUT ANY WARRANTY; without even the implied warranty of",
-            " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the",
+            " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the",
             " * GNU General Public License for more details.",
             " *",
             " * You should have received a copy of the GNU General Public License",
@@ -21,6 +35,6 @@
             " * SPDX-License-Identifier: GPL-3.0-or-later",
             " */",
         ],
-        "description": "Adds license disclaimer"
+        "description": "Adds project license disclaimer"
     }
 }

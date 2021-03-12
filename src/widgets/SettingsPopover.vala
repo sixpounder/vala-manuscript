@@ -21,9 +21,9 @@ namespace Manuscript.Widgets {
     public class SettingsPopover : Gtk.Popover {
         protected Gtk.Grid layout;
         protected Gtk.Box theme_layout;
-        protected ThemeButton light_theme_button;
-        protected ThemeButton dark_theme_button;
-        protected ThemeButton sepia_theme_button;
+        //  protected ThemeButton light_theme_button;
+        //  protected ThemeButton dark_theme_button;
+        //  protected ThemeButton sepia_theme_button;
         public Gtk.Switch zen_switch { get; private set; }
         public Gtk.Switch autosave_switch { get; private set; }
         public Services.AppSettings settings { get; private set; }
@@ -105,8 +105,8 @@ namespace Manuscript.Widgets {
         }
 
         ~SettingsPopover () {
-            light_theme_button.selected.disconnect (on_theme_set);
-            dark_theme_button.selected.disconnect (on_theme_set);
+            //  light_theme_button.selected.disconnect (on_theme_set);
+            //  dark_theme_button.selected.disconnect (on_theme_set);
         }
 
         protected void on_theme_set (string theme) {

@@ -70,10 +70,15 @@ namespace Manuscript.Widgets {
             // One expandable items per category
             chapters_root = new SourceListCategoryItem (_("Chapters"), Models.ChunkType.CHAPTER);
             chapters_root.document_manager = document_manager;
+            chapters_root.user_moved_item.connect (on_item_moved);
+
             characters_root = new SourceListCategoryItem ("Characters sheets", Models.ChunkType.CHARACTER_SHEET);
             characters_root.document_manager = document_manager;
+            characters_root.user_moved_item.connect (on_item_moved);
+
             notes_root = new SourceListCategoryItem (_("Notes"), Models.ChunkType.NOTE);
             notes_root.document_manager = document_manager;
+            notes_root.user_moved_item.connect (on_item_moved);
 
             //  chapters_root.user_moved_item.connect(on_entry_moved);
             //  characters_root.user_moved_item.connect(on_entry_moved);
@@ -179,6 +184,7 @@ namespace Manuscript.Widgets {
         public void add_chunk (Models.DocumentChunk chunk, bool active = true) {
             assert (chunk != null);
             SourceListChunkItem item_to_add = new SourceListChunkItem.with_chunk (chunk);
+
             Granite.Widgets.SourceList.ExpandableItem root_node;
             switch (chunk.kind) {
                 case Models.ChunkType.CHAPTER:
@@ -218,6 +224,13 @@ namespace Manuscript.Widgets {
                 root_list.selected = node;
                 root_list.scroll_to_item (node);
             }
+        }
+
+        protected void on_item_moved (Granite.Widgets.SourceList.Item moved) {
+            SourceListChunkItem moved_item = moved as SourceListChunkItem;
+            var next = root_list.get_next_item (moved_item);
+            var next_chunk = next == null ? null : (next as SourceListChunkItem).chunk;
+            document_manager.move_chunk (moved_item.chunk, next_chunk);
         }
     }
 }

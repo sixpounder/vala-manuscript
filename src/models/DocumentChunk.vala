@@ -18,6 +18,8 @@
  */
 
 namespace Manuscript.Models {
+    public delegate void ChunkTransformFunc (DocumentChunk chunk);
+
     public class DocumentChunk : Object {
 
         protected const string[] SERIALIZABLE_PROPERIES = {

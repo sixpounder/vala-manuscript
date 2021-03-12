@@ -35,7 +35,14 @@ namespace Manuscript.Widgets {
             child_chunks = new Gee.ArrayList<SourceListChunkItem> ();
             child_added.connect (on_child_added);
             child_removed.connect (on_child_removed);
-            user_moved_item.connect (on_child_moved);
+            //  user_moved_item.connect_after (on_child_moved);
+        }
+
+        ~ SourceListCategoryItem () {
+            child_chunks.clear ();
+            child_added.disconnect (on_child_added);
+            child_removed.disconnect (on_child_removed);
+            //  user_moved_item.disconnect (on_child_moved);
         }
 
         private void on_child_added (Granite.Widgets.SourceList.Item item) {
@@ -53,16 +60,16 @@ namespace Manuscript.Widgets {
             child_chunks.remove (it);
         }
 
-        private void on_child_moved (Granite.Widgets.SourceList.Item item) {
-            assert (item != null);
-            if (item != null) {
-                debug ("Item moved in list, reflecting changes");
-                var entry = item as SourceListChunkItem;
-                assert (entry.chunk != null);
-                if (entry.chunk != null && entry.chunk.kind == category_type) {
-                    var next_item = item_after (entry) as SourceListChunkItem;
-                    var next_chunk = next_item != null ? next_item.chunk : null;
-                    document_manager.move_chunk (entry.chunk, next_chunk);
+        private void on_child_moved (Granite.Widgets.SourceList.Item moved) {
+            assert (moved != null);
+            if (moved != null) {
+                var moved_entry = moved as SourceListChunkItem;
+                assert (moved_entry.chunk != null);
+                if (moved_entry.chunk != null && moved_entry.chunk.kind == category_type) {
+                    SourceListChunkItem next_item = item_after (moved_entry) as SourceListChunkItem;
+                    Manuscript.Models.DocumentChunk next_chunk = next_item != null ? next_item.chunk : null;
+                    debug (@"*** Item moved in list: $(moved_entry.chunk.title) before $(next_chunk != null ? next_chunk.title : "nothing") ***");
+                    document_manager.move_chunk (moved_entry.chunk, next_chunk);
                 } else {
                     warning ("Could not move item (item has no chunk associated)");
                 }

@@ -2,7 +2,8 @@
 <!-- Copyright 2021 Andrea Coronese <sixpounder@protonmail.com> -->
 <component type="desktop-application">
     <id>com.github.sixpounder.manuscript</id>
-    <metadata_license>CC0</metadata_license>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0+</project_license>
     <name>Manuscript</name>
     <summary>A distraction free writing environment</summary>
     <description>
