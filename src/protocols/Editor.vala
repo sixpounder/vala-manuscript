@@ -38,6 +38,8 @@ namespace Manuscript.Protocols {
         public abstract void show_editor (Models.DocumentChunk chunk);
     }
 
+    public interface ChunkEditor {}
+
     public interface EditorController : Object {
         public abstract weak Models.DocumentChunk chunk { get; construct; }
 

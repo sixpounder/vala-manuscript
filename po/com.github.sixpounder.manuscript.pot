@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-04 17:14+0100\n"
+"POT-Creation-Date: 2021-03-13 22:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,78 +17,60 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/Window.vala:202
+#: src/Window.vala:235
 msgid "Open document"
 msgstr ""
 
-#: src/Window.vala:205
+#: src/Window.vala:238 src/dialogs/ExportDialog.vala:47
+#: src/dialogs/FileSaveDialog.vala:40
 msgid "Cancel"
 msgstr ""
 
-#: src/Window.vala:207 src/WelcomeView.vala:12 src/widgets/Header.vala:105
+#: src/Window.vala:240 src/widgets/WelcomeView.vala:31
+#: src/widgets/Header.vala:128
 msgid "Open"
 msgstr ""
 
-#: src/Window.vala:215
+#: src/Window.vala:248
 msgid "Manuscripts"
 msgstr ""
 
-#: src/Window.vala:223
+#: src/Window.vala:256
 msgid "All files"
 msgstr ""
 
-#: src/Window.vala:247
+#: src/Window.vala:280
 msgid "Unable to create temporary document"
 msgstr ""
 
-#: src/Window.vala:264
+#: src/Window.vala:297
 #, c-format
 msgid "File at %s could not be found. It may have been moved or deleted."
 msgstr ""
 
-#: src/Window.vala:271
+#: src/Window.vala:304
 #, c-format
 msgid "Cannot read %s"
 msgstr ""
 
-#: src/Window.vala:272
+#: src/Window.vala:305
 msgid "The file you selected does not appear to be a valid Manuscript file"
 msgstr ""
 
-#: src/Window.vala:275
+#: src/Window.vala:308
 #, c-format
 msgid "Some strange error happened while trying to open file at %s"
 msgstr ""
 
-#: src/Window.vala:279
+#: src/Window.vala:312
 msgid "Dismiss"
 msgstr ""
 
-#: src/WelcomeView.vala:9
-msgid "Welcome to "
-msgstr ""
-
-#: src/WelcomeView.vala:9
-msgid "Distraction free writing environment"
-msgstr ""
-
-#: src/WelcomeView.vala:11
-msgid "New manuscript"
-msgstr ""
-
-#: src/WelcomeView.vala:11
-msgid "Create a new empty manuscript"
-msgstr ""
-
-#: src/WelcomeView.vala:12
-msgid "Open an existing manuscript"
-msgstr ""
-
-#: src/dialogs/QuitDialog.vala:15
+#: src/dialogs/QuitDialog.vala:34
 msgid "Document has unsaved changes"
 msgstr ""
 
-#: src/dialogs/QuitDialog.vala:17
+#: src/dialogs/QuitDialog.vala:36
 msgid ""
 "\n"
 "                Leaving now will result in a loss of unsaved changes.\n"
@@ -97,126 +79,238 @@ msgid ""
 "            "
 msgstr ""
 
-#: src/dialogs/QuitDialog.vala:22
+#: src/dialogs/QuitDialog.vala:41
 msgid "Keep editing"
 msgstr ""
 
-#: src/dialogs/QuitDialog.vala:24
+#: src/dialogs/QuitDialog.vala:43
 msgid "Close this document"
 msgstr ""
 
-#: src/widgets/Header.vala:76
-msgid "Settings"
+#: src/dialogs/ExportDialog.vala:43
+msgid "Export"
 msgstr ""
 
-#: src/widgets/Header.vala:77
-msgid "Application settings"
+#: src/dialogs/FileSaveDialog.vala:39
+msgid "Save document"
+msgstr ""
+
+#: src/widgets/WelcomeView.vala:28
+msgid "Welcome to "
+msgstr ""
+
+#: src/widgets/WelcomeView.vala:28
+msgid "Distraction free writing environment"
+msgstr ""
+
+#: src/widgets/WelcomeView.vala:30
+msgid "New manuscript"
+msgstr ""
+
+#: src/widgets/WelcomeView.vala:30
+msgid "Create a new empty manuscript"
+msgstr ""
+
+#: src/widgets/WelcomeView.vala:31
+msgid "Open an existing manuscript"
 msgstr ""
 
 #: src/widgets/Header.vala:99
+msgid "Settings"
+msgstr ""
+
+#: src/widgets/Header.vala:100
+msgid "Application settings"
+msgstr ""
+
+#: src/widgets/Header.vala:122
 msgid "New window"
 msgstr ""
 
-#: src/widgets/Header.vala:111
+#: src/widgets/Header.vala:134
 msgid "Save"
 msgstr ""
 
-#: src/widgets/Header.vala:117
+#: src/widgets/Header.vala:140
 msgid "Save as"
 msgstr ""
 
-#: src/widgets/Header.vala:123
+#: src/widgets/Header.vala:146
 msgid "Document settings"
 msgstr ""
 
-#: src/widgets/Header.vala:129
+#: src/widgets/Header.vala:152
 msgid "Close document"
 msgstr ""
 
-#: src/widgets/Header.vala:135
+#: src/widgets/Header.vala:158
 msgid "Quit"
 msgstr ""
 
-#: src/widgets/Header.vala:166
+#: src/widgets/Header.vala:190
 msgid "Chapter"
 msgstr ""
 
-#: src/widgets/Header.vala:172
+#: src/widgets/Header.vala:199
 msgid "Character sheet"
 msgstr ""
 
-#: src/widgets/Header.vala:178
+#: src/widgets/Header.vala:208
 msgid "Cover"
 msgstr ""
 
-#: src/widgets/Header.vala:184
+#: src/widgets/Header.vala:217
 msgid "Note"
 msgstr ""
 
-#: src/widgets/Header.vala:190
+#: src/widgets/Header.vala:226
 msgid "Import"
 msgstr ""
 
-#: src/widgets/Header.vala:232
+#: src/widgets/Header.vala:268
 msgid "modified"
 msgstr ""
 
-#: src/widgets/StatusBar.vala:27 src/widgets/StatusBar.vala:52
+#: src/widgets/StatusBar.vala:46 src/widgets/StatusBar.vala:71
 msgid "words"
 msgstr ""
 
-#: src/widgets/StatusBar.vala:34
+#: src/widgets/StatusBar.vala:53
 msgid "Estimated reading time"
 msgstr ""
 
-#: src/widgets/StatusBar.vala:47
+#: src/widgets/StatusBar.vala:66
 msgid "minute"
 msgstr ""
 
-#: src/widgets/StatusBar.vala:48
+#: src/widgets/StatusBar.vala:67
 msgid "minutes"
 msgstr ""
 
-#: src/widgets/FileNotFound.vala:6
+#: src/widgets/SourceListChunkItem.vala:37
+msgid "Remove"
+msgstr ""
+
+#: src/widgets/FileNotFound.vala:25
 msgid "File does not exist"
 msgstr ""
 
-#: src/widgets/FileNotFound.vala:7
+#: src/widgets/FileNotFound.vala:26
 msgid "This file may have been deleted or moved."
 msgstr ""
 
-#: src/widgets/FileNotFound.vala:7
+#: src/widgets/FileNotFound.vala:26
 msgid "not found"
 msgstr ""
 
-#: src/widgets/SearchBar.vala:24
+#: src/widgets/SearchPanel.vala:61 src/widgets/SearchBar.vala:43
 msgid "Replace with…"
 msgstr ""
 
-#: src/widgets/SearchBar.vala:28
+#: src/widgets/SearchPanel.vala:65 src/widgets/SearchBar.vala:47
 msgid "Replace"
 msgstr ""
 
-#: src/widgets/SearchBar.vala:31
+#: src/widgets/SearchPanel.vala:68 src/widgets/SearchBar.vala:50
 msgid "Replace all"
 msgstr ""
 
-#: src/widgets/SearchBar.vala:60
+#: src/widgets/SearchPanel.vala:78 src/widgets/SearchBar.vala:79
 msgid "Find…"
 msgstr ""
 
-#: src/widgets/SearchBar.vala:79
+#: src/widgets/SearchPanel.vala:98 src/widgets/SearchBar.vala:98
 msgid "Search previous"
 msgstr ""
 
-#: src/widgets/SearchBar.vala:97
+#: src/widgets/SearchPanel.vala:103 src/widgets/SearchBar.vala:116
 msgid "Search next"
 msgstr ""
 
-#: src/widgets/QuickOpenPanel.vala:15
+#: src/widgets/QuickOpenPanel.vala:44
 msgid "Quick open"
 msgstr ""
 
-#: src/widgets/QuickOpenPanel.vala:37
+#: src/widgets/QuickOpenPanel.vala:67
 msgid "Type to search"
+msgstr ""
+
+#: src/widgets/EditorCourtesyView.vala:37
+msgid "Select something to edit"
+msgstr ""
+
+#: src/widgets/EditorCourtesyView.vala:40
+msgid "or"
+msgstr ""
+
+#: src/widgets/EditorCourtesyView.vala:42
+msgid "Add a new chapter"
+msgstr ""
+
+#: src/widgets/SettingsPopover.vala:68
+msgid "Focus mode"
+msgstr ""
+
+#: src/widgets/SettingsPopover.vala:83
+msgid "Autosave"
+msgstr ""
+
+#: src/widgets/Sidebar.vala:72
+msgid "Chapters"
+msgstr ""
+
+#: src/widgets/Sidebar.vala:80
+msgid "Notes"
+msgstr ""
+
+#: src/widgets/DocumentSettings.vala:44
+msgid "General"
+msgstr ""
+
+#: src/widgets/DocumentSettings.vala:49
+msgid "Typography"
+msgstr ""
+
+#: src/widgets/settings/General.vala:40
+msgid "Manuscript title"
+msgstr ""
+
+#: src/widgets/settings/General.vala:46
+msgid "Type a title for your manuscript"
+msgstr ""
+
+#: src/widgets/settings/Metrics.vala:42
+msgid "Font"
+msgstr ""
+
+#: src/widgets/settings/Metrics.vala:65
+msgid "Paragraph spacing"
+msgstr ""
+
+#: src/widgets/settings/Metrics.vala:77
+msgid "Paragraph initial padding"
+msgstr ""
+
+#: src/models/ChapterChunk.vala:40
+msgid "New chapter"
+msgstr ""
+
+#: src/models/CharacterSheetChunk.vala:26
+msgid "New character sheet"
+msgstr ""
+
+#: src/models/NoteChunk.vala:26
+msgid "New note"
+msgstr ""
+
+#: src/models/CoverChunk.vala:26
+msgid "New cover"
+msgstr ""
+
+#: src/services/ActionManager.vala:181
+msgid "Export succeeded"
+msgstr ""
+
+#: src/services/ActionManager.vala:182
+msgid "Your manuscript has been successfully exported"
 msgstr ""

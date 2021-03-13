@@ -18,14 +18,14 @@
  */
 
 namespace Manuscript.Widgets {
-    public class TextEditor : Gtk.SourceView {
+    public class TextEditor : Gtk.SourceView, Protocols.ChunkEditor {
         public bool has_changes { get; private set; }
         public Gtk.SourceSearchContext search_context = null;
-        protected weak Models.DocumentChunk _chunk;
+        protected weak Models.TextChunk _chunk;
         protected Gtk.CssProvider font_style_provider;
         protected Services.AppSettings settings = Services.AppSettings.get_default ();
 
-        public TextEditor (Models.DocumentChunk chunk) {
+        public TextEditor (Models.TextChunk chunk) {
             Object (
                 chunk: chunk,
                 has_focus: true,
@@ -46,7 +46,7 @@ namespace Manuscript.Widgets {
 
         }
 
-        public weak Models.DocumentChunk chunk {
+        public weak Models.TextChunk chunk {
             get {
                 return _chunk;
             }
@@ -87,7 +87,7 @@ namespace Manuscript.Widgets {
 
         public void set_font (string font_family, int64 font_size) {
             try {
-                // Regenerate a provider with the desired font
+                // Regenerate provider with the desired font
                 font_style_provider.load_from_data (@"
                     .manuscript-text-editor {
                         font-family: $font_family;
@@ -125,10 +125,6 @@ namespace Manuscript.Widgets {
                     buffer.notify["cursor-position"].connect (set_focused_paragraph);
                 } else {
                     Gtk.TextIter start, end;
-                    //  Gtk.TextTag[] tags =
-                    //      (buffer.tag_table as DocumentTagTable).for_theme (
-                    //          settings.theme
-                    //      );
                     string focused_tag;
                     string dimmed_tag;
                     if (settings.desktop_prefers_dark_theme) {

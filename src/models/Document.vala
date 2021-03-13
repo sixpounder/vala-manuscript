@@ -24,18 +24,6 @@ namespace Manuscript.Models {
         PARSE
     }
 
-    public class IndexedItem<G> : Object {
-        public G data { get; set; }
-        public int index { get; set; }
-
-        public IndexedItem (G data, int index) {
-            Object (
-                data: data,
-                index: index
-            );
-        }
-    }
-
     public interface DocumentBase : Object {
         public abstract string version { get; set; }
         public abstract string uuid { get; set; }
@@ -102,7 +90,7 @@ namespace Manuscript.Models {
             var chunks_array = root_object.get_array_member ("chunks");
             chunks = new Gee.ArrayList<DocumentChunk> ();
             foreach (var el in chunks_array.get_elements ()) {
-                add_chunk (new DocumentChunk.from_json_object (el.get_object ()), false);
+                add_chunk (DocumentChunk.from_json_object (el.get_object ()), false);
             }
 
             // Sort chunks by their index
@@ -273,19 +261,6 @@ namespace Manuscript.Models {
             }
         }
 
-        protected Gee.Iterator<IndexedItem<DocumentChunk>> get_chunks_group (ChunkType kind) {
-            int i = 0;
-            Gee.Iterator<IndexedItem<DocumentChunk>> filtered_iter = chunks.filter ((item) => {
-                return item.kind == kind;
-            }).map<IndexedItem<DocumentChunk>> ((item) => {
-                var c_item = new IndexedItem<DocumentChunk> (item, i);
-                i += 1;
-                return c_item;
-            });
-
-            return filtered_iter;
-        }
-
         /**
          * Adds a chunk to the collection, making it active by default
          */
@@ -355,7 +330,7 @@ namespace Manuscript.Models {
                 }
                 string data = to_json ();
                 long written_bytes = FileUtils.save (data, file_path);
-                debug (@"Document saved to $file_path ($written_bytes bytes written)");
+                info (@"Document saved to $file_path ($written_bytes bytes written)");
                 this.temporary = false;
                 this.saved (file_path);
             } catch (Error e) {
@@ -385,13 +360,6 @@ namespace Manuscript.Models {
             });
 
             return i;
-        }
-
-        public void apply_chunk_type (ChunkType kind, ChunkTransformFunc f) {
-            iter_chunks_by_type (kind).@foreach ((item) => {
-                f (item);
-                return true;
-            });
         }
     }
 }

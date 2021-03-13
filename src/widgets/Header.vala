@@ -185,29 +185,42 @@ namespace Manuscript.Widgets {
             grid.width_request = 240;
             grid.name = "main";
 
+#if CHUNK_CHAPTER
             var add_chapter_button = create_model_button (
                 _("Chapter"),
                 Models.ChunkType.CHAPTER.to_icon_name (),
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_ADD_CHAPTER)"
             );
+            grid.add (add_chapter_button);
+#endif
 
+#if CHUNK_CHARACTER_SHEET
             var add_character_sheet_button = create_model_button (
                 _("Character sheet"),
                 Models.ChunkType.CHARACTER_SHEET.to_icon_name (),
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_ADD_CHARACTER_SHEET)"
             );
+            grid.add (add_character_sheet_button);
+#endif
 
+#if CHUNK_COVER
             var add_cover_button = create_model_button (
                 _("Cover"),
                 Models.ChunkType.COVER.to_icon_name (),
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_ADD_COVER)"
             );
+            grid.add (add_cover_button);
+#endif
 
+#if CHUNK_NOTE
             var add_note_button = create_model_button (
                 _("Note"),
                 Models.ChunkType.NOTE.to_icon_name (),
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_ADD_NOTE)"
             );
+            grid.add (add_note_button);
+#endif
+
 #if IMPORT_ENABLED
             var import_button = create_model_button (
                 _("Import"),
@@ -215,11 +228,6 @@ namespace Manuscript.Widgets {
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_IMPORT)"
             );
 #endif
-
-            grid.add (add_chapter_button);
-            grid.add (add_character_sheet_button);
-            grid.add (add_cover_button);
-            grid.add (add_note_button);
 
 #if IMPORT_ENABLED
             grid.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));

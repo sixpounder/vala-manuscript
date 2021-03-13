@@ -85,9 +85,17 @@ namespace Manuscript.Widgets {
 
             var root = root_list.root;
 
+#if CHUNK_CHAPTER
             root.add (chapters_root);
+#endif
+
+#if CHUNK_CHARACTER_SHEET
             root.add (characters_root);
+#endif
+
+#if CHUNK_NOTE
             root.add (notes_root);
+#endif
 
             if (document != null) {
                 update_ui ();

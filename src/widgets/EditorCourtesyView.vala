@@ -53,7 +53,7 @@ namespace Manuscript.Widgets {
         }
 
         private void on_suggested_action () {
-            document_manager.add_chunk (new Models.DocumentChunk.empty (Models.ChunkType.CHAPTER));
+            document_manager.add_chunk (new Models.ChapterChunk.empty ());
         }
     }
 }

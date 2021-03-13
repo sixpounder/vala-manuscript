@@ -141,22 +141,25 @@ namespace Manuscript.Services {
 
         protected void action_add_chapter () {
             window.document_manager.add_chunk (
-                new Models.DocumentChunk.empty (Models.ChunkType.CHAPTER)
+                new Models.ChapterChunk.empty ()
             );
         }
 
         protected void action_add_character_sheet () {
             window.document_manager.add_chunk (
-                new Models.DocumentChunk.empty (Models.ChunkType.CHARACTER_SHEET)
+                new Models.CharacterSheetChunk.empty ()
             );
         }
 
         protected void action_add_cover () {
+            window.document_manager.add_chunk (
+                new Models.CoverChunk.empty ()
+            );
         }
 
         protected void action_add_note () {
             window.document_manager.add_chunk (
-                new Models.DocumentChunk.empty (Models.ChunkType.NOTE)
+                new Models.CoverChunk.empty ()
             );
         }
 

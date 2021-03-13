@@ -19,7 +19,7 @@
 
 namespace Manuscript.Widgets {
     /**
-     * Groups all the items relative to a single editor view
+     * Groups all the items relative to a single text editor view
      */
     public class EditorView: Gtk.Box, Protocols.EditorController {
         public weak Manuscript.Window parent_window { get; construct; }
@@ -57,9 +57,9 @@ namespace Manuscript.Widgets {
                     scrolled_container.vadjustment.upper - allocation.height
                 );
             });
-            editor = new TextEditor (chunk);
+            editor = new TextEditor (chunk as Models.TextChunk);
             reflect_document_settings ();
-            status_bar = new Widgets.StatusBar (parent_window, chunk);
+            status_bar = new Widgets.StatusBar (parent_window, chunk as Models.TextChunk);
             status_bar.height_request = 50;
             scrolled_container.add (editor);
 
@@ -122,7 +122,7 @@ namespace Manuscript.Widgets {
         }
 
         public Gtk.TextBuffer ? get_buffer () {
-            return chunk != null ? chunk.buffer : null;
+            return (chunk != null && chunk is Models.TextChunk) ? (chunk as Models.TextChunk).buffer : null;
         }
 
         public void scroll_to_search_result (Protocols.SearchResult result) {}
