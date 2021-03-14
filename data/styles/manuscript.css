@@ -13,20 +13,6 @@ button.theme-button-dark {
     background-color: @BLACK_500;
 }
 
-.documents-notebook {
-    transition: 500ms ease-in-out;
-}
-
-.documents-notebook.toggled-on notebook header {
-    margin-top: 0px;
-    transition: 200ms linear;
-}
-
-.documents-notebook.toggled-off notebook header {
-    margin-top: -70px;
-    transition: 500ms linear;
-}
-
 sourceview {
     background-color: @bg_color;
 }
@@ -46,6 +32,7 @@ sourceview {
 .quick-open-panel {
     padding: 20px;
     background-color: @bg_color;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
 }
 
 .quick-open-panel list {
@@ -58,4 +45,33 @@ sourceview {
 
 .quick-open-entry {
     padding: 5px 10px;
+}
+
+.p-1 {
+    padding: 10px;
+}
+
+.p-2 {
+    padding: 20px;
+}
+
+.p-3 {
+    padding: 30px;
+}
+
+.p-4 {
+    padding: 40px;
+}
+
+.character-sheet-editor entry.flat {
+    background-color: transparent;
+    padding: 10px 15px;
+}
+
+.character-sheet-editor entry.flat:focus {
+    box-shadow: none;
+}
+
+.character-sheet-editor textview.view {
+    padding: 10px 15px;
 }

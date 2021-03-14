@@ -35,7 +35,8 @@ namespace Manuscript.Widgets {
         }
 
         construct {
-            set_size_request (300, -1);
+            set_size_request (-1, -1);
+            get_style_context ().add_class ("p-2");
 
             settings = Services.AppSettings.get_default ();
 

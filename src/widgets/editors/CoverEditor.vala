@@ -17,18 +17,20 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-public Gtk.CssProvider get_editor_style () {
-    Gtk.CssProvider provider = new Gtk.CssProvider ();
+ namespace Manuscript.Widgets {
+    public class CoverEditor : Gtk.Box, Protocols.ChunkEditor {
+        public weak Models.CoverChunk chunk { get; construct; }
+        public weak Manuscript.Window parent_window { get; construct; }
 
-    try {
-        provider.load_from_data (
-            """textview {
-                font: 18px iA Writer Duospace;
-            }"""
-        );
-    } catch {
-        // skip
+        public CoverEditor (Manuscript.Window parent_window, Models.CoverChunk chunk) {
+            Object (
+                parent_window: parent_window,
+                chunk: chunk
+            );
+        }
+
+        construct {
+            assert (chunk.kind == Manuscript.Models.ChunkType.COVER);
+        }
     }
-
-    return provider;
 }

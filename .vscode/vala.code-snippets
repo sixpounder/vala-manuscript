@@ -1,7 +1,7 @@
 {
     "Vala class": {
         "scope": "vala",
-        "prefix": "Class",
+        "prefix": "Manuscript class with namespace",
         "body": [
             "namespace Manuscript.$1 {",
             "   public class $2 {",

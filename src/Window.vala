@@ -54,7 +54,7 @@ namespace Manuscript {
             }
         }
 
-        public weak Protocols.EditorController current_editor {
+        public weak Protocols.ChunkEditor current_editor {
             get {
                 return tabs.get_current_editor ();
             }

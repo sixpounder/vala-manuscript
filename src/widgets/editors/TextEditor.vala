@@ -80,9 +80,8 @@ namespace Manuscript.Widgets {
             } );
         }
 
-        public bool scroll_to_cursor () {
+        public void scroll_to_cursor () {
             scroll_to_mark (buffer.get_insert (), 0.0, true, 0.0, 0.5);
-            return settings.zen;
         }
 
         public void set_font (string font_family, int64 font_size) {
@@ -102,7 +101,6 @@ namespace Manuscript.Widgets {
         protected void init_editor () throws GLib.Error {
             font_style_provider = new Gtk.CssProvider ();
             get_style_context ().add_class ("manuscript-text-editor");
-            get_style_context ().add_provider (get_editor_style (), Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             get_style_context ().add_provider (font_style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             right_margin = 100;
             left_margin = 100;

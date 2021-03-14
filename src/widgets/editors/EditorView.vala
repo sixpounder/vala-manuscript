@@ -21,7 +21,7 @@ namespace Manuscript.Widgets {
     /**
      * Groups all the items relative to a single text editor view
      */
-    public class EditorView: Gtk.Box, Protocols.EditorController {
+    public class EditorView: Gtk.Box, Protocols.ChunkEditor {
         public weak Manuscript.Window parent_window { get; construct; }
         public Widgets.StatusBar status_bar { get; set; }
         public TextEditor editor { get; private set; }
@@ -110,7 +110,7 @@ namespace Manuscript.Widgets {
         * --------------------------------------------------------------------------------------------
         */
         public void focus_editor () {
-            editor.focus (Gtk.DirectionType.UP);
+            editor.grab_focus ();
         }
 
         public bool has_changes () {

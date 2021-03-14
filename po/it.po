@@ -271,7 +271,7 @@ msgstr "Modalità concentrazione"
 
 #: src/widgets/SettingsPopover.vala:83
 msgid "Autosave"
-msgstr "Autosalvataggio"
+msgstr "Salva automaticamente"
 
 #: src/widgets/Sidebar.vala:72
 #, fuzzy

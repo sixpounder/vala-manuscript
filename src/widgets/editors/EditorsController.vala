@@ -28,7 +28,7 @@ namespace Manuscript.Widgets {
         protected Services.AppSettings settings;
         protected Services.DocumentManager document_manager;
         protected Manuscript.Widgets.EditorCourtesyView editors_courtesy_view;
-        protected Gee.HashMap<string, EditorView> editors_cache;
+        protected Gee.HashMap<string, Protocols.ChunkEditor> editors_cache;
 
         public weak Manuscript.Window parent_window { get; construct; }
 
@@ -57,7 +57,7 @@ namespace Manuscript.Widgets {
         construct {
             get_style_context ().add_class ("editors-controller");
 
-            editors_cache = new Gee.HashMap<string, EditorView> ();
+            editors_cache = new Gee.HashMap<string, Protocols.ChunkEditor> ();
 
             document_manager = parent_window.document_manager;
             document_manager.load.connect (on_document_set);
@@ -129,32 +129,53 @@ namespace Manuscript.Widgets {
             }
         }
 
-        private EditorView? get_editor_view_for_chunk (Models.DocumentChunk chunk) {
+        private Protocols.ChunkEditor get_editor_view_for_chunk (Models.DocumentChunk chunk) {
             string k = build_view_id (chunk);
             return editors_cache.has_key (k) ? editors_cache.@get (k) : null;
         }
 
-        private EditorView add_editor_view_for_chunk (Models.DocumentChunk chunk, bool active = true) {
+        private Protocols.ChunkEditor add_editor_view_for_chunk (Models.DocumentChunk chunk, bool active = true) {
             assert (chunk != null);
             assert (chunk.uuid != null);
-            var existing_child = get_editor_view_for_chunk (chunk);
+            //  var existing_child = get_editor_view_for_chunk (chunk);
             string view_id = build_view_id (chunk);
+            Protocols.ChunkEditor returned_view = get_editor_view_for_chunk (chunk);
 
-            EditorView returned_view;
-            if (existing_child == null) {
-                EditorView new_editor = new EditorView (parent_window, chunk);
-                //  new_editor.get_style_context ().add_class ("editor-view-wrapper");
-                add_named (new_editor, view_id);
-                editors_cache.@set (view_id, new_editor);
-                returned_view = new_editor;
-            } else {
-                returned_view = existing_child as EditorView;
+            if (returned_view == null) {
+                switch (chunk.kind) {
+                    case Models.ChunkType.CHAPTER:
+                    case Models.ChunkType.NOTE:
+                        EditorView new_editor = new EditorView (parent_window, chunk);
+                        add_named (new_editor, view_id);
+                        editors_cache.@set (view_id, new_editor);
+                        returned_view = new_editor;
+                        returned_view.scroll_to_cursor ();
+                    break;
+
+                    case Models.ChunkType.CHARACTER_SHEET:
+                        CharacterSheetEditor new_editor = 
+                            new CharacterSheetEditor (parent_window, chunk as Models.CharacterSheetChunk);
+                        add_named (new_editor, view_id);
+                        editors_cache.@set (view_id, new_editor);
+                        returned_view = new_editor;
+                    break;
+
+                    case Models.ChunkType.COVER:
+                    CoverEditor new_editor = 
+                            new CoverEditor (parent_window, chunk as Models.CoverChunk);
+                        add_named (new_editor, view_id);
+                        editors_cache.@set (view_id, new_editor);
+                        returned_view = new_editor;
+                    break;
+
+                    default:
+                        assert_not_reached ();
+                }
             }
 
             if (active == true) {
                 visible_child_name = view_id;
                 returned_view.focus_editor ();
-                returned_view.scroll_to_cursor ();
             }
 
             return returned_view;
@@ -173,7 +194,7 @@ namespace Manuscript.Widgets {
             var view = get_editor_view_for_chunk (chunk);
             var k = build_view_id (chunk);
             if (view != null) {
-                remove (view);
+                remove (view as Gtk.Widget);
             }
 
             if (editors_cache.has_key (k)) {
@@ -194,14 +215,14 @@ namespace Manuscript.Widgets {
         //      return get_children ();
         //  }
 
-        public unowned Protocols.EditorController? get_current_editor () {
+        public unowned Protocols.ChunkEditor? get_current_editor () {
             return null;
         }
 
-        public Protocols.EditorController? get_editor (Models.DocumentChunk chunk) {
+        public Protocols.ChunkEditor? get_editor (Models.DocumentChunk chunk) {
             //  return get_tab_for_chunk (chunk);
-            if (visible_child is Protocols.EditorController) {
-                return visible_child as Protocols.EditorController;
+            if (visible_child is Protocols.ChunkEditor) {
+                return visible_child as Protocols.ChunkEditor;
             } else {
                 return null;
             }

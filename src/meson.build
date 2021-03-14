@@ -38,6 +38,8 @@ executable(
 	'widgets/editors/EditorsController.vala',
 	'widgets/editors/EditorView.vala',
 	'widgets/editors/TextEditor.vala',
+	'widgets/editors/CoverEditor.vala',
+	'widgets/editors/CharacterSheetEditor.vala',
 	'widgets/editors/DocumentTagTable.vala',
 
     'widgets/settings/Metrics.vala',
@@ -62,7 +64,6 @@ executable(
     'protocols/Editor.vala',
 
 	'utils/StringUtils.vala',
-	'utils/StyleProvider.vala',
 	'utils/Easing.vala',
 	'utils/Keys.vala',
 	'utils/Math.vala',
