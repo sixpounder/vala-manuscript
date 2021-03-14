@@ -55,14 +55,12 @@ namespace Manuscript.Widgets {
             lock_menu_entry = new Gtk.MenuItem.with_label (_("Lock"));
             lock_menu_entry.activate.connect (() => {
                 chunk.locked = true;
-                update_ui ();
             });
             lock_menu_entry.no_show_all = true;
 
             unlock_menu_entry = new Gtk.MenuItem.with_label (_("Unlock"));
             unlock_menu_entry.activate.connect (() => {
                 chunk.locked = false;
-                update_ui ();
             });
             unlock_menu_entry.no_show_all = true;
 
@@ -81,7 +79,7 @@ namespace Manuscript.Widgets {
             lock_icon.pixel_size = Gtk.IconSize.LARGE_TOOLBAR;
 
             edited.connect (on_edited);
-            chunk.changed.connect (on_chunk_changed);
+            chunk.notify.connect (on_chunk_changed);
 
             update_ui ();
         }
