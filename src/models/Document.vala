@@ -28,7 +28,7 @@ namespace Manuscript.Models {
         public abstract string version { get; set; }
         public abstract string uuid { get; set; }
         public abstract string title { get; set; }
-        public abstract string synopsis { get; set; }
+        public abstract string background { get; set; }
         public abstract DocumentSettings settings { get; set; }
         public abstract Gee.ArrayList<DocumentChunk> chunks { get; set; }
     }
@@ -38,7 +38,7 @@ namespace Manuscript.Models {
         public string version { get; set; }
         public string uuid { get; set; }
         public string title { get; set; }
-        public string synopsis { get; set; }
+        public string background { get; set; }
         public DocumentSettings settings { get; set; }
 
         private Gee.ArrayList<DocumentChunk> _chunks;
@@ -76,10 +76,10 @@ namespace Manuscript.Models {
 
             title = root_object.get_string_member ("title");
 
-            if (root_object.has_member ("synopsis")) {
-                synopsis = root_object.get_string_member ("synopsis");
+            if (root_object.has_member ("background")) {
+                background = root_object.get_string_member ("background");
             } else {
-                synopsis = "";
+                background = "";
             }
 
             // Settings parsing
@@ -109,7 +109,7 @@ namespace Manuscript.Models {
             object.set_string_member ("version", version);
             object.set_string_member ("uuid", uuid);
             object.set_string_member ("title", title);
-            object.set_string_member ("synopsis", synopsis);
+            object.set_string_member ("background", background);
             object.set_object_member ("settings", settings.to_json_object ());
 
             // Serialize chunks

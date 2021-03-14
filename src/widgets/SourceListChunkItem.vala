@@ -20,13 +20,31 @@
 namespace Manuscript.Widgets {
     public class SourceListChunkItem : Granite.Widgets.SourceList.Item, Granite.Widgets.SourceListDragSource {
         public signal void item_should_be_deleted (SourceListChunkItem item);
+
         protected Models.DocumentChunk _chunk;
+        public Models.DocumentChunk chunk {
+            get {
+                return _chunk;
+            }
+            construct {
+                _chunk = value;
+                name = chunk.title;
+            }
+        }
+
         protected Gtk.Menu? item_menu;
+        protected Gtk.MenuItem lock_menu_entry;
+        protected Gtk.MenuItem unlock_menu_entry;
+        protected Gtk.Image lock_icon;
 
         public SourceListChunkItem.with_chunk (Models.DocumentChunk chunk) {
+            this (chunk);
+        }
+
+        public SourceListChunkItem (Models.DocumentChunk chunk) {
             Object (
                 chunk: chunk,
-                editable: true,
+                editable: !chunk.locked,
                 selectable: true,
                 name: chunk.title
             );
@@ -34,27 +52,43 @@ namespace Manuscript.Widgets {
 
         construct {
             item_menu = new Gtk.Menu ();
+            lock_menu_entry = new Gtk.MenuItem.with_label (_("Lock"));
+            lock_menu_entry.activate.connect (() => {
+                chunk.locked = true;
+                update_ui ();
+            });
+            lock_menu_entry.no_show_all = true;
+
+            unlock_menu_entry = new Gtk.MenuItem.with_label (_("Unlock"));
+            unlock_menu_entry.activate.connect (() => {
+                chunk.locked = false;
+                update_ui ();
+            });
+            unlock_menu_entry.no_show_all = true;
+
             var delete_menu_entry = new Gtk.MenuItem.with_label (_("Remove"));
             delete_menu_entry.activate.connect (() => {
                 item_should_be_deleted (this);
             });
+
+            item_menu.append (lock_menu_entry);
+            item_menu.append (unlock_menu_entry);
             item_menu.append (delete_menu_entry);
             item_menu.show_all ();
+
+            lock_icon = new Gtk.Image ();
+            lock_icon.gicon = new ThemedIcon ("changes-prevent");
+            lock_icon.pixel_size = Gtk.IconSize.LARGE_TOOLBAR;
+
             edited.connect (on_edited);
+            chunk.changed.connect (on_chunk_changed);
+
+            update_ui ();
         }
 
         ~ SourceListChunkItem () {
             edited.disconnect (on_edited);
-        }
-
-        public Models.DocumentChunk chunk {
-            get {
-                return _chunk;
-            }
-            set {
-                _chunk = value;
-                name = chunk.title;
-            }
+            chunk.changed.disconnect (on_chunk_changed);
         }
 
         public bool has_changes {
@@ -65,6 +99,23 @@ namespace Manuscript.Widgets {
 
         private void on_edited (string new_name) {
             chunk.title = new_name;
+        }
+
+        private void on_chunk_changed () {
+            update_ui ();
+        }
+
+        private void update_ui () {
+            if (chunk.locked) {
+                lock_menu_entry.hide ();
+                unlock_menu_entry.show ();
+                icon = lock_icon.gicon;
+            } else {
+                lock_menu_entry.show ();
+                unlock_menu_entry.hide ();
+                icon = null;
+            }
+            editable = !chunk.locked;
         }
 
         public override Gtk.Menu? get_context_menu () {

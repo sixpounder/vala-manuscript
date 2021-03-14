@@ -137,7 +137,7 @@ namespace Manuscript.Widgets {
         private Protocols.ChunkEditor add_editor_view_for_chunk (Models.DocumentChunk chunk, bool active = true) {
             assert (chunk != null);
             assert (chunk.uuid != null);
-            //  var existing_child = get_editor_view_for_chunk (chunk);
+
             string view_id = build_view_id (chunk);
             Protocols.ChunkEditor returned_view = get_editor_view_for_chunk (chunk);
 
@@ -147,7 +147,6 @@ namespace Manuscript.Widgets {
                     case Models.ChunkType.NOTE:
                         EditorView new_editor = new EditorView (parent_window, chunk);
                         add_named (new_editor, view_id);
-                        editors_cache.@set (view_id, new_editor);
                         returned_view = new_editor;
                         returned_view.scroll_to_cursor ();
                     break;
@@ -156,21 +155,21 @@ namespace Manuscript.Widgets {
                         CharacterSheetEditor new_editor = 
                             new CharacterSheetEditor (parent_window, chunk as Models.CharacterSheetChunk);
                         add_named (new_editor, view_id);
-                        editors_cache.@set (view_id, new_editor);
                         returned_view = new_editor;
                     break;
 
                     case Models.ChunkType.COVER:
-                    CoverEditor new_editor = 
+                        CoverEditor new_editor = 
                             new CoverEditor (parent_window, chunk as Models.CoverChunk);
                         add_named (new_editor, view_id);
-                        editors_cache.@set (view_id, new_editor);
                         returned_view = new_editor;
                     break;
 
                     default:
                         assert_not_reached ();
                 }
+
+                editors_cache.@set (view_id, returned_view);
             }
 
             if (active == true) {

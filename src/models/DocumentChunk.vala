@@ -21,11 +21,14 @@ namespace Manuscript.Models {
     public delegate void ChunkTransformFunc (DocumentChunk chunk);
 
     public abstract class DocumentChunk : Object {
+        public virtual signal void changed () {}
+
         public virtual int64 index { get; set; }
         public virtual ChunkType kind { get; protected set; }
         public virtual string title { get; set; }
         public virtual bool has_changes { get; protected set; }
         public virtual string uuid { get; set; }
+        public virtual bool locked { get; set; }
 
         public virtual Json.Object to_json_object () {
             var node = new Json.Object ();
@@ -33,42 +36,16 @@ namespace Manuscript.Models {
             node.set_int_member ("index", index);
             node.set_int_member ("chunk_type", (int64) kind);
             node.set_string_member ("title", title);
+            node.set_boolean_member ("locked", locked);
 
             return node;
         }
 
-        //  public DocumentChunkImpl empty_chunk (ChunkType kind) {
-        //      DocumentChunkImpl impl;
-        //      switch (kind) {
-        //          case ChunkType.CHAPTER:
-        //              impl = new ChapterChunk ();
-        //              impl.title = _("New chapter");
-        //              break;
-        //          case ChunkType.CHARACTER_SHEET:
-        //              impl = new CharacterSheetChunk ();
-        //              impl.title = _("New character sheet");
-        //              break;
-        //          case ChunkType.NOTE:
-        //              impl = new NoteChunk ();
-        //              impl.title = _("New note");
-        //              break;
-        //          case ChunkType.COVER:
-        //              impl = new CoverChunk ();
-        //              impl.title = _("Cover");
-        //              break;
-        //          default:
-        //              assert_not_reached ();
-        //      }
-
-        //      impl.uuid = GLib.Uuid.string_random ();
-        //      impl.kind = kind;
-
-        //      return impl;
-        //  }
-
         public static DocumentChunk from_json_object (Json.Object obj) {
             assert (obj != null);
-            var kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
+            assert (obj.has_member ("chunk_type"));
+
+            Models.ChunkType kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
 
             switch (kind) {
                 case Models.ChunkType.CHAPTER:
@@ -86,14 +63,12 @@ namespace Manuscript.Models {
     }
 
     public abstract class TextChunk : DocumentChunk {
-        public virtual signal void change () {}
         public virtual signal void undo_queue_drain () {}
         public virtual signal void undo () {}
         public virtual signal void redo () {}
         public virtual signal void analyze () {}
 
         public virtual string raw_content { get; set; }
-
         public virtual uint words_count { get; protected set; }
         public virtual double estimate_reading_time { get; protected set; }
 

@@ -43,6 +43,12 @@
                 uuid = GLib.Uuid.string_random ();
             }
 
+            if (obj.has_member ("locked")) {
+                locked = obj.get_boolean_member ("locked");
+            } else {
+                locked = false;
+            }
+
             title = obj.get_string_member ("title");
 
             if (obj.has_member ("index")) {

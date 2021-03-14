@@ -19,17 +19,27 @@
 
 namespace Manuscript.Models {
     public class CharacterSheetChunk : DocumentChunk {
+        public string name { get; set; }
+        public string background { get; set; }
+        public string traits { get; set; }
         public string notes { get; set; }
 
         public CharacterSheetChunk.empty () {
             uuid = GLib.Uuid.string_random ();
             title = _("New character sheet");
             kind = ChunkType.CHARACTER_SHEET;
+            name = "";
+            background = "";
+            traits = "";
+            notes = "";
         }
 
         public override Json.Object to_json_object () {
             var node = base.to_json_object ();
-    
+            node.set_string_member ("name", name);
+            node.set_string_member ("background", background);
+            node.set_string_member ("traits", traits);
+            node.set_string_member ("notes", notes);
             return node;
         }
 
@@ -40,6 +50,12 @@ namespace Manuscript.Models {
             } else {
                 info ("Chunk has no uuid, generating one now");
                 uuid = GLib.Uuid.string_random ();
+            }
+
+            if (obj.has_member ("locked")) {
+                locked = obj.get_boolean_member ("locked");
+            } else {
+                locked = false;
             }
 
             if (obj.has_member ("notes")) {
@@ -57,6 +73,30 @@ namespace Manuscript.Models {
             }
 
             kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
+
+            if (obj.has_member ("name")) {
+                name = obj.get_string_member ("name");
+            } else {
+                name = "";
+            }
+
+            if (obj.has_member ("background")) {
+                background = obj.get_string_member ("background");
+            } else {
+                background = "";
+            }
+
+            if (obj.has_member ("traits")) {
+                traits = obj.get_string_member ("traits");
+            } else {
+                traits = "";
+            }
+
+            if (obj.has_member ("notes")) {
+                notes = obj.get_string_member ("notes");
+            } else {
+                notes = "";
+            }
         }
     }
 }

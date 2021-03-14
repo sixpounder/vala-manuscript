@@ -53,6 +53,12 @@ namespace Manuscript.Models {
                 uuid = GLib.Uuid.string_random ();
             }
 
+            if (obj.has_member ("locked")) {
+                locked = obj.get_boolean_member ("locked");
+            } else {
+                locked = false;
+            }
+
             if (obj.has_member ("raw_content")) {
                 raw_content = obj.get_string_member ("raw_content");
             } else {
@@ -119,14 +125,14 @@ namespace Manuscript.Models {
         private void on_can_undo_changed () {
             if (buffer.can_undo) {
                 has_changes = true;
-                change ();
+                changed ();
             } else {
                 has_changes = false;
             }
         }
 
         private void on_can_redo_changed () {
-            change ();
+            changed ();
         }
 
         private void on_buffer_redo () {
@@ -157,7 +163,7 @@ namespace Manuscript.Models {
                 return false;
             });
 
-            change ();
+            changed ();
         }
     }
 }
