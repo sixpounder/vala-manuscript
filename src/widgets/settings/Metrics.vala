@@ -41,6 +41,8 @@ namespace Manuscript.Widgets.Settings {
 
             Gtk.Label font_label = new Gtk.Label (_("Font"));
             font_label.halign = Gtk.Align.END;
+            font_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
+
             font_button = new Gtk.FontButton.with_font (
                 document_manager.document.settings.font_family != null
                     ? document_manager.document.settings.font_family
@@ -63,6 +65,7 @@ namespace Manuscript.Widgets.Settings {
             attach (font_button, 1, 0, 1, 1);
 
             Gtk.Label paragraph_spacing_label = new Gtk.Label (_("Paragraph spacing"));
+            paragraph_spacing_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
             paragraph_spacing_label.halign = Gtk.Align.END;
             paragraph_spacing_input = new Gtk.SpinButton.with_range (0, 1000, 1);
             paragraph_spacing_input.value = 10;
@@ -75,6 +78,7 @@ namespace Manuscript.Widgets.Settings {
             attach (paragraph_spacing_input, 1, 1, 1, 1);
 
             Gtk.Label paragraph_start_padding_label = new Gtk.Label (_("Paragraph initial padding"));
+            paragraph_start_padding_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
             paragraph_start_padding_label.halign = Gtk.Align.END;
             paragraph_start_padding_input = new Gtk.SpinButton.with_range (0, 1000, 1);
             paragraph_start_padding_input.value = 10;

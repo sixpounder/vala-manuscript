@@ -21,7 +21,8 @@ namespace Manuscript.Widgets.Settings {
     public class DocumentGeneralSettingsView : Gtk.Grid {
         public weak Manuscript.Window parent_window { get; construct; }
         public weak Services.DocumentManager document_manager { get; private set; }
-        public Gtk.Entry title_input { get; private set; }
+        public Gtk.Entry title_input { get; construct; }
+        public Gtk.Entry author_input { get; construct; }
 
         public DocumentGeneralSettingsView (Manuscript.Window parent_window) {
             Object (
@@ -38,9 +39,11 @@ namespace Manuscript.Widgets.Settings {
             document_manager = parent_window.document_manager;
 
             Gtk.Label title_label = new Gtk.Label (_("Manuscript title"));
-            title_label.halign = Gtk.Align.END;
+            title_label.xalign = 1;
+            title_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
 
             title_input = new Gtk.Entry ();
+            title_input.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
             title_input.expand = true;
             title_input.halign = Gtk.Align.FILL;
             title_input.placeholder_text = _("Type a title for your manuscript");
@@ -53,8 +56,22 @@ namespace Manuscript.Widgets.Settings {
                 document_manager.document.title = title_input.text;
             });
 
-            attach (title_label, 0, 0, 1, 1);
-            attach (title_input, 1, 0, 1, 1);
+            Gtk.Label author_label = new Gtk.Label (_("Author"));
+            author_label.xalign = 1;
+            author_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
+
+            author_input = new Gtk.Entry ();
+            author_input.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
+            author_input.text = document_manager.document.settings.author_name;
+            author_input.changed.connect (() => {
+                document_manager.document.settings.author_name = author_input.text;
+            });
+
+            attach_next_to (title_label, null, Gtk.PositionType.LEFT);
+            attach_next_to (title_input, title_label, Gtk.PositionType.RIGHT);
+
+            attach_next_to (author_label, title_label, Gtk.PositionType.BOTTOM);
+            attach_next_to (author_input, author_label, Gtk.PositionType.RIGHT);
 
             show_all ();
         }

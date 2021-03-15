@@ -21,6 +21,7 @@ namespace Manuscript.Widgets {
 
     public class Sidebar : Gtk.Box {
         protected Manuscript.Widgets.DocumentSourceList root_list;
+        protected Manuscript.Widgets.SourceListCategoryItem covers_root;
         protected Manuscript.Widgets.SourceListCategoryItem chapters_root;
         protected Manuscript.Widgets.SourceListCategoryItem characters_root;
         protected Manuscript.Widgets.SourceListCategoryItem notes_root;
@@ -69,6 +70,10 @@ namespace Manuscript.Widgets {
 
         private void build_ui () {
             // One expandable items per category
+            covers_root = new SourceListCategoryItem (_("Covers"), Models.ChunkType.COVER);
+            covers_root.document_manager = document_manager;
+            covers_root.user_moved_item.connect (on_item_moved);
+
             chapters_root = new SourceListCategoryItem (_("Chapters"), Models.ChunkType.CHAPTER);
             chapters_root.document_manager = document_manager;
             chapters_root.user_moved_item.connect (on_item_moved);
@@ -84,6 +89,10 @@ namespace Manuscript.Widgets {
             root_list = new DocumentSourceList ();
 
             var root = root_list.root;
+
+#if CHUNK_COVER
+            root.add (covers_root);
+#endif
 
 #if CHUNK_CHAPTER
             root.add (chapters_root);
@@ -125,6 +134,8 @@ namespace Manuscript.Widgets {
                     debug (@"Adding $(item.title)");
                     add_chunk (item, false);
                 }
+
+                covers_root.expand_all ();
                 chapters_root.expand_all ();
                 characters_root.expand_all ();
                 notes_root.expand_all ();
@@ -164,7 +175,7 @@ namespace Manuscript.Widgets {
                     root_node = characters_root;
                     break;
                 case Models.ChunkType.COVER:
-                    root_node = chapters_root;
+                    root_node = covers_root;
                     break;
                 case Models.ChunkType.NOTE:
                     root_node = notes_root;
@@ -200,6 +211,9 @@ namespace Manuscript.Widgets {
                     break;
                 case Models.ChunkType.NOTE:
                     root_node = notes_root;
+                    break;
+                case Models.ChunkType.COVER:
+                    root_node = covers_root;
                     break;
                 default:
                     assert_not_reached ();

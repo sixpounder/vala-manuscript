@@ -19,7 +19,53 @@
 
  namespace Manuscript.Models {
     public class CoverChunk : DocumentChunk {
-        public string image_data { get; set; }
+
+        public int64 bits_per_sample { get; set; }
+        public int64 image_width { get; set; }
+        public int64 image_height { get; set; }
+        public int64 image_rowstride { get; set; }
+        public bool image_has_alpha { get; set; }
+
+        protected string _image_data { get; set; }
+        public string image_data {
+            get {
+                return _image_data;
+            }
+            set {
+                _image_data = value;
+                if (_image_data != "") {
+                    pixel_buffer = new Gdk.Pixbuf.from_data (
+                        _image_data.data,
+                        Gdk.Colorspace.RGB,
+                        image_has_alpha,
+                        (int) bits_per_sample,
+                        (int) image_width,
+                        (int) image_height,
+                        (int) image_rowstride
+                    );
+                } else {
+                    pixel_buffer = null;
+                }
+            }
+        }
+
+        protected Gdk.Pixbuf? _pixel_buffer { get; set; }
+        public Gdk.Pixbuf? pixel_buffer {
+            get {
+                return _pixel_buffer;
+            }
+            set {
+                _pixel_buffer = value;
+                _image = new Gtk.Image.from_pixbuf (_pixel_buffer);
+            }
+        }
+
+        protected Gtk.Image? _image;
+        public Gtk.Image? image {
+            get {
+                return _image;
+            }
+        }
 
         public CoverChunk.empty () {
             uuid = GLib.Uuid.string_random ();
@@ -31,6 +77,12 @@
             var node = base.to_json_object ();
 
             node.set_string_member ("image_data", image_data);
+            node.set_int_member ("image_width", image_width);
+            node.set_int_member ("image_height", image_height);
+            node.set_int_member ("bits_per_sample", bits_per_sample);
+            node.set_int_member ("image_rowstride", image_rowstride);
+            node.set_boolean_member ("image_has_alpha", image_has_alpha);
+
             return node;
         }
 
@@ -58,6 +110,42 @@
             }
 
             kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
+
+            if (obj.has_member ("alpha")) {
+                image_has_alpha = obj.get_boolean_member ("alpha");
+            } else {
+                image_has_alpha = false;
+            }
+
+            if (obj.has_member ("bits_per_sample")) {
+                bits_per_sample = obj.get_int_member ("bits_per_sample");
+            } else {
+                bits_per_sample = 32; // ??
+            }
+
+            if (obj.has_member ("width")) {
+                image_width = obj.get_int_member ("image_width");
+            } else {
+                image_width = Manuscript.Constants.A4_WIDHT_IN_POINTS;
+            }
+
+            if (obj.has_member ("height")) {
+                image_height = obj.get_int_member ("image_height");
+            } else {
+                image_height = Manuscript.Constants.A4_HEIGHT_IN_POINTS;
+            }
+
+            if (obj.has_member ("image_rowstride")) {
+                image_rowstride = obj.get_int_member ("image_rowstride");
+            } else {
+                image_rowstride = image_width; // What am I even doing?
+            }
+
+            if (obj.has_member ("image_data")) {
+                image_data = obj.get_string_member ("image_data");
+            } else {
+                image_data = "";
+            }
         }
     }
 

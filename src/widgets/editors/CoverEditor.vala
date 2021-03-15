@@ -18,19 +18,70 @@
  */
 
  namespace Manuscript.Widgets {
-    public class CoverEditor : Gtk.Box, Protocols.ChunkEditor {
+    public class CoverEditor : Gtk.Grid, Protocols.ChunkEditor {
         public weak Models.CoverChunk chunk { get; construct; }
         public weak Manuscript.Window parent_window { get; construct; }
+
+        public Gtk.Frame image_frame { get; construct; }
+        public Gtk.Image cover_image { get; protected set; }
+        public Gtk.Button select_image_button { get; construct; }
 
         public CoverEditor (Manuscript.Window parent_window, Models.CoverChunk chunk) {
             Object (
                 parent_window: parent_window,
-                chunk: chunk
+                chunk: chunk,
+                row_homogeneous: false,
+                column_homogeneous: true,
+                row_spacing: 20,
+                expand: true,
+                halign: Gtk.Align.CENTER,
+                valign: Gtk.Align.CENTER
             );
         }
 
         construct {
             assert (chunk.kind == Manuscript.Models.ChunkType.COVER);
+
+            cover_image = new Gtk.Image ();
+
+            image_frame = new Gtk.Frame (_("Cover image"));
+            image_frame.add (cover_image);
+
+            select_image_button = new Gtk.Button.with_label (_("Select cover"));
+
+            attach_next_to (image_frame, null, Gtk.PositionType.LEFT);
+            attach_next_to (select_image_button, image_frame, Gtk.PositionType.BOTTOM);
+
+            chunk.notify["locked"].connect (reflect_lock_status);
+
+            update_ui ();
+            reflect_lock_status ();
+
+            show_all ();
+        }
+
+        public void update_ui () {
+            if (chunk.image != null) {
+                cover_image = chunk.image;
+            }
+        }
+
+        public void update_model () {}
+
+        private void reflect_lock_status () {
+            if (chunk.locked) {
+                lock_editor ();
+            } else {
+                unlock_editor ();
+            }
+        }
+
+        public void lock_editor () {
+            sensitive = false;
+        }
+
+        public void unlock_editor () {
+            sensitive = true;
         }
     }
 }
