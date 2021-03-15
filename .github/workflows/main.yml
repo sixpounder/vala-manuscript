@@ -13,6 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: dawidd6/action-debian-package@v1
     - name: Install Dependencies
       run: |
         apt update
@@ -24,6 +25,14 @@ jobs:
         meson build
         ninja -C build
         ninja -C build install
+
+  debian:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Debian package
+      uses: dawidd6/action-debian-package@v1
+      with:
+        artifacts_directory: output # optional, relative to workspace directory
 
   flatpak:
 
