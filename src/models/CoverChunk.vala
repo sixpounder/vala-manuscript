@@ -29,7 +29,7 @@
 
         public override Json.Object to_json_object () {
             var node = base.to_json_object ();
-            
+
             node.set_string_member ("image_data", image_data);
             return node;
         }

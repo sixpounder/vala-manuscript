@@ -152,14 +152,14 @@ namespace Manuscript.Widgets {
                     break;
 
                     case Models.ChunkType.CHARACTER_SHEET:
-                        CharacterSheetEditor new_editor = 
+                        CharacterSheetEditor new_editor =
                             new CharacterSheetEditor (parent_window, chunk as Models.CharacterSheetChunk);
                         add_named (new_editor, view_id);
                         returned_view = new_editor;
                     break;
 
                     case Models.ChunkType.COVER:
-                        CoverEditor new_editor = 
+                        CoverEditor new_editor =
                             new CoverEditor (parent_window, chunk as Models.CoverChunk);
                         add_named (new_editor, view_id);
                         returned_view = new_editor;
