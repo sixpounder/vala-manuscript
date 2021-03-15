@@ -28,9 +28,9 @@ jobs:
   debian:
     runs-on: ubuntu-latest
     steps:
-    - name: Debian package
     - uses: actions/checkout@v2
     - uses: dawidd6/action-debian-package@v1
+    - name: Debian package
       with:
         artifacts_directory: output # optional, relative to workspace directory
 
