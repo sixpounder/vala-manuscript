@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-13 22:02+0100\n"
+"POT-Creation-Date: 2021-03-15 12:23+0100\n"
 "PO-Revision-Date: 2019-07-05 11:20+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -203,7 +203,15 @@ msgstr "minuto"
 msgid "minutes"
 msgstr "minuti"
 
-#: src/widgets/SourceListChunkItem.vala:37
+#: src/widgets/SourceListChunkItem.vala:55
+msgid "Lock"
+msgstr ""
+
+#: src/widgets/SourceListChunkItem.vala:61
+msgid "Unlock"
+msgstr ""
+
+#: src/widgets/SourceListChunkItem.vala:67
 msgid "Remove"
 msgstr "Rimuovi"
 
@@ -265,11 +273,11 @@ msgstr "oppure"
 msgid "Add a new chapter"
 msgstr "Aggiungi un capitolo"
 
-#: src/widgets/SettingsPopover.vala:68
+#: src/widgets/SettingsPopover.vala:69
 msgid "Focus mode"
 msgstr "Modalità concentrazione"
 
-#: src/widgets/SettingsPopover.vala:83
+#: src/widgets/SettingsPopover.vala:84
 msgid "Autosave"
 msgstr "Salva automaticamente"
 
@@ -278,7 +286,7 @@ msgstr "Salva automaticamente"
 msgid "Chapters"
 msgstr "Capitolo"
 
-#: src/widgets/Sidebar.vala:80
+#: src/widgets/Sidebar.vala:80 src/widgets/editors/CharacterSheetEditor.vala:72
 #, fuzzy
 msgid "Notes"
 msgstr "Nota"
@@ -313,12 +321,25 @@ msgstr "Spaziatura paragrafi"
 msgid "Paragraph initial padding"
 msgstr "Rientro iniziale paragrafo"
 
+#: src/widgets/editors/CharacterSheetEditor.vala:59
+#, fuzzy
+msgid "Character name"
+msgstr "Scheda personaggio"
+
+#: src/widgets/editors/CharacterSheetEditor.vala:63
+msgid "Background"
+msgstr ""
+
+#: src/widgets/editors/CharacterSheetEditor.vala:68
+msgid "Traits"
+msgstr "Tratti fisici / caratteriali"
+
 #: src/models/ChapterChunk.vala:40
 #, fuzzy
 msgid "New chapter"
 msgstr "Capitolo"
 
-#: src/models/CharacterSheetChunk.vala:26
+#: src/models/CharacterSheetChunk.vala:29
 #, fuzzy
 msgid "New character sheet"
 msgstr "Scheda personaggio"

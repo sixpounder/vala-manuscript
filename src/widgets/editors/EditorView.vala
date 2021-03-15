@@ -73,6 +73,10 @@ namespace Manuscript.Widgets {
                 }
             });
 
+            chunk.notify["locked"].connect (reflect_lock_status);
+
+            reflect_lock_status ();
+
             parent_window.document_manager.document.settings.notify.connect (reflect_document_settings);
 
             show_all ();
@@ -100,6 +104,22 @@ namespace Manuscript.Widgets {
 
         public void scroll_to_cursor () {
             editor.scroll_to_cursor ();
+        }
+
+        private void reflect_lock_status () {
+            if (chunk.locked) {
+                lock_editor ();
+            } else {
+                unlock_editor ();
+            }
+        }
+
+        public void lock_editor () {
+            editor.sensitive = false;
+        }
+
+        public void unlock_editor () {
+            editor.sensitive = true;
         }
 
         /**

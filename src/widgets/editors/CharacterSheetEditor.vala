@@ -94,6 +94,10 @@ namespace Manuscript.Widgets {
             traits_entry.changed.connect (update_model);
             notes_entry.buffer.changed.connect (update_model);
 
+            chunk.notify["locked"].connect (reflect_lock_status);
+
+            reflect_lock_status ();
+
             show_all ();
         }
 
@@ -131,8 +135,24 @@ namespace Manuscript.Widgets {
             return entry;
         }
 
+        private void reflect_lock_status () {
+            if (chunk.locked) {
+                lock_editor ();
+            } else {
+                unlock_editor ();
+            }
+        }
+
         public void focus_editor () {
             name_entry.grab_focus_without_selecting ();
+        }
+
+        public void lock_editor () {
+            sensitive = false;
+        }
+
+        public void unlock_editor () {
+            sensitive = true;
         }
 
         public void update_model () {

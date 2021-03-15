@@ -46,7 +46,8 @@ namespace Manuscript.Protocols {
         }
 
         public virtual void focus_editor () {}
-
+        public virtual void lock_editor () {}
+        public virtual void unlock_editor () {}
         public virtual void scroll_to_cursor () {}
     }
 }
