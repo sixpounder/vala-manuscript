@@ -5,7 +5,7 @@ on: push
 jobs:
   flatpak-builder:
     name: "Flatpak Builder"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     container:
       image: bilelmoussaoui/flatpak-github-actions:gnome-3.38
       options: --privileged
