@@ -1,8 +1,6 @@
 name: Flatpak build
 
-on:
-  push:
-    branches: [main]
+on: push
 
 jobs:
   flatpak-builder:
