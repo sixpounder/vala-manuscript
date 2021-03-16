@@ -136,7 +136,7 @@
             if (obj.has_member ("image_data")) {
                 var arr = obj.get_array_member ("image_data");
                 var image_data = new uint8[arr.get_length ()];
-                debug (arr.get_length ().to_string ());
+
                 arr.foreach_element ((a, i, el) => {
                     image_data[i] = (uint8) el.get_int ();
                 });
