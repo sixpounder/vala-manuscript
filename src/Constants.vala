@@ -21,16 +21,18 @@ namespace Manuscript {
     namespace Constants {
         public const string APP_ID = "com.github.sixpounder.manuscript";
         public const string APP_NAME = "Manuscript";
-
         public const string MAIN_CSS_URI = "/com/github/sixpounder/manuscript/main.css";
+        public const string DEFAULT_FILE_EXT = ".manuscript";
 
         public const string DEFAULT_FONT_FAMILY = "iA Writer Duospace";
         public const int64 DEFAULT_FONT_SIZE = 18;
 
         public const uint QUICK_SEARCH_DEBOUNCE_TIME = 100;
+        public const uint AUTOSAVE_DEBOUNCE_TIME = 1000;
 
         public const uint A4_WIDHT_IN_POINTS = 595;
-
         public const uint A4_HEIGHT_IN_POINTS = 842;
+
+        public const string RANDOM_IMAGE_SOURCE_URI = "https://source.unsplash.com/random";
     }
 }

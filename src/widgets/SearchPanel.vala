@@ -234,9 +234,7 @@ namespace Manuscript.Widgets {
         }
 
         public void unselect () {
-            if (text_buffer != null && text_buffer.has_selection) {
-                // TODO: Unselect
-            }
+            if (text_buffer != null && text_buffer.has_selection) {}
         }
 
         private bool search_for_iter (Gtk.TextIter? start_iter, out Gtk.TextIter? end_iter) {

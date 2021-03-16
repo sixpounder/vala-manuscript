@@ -159,10 +159,16 @@ namespace Manuscript.Services {
         }
 
         public void save_as () {
-            var dialog = new FileSaveDialog (window, document);
-            int res = dialog.run ();
+            var dialog = Manuscript.Dialogs.file_save_dialog (window, document);
+            var res = dialog.run ();
+
             if (res == Gtk.ResponseType.ACCEPT) {
-                document.save (dialog.get_filename ());
+                string filename = dialog.get_filename ();
+                if (!filename.has_suffix (Constants.DEFAULT_FILE_EXT)) {
+                    filename = filename.concat (Constants.DEFAULT_FILE_EXT);
+                }
+
+                document.save (filename);
                 settings.last_opened_document = document.file_path;
             }
             dialog.destroy ();
@@ -174,7 +180,7 @@ namespace Manuscript.Services {
             }
 
             // Avoid trashing the disk
-            autosave_timer_id = Timeout.add (1000, () => {
+            autosave_timer_id = Timeout.add (Constants.AUTOSAVE_DEBOUNCE_TIME, () => {
                 autosave_timer_id = 0;
                 save (true);
                 return false;

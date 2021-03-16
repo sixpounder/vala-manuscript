@@ -233,19 +233,19 @@ namespace Manuscript {
         public void open_file_dialog () {
             Gtk.FileChooserDialog dialog = new Gtk.FileChooserDialog (
                 _ ("Open document"),
-                (Gtk.Window)get_toplevel (),
+                this,
                 Gtk.FileChooserAction.OPEN,
                 _ ("Cancel"),
                 Gtk.ResponseType.CANCEL,
                 _ ("Open"),
                 Gtk.ResponseType.ACCEPT
-                );
+            );
 
             dialog.select_multiple = false;
             dialog.do_overwrite_confirmation = false;
 
             Gtk.FileFilter file_filter = new Gtk.FileFilter ();
-            file_filter.set_filter_name (_ ("Manuscripts") + " (*.manuscript)");
+            file_filter.set_filter_name (_ ("Manuscripts") + @" ($(Constants.DEFAULT_FILE_EXT))");
 
             foreach (string ext in settings.supported_extensions) {
                 file_filter.add_pattern (ext);
