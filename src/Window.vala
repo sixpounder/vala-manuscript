@@ -73,37 +73,6 @@ namespace Manuscript {
             action_manager = new Services.ActionManager ((Manuscript.Application)application, this);
             document_manager = new Services.DocumentManager ((Manuscript.Application)application, this);
 
-            // Connect document manager events
-            document_manager.load.connect (() => {
-                set_layout_body (editor_grid);
-            });
-
-            document_manager.unloaded.connect (() => {
-                set_layout_body (welcome_view);
-            });
-
-            document_manager.backend_file_unlinked.connect (() => {
-                var infobar_instance = show_infobar (
-                    Gtk.MessageType.WARNING,
-                    "The current manuscript file has been deleted or moved. Do you want to save it again?"
-                );
-                infobar_instance.add_button (_ ("Save"), Gtk.ResponseType.YES);
-                infobar_instance.add_button (_ ("Dismiss"), Gtk.ResponseType.NO);
-                infobar_instance.response.connect ((res) => {
-                    switch (res) {
-                    case Gtk.ResponseType.NO:
-                        break;
-                    case Gtk.ResponseType.YES:
-                        document_manager.save (true);
-                        break;
-                    default:
-                        assert_not_reached ();
-                    }
-
-                    infobar_instance.destroy ();
-                });
-            });
-
             // Load some styles
             var css_provider = new Gtk.CssProvider ();
             css_provider.load_from_resource (Manuscript.Constants.MAIN_CSS_URI);
@@ -188,11 +157,28 @@ namespace Manuscript {
             update_ui ();
         }
 
+        ~ Window () {
+            settings.change.disconnect (update_ui);
+            delete_event.disconnect (on_destroy);
+            welcome_view.should_open_file.disconnect (open_file_dialog);
+            welcome_view.should_create_new_file.disconnect (open_with_temp_file);
+
+            // Connect document manager events
+            document_manager.load.disconnect (on_document_manager_load);
+            document_manager.unloaded.disconnect (on_document_manager_unload);
+            document_manager.backend_file_unlinked.disconnect (on_backend_file_deleted);
+        }
+
         public void connect_events () {
             settings.change.connect (update_ui);
             delete_event.connect (on_destroy);
             welcome_view.should_open_file.connect (open_file_dialog);
             welcome_view.should_create_new_file.connect (open_with_temp_file);
+
+            // Connect document manager events
+            document_manager.load.connect (on_document_manager_load);
+            document_manager.unloaded.connect (on_document_manager_unload);
+            document_manager.backend_file_unlinked.connect (on_backend_file_deleted);
         }
 
         public void update_ui () {
@@ -247,6 +233,36 @@ namespace Manuscript {
             });
 
             return base.configure_event (event);
+        }
+
+        protected void on_backend_file_deleted () {
+            var infobar_instance = show_infobar (
+                Gtk.MessageType.WARNING,
+                "The current manuscript file has been deleted or moved. Do you want to save it again?"
+            );
+            infobar_instance.add_button (_ ("Save"), Gtk.ResponseType.YES);
+            infobar_instance.add_button (_ ("Dismiss"), Gtk.ResponseType.NO);
+            infobar_instance.response.connect ((res) => {
+                switch (res) {
+                case Gtk.ResponseType.NO:
+                    break;
+                case Gtk.ResponseType.YES:
+                    document_manager.save (true);
+                    break;
+                default:
+                    assert_not_reached ();
+                }
+
+                infobar_instance.destroy ();
+            });
+        }
+
+        protected void on_document_manager_load () {
+            set_layout_body (editor_grid);
+        }
+
+        protected void on_document_manager_unload () {
+            set_layout_body (welcome_view);
         }
 
         /**
