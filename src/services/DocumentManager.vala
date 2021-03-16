@@ -156,22 +156,12 @@ namespace Manuscript.Services {
         // FS ops
 
         public void save (bool ignore_temporary = false) {
-            //  bool restart = false;
-            //  if (file_monitor != null && !file_monitor.cancelled) {
-            //      stop_file_monitor ();
-            //      restart = true;
-            //  }
             if (document.is_temporary () && !ignore_temporary) {
                 // Ask where to save this
                 save_as ();
             } else {
                 document.save ();
             }
-
-            //  if (restart) {
-            //      start_file_monitor ();
-            //  }
-            
         }
 
         public void save_as () {
