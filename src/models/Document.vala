@@ -327,7 +327,7 @@ namespace Manuscript.Models {
             }
         }
 
-        public void save (string ? path = null) {
+        public long save (string ? path = null) {
             try {
                 if (path != null) {
                     modified_path = path;
@@ -337,10 +337,18 @@ namespace Manuscript.Models {
                 info (@"Document saved to $file_path ($written_bytes bytes written)");
                 this.temporary = false;
                 this.saved (file_path);
+                return written_bytes;
             } catch (Error e) {
                 critical (e.message);
                 this.save_error (e);
+                return 0;
             }
+        }
+
+        public async Thread<long> save_async (string ? path = null) {
+            return new GLib.Thread<long> ("save_thread", () => {
+                return this.save (path);
+            });
         }
 
         public Gee.Iterator<DocumentChunk> iter_chunks_with_changes () {

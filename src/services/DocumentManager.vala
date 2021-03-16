@@ -32,7 +32,10 @@ namespace Manuscript.Services {
             stop_file_monitor ();
 
             if (settings.autosave) {
-                save (true);
+                save_async.begin (true, (obj, res) => {
+                    Thread<long> t = save_async.end (res);
+                    t.join ();
+                });
             }
         }
         public signal void unloaded ();
@@ -164,6 +167,17 @@ namespace Manuscript.Services {
             }
         }
 
+        public async Thread<long>? save_async (bool ignore_temporary = false) {
+            if (document.is_temporary () && !ignore_temporary) {
+                // Ask where to save this
+                save_as ();
+                return null;
+            } else {
+                var thread = yield document.save_async ();
+                return thread;
+            }
+        }
+
         public void save_as () {
             var dialog = Manuscript.Dialogs.file_save_dialog (window, document);
             var res = dialog.run ();
@@ -174,8 +188,9 @@ namespace Manuscript.Services {
                     filename = filename.concat (Constants.DEFAULT_FILE_EXT);
                 }
 
-                document.save (filename);
-                settings.last_opened_document = document.file_path;
+                document.save_async.begin (filename, (obj, res) => {
+                    settings.last_opened_document = document.file_path;
+                });
             }
             dialog.destroy ();
         }
@@ -188,7 +203,7 @@ namespace Manuscript.Services {
             // Avoid trashing the disk
             autosave_timer_id = Timeout.add (Constants.AUTOSAVE_DEBOUNCE_TIME, () => {
                 autosave_timer_id = 0;
-                save (true);
+                save_async.begin (true);
                 return false;
             });
         }
@@ -205,7 +220,7 @@ namespace Manuscript.Services {
             if (document != null && document.file_ref != null) {
                 try {
                     file_monitor = document.file_ref.monitor (FileMonitorFlags.SEND_MOVED, null);
-                    file_monitor.rate_limit = 500;
+                    file_monitor.rate_limit = Constants.FILE_MONITOR_RATE_LIMIT;
                 } catch (Error e) {
                     warning (@"Cannot monitor $(document.file_ref.get_path ())");
                     return;

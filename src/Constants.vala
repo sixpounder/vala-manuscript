@@ -29,6 +29,7 @@ namespace Manuscript {
 
         public const uint QUICK_SEARCH_DEBOUNCE_TIME = 100;
         public const uint AUTOSAVE_DEBOUNCE_TIME = 1000;
+        public const int FILE_MONITOR_RATE_LIMIT = 500;
 
         public const uint A4_WIDHT_IN_POINTS = 595;
         public const uint A4_HEIGHT_IN_POINTS = 842;
