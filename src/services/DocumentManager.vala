@@ -156,12 +156,22 @@ namespace Manuscript.Services {
         // FS ops
 
         public void save (bool ignore_temporary = false) {
+            //  bool restart = false;
+            //  if (file_monitor != null && !file_monitor.cancelled) {
+            //      stop_file_monitor ();
+            //      restart = true;
+            //  }
             if (document.is_temporary () && !ignore_temporary) {
                 // Ask where to save this
                 save_as ();
             } else {
                 document.save ();
             }
+
+            //  if (restart) {
+            //      start_file_monitor ();
+            //  }
+            
         }
 
         public void save_as () {
@@ -204,7 +214,8 @@ namespace Manuscript.Services {
         protected void start_file_monitor () {
             if (document != null && document.file_ref != null) {
                 try {
-                    file_monitor = document.file_ref.monitor (FileMonitorFlags.NONE, null);
+                    file_monitor = document.file_ref.monitor (FileMonitorFlags.SEND_MOVED, null);
+                    file_monitor.rate_limit = 500;
                 } catch (Error e) {
                     warning (@"Cannot monitor $(document.file_ref.get_path ())");
                     return;
@@ -225,6 +236,7 @@ namespace Manuscript.Services {
         }
 
         protected void on_file_monitor_event (File file, File? other_file, FileMonitorEvent event_type) {
+            debug (@"File monitor event: $(event_type.to_string ())");
             if (event_type == FileMonitorEvent.DELETED) {
                 backend_file_unlinked ();
             }

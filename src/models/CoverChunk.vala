@@ -59,7 +59,7 @@
         public async Gdk.Pixbuf? load_cover_from_stream (InputStream input_stream) {
             load_error = null;
             try {
-                pixel_buffer = new Gdk.Pixbuf.from_stream (input_stream);
+                pixel_buffer = yield new Gdk.Pixbuf.from_stream_async (input_stream);
                 debug (@"Image length: $(pixel_buffer.read_pixel_bytes ().length) bytes");
                 return pixel_buffer;
             } catch (GLib.Error e) {

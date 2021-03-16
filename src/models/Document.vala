@@ -338,6 +338,7 @@ namespace Manuscript.Models {
                 this.temporary = false;
                 this.saved (file_path);
             } catch (Error e) {
+                critical (e.message);
                 this.save_error (e);
             }
         }

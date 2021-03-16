@@ -84,13 +84,12 @@ namespace Manuscript {
         public static long save (string text, string path) throws Error {
             File file = File.new_for_path (path);
 
-            // delete if file already exists
-            if (file.query_exists ()) {
-                file.delete ();
-            }
+            FileOutputStream @os = file.query_exists ()
+                ? file.replace (null, false, FileCreateFlags.REPLACE_DESTINATION, null)
+                : file.create (FileCreateFlags.NONE);
 
             var dos = new DataOutputStream (
-                new BufferedOutputStream.sized (file.create (FileCreateFlags.REPLACE_DESTINATION), 65536)
+                new BufferedOutputStream.sized (@os, text.length)
             );
 
             uint8[] data = text.data;
