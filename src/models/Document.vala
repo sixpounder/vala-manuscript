@@ -35,6 +35,7 @@ namespace Manuscript.Models {
 
 
     public class DocumentData : Object, DocumentBase {
+        public File? file_ref { get; protected set; }
         public string version { get; set; }
         public string uuid { get; set; }
         public string title { get; set; }
@@ -220,7 +221,7 @@ namespace Manuscript.Models {
         public Document.from_file (string path, bool temporary = false) throws GLib.Error {
             this (path, temporary);
             try {
-                this.load_from_file (path);
+                load_from_file (path);
             } catch (Models.DocumentError document_error) {
                 critical ("Cannot create document: %s\n", document_error.message);
                 throw document_error;
@@ -251,12 +252,15 @@ namespace Manuscript.Models {
 
         private void load_from_file (string file_path) throws DocumentError {
             load_state = DocumentLoadState.LOADING;
-            var res = FileUtils.read (file_path);
+            File file_for_path = File.new_for_path (file_path);
+
+            var res = FileUtils.read_file (file_for_path);
             if (res == null) {
                 warning ("File not read (not found?)");
                 load_state = DocumentLoadState.ERROR;
                 throw new DocumentError.NOT_FOUND ("File not found");
             } else {
+                file_ref = file_for_path;
                 from_json (res);
             }
         }

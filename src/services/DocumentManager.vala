@@ -20,6 +20,7 @@
 namespace Manuscript.Services {
     public class DocumentManager : Object {
         protected uint autosave_timer_id = 0;
+        protected FileMonitor? file_monitor;
 
         public signal void load (Models.Document document);
         public signal void change (Models.Document new_document);
@@ -27,6 +28,8 @@ namespace Manuscript.Services {
             if (autosave_timer_id != 0) {
                 GLib.Source.remove (autosave_timer_id);
             }
+
+            stop_file_monitor ();
 
             if (settings.autosave) {
                 save (true);
@@ -37,8 +40,8 @@ namespace Manuscript.Services {
         public signal void start_editing (Models.DocumentChunk chunk);
         public signal void stop_editing (Models.DocumentChunk chunk);
         public signal void selected (Models.DocumentChunk chunk);
-
         public signal void chunk_deleted (Models.DocumentChunk deleted_chunk);
+        public signal void backend_file_unlinked ();
 
         private Models.Document _document = null;
         private Gee.ArrayList<Models.DocumentChunk> _opened_chunks;
@@ -89,14 +92,17 @@ namespace Manuscript.Services {
                     property_change (pspec.get_nick ());
                 });
                 _opened_chunks.clear ();
+                start_file_monitor ();
                 load (document);
             } else if (doc != null && document != null && document != doc) {
+                stop_file_monitor ();
                 document = doc;
                 settings.last_opened_document = document.file_path;
                 _opened_chunks.clear ();
                 document.notify.connect ((pspec) => {
                     property_change (pspec.get_nick ());
                 });
+                start_file_monitor ();
                 change (document);
             }
         }
@@ -193,6 +199,35 @@ namespace Manuscript.Services {
                 document = null;
             }
             unloaded ();
+        }
+
+        protected void start_file_monitor () {
+            if (document != null && document.file_ref != null) {
+                try {
+                    file_monitor = document.file_ref.monitor (FileMonitorFlags.NONE, null);
+                } catch (Error e) {
+                    warning (@"Cannot monitor $(document.file_ref.get_path ())");
+                    return;
+                }
+
+                file_monitor.changed.connect (on_file_monitor_event);
+                debug (@"Start monitoring $(document.file_ref.get_path ())");
+            }
+        }
+
+        protected void stop_file_monitor () {
+            if (file_monitor != null && !file_monitor.cancelled) {
+                file_monitor.changed.disconnect (on_file_monitor_event);
+                file_monitor.cancel ();
+                file_monitor = null;
+                debug (@"Stop monitoring $(document.file_ref.get_path ())");
+            }
+        }
+
+        protected void on_file_monitor_event (File file, File? other_file, FileMonitorEvent event_type) {
+            if (event_type == FileMonitorEvent.DELETED) {
+                backend_file_unlinked ();
+            }
         }
     }
 }

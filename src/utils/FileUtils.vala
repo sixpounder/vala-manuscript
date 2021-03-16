@@ -51,6 +51,10 @@ namespace Manuscript {
             }
         }
 
+        public static string? read_file (File file) throws Models.DocumentError {
+            return FileUtils.read (file.get_path ());
+        }
+
         public static async string? read_async (File file) throws GLib.Error {
             var text = new StringBuilder ();
             if (!file.query_exists ()) {

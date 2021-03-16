@@ -60,6 +60,7 @@
             load_error = null;
             try {
                 pixel_buffer = new Gdk.Pixbuf.from_stream (input_stream);
+                debug (@"Image length: $(pixel_buffer.read_pixel_bytes ().length) bytes");
                 return pixel_buffer;
             } catch (GLib.Error e) {
                 warning (e.message);
@@ -135,6 +136,7 @@
             if (obj.has_member ("image_data")) {
                 var arr = obj.get_array_member ("image_data");
                 var image_data = new uint8[arr.get_length ()];
+                debug (arr.get_length ().to_string ());
                 arr.foreach_element ((a, i, el) => {
                     image_data[i] = (uint8) el.get_int ();
                 });

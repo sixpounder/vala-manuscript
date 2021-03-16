@@ -82,6 +82,28 @@ namespace Manuscript {
                 set_layout_body (welcome_view);
             });
 
+            document_manager.backend_file_unlinked.connect (() => {
+                var infobar_instance = show_infobar (
+                    Gtk.MessageType.WARNING,
+                    "The current manuscript file has been deleted or moved. Do you want to save it again?"
+                );
+                infobar_instance.add_button (_ ("Save"), Gtk.ResponseType.YES);
+                infobar_instance.add_button (_ ("Dismiss"), Gtk.ResponseType.NO);
+                infobar_instance.response.connect ((res) => {
+                    switch (res) {
+                    case Gtk.ResponseType.NO:
+                        break;
+                    case Gtk.ResponseType.YES:
+                        document_manager.save (true);
+                        break;
+                    default:
+                        assert_not_reached ();
+                    }
+
+                    infobar_instance.destroy ();
+                });
+            });
+
             // Load some styles
             var css_provider = new Gtk.CssProvider ();
             css_provider.load_from_resource (Manuscript.Constants.MAIN_CSS_URI);
@@ -274,7 +296,7 @@ namespace Manuscript {
             try {
                 File tmp_file = FileUtils.new_temp_file (
                     new Manuscript.Models.Document.empty ().to_json ()
-                    );
+                );
                 open_file_at_path (tmp_file.get_path (), true);
             } catch (GLib.Error err) {
                 message (_ ("Unable to create temporary document") );
