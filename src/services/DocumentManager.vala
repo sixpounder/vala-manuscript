@@ -18,9 +18,29 @@
  */
 
 namespace Manuscript.Services {
+    public class DocumentManagerWorker : Object {
+        public virtual void run () {}
+    }
+
+    public class SaveWorker : DocumentManagerWorker {
+        public Models.Document document { get; construct; }
+
+        public SaveWorker (Models.Document document) {
+            Object (
+                document: document
+            );
+        }
+
+        public new long run () {
+            long written_bytes = document.save ();
+            return written_bytes;
+        }
+    }
+
     public class DocumentManager : Object {
         protected uint autosave_timer_id = 0;
         protected FileMonitor? file_monitor;
+        protected ThreadPool<DocumentManagerWorker> ops_pool;
 
         public signal void load (Models.Document document);
         public signal void change (Models.Document new_document);
@@ -83,6 +103,25 @@ namespace Manuscript.Services {
         construct {
             settings = Services.AppSettings.get_default ();
             _opened_chunks = new Gee.ArrayList<Models.DocumentChunk> ();
+
+            if (GLib.Thread.supported ()) {
+                uint concurrency = get_num_processors () - 1;
+                if (concurrency <= 0) {
+                    concurrency = 1;
+                }
+
+                info (@"Using thread pool with $concurrency max concurrent threads");
+
+                try {
+                    ops_pool = new ThreadPool<DocumentManagerWorker>.with_owned_data ((worker) => {
+                        worker.run ();
+                    }, (int) concurrency, false);
+                } catch (ThreadError err) {
+                    warning (err.message);
+                }
+            } else {
+                warning ("*** Current environment does not support threads. Application could experience problems ***");
+            }
         }
 
         public void set_current_document (owned Models.Document doc) {
@@ -163,7 +202,12 @@ namespace Manuscript.Services {
                 // Ask where to save this
                 save_as ();
             } else {
-                document.save ();
+                //  document.save ();
+                try {
+                    ops_pool.add (new SaveWorker (document));
+                } catch (ThreadError err) {
+                    warning (err.message);
+                }
             }
         }
 
@@ -188,9 +232,15 @@ namespace Manuscript.Services {
                     filename = filename.concat (Constants.DEFAULT_FILE_EXT);
                 }
 
-                document.save_async.begin (filename, (obj, res) => {
-                    settings.last_opened_document = document.file_path;
-                });
+                //  document.save_async.begin (filename, (obj, res) => {
+                //      settings.last_opened_document = document.file_path;
+                //  });
+                settings.last_opened_document = document.file_path;
+                try {
+                    ops_pool.add (new SaveWorker (document));
+                } catch (ThreadError err) {
+                    warning (err.message);
+                }
             }
             dialog.destroy ();
         }
@@ -203,7 +253,7 @@ namespace Manuscript.Services {
             // Avoid trashing the disk
             autosave_timer_id = Timeout.add (Constants.AUTOSAVE_DEBOUNCE_TIME, () => {
                 autosave_timer_id = 0;
-                save_async.begin (true);
+                save (true);
                 return false;
             });
         }

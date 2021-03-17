@@ -24,6 +24,7 @@ namespace Manuscript.Models {
         public int64 font_size { get; set; }
         public double paragraph_spacing { get; set; }
         public double paragraph_start_padding { get; set; }
+        public bool inline_cover_images { get; set; }
 
         public DocumentSettings () {
             set_defaults ();
@@ -36,10 +37,36 @@ namespace Manuscript.Models {
                 } else {
                     author_name = Environment.get_real_name ();
                 }
-                font_family = obj.get_string_member ("font_family");
-                font_size = obj.get_int_member ("font_size");
-                paragraph_spacing = obj.get_double_member ("paragraph_spacing");
-                paragraph_start_padding = obj.get_double_member ("paragraph_start_padding");
+
+                if (obj.has_member ("font_family")) {
+                    font_family = obj.get_string_member ("font_family");
+                } else {
+                    font_family = Constants.DEFAULT_FONT_FAMILY;
+                }
+
+                if (obj.has_member ("font_size")) {
+                    font_size = obj.get_int_member ("font_size");
+                } else {
+                    font_size = Constants.DEFAULT_FONT_SIZE;
+                }
+
+                if (obj.has_member ("paragraph_spacing")) {
+                    paragraph_spacing = obj.get_int_member ("paragraph_spacing");
+                } else {
+                    paragraph_spacing = 20;
+                }
+
+                if (obj.has_member ("paragraph_start_padding")) {
+                    paragraph_start_padding = obj.get_int_member ("paragraph_start_padding");
+                } else {
+                    paragraph_start_padding = 10;
+                }
+
+                if (obj.has_member ("inline_cover_images")) {
+                    inline_cover_images = obj.get_boolean_member ("inline_cover_images");
+                } else {
+                    inline_cover_images = false;
+                }
             } else {
                 set_defaults ();
             }
@@ -51,6 +78,7 @@ namespace Manuscript.Models {
             paragraph_start_padding = 10;
             font_family = Constants.DEFAULT_FONT_FAMILY;
             font_size = Constants.DEFAULT_FONT_SIZE;
+            inline_cover_images = false;
         }
 
         public Json.Object to_json_object () {
@@ -60,6 +88,7 @@ namespace Manuscript.Models {
             root.set_int_member ("font_size", font_size);
             root.set_double_member ("paragraph_spacing", paragraph_spacing);
             root.set_double_member ("paragraph_start_padding", paragraph_start_padding);
+            root.set_boolean_member ("inline_cover_images", inline_cover_images);
 
             return root;
         }

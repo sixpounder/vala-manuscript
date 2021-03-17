@@ -3,6 +3,7 @@ asresources = gnome.compile_resources(
 	source_dir: '../data',
 	c_name: 'as'
 )
+
 executable(
 	meson.project_name(),
 	'main.vala',
@@ -86,7 +87,6 @@ executable(
 		dependency('pangocairo', version : '>= 1.40'),
 		dependency('json-glib-1.0', version : '>= 1.4.2'),
 		dependency('gtksourceview-3.0')
-		# dependency('libnotify', version: '>=0.7.2')
 	],
 	install: true
 )
