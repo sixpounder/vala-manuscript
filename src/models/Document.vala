@@ -155,8 +155,9 @@ namespace Manuscript.Models {
         private string modified_path;
         private uint _load_state = DocumentLoadState.EMPTY;
 
-        public uint words_count { get; private set; }
-        public double estimate_reading_time { get; private set; }
+        public DocumentChunk active_chunk { get; private set; }
+
+        public bool temporary { get; private set; }
 
         public bool has_changes {
             get {
@@ -165,15 +166,12 @@ namespace Manuscript.Models {
                 while (it.next () && !changes_found) {
                     if (it.@get ().has_changes) {
                         changes_found = true;
+                        break;
                     }
                 }
                 return changes_found;
             }
         }
-
-        public bool temporary { get; set; }
-
-        public DocumentChunk active_chunk { get; private set; }
 
         public string file_path {
             get {

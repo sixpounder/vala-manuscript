@@ -24,15 +24,6 @@ jobs:
         meson build
         ninja -C build
         ninja -C build install
-  
-  # debian:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - uses: dawidd6/action-debian-package@v1
-  #   - name: Debian package
-  #     with:
-  #       artifacts_directory: output # optional, relative to workspace directory
 
   flatpak:
 
@@ -47,15 +38,3 @@ jobs:
       with:
         bundle: "manuscript.flatpak"
         manifest-path: "flatpak/com.github.sixpounder.manuscript.yml"
-
-  lint:
-
-    runs-on: ubuntu-latest
-
-    container:
-      image: valalang/lint
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Lint
-      run: io.elementary.vala-lint -d .
