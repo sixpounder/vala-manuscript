@@ -31,9 +31,8 @@ namespace Manuscript.Services {
             );
         }
 
-        public new long run () {
-            long written_bytes = document.save ();
-            return written_bytes;
+        public override void run () {
+            document.save ();
         }
     }
 
@@ -136,12 +135,15 @@ namespace Manuscript.Services {
                 });
                 _opened_chunks.clear ();
                 start_file_monitor ();
+                document.settings.notify.connect (on_document_setting_changed);
                 load (document);
             } else if (doc != null && document != null && document != doc) {
                 stop_file_monitor ();
+                document.settings.notify.disconnect (on_document_setting_changed);
                 document = doc;
                 settings.last_opened_document = document.file_path;
                 _opened_chunks.clear ();
+                document.settings.notify.connect (on_document_setting_changed);
                 document.notify.connect ((pspec) => {
                     property_change (pspec.get_nick ());
                 });
@@ -233,9 +235,6 @@ namespace Manuscript.Services {
                     filename = filename.concat (Constants.DEFAULT_FILE_EXT);
                 }
 
-                //  document.save_async.begin (filename, (obj, res) => {
-                //      settings.last_opened_document = document.file_path;
-                //  });
                 settings.last_opened_document = document.file_path;
                 try {
                     ops_pool.add (new SaveWorker (document));
@@ -288,6 +287,12 @@ namespace Manuscript.Services {
                 file_monitor.cancel ();
                 file_monitor = null;
                 debug (@"Stop monitoring $(document.file_ref.get_path ())");
+            }
+        }
+
+        protected void on_document_setting_changed (ParamSpec param) {
+            if (settings.autosave) {
+                queue_autosave ();
             }
         }
 

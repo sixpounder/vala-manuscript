@@ -375,18 +375,9 @@ namespace Manuscript {
             document_settings_dialog.destroy_with_parent = true;
             document_settings_dialog.modal = false;
             document_settings_dialog.close.connect (() => {
-                if (!document_manager.document.temporary) {
-                    document_manager.document.save ();
-                }
                 document_settings_dialog.destroy ();
             });
             document_settings_dialog.response.connect (() => {
-                //  if (!document_manager.document.is_temporary ()) {
-                //      document_manager.document.save ();
-                //  }
-                if (settings.autosave) {
-                    document_manager.queue_autosave ();
-                }
                 document_settings_dialog.destroy ();
             });
             document_settings_dialog.run ();

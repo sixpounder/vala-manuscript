@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-17 13:57+0100\n"
+"POT-Creation-Date: 2021-03-17 14:48+0100\n"
 "PO-Revision-Date: 2019-07-05 11:20+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -332,29 +332,18 @@ msgid "Paragraph initial padding"
 msgstr "Rientro iniziale paragrafo"
 
 #: src/widgets/settings/Covers.vala:43
-msgid "Copertine inline"
-msgstr ""
+#, fuzzy
+msgid "Inline cover images"
+msgstr "Seleziona copertina"
 
 #: src/widgets/settings/Covers.vala:47
+#, fuzzy
 msgid ""
-"\n"
-"<small>\n"
-"Inlining cover images stores image data inside the manuscript file instead "
-"of \n"
-"remembering the source file path. \n"
-"This makes the document more portable, but increases its file size. \n"
-"<b>Existing covers are not affected by the change of this setting</b>\n"
-"</small>\n"
-"                "
+"<small>Store cover images inline into the manuscript (increases file size).\n"
+"<b>Existing covers are not affected by the change of this setting</b></small>"
 msgstr ""
-"\n"
-"<small>\n"
-"Copertine inline memorizza le immagini di copertina internamente al manoscritto "
-"\n"
-"anziché memorizzare il percorso del file originale. \n"
-"Questo rende il manoscritto portabile, ma occupa più spazio su disco. \n"
-"<b>Le copertine esistenti non sono affette dalla modifica di questa impostazione</b>\n"
-"</small>\n"
+"<small>Copia le immagini di copertina nel manoscritto (aumenta la dimensione del file).\n"
+"<b>Le copertine esistenti non sono affette dal cambiamente di questa impostazione</b></small>"
 
 #: src/widgets/editors/CoverEditor.vala:72
 #, fuzzy
