@@ -107,6 +107,7 @@ namespace Manuscript.Services {
             if (GLib.Thread.supported ()) {
                 uint concurrency = get_num_processors () - 1;
                 if (concurrency <= 0) {
+                    // Single CPU env? In 2021?
                     concurrency = 1;
                 }
 

@@ -45,6 +45,7 @@ executable(
 
     'widgets/settings/Metrics.vala',
     'widgets/settings/General.vala',
+	'widgets/settings/Covers.vala',
 
 	'models/Document.vala',
 	'models/DocumentChunk.vala',

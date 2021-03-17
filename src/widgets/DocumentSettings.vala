@@ -49,6 +49,12 @@ namespace Manuscript.Widgets {
                 _("Typography")
             );
 
+            settings_views.add_titled (
+                new Settings.CoversSettingsView (parent_window),
+                "covers",
+                _("Covers")
+            );
+
             Gtk.StackSwitcher view_switchers = new Gtk.StackSwitcher ();
             view_switchers.orientation = Gtk.Orientation.HORIZONTAL;
             view_switchers.margin_start = 50;
