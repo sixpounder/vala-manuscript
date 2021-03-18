@@ -138,7 +138,13 @@ namespace Manuscript.Models {
                     worker.done.connect (() => {
                         worked_items ++;
                     });
-                    ops_pool.add (worker);
+                    try {
+                        ops_pool.add (worker);
+                    } catch (ThreadError err) {
+                        critical (err.message);
+                        // Abort loading
+                        throw new DocumentError.PARSE(err.message);
+                    }
                 }
 
                 GLib.Idle.add(() => {
