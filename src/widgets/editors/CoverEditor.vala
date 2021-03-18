@@ -121,7 +121,7 @@
             var res = dialog.run ();
 
             if (res == Gtk.ResponseType.ACCEPT) {
-                chunk.load_cover_from_file (dialog.get_filename ());
+                chunk.load_cover_from_file.begin (dialog.get_filename ());
             }
 
             dialog.destroy ();

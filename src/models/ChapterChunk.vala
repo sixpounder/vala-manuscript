@@ -64,7 +64,7 @@ namespace Manuscript.Models {
             return self;
         }
 
-        public Json.Object to_json_object () {
+        public override Json.Object to_json_object () {
             var root = base.to_json_object ();
             root.set_string_member ("raw_content", buffer.text);
             root.set_string_member ("notes", notes);

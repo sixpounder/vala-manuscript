@@ -26,6 +26,7 @@
 
         public bool paint_title { get; set; }
         public bool paint_author_name { get; set; }
+        public File? image_source_file { get; protected set; }
 
         protected Gdk.Pixbuf? _pixel_buffer;
         public Gdk.Pixbuf? pixel_buffer {
@@ -46,10 +47,14 @@
             paint_author_name = false;
         }
 
-        public void load_cover_from_file (string file_name) {
+        public async void load_cover_from_file (string file_name) {
             load_error = null;
             try {
-                pixel_buffer = new Gdk.Pixbuf.from_file (file_name);
+                image_source_file = File.new_for_path (file_name);
+                FileIOStream stream = yield image_source_file.open_readwrite_async (GLib.Priority.DEFAULT, null);
+                if (stream != null) {
+                    yield load_cover_from_stream (stream.input_stream);
+                }
             } catch (GLib.Error e) {
                 warning (e.message);
                 load_error = e;
@@ -57,13 +62,13 @@
         }
 
         public async Gdk.Pixbuf? load_cover_from_stream (InputStream input_stream) {
-            load_error = null;
             try {
+                load_error = null;
                 pixel_buffer = yield new Gdk.Pixbuf.from_stream_async (input_stream);
                 debug (@"Image length: $(pixel_buffer.read_pixel_bytes ().length) bytes");
                 return pixel_buffer;
             } catch (GLib.Error e) {
-                warning (e.message);
+                warning (@"Could not load cover image buffer: $(e.message)");
                 load_error = e;
                 return null;
             }
@@ -81,16 +86,16 @@
             }
         }
 
-        public Json.Object to_json_object () {
+        public override Json.Object to_json_object () {
             var node = base.to_json_object ();
 
             if (_pixel_buffer != null) {
-                if (parent_document.settings.inline_cover_images) {
+                if (parent_document.settings.inline_cover_images || image_source_file == null) {
                     var image_data = _pixel_buffer.read_pixel_bytes ().get_data ();
                     var image_data_encoded = GLib.Base64.encode (image_data);
                     node.set_string_member ("image_data_base64", image_data_encoded);
                 } else {
-                    node.set_string_member ("image_source_file", "");
+                    node.set_string_member ("image_source_file", image_source_file.get_path ());
                 }
             }
 
@@ -122,28 +127,16 @@
                 stream = new MemoryInputStream.from_data (decoded_data, GLib.free);
 
                 if (stream != null) {
-                    self.load_cover_from_stream.begin (stream, (obj, res) => {
-                        try {
-                            stream.close ();
-                        } catch (IOError err) {
-                            warning (@"Memory stream containing cover data was NOT closed: $(err.message)");
-                        }
-                    });
+                    self.load_cover_from_stream.begin (stream);
                 }
             } else if (obj.has_member ("image_source_file")) {
                 try {
-                    File file = File.new_for_path (obj.get_string_member ("image_source_file"));
-                    IOStream ios = file.create_readwrite (FileCreateFlags.NONE);
+                    self.image_source_file = File.new_for_path (obj.get_string_member ("image_source_file"));
+                    IOStream ios = self.image_source_file.open_readwrite ();
                     stream = ios.input_stream;
-    
+
                     if (stream != null) {
-                        self.load_cover_from_stream.begin (stream, (obj, res) => {
-                            try {
-                                stream.close ();
-                            } catch (IOError err) {
-                                warning (@"Memory stream containing cover data was NOT closed: $(err.message)");
-                            }
-                        });
+                        self.load_cover_from_stream.begin (stream);
                     }
                 } catch (Error e) {
                     critical (@"Cannot load image from source file: $(e.message)");

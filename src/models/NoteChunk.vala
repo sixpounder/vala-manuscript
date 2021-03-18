@@ -42,7 +42,7 @@
             return self;
         }
 
-        public Json.Object to_json_object () {
+        public override Json.Object to_json_object () {
             var node = base.to_json_object ();
             node.set_string_member ("raw_content", buffer.text);
 

@@ -106,16 +106,7 @@ namespace Manuscript.Models {
             return chunk;
         }
 
-        public virtual Json.Object to_json_object () {
-            var node = new Json.Object ();
-            node.set_string_member ("uuid", uuid);
-            node.set_int_member ("index", index);
-            node.set_int_member ("chunk_type", (int64) kind);
-            node.set_string_member ("title", title);
-            node.set_boolean_member ("locked", locked);
-
-            return node;
-        }
+        public abstract Json.Object to_json_object ();
     }
 
     public abstract class DocumentChunkBase : Object, DocumentChunk {
@@ -126,6 +117,17 @@ namespace Manuscript.Models {
         public virtual string uuid { get; set; }
         public virtual bool locked { get; set; }
         public virtual weak Document parent_document { get; protected set; }
+
+        public virtual Json.Object to_json_object () {
+            var node = new Json.Object ();
+            node.set_string_member ("uuid", uuid);
+            node.set_int_member ("index", index);
+            node.set_int_member ("chunk_type", (int64) kind);
+            node.set_string_member ("title", title);
+            node.set_boolean_member ("locked", locked);
+
+            return node;
+        }
     }
 
     public abstract class TextChunkBase : DocumentChunkBase {
@@ -139,5 +141,11 @@ namespace Manuscript.Models {
         public virtual double estimate_reading_time { get; protected set; }
 
         public virtual Gtk.SourceBuffer buffer { get; protected set; }
+
+        public override Json.Object to_json_object () {
+            var node = base.to_json_object ();
+
+            return node;
+        }
     }
 }
