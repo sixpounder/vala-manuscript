@@ -74,6 +74,38 @@ namespace Manuscript.Models {
             }
         }
 
+        public static DocumentChunk deserialize_chunk_base (Json.Object obj, Document parent) {
+            DocumentChunk chunk = DocumentChunk.new_for_document (parent, (Models.ChunkType) obj.get_int_member ("chunk_type"));
+            if (obj.has_member ("uuid")) {
+                chunk.uuid = obj.get_string_member ("uuid");
+            } else {
+                info ("Chunk has no uuid, generating one now");
+                chunk.uuid = GLib.Uuid.string_random ();
+            }
+
+            if (obj.has_member ("locked")) {
+                chunk.locked = obj.get_boolean_member ("locked");
+            } else {
+                chunk.locked = false;
+            }
+
+            if (obj.has_member ("title")) {
+                chunk.title = obj.get_string_member ("title");
+            } else {
+                chunk.title = _("Untitled");
+            }
+
+            if (obj.has_member ("index")) {
+                chunk.index = obj.get_int_member ("index");
+            } else {
+                chunk.index = 0;
+            }
+
+            chunk.kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
+
+            return chunk;
+        }
+
         public virtual Json.Object to_json_object () {
             var node = new Json.Object ();
             node.set_string_member ("uuid", uuid);

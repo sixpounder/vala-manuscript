@@ -44,7 +44,7 @@ namespace Manuscript.Models {
         }
 
         public static CharacterSheetChunk from_json_object (Json.Object obj, Document document) {
-            CharacterSheetChunk self = (CharacterSheetChunk) DocumentChunk.from_json_object (obj, document);
+            CharacterSheetChunk self = (CharacterSheetChunk) DocumentChunk.deserialize_chunk_base (obj, document);
 
             if (obj.has_member ("name")) {
                 self.name = obj.get_string_member ("name");

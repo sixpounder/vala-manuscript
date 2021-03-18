@@ -101,7 +101,7 @@
         }
 
         public static CoverChunk from_json_object (Json.Object obj, Document document) {
-            CoverChunk self = (CoverChunk) DocumentChunk.from_json_object (obj, document);
+            CoverChunk self = (CoverChunk) DocumentChunk.deserialize_chunk_base (obj, document);
 
             if (obj.has_member ("paint_title")) {
                 self.paint_title = obj.get_boolean_member ("paint_title");
@@ -117,12 +117,6 @@
 
             InputStream stream = null;
             if (obj.has_member ("image_data_base64")) {
-                //  var arr = obj.get_array_member ("image_data");
-                //  var image_data = new uint8[arr.get_length ()];
-
-                //  arr.foreach_element ((a, i, el) => {
-                //      image_data[i] = (uint8) el.get_int ();
-                //  });
                 string raw_data = obj.get_string_member ("image_data_base64");
                 uchar[] decoded_data = GLib.Base64.decode (raw_data);
                 stream = new MemoryInputStream.from_data (decoded_data, GLib.free);

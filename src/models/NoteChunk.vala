@@ -29,7 +29,7 @@
         }
 
         public static NoteChunk from_json_object (Json.Object obj, Document document) {
-            NoteChunk self = (NoteChunk) DocumentChunk.from_json_object (obj, document);
+            NoteChunk self = (NoteChunk) DocumentChunk.deserialize_chunk_base (obj, document);
 
             if (obj.has_member ("raw_content")) {
                 self.raw_content = obj.get_string_member ("raw_content");
