@@ -147,7 +147,10 @@ namespace Manuscript.Services {
 
         protected void action_add_character_sheet () {
             window.document_manager.add_chunk (
-                Models.DocumentChunk.new_for_document (window.document_manager.document, Models.ChunkType.CHARACTER_SHEET)
+                Models.DocumentChunk.new_for_document (
+                    window.document_manager.document,
+                    Models.ChunkType.CHARACTER_SHEET
+                )
             );
         }
 

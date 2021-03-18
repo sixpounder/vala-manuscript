@@ -31,6 +31,13 @@
         protected Gdk.Pixbuf? _pixel_buffer;
         public Gdk.Pixbuf? pixel_buffer {
             get {
+                if (_pixel_buffer == null) {
+                    load_error = null;
+                    if (image_source_file != null) {
+                        load_cover_from_file.begin (image_source_file.get_path ());
+                    }
+                }
+
                 return _pixel_buffer;
             }
             set {
@@ -131,13 +138,7 @@
                     self.load_cover_from_stream.begin (stream);
                 }
             } else if (obj.has_member ("image_source_file")) {
-                try {
-                    self.image_source_file = File.new_for_path (obj.get_string_member ("image_source_file"));
-                    self.load_cover_from_file.begin (self.image_source_file.get_path ());
-                } catch (Error e) {
-                    critical (@"Cannot load image from source file: $(e.message)");
-                    self.pixel_buffer = null;
-                }
+                self.image_source_file = File.new_for_path (obj.get_string_member ("image_source_file"));
             } else {
                 self.pixel_buffer = null;
             }

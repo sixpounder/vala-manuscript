@@ -75,7 +75,8 @@ namespace Manuscript.Models {
         }
 
         public static DocumentChunk deserialize_chunk_base (Json.Object obj, Document parent) {
-            DocumentChunk chunk = DocumentChunk.new_for_document (parent, (Models.ChunkType) obj.get_int_member ("chunk_type"));
+            DocumentChunk chunk
+                = DocumentChunk.new_for_document (parent, (Models.ChunkType) obj.get_int_member ("chunk_type"));
             if (obj.has_member ("uuid")) {
                 chunk.uuid = obj.get_string_member ("uuid");
             } else {
