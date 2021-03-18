@@ -143,11 +143,11 @@ namespace Manuscript.Models {
                     } catch (ThreadError err) {
                         critical (err.message);
                         // Abort loading
-                        throw new DocumentError.PARSE(err.message);
+                        throw new DocumentError.PARSE (err.message);
                     }
                 }
 
-                GLib.Idle.add(() => {
+                GLib.Idle.add (() => {
                     if (expected_chunks_length == worked_items) {
                         chunks.sort ((a, b) => {
                             return (int) (a.index - b.index);
