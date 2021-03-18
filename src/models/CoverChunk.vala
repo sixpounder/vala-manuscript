@@ -48,12 +48,13 @@
         }
 
         public async void load_cover_from_file (string file_name) {
-            load_error = null;
             try {
+                load_error = null;
                 image_source_file = File.new_for_path (file_name);
                 FileIOStream stream = yield image_source_file.open_readwrite_async (GLib.Priority.DEFAULT, null);
                 if (stream != null) {
-                    yield load_cover_from_stream (stream.input_stream);
+                    pixel_buffer = yield new Gdk.Pixbuf.from_stream_async ((InputStream) stream.input_stream);
+                    debug (@"Image length: $(pixel_buffer.read_pixel_bytes ().length) bytes");
                 }
             } catch (GLib.Error e) {
                 warning (e.message);
@@ -132,12 +133,7 @@
             } else if (obj.has_member ("image_source_file")) {
                 try {
                     self.image_source_file = File.new_for_path (obj.get_string_member ("image_source_file"));
-                    IOStream ios = self.image_source_file.open_readwrite ();
-                    stream = ios.input_stream;
-
-                    if (stream != null) {
-                        self.load_cover_from_stream.begin (stream);
-                    }
+                    self.load_cover_from_file.begin (self.image_source_file.get_path ());
                 } catch (Error e) {
                     critical (@"Cannot load image from source file: $(e.message)");
                     self.pixel_buffer = null;
