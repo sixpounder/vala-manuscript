@@ -18,7 +18,7 @@
  */
 
  namespace Manuscript.Models {
-    public class CoverChunk : DocumentChunk {
+    public class CoverChunk : DocumentChunkBase {
 
         public GLib.Error load_error { get; private set; }
 
@@ -81,77 +81,85 @@
             }
         }
 
-        public override Json.Object to_json_object () {
+        public Json.Object to_json_object () {
             var node = base.to_json_object ();
 
             if (_pixel_buffer != null) {
-                var image_data = _pixel_buffer.read_pixel_bytes ().get_data ();
-                var image_data_array = new Json.Array.sized (image_data.length);
-                foreach (uint8 el in image_data) {
-                    image_data_array.add_int_element (el);
+                if (parent_document.settings.inline_cover_images) {
+                    var image_data = _pixel_buffer.read_pixel_bytes ().get_data ();
+                    var image_data_encoded = GLib.Base64.encode (image_data);
+                    node.set_string_member ("image_data_base64", image_data_encoded);
+                } else {
+                    node.set_string_member ("image_source_file", "");
                 }
-                node.set_array_member ("image_data", image_data_array);
             }
+
+            node.set_boolean_member ("paint_title", paint_title);
+            node.set_boolean_member ("paint_author_name", paint_author_name);
 
             return node;
         }
 
-        public CoverChunk.from_json_object (Json.Object obj) {
-            assert (obj != null);
-            if (obj.has_member ("uuid")) {
-                uuid = obj.get_string_member ("uuid");
-            } else {
-                info ("Chunk has no uuid, generating one now");
-                uuid = GLib.Uuid.string_random ();
-            }
-
-            if (obj.has_member ("locked")) {
-                locked = obj.get_boolean_member ("locked");
-            } else {
-                locked = false;
-            }
-
-            title = obj.get_string_member ("title");
-
-            if (obj.has_member ("index")) {
-                index = obj.get_int_member ("index");
-            } else {
-                index = 0;
-            }
-
-            kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
+        public static CoverChunk from_json_object (Json.Object obj, Document document) {
+            CoverChunk self = (CoverChunk) DocumentChunk.from_json_object (obj, document);
 
             if (obj.has_member ("paint_title")) {
-                paint_title = obj.get_boolean_member ("paint_title");
+                self.paint_title = obj.get_boolean_member ("paint_title");
             } else {
-                paint_title = false;
+                self.paint_title = false;
             }
 
             if (obj.has_member ("paint_author_name")) {
-                paint_author_name = obj.get_boolean_member ("paint_author_name");
+                self.paint_author_name = obj.get_boolean_member ("paint_author_name");
             } else {
-                paint_author_name = false;
+                self.paint_author_name = false;
             }
 
-            if (obj.has_member ("image_data")) {
-                var arr = obj.get_array_member ("image_data");
-                var image_data = new uint8[arr.get_length ()];
+            InputStream stream = null;
+            if (obj.has_member ("image_data_base64")) {
+                //  var arr = obj.get_array_member ("image_data");
+                //  var image_data = new uint8[arr.get_length ()];
 
-                arr.foreach_element ((a, i, el) => {
-                    image_data[i] = (uint8) el.get_int ();
-                });
+                //  arr.foreach_element ((a, i, el) => {
+                //      image_data[i] = (uint8) el.get_int ();
+                //  });
+                string raw_data = obj.get_string_member ("image_data_base64");
+                uchar[] decoded_data = GLib.Base64.decode (raw_data);
+                stream = new MemoryInputStream.from_data (decoded_data, GLib.free);
 
-                var stream = new MemoryInputStream.from_data (image_data, GLib.free);
-                load_cover_from_stream.begin (stream, (obj, res) => {
-                    try {
-                        stream.close ();
-                    } catch (IOError err) {
-                        warning (@"Memory stream containing cover data was NOT closed: $(err.message)");
+                if (stream != null) {
+                    self.load_cover_from_stream.begin (stream, (obj, res) => {
+                        try {
+                            stream.close ();
+                        } catch (IOError err) {
+                            warning (@"Memory stream containing cover data was NOT closed: $(err.message)");
+                        }
+                    });
+                }
+            } else if (obj.has_member ("image_source_file")) {
+                try {
+                    File file = File.new_for_path (obj.get_string_member ("image_source_file"));
+                    IOStream ios = file.create_readwrite (FileCreateFlags.NONE);
+                    stream = ios.input_stream;
+    
+                    if (stream != null) {
+                        self.load_cover_from_stream.begin (stream, (obj, res) => {
+                            try {
+                                stream.close ();
+                            } catch (IOError err) {
+                                warning (@"Memory stream containing cover data was NOT closed: $(err.message)");
+                            }
+                        });
                     }
-                });
+                } catch (Error e) {
+                    critical (@"Cannot load image from source file: $(e.message)");
+                    self.pixel_buffer = null;
+                }
             } else {
-                pixel_buffer = null;
+                self.pixel_buffer = null;
             }
+
+            return self;
         }
     }
 }

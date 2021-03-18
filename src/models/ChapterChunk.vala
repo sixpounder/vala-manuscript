@@ -18,12 +18,12 @@
  */
 
 namespace Manuscript.Models {
-    public class ChapterChunk : TextChunk {
+    public class ChapterChunk : TextChunkBase {
         protected uint words_counter_timer = 0;
         public string notes { get; set; }
 
         protected string _title;
-        public override string title {
+        public new string title {
             get {
                 return _title;
             }
@@ -41,49 +41,30 @@ namespace Manuscript.Models {
             kind = ChunkType.CHAPTER;
             raw_content = "";
 
-            build_buffer (raw_content);
+            build_buffer ();
         }
 
-        public ChapterChunk.from_json_object (Json.Object obj) {
-            assert (obj != null);
-            if (obj.has_member ("uuid")) {
-                uuid = obj.get_string_member ("uuid");
-            } else {
-                info ("Chunk has no uuid, generating one now");
-                uuid = GLib.Uuid.string_random ();
-            }
-
-            if (obj.has_member ("locked")) {
-                locked = obj.get_boolean_member ("locked");
-            } else {
-                locked = false;
-            }
+        public static ChapterChunk from_json_object (Json.Object obj, Document document) {
+            ChapterChunk self = (ChapterChunk) DocumentChunk.from_json_object (obj, document);
 
             if (obj.has_member ("raw_content")) {
-                raw_content = obj.get_string_member ("raw_content");
+                self.raw_content = obj.get_string_member ("raw_content");
             } else {
-                raw_content = "";
+                self.raw_content = "";
             }
 
             if (obj.has_member ("notes")) {
-                notes = obj.get_string_member ("notes");
+                self.notes = obj.get_string_member ("notes");
             } else {
-                notes = null;
+                self.notes = null;
             }
 
-            title = obj.get_string_member ("title");
+            self.build_buffer ();
 
-            if (obj.has_member ("index")) {
-                index = obj.get_int_member ("index");
-            } else {
-                index = 0;
-            }
-
-            kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
-            build_buffer (raw_content);
+            return self;
         }
 
-        public override Json.Object to_json_object () {
+        public Json.Object to_json_object () {
             var root = base.to_json_object ();
             root.set_string_member ("raw_content", buffer.text);
             root.set_string_member ("notes", notes);
@@ -91,7 +72,7 @@ namespace Manuscript.Models {
             return root;
         }
 
-        protected void build_buffer (string content = "") {
+        protected void build_buffer () {
 
             buffer = new Gtk.SourceBuffer (new DocumentTagTable () );
             buffer.highlight_matching_brackets = false;
@@ -99,7 +80,7 @@ namespace Manuscript.Models {
             buffer.highlight_syntax = false;
 
             buffer.begin_not_undoable_action ();
-            buffer.set_text (content, content.length);
+            buffer.set_text (raw_content, raw_content.length);
             buffer.end_not_undoable_action ();
 
             words_count = Utils.Strings.count_words (buffer.text);

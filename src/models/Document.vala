@@ -91,7 +91,7 @@ namespace Manuscript.Models {
             var chunks_array = root_object.get_array_member ("chunks");
             chunks = new Gee.ArrayList<DocumentChunk> ();
             foreach (var el in chunks_array.get_elements ()) {
-                add_chunk (DocumentChunk.from_json_object (el.get_object ()), false);
+                add_chunk (DocumentChunk.from_json_object (el.get_object (), (Document) this), false);
             }
 
             // Sort chunks by their index
@@ -133,14 +133,6 @@ namespace Manuscript.Models {
     }
 
     public class Document : DocumentData, DocumentBase {
-        public const string[] SERIALIZABLE_PROPERIES = {
-            "version",
-            "uuid",
-            "title",
-            "chunks",
-            "settings"
-        };
-
         public signal void saved (string target_path);
         public signal void load ();
         public signal void read_error (GLib.Error error);
@@ -157,7 +149,7 @@ namespace Manuscript.Models {
 
         public DocumentChunk active_chunk { get; private set; }
 
-        public bool temporary { get; private set; }
+        public bool temporary { get; set; }
 
         public bool has_changes {
             get {

@@ -18,17 +18,61 @@
  */
 
 namespace Manuscript.Models {
-    public delegate void ChunkTransformFunc (DocumentChunk chunk);
-
-    public abstract class DocumentChunk : Object {
+    public interface DocumentChunk : Object {
         public virtual signal void changed () {}
 
-        public virtual int64 index { get; set; }
-        public virtual ChunkType kind { get; protected set; }
-        public virtual string title { get; set; }
-        public virtual bool has_changes { get; protected set; }
-        public virtual string uuid { get; set; }
-        public virtual bool locked { get; set; }
+        public abstract weak Document parent_document { get; protected set; }
+        public abstract int64 index { get; set; }
+        public abstract ChunkType kind { get; protected set; }
+        public abstract string title { get; set; }
+        public abstract bool has_changes { get; protected set; }
+        public abstract string uuid { get; set; }
+        public abstract bool locked { get; set; }
+
+        public static DocumentChunk new_for_document (Document document, ChunkType kind) {
+            DocumentChunk new_chunk;
+            switch (kind) {
+                case Models.ChunkType.CHAPTER:
+                    new_chunk = new ChapterChunk.empty ();
+                    break;
+                case Models.ChunkType.CHARACTER_SHEET:
+                    new_chunk = new CharacterSheetChunk.empty ();
+                    break;
+                case Models.ChunkType.NOTE:
+                    new_chunk = new NoteChunk.empty ();
+                    break;
+                case Models.ChunkType.COVER:
+                    new_chunk = new CoverChunk.empty ();
+                    break;
+                default:
+                    assert_not_reached ();
+            }
+
+            new_chunk.parent_document = document;
+
+            return new_chunk;
+        }
+
+        public static DocumentChunk from_json_object (Json.Object obj, Document document) {
+            assert (obj != null);
+            assert (document != null);
+            assert (obj.has_member ("chunk_type"));
+
+            Models.ChunkType kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
+
+            switch (kind) {
+                case Models.ChunkType.CHAPTER:
+                    return ChapterChunk.from_json_object (obj, document);
+                case Models.ChunkType.CHARACTER_SHEET:
+                    return CharacterSheetChunk.from_json_object (obj, document);
+                case Models.ChunkType.NOTE:
+                    return NoteChunk.from_json_object (obj, document);
+                case Models.ChunkType.COVER:
+                    return CoverChunk.from_json_object (obj, document);
+                default:
+                    assert_not_reached ();
+            }
+        }
 
         public virtual Json.Object to_json_object () {
             var node = new Json.Object ();
@@ -40,29 +84,19 @@ namespace Manuscript.Models {
 
             return node;
         }
-
-        public static DocumentChunk from_json_object (Json.Object obj) {
-            assert (obj != null);
-            assert (obj.has_member ("chunk_type"));
-
-            Models.ChunkType kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
-
-            switch (kind) {
-                case Models.ChunkType.CHAPTER:
-                    return new ChapterChunk.from_json_object (obj);
-                case Models.ChunkType.CHARACTER_SHEET:
-                    return new CharacterSheetChunk.from_json_object (obj);
-                case Models.ChunkType.NOTE:
-                    return new NoteChunk.from_json_object (obj);
-                case Models.ChunkType.COVER:
-                    return new CoverChunk.from_json_object (obj);
-                default:
-                    assert_not_reached ();
-            }
-        }
     }
 
-    public abstract class TextChunk : DocumentChunk {
+    public abstract class DocumentChunkBase : Object, DocumentChunk {
+        public virtual int64 index { get; set; }
+        public virtual ChunkType kind { get; protected set; }
+        public virtual string title { get; set; }
+        public virtual bool has_changes { get; protected set; }
+        public virtual string uuid { get; set; }
+        public virtual bool locked { get; set; }
+        public virtual weak Document parent_document { get; protected set; }
+    }
+
+    public abstract class TextChunkBase : DocumentChunkBase {
         public virtual signal void undo_queue_drain () {}
         public virtual signal void undo () {}
         public virtual signal void redo () {}
@@ -72,15 +106,6 @@ namespace Manuscript.Models {
         public virtual uint words_count { get; protected set; }
         public virtual double estimate_reading_time { get; protected set; }
 
-        protected Gtk.SourceBuffer _buffer;
-        public virtual Gtk.SourceBuffer buffer {
-            get {
-                return _buffer;
-            }
-
-            protected set {
-                _buffer = value;
-            }
-        }
+        public virtual Gtk.SourceBuffer buffer { get; protected set; }
     }
 }

@@ -21,11 +21,11 @@ namespace Manuscript.Widgets {
     public class TextEditor : Gtk.SourceView, Protocols.ChunkEditor {
         public bool has_changes { get; private set; }
         public Gtk.SourceSearchContext search_context = null;
-        protected weak Models.TextChunk _chunk;
+        protected weak Models.TextChunkBase _chunk;
         protected Gtk.CssProvider font_style_provider;
         protected Services.AppSettings settings = Services.AppSettings.get_default ();
 
-        public TextEditor (Models.TextChunk chunk) {
+        public TextEditor (Models.TextChunkBase chunk) {
             Object (
                 chunk: chunk,
                 has_focus: true,
@@ -46,7 +46,7 @@ namespace Manuscript.Widgets {
 
         }
 
-        public weak Models.TextChunk chunk {
+        public weak Models.TextChunkBase chunk {
             get {
                 return _chunk;
             }

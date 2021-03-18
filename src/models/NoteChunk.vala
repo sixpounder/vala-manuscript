@@ -18,7 +18,7 @@
  */
 
  namespace Manuscript.Models {
-    public class NoteChunk : TextChunk {
+    public class NoteChunk : TextChunkBase {
         protected uint words_counter_timer = 0;
 
         public NoteChunk.empty () {
@@ -28,41 +28,21 @@
             build_buffer ();
         }
 
-        public NoteChunk.from_json_object (Json.Object obj) {
-            assert (obj != null);
-            if (obj.has_member ("uuid")) {
-                uuid = obj.get_string_member ("uuid");
-            } else {
-                info ("Chunk has no uuid, generating one now");
-                uuid = GLib.Uuid.string_random ();
-            }
-
-            if (obj.has_member ("locked")) {
-                locked = obj.get_boolean_member ("locked");
-            } else {
-                locked = false;
-            }
+        public static NoteChunk from_json_object (Json.Object obj, Document document) {
+            NoteChunk self = (NoteChunk) DocumentChunk.from_json_object (obj, document);
 
             if (obj.has_member ("raw_content")) {
-                raw_content = obj.get_string_member ("raw_content");
+                self.raw_content = obj.get_string_member ("raw_content");
             } else {
-                raw_content = "";
+                self.raw_content = "";
             }
 
-            title = obj.get_string_member ("title");
+            self.build_buffer ();
 
-            if (obj.has_member ("index")) {
-                index = obj.get_int_member ("index");
-            } else {
-                index = 0;
-            }
-
-            kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
-
-            build_buffer ();
+            return self;
         }
 
-        public override Json.Object to_json_object () {
+        public Json.Object to_json_object () {
             var node = base.to_json_object ();
             node.set_string_member ("raw_content", buffer.text);
 

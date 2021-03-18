@@ -18,7 +18,7 @@
  */
 
 namespace Manuscript.Models {
-    public class CharacterSheetChunk : DocumentChunk {
+    public class CharacterSheetChunk : DocumentChunkBase {
         public string name { get; set; }
         public string background { get; set; }
         public string traits { get; set; }
@@ -34,7 +34,7 @@ namespace Manuscript.Models {
             notes = "";
         }
 
-        public override Json.Object to_json_object () {
+        public Json.Object to_json_object () {
             var node = base.to_json_object ();
             node.set_string_member ("name", name);
             node.set_string_member ("background", background);
@@ -43,60 +43,34 @@ namespace Manuscript.Models {
             return node;
         }
 
-        public CharacterSheetChunk.from_json_object (Json.Object obj) {
-            assert (obj != null);
-            if (obj.has_member ("uuid")) {
-                uuid = obj.get_string_member ("uuid");
-            } else {
-                info ("Chunk has no uuid, generating one now");
-                uuid = GLib.Uuid.string_random ();
-            }
-
-            if (obj.has_member ("locked")) {
-                locked = obj.get_boolean_member ("locked");
-            } else {
-                locked = false;
-            }
-
-            if (obj.has_member ("notes")) {
-                notes = obj.get_string_member ("notes");
-            } else {
-                notes = null;
-            }
-
-            title = obj.get_string_member ("title");
-
-            if (obj.has_member ("index")) {
-                index = obj.get_int_member ("index");
-            } else {
-                index = 0;
-            }
-
-            kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
+        public static CharacterSheetChunk from_json_object (Json.Object obj, Document document) {
+            CharacterSheetChunk self = (CharacterSheetChunk) DocumentChunk.from_json_object (obj, document);
 
             if (obj.has_member ("name")) {
-                name = obj.get_string_member ("name");
+                self.name = obj.get_string_member ("name");
             } else {
-                name = "";
+                self.name = "";
             }
 
             if (obj.has_member ("background")) {
-                background = obj.get_string_member ("background");
+                self.background = obj.get_string_member ("background");
             } else {
-                background = "";
+                self.background = "";
             }
 
             if (obj.has_member ("traits")) {
-                traits = obj.get_string_member ("traits");
+                self.traits = obj.get_string_member ("traits");
             } else {
-                traits = "";
+                self.traits = "";
             }
 
             if (obj.has_member ("notes")) {
-                notes = obj.get_string_member ("notes");
+                self.notes = obj.get_string_member ("notes");
             } else {
-                notes = "";
+                self.notes = "";
             }
+
+            return self;
         }
     }
 }

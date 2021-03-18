@@ -57,9 +57,9 @@ namespace Manuscript.Widgets {
                     scrolled_container.vadjustment.upper - allocation.height
                 );
             });
-            editor = new TextEditor (chunk as Models.TextChunk);
+            editor = new TextEditor (chunk as Models.TextChunkBase);
             reflect_document_settings ();
-            status_bar = new Widgets.StatusBar (parent_window, chunk as Models.TextChunk);
+            status_bar = new Widgets.StatusBar (parent_window, chunk as Models.TextChunkBase);
             status_bar.height_request = 50;
             scrolled_container.add (editor);
 
@@ -142,7 +142,7 @@ namespace Manuscript.Widgets {
         }
 
         public Gtk.TextBuffer ? get_buffer () {
-            return (chunk != null && chunk is Models.TextChunk) ? (chunk as Models.TextChunk).buffer : null;
+            return (chunk != null && chunk is Models.TextChunkBase) ? (chunk as Models.TextChunkBase).buffer : null;
         }
 
         public void scroll_to_search_result (Protocols.SearchResult result) {}
