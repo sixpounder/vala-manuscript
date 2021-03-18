@@ -1,3 +1,6 @@
+[![CI](https://github.com/sixpounder/manuscript/actions/workflows/main.yml/badge.svg)](https://github.com/sixpounder/manuscript/actions/workflows/main.yml)
+[![Lint](https://github.com/sixpounder/manuscript/actions/workflows/lint.yml/badge.svg)](https://github.com/sixpounder/manuscript/actions/workflows/lint.yml)
+
 # Manuscript
 Manuscript is a free, open source environment for writers
 
