@@ -33,6 +33,24 @@ namespace Manuscript.Models {
         public abstract Gee.ArrayList<DocumentChunk> chunks { get; set; }
     }
 
+    public class ChunkParser : Object {
+        public signal void done ();
+
+        public Json.Node serialized_chunk { get; construct; }
+        public Document parent { get; construct; }
+
+        public ChunkParser (Json.Node serialized_chunk, Document parent) {
+            Object (
+                serialized_chunk: serialized_chunk,
+                parent: parent
+            );
+        }
+
+        public void parse () {
+            parent.add_chunk (DocumentChunk.from_json_object (serialized_chunk.get_object (), parent), false);
+            done ();
+        }
+    }
 
     public class DocumentData : Object, DocumentBase {
         public File? file_ref { get; protected set; }
@@ -41,6 +59,8 @@ namespace Manuscript.Models {
         public string title { get; set; }
         public string background { get; set; }
         public DocumentSettings settings { get; set; }
+
+        private uint worked_items = 0;
 
         private Gee.ArrayList<DocumentChunk> _chunks;
         public new Gee.ArrayList<DocumentChunk> chunks {
@@ -90,14 +110,48 @@ namespace Manuscript.Models {
             // Chunks parsing
             var chunks_array = root_object.get_array_member ("chunks");
             chunks = new Gee.ArrayList<DocumentChunk> ();
-            foreach (var el in chunks_array.get_elements ()) {
-                add_chunk (DocumentChunk.from_json_object (el.get_object (), (Document) this), false);
+
+            ThreadPool<ChunkParser> ops_pool = null;
+            try {
+                ops_pool = new ThreadPool<ChunkParser>.with_owned_data ((worker) => {
+                    worker.parse ();
+                }, (int) Manuscript.Utils.Threads.get_thread_number (), false);
+                info ("Parsing pool created");
+            } catch (ThreadError err) {
+                warning (@"Fallback to non-threaded parsing due to error: $(err.message)");
             }
 
-            // Sort chunks by their index
-            chunks.sort ((a, b) => {
-                return (int) (a.index - b.index);
-            });
+            if (ops_pool == null) {
+                foreach (var el in chunks_array.get_elements ()) {
+                    add_chunk (DocumentChunk.from_json_object (el.get_object (), (Document) this), false);
+                    // Sort chunks by their index
+                    chunks.sort ((a, b) => {
+                        return (int) (a.index - b.index);
+                    });
+                }
+            } else {
+                uint expected_chunks_length = chunks_array.get_elements ().length ();
+                worked_items = 0;
+
+                foreach (var el in chunks_array.get_elements ()) {
+                    var worker = new ChunkParser (el, (Document) this);
+                    worker.done.connect (() => {
+                        worked_items ++;
+                    });
+                    ops_pool.add (worker);
+                }
+
+                GLib.Idle.add(() => {
+                    if (expected_chunks_length == worked_items) {
+                        chunks.sort ((a, b) => {
+                            return (int) (a.index - b.index);
+                        });
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
+            }
         }
 
         public string to_json () {

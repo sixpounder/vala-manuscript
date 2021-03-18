@@ -70,6 +70,7 @@ executable(
 	'utils/Keys.vala',
 	'utils/Math.vala',
 	'utils/FileUtils.vala',
+	'utils/Threads.vala',
 
     'dialogs/GenericDialog.vala',
 	'dialogs/ExportDialog.vala',
