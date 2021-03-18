@@ -142,7 +142,12 @@ namespace Manuscript.Widgets {
         }
 
         public Gtk.TextBuffer ? get_buffer () {
-            return (chunk != null && chunk is Models.TextChunkBase) ? (chunk as Models.TextChunkBase).buffer : null;
+            if (chunk != null && chunk is Models.TextChunkBase) {
+                Models.TextChunkBase text_chunk = chunk as Models.TextChunkBase;
+                return text_chunk.buffer;
+            } else {
+                return null;
+            }
         }
 
         public void scroll_to_search_result (Protocols.SearchResult result) {}

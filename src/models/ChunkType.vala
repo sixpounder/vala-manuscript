@@ -44,8 +44,9 @@ namespace Manuscript.Models {
         }
 
         public ChunkTypeIconInfo to_icon_info (bool symbolic = true) {
+            string empty_str = "";
             ChunkTypeIconInfo icon_info = ChunkTypeIconInfo () {
-                name = ""
+                name = empty_str
             };
 
             switch (this) {

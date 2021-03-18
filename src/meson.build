@@ -15,6 +15,7 @@ executable(
 	'services/DocumentManager.vala',
 	'services/ActionManager.vala',
 	'services/Notification.vala',
+	'services/ThreadPool.vala',
 
 	'widgets/WelcomeView.vala',
 	'widgets/Header.vala',

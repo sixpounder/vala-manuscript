@@ -248,7 +248,7 @@ namespace Manuscript.Widgets {
         protected void on_item_moved (Granite.Widgets.SourceList.Item moved) {
             SourceListChunkItem moved_item = moved as SourceListChunkItem;
             Granite.Widgets.SourceList.Item? next = root_list.get_next_item (moved_item);
-            Manuscript.Models.DocumentChunk next_chunk = next == null ? null : (next as SourceListChunkItem).chunk;
+            Manuscript.Models.DocumentChunk next_chunk = next == null ? null : ((SourceListChunkItem) next).chunk;
             document_manager.move_chunk (moved_item.chunk, next_chunk);
 
             // Select and scroll to the moved item to avoid confusion

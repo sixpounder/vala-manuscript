@@ -39,7 +39,7 @@ namespace Manuscript.Services {
     public class DocumentManager : Object {
         protected uint autosave_timer_id = 0;
         protected FileMonitor? file_monitor;
-        protected ThreadPool<DocumentManagerWorker> ops_pool;
+        protected GLib.ThreadPool<DocumentManagerWorker> ops_pool;
 
         public signal void load (Models.Document document);
         public signal void change (Models.Document new_document);
@@ -113,7 +113,7 @@ namespace Manuscript.Services {
                 info (@"Using thread pool with $concurrency max concurrent threads");
 
                 try {
-                    ops_pool = new ThreadPool<DocumentManagerWorker>.with_owned_data ((worker) => {
+                    ops_pool = new GLib.ThreadPool<DocumentManagerWorker>.with_owned_data ((worker) => {
                         worker.run ();
                     }, (int) concurrency, false);
                 } catch (ThreadError err) {
