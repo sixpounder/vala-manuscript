@@ -138,9 +138,15 @@ namespace Manuscript.Models {
             // Count words every 200 milliseconds to avoid thrashing the CPU
             this.words_counter_timer = Timeout.add (200, () => {
                 words_counter_timer = 0;
-                words_count = Utils.Strings.count_words (buffer.text);
-                estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
-                analyze ();
+                //  words_count = Utils.Strings.count_words (buffer.text);
+                //  estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
+                var analyze_task = new AnalyzeTask (buffer.text);
+                analyze_task.done.connect ((analyze_result) => {
+                    words_count = analyze_result.words_count;
+                    estimate_reading_time = analyze_result.estimate_reading_time;
+                    analyze ();
+                });
+                Services.ThreadPool.get_default ().add (analyze_task);
                 return false;
             });
 

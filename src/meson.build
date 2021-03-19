@@ -59,6 +59,7 @@ executable(
     'models/DocumentSettings.vala',
 	'models/ExportFormat.vala',
     'models/Utils.vala',
+	'models/AnalyzeTask.vala',
 
 	'compilers/Base.vala',
 	'compilers/Pdf.vala',
