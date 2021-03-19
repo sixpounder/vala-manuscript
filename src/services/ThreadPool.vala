@@ -69,7 +69,7 @@ namespace Manuscript.Services {
                 return GLib.Source.REMOVE;
             });
         }
- 
+
         public void add (owned ThreadWorker worker) {
             assert (worker != null);
             if (worker != null) {
@@ -89,6 +89,6 @@ namespace Manuscript.Services {
             return "default";
         }
         public abstract T worker_run ();
-        public virtual signal void done (T? result = null);
+        public virtual signal void done (T? result = null) {}
     }
 }

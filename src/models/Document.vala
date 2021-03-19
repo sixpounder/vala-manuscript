@@ -283,7 +283,7 @@ namespace Manuscript.Models {
                     if (expected_chunks_length == worked_items.size) {
                         debug ("Document parsed, sorting chunks and removing idle task");
 
-                        worked_items.iterator().@foreach ((c) => {
+                        worked_items.iterator ().@foreach ((c) => {
                             add_chunk (c);
                             return GLib.Source.CONTINUE;
                         });
@@ -311,7 +311,7 @@ namespace Manuscript.Models {
             try {
                 res = yield FileUtils.read_async (file_for_path);
             } catch (Error e) {
-                throw new DocumentError.READ(e.message);
+                throw new DocumentError.READ (e.message);
             }
 
             if (res == null) {
