@@ -328,12 +328,12 @@ namespace Manuscript.Models {
         /**
          * Adds a chunk to the collection, making it active by default
          */
-        public signal void add_chunk (owned DocumentChunk chunk) {
+        public virtual signal void add_chunk (owned DocumentChunk chunk) {
             chunks.add (chunk);
             debug (@"Chunk '$(chunk.title)' added to document");
         }
 
-        public signal void remove_chunk (DocumentChunk chunk) {
+        public virtual signal void remove_chunk (DocumentChunk chunk) {
             chunks.remove (chunk);
             chunk_removed (chunk);
             if (chunks.size == 0) {
@@ -346,7 +346,7 @@ namespace Manuscript.Models {
         /**
          * Moves `chunk` to the position prior to `before_this`.
          */
-        public signal bool move_chunk (DocumentChunk chunk, DocumentChunk ? before_this) {
+        public virtual signal bool move_chunk (DocumentChunk chunk, DocumentChunk ? before_this) {
             if (before_this == null) {
                 // `chunk` moved to the bottom
                 debug ("Moving item to the bottom");
