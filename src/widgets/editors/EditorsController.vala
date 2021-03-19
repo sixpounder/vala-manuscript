@@ -29,6 +29,7 @@ namespace Manuscript.Widgets {
         protected Services.DocumentManager document_manager;
         protected Manuscript.Widgets.EditorCourtesyView editors_courtesy_view;
         protected Gee.HashMap<string, Protocols.ChunkEditor> editors_cache;
+        protected uint collision_counter = 0;
 
         public weak Manuscript.Window parent_window { get; construct; }
 
@@ -189,7 +190,13 @@ namespace Manuscript.Widgets {
         }
 
         private string build_view_id (Models.DocumentChunk chunk) {
-            return @"chunk-view-$(chunk.uuid)";
+            string proposed_id = @"chunk-view-$(chunk.uuid)-$(collision_counter)";
+            if (get_child_by_name (proposed_id) != null) {
+                collision_counter++;
+                return @"chunk-view-$(chunk.uuid)-$(collision_counter)";
+            } else {
+                return proposed_id;
+            }
         }
 
         private void add_chunk (Models.DocumentChunk chunk, bool active = true) {

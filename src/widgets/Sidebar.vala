@@ -117,6 +117,7 @@ namespace Manuscript.Widgets {
             chapters_root.clear ();
             characters_root.clear ();
             notes_root.clear ();
+            covers_root.clear ();
             if (doc != null) {
                 var it = doc.chunks.iterator ();
                 while (it.next ()) {
@@ -142,7 +143,7 @@ namespace Manuscript.Widgets {
 
         private void on_document_unload (Models.Document doc) {
             assert (doc != null);
-            reset_tree ();
+            reset_tree (null);
             //  doc.chunk_added.disconnect (add_chunk);
             //  doc.chunk_removed.disconnect (remove_chunk);
             //  doc.active_changed.disconnect (select_chunk);
