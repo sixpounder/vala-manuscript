@@ -152,21 +152,21 @@ namespace Manuscript.Services {
             load (document);
         }
 
-        public signal void open_chunk (Models.DocumentChunk chunk) {
+        public virtual signal void open_chunk (Models.DocumentChunk chunk) {
             if (!opened_chunks.contains (chunk)) {
                 opened_chunks.add (chunk);
             }
             active_chunk = chunk;
         }
 
-        public signal void add_chunk (Models.DocumentChunk chunk) {
+        public virtual signal void add_chunk (Models.DocumentChunk chunk) {
             document.add_chunk (chunk);
             if (settings.autosave) {
                 queue_autosave ();
             }
         }
 
-        public signal void remove_chunk (Models.DocumentChunk chunk) {
+        public virtual signal void remove_chunk (Models.DocumentChunk chunk) {
             close_chunk (chunk);
             document.remove_chunk (chunk);
             //  chunk_deleted (chunk);
@@ -175,7 +175,7 @@ namespace Manuscript.Services {
             }
         }
 
-        public signal void select_chunk (Models.DocumentChunk chunk) {
+        public virtual signal void select_chunk (Models.DocumentChunk chunk) {
             open_chunk (chunk);
         }
 
