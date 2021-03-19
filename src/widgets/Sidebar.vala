@@ -42,24 +42,23 @@ namespace Manuscript.Widgets {
 
         construct {
             document_manager = ((Manuscript.Window) parent_window).document_manager;
-            document_manager.load.connect (on_document_set);
-            document_manager.change.connect (on_document_set);
-            document_manager.unload.connect (on_document_unload);
-            document_manager.start_editing.connect (on_start_edit);
-            document_manager.selected.connect (on_start_edit);
+            document_manager.load.connect_after (on_document_set);
+            //  document_manager.change.connect_after (on_document_set);
+            document_manager.unload.connect_after (on_document_unload);
+            document_manager.open_chunk.connect_after (on_start_edit);
+            document_manager.select_chunk.connect_after (on_start_edit);
+            document_manager.add_chunk.connect_after (on_chunk_added);
 
             build_ui ();
         }
 
         ~ Sidebar () {
             document_manager.load.disconnect (on_document_set);
-            document_manager.change.disconnect (on_document_set);
+            //  document_manager.change.disconnect (on_document_set);
             document_manager.unload.disconnect (on_document_unload);
-            document_manager.start_editing.disconnect (on_start_edit);
-            document_manager.selected.disconnect (on_start_edit);
-            //  chapters_root.user_moved_item.disconnect(on_entry_moved);
-            //  characters_root.user_moved_item.disconnect(on_entry_moved);
-            //  notes_root.user_moved_item.disconnect(on_entry_moved);
+            document_manager.open_chunk.disconnect (on_start_edit);
+            document_manager.select_chunk.disconnect (on_start_edit);
+            document_manager.add_chunk.disconnect (on_chunk_added);
         }
 
         public Models.Document document {
@@ -105,22 +104,13 @@ namespace Manuscript.Widgets {
 #if CHUNK_NOTE
             root.add (notes_root);
 #endif
-
-            if (document != null) {
-                update_ui ();
-            }
-
             root_list.item_selected.connect (on_item_selected);
 
             pack_start (root_list);
 
-            reset_tree (document);
+            //  reset_tree (document);
 
             show_all ();
-        }
-
-        private void update_ui () {
-
         }
 
         public void reset_tree (Models.Document? doc = null) {
@@ -145,17 +135,21 @@ namespace Manuscript.Widgets {
         private void on_document_set (Models.Document doc) {
             assert (doc != null);
             reset_tree (doc);
-            doc.chunk_added.connect (add_chunk);
-            doc.chunk_removed.connect (remove_chunk);
-            doc.active_changed.connect (select_chunk);
+            //  doc.add_chunk.connect (add_chunk);
+            //  doc.remove_chunk.connect (remove_chunk);
+            //  doc.active_changed.connect (select_chunk);
         }
 
         private void on_document_unload (Models.Document doc) {
             assert (doc != null);
             reset_tree ();
-            doc.chunk_added.disconnect (add_chunk);
-            doc.chunk_removed.disconnect (remove_chunk);
-            doc.active_changed.disconnect (select_chunk);
+            //  doc.chunk_added.disconnect (add_chunk);
+            //  doc.chunk_removed.disconnect (remove_chunk);
+            //  doc.active_changed.disconnect (select_chunk);
+        }
+
+        private void on_chunk_added (Models.DocumentChunk chunk) {
+            add_chunk (chunk);
         }
 
         private void on_item_selected (Granite.Widgets.SourceList.Item? item) {
@@ -229,7 +223,6 @@ namespace Manuscript.Widgets {
 
         public void remove_chunk (Models.DocumentChunk chunk) {
             assert (chunk != null);
-            update_ui ();
         }
 
         public void select_chunk (Models.DocumentChunk chunk) {

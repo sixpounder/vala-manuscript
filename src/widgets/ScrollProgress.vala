@@ -122,7 +122,8 @@ namespace Manuscript.Widgets {
 
         protected bool draw_callback (Cairo.Context cr) {
             if (first_run) {
-                color = get_style_context ().get_color (Gtk.StateFlags.NORMAL | Gtk.StateFlags.DIR_LTR);
+                //  color = get_style_context ().get_color (Gtk.StateFlags.NORMAL | Gtk.StateFlags.DIR_LTR);
+                color = get_style_context ().get_color (get_state_flags ());
                 first_run = false;
             }
             var baseline = (get_allocated_height () / 2);

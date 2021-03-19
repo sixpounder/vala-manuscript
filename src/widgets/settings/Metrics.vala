@@ -90,7 +90,7 @@ namespace Manuscript.Widgets.Settings {
             attach (paragraph_start_padding_label, 0, 2, 1, 1);
             attach (paragraph_start_padding_input, 1, 2, 1, 1);
 
-            document_manager.load.connect (load_document_settings);
+            document_manager.load.connect_after (load_document_settings);
 
             if (document_manager.has_document) {
                 load_document_settings (document_manager.document);

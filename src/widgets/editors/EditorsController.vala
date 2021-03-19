@@ -60,13 +60,13 @@ namespace Manuscript.Widgets {
             editors_cache = new Gee.HashMap<string, Protocols.ChunkEditor> ();
 
             document_manager = parent_window.document_manager;
-            document_manager.load.connect (on_document_set);
-            document_manager.change.connect (on_document_set);
-            document_manager.unload.connect (on_document_unload);
-            document_manager.unloaded.connect (update_ui);
-            document_manager.selected.connect (on_start_chunk_editing);
-            document_manager.start_editing.connect (on_start_chunk_editing);
-            document_manager.stop_editing.connect (on_stop_chunk_editing);
+            document_manager.load.connect_after (on_document_set);
+            //  document_manager.change.connect_after (on_document_set);
+            document_manager.unload.connect_after (on_document_unload);
+            document_manager.unloaded.connect_after (update_ui);
+            //  document_manager.select_chunk_after.connect (on_start_chunk_editing);
+            document_manager.open_chunk.connect_after (on_start_chunk_editing);
+            document_manager.stop_editing.connect_after (on_stop_chunk_editing);
 
             settings = Services.AppSettings.get_default ();
             on_viewport = !settings.zen;
@@ -86,6 +86,14 @@ namespace Manuscript.Widgets {
         }
 
         ~ EditorsController () {
+            document_manager.load.disconnect (on_document_set);
+            //  document_manager.change.disconnect (on_document_set);
+            document_manager.unload.disconnect (on_document_unload);
+            document_manager.unloaded.disconnect (update_ui);
+            //  document_manager.select_chunk.disconnect (on_start_chunk_editing);
+            document_manager.open_chunk.disconnect (on_start_chunk_editing);
+            document_manager.stop_editing.disconnect (on_stop_chunk_editing);
+
             if (document_manager.document != null) {
                 on_document_unload (document_manager.document);
             }
@@ -93,9 +101,9 @@ namespace Manuscript.Widgets {
 
         private void on_document_set (Models.Document doc) {
             if (doc != null) {
-                doc.chunk_added.connect (add_chunk);
-                doc.chunk_removed.connect (remove_chunk);
-                doc.active_changed.connect (select_chunk);
+                //  doc.chunk_added.connect (add_chunk);
+                //  doc.chunk_removed.connect (remove_chunk);
+                //  doc.active_changed.connect (select_chunk);
             }
         }
 
@@ -103,7 +111,7 @@ namespace Manuscript.Widgets {
             assert (doc != null);
             doc.chunk_added.disconnect (add_chunk);
             doc.chunk_removed.disconnect (remove_chunk);
-            doc.active_changed.disconnect (select_chunk);
+            //  doc.active_changed.disconnect (select_chunk);
             //  editors_cache = new List<EditorView> ();
             editors_cache.clear ();
         }
@@ -203,10 +211,10 @@ namespace Manuscript.Widgets {
             update_ui ();
         }
 
-        private void select_chunk (Models.DocumentChunk chunk) {
-            assert (chunk != null);
-            add_editor_view_for_chunk (chunk);
-        }
+        //  private void select_chunk (Models.DocumentChunk chunk) {
+        //      assert (chunk != null);
+        //      add_editor_view_for_chunk (chunk);
+        //  }
 
         // Editor view protocol
 

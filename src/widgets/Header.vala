@@ -68,7 +68,7 @@ namespace Manuscript.Widgets {
             settings.change.disconnect (update_ui);
             document_manager.load.disconnect (update_ui);
             document_manager.unload.disconnect (update_ui);
-            document_manager.change.disconnect (update_ui);
+            //  document_manager.change.disconnect (update_ui);
         }
 
         /**
@@ -104,7 +104,7 @@ namespace Manuscript.Widgets {
             settings.change.connect (update_ui);
             document_manager.load.connect (update_ui);
             document_manager.unloaded.connect (update_ui);
-            document_manager.change.connect (update_ui);
+            //  document_manager.change.connect (update_ui);
             document_manager.property_change.connect (update_ui);
 
             update_ui ();

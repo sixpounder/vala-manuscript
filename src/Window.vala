@@ -48,10 +48,6 @@ namespace Manuscript {
                     return null;
                 }
             }
-
-            set {
-                document_manager.set_current_document (value);
-            }
         }
 
         public weak Protocols.ChunkEditor current_editor {
@@ -66,7 +62,7 @@ namespace Manuscript {
                 initial_document_path: document_path,
                 cache_folder: Path.build_path (
                     Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID
-                    )
+                )
                 );
 
             settings = Services.AppSettings.get_default ();
@@ -149,7 +145,7 @@ namespace Manuscript {
 
             // Lift off
             if (initial_document_path != null && initial_document_path != "") {
-                open_file_at_path (initial_document_path);
+                open_file_at_path.begin (initial_document_path);
             } else {
                 set_layout_body (welcome_view);
             }
@@ -301,7 +297,7 @@ namespace Manuscript {
             var res = dialog.run ();
 
             if (res == Gtk.ResponseType.ACCEPT) {
-                open_file_at_path (dialog.get_filename ());
+                open_file_at_path.begin (dialog.get_filename ());
             }
 
             dialog.destroy ();
@@ -313,7 +309,7 @@ namespace Manuscript {
                 File tmp_file = FileUtils.new_temp_file (
                     new Manuscript.Models.Document.empty ().to_json ()
                 );
-                open_file_at_path (tmp_file.get_path (), true);
+                open_file_at_path.begin (tmp_file.get_path (), true);
             } catch (GLib.Error err) {
                 message (_ ("Unable to create temporary document") );
                 error (err.message);
@@ -321,14 +317,15 @@ namespace Manuscript {
         }
 
         // Opens file at path and sets up the editor
-        public void open_file_at_path (string path, bool temporary = false)
+        public async void open_file_at_path (string path, bool temporary = false)
         requires (path != null) {
             try {
                 hide_infobar ();
-                document_manager.set_current_document (
-                    new Models.Document.from_file (path)
-                );
-            } catch (GLib.Error error) {
+                //  document_manager.set_current_document (
+                //      new Models.Document.from_file (path)
+                //  );
+                yield document_manager.load_from_path (path);
+            } catch (Models.DocumentError error) {
                 warning (error.message);
                 string msg;
                 if (error is Models.DocumentError.NOT_FOUND) {

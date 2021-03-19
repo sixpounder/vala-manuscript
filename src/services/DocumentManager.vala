@@ -40,9 +40,9 @@ namespace Manuscript.Services {
         protected uint autosave_timer_id = 0;
         protected FileMonitor? file_monitor;
         protected GLib.ThreadPool<DocumentManagerWorker> ops_pool;
+        protected weak Models.DocumentChunk active_chunk;
 
         public signal void load (Models.Document document);
-        public signal void change (Models.Document new_document);
         public virtual signal void unload (Models.Document old_document) {
             if (autosave_timer_id != 0) {
                 GLib.Source.remove (autosave_timer_id);
@@ -59,10 +59,7 @@ namespace Manuscript.Services {
         }
         public signal void unloaded ();
         public signal void property_change (string property_name);
-        public signal void start_editing (Models.DocumentChunk chunk);
         public signal void stop_editing (Models.DocumentChunk chunk);
-        public signal void selected (Models.DocumentChunk chunk);
-        public signal void chunk_deleted (Models.DocumentChunk deleted_chunk);
         public signal void backend_file_unlinked ();
 
         private Models.Document _document = null;
@@ -124,59 +121,62 @@ namespace Manuscript.Services {
             }
         }
 
-        public void set_current_document (owned Models.Document doc) {
+        public async void load_from_path (string path) throws Models.DocumentError requires (path != null) {
+            try {
+                var doc = yield new Models.Document.from_file (path);
+                set_document (doc);
+            } catch (Models.DocumentError e) {
+                warning (e.message);
+                throw e;
+            }
+        }
+
+        [ CCode ( cname = "inner_set_document" ) ]
+        private void set_document (Models.Document doc) {
             assert (doc != null);
             debug (@"Setting current document: $(doc == null ? "null" : doc.uuid)");
             if (document == null && doc != null) {
                 document = doc;
                 settings.last_opened_document = document.file_path;
-                document.notify.connect ((pspec) => {
-                    property_change (pspec.get_nick ());
-                });
                 _opened_chunks.clear ();
-                start_file_monitor ();
-                document.settings.notify.connect (on_document_setting_changed);
-                load (document);
             } else if (doc != null && document != null && document != doc) {
                 stop_file_monitor ();
                 document.settings.notify.disconnect (on_document_setting_changed);
                 document = doc;
                 settings.last_opened_document = document.file_path;
                 _opened_chunks.clear ();
-                document.settings.notify.connect (on_document_setting_changed);
-                document.notify.connect ((pspec) => {
-                    property_change (pspec.get_nick ());
-                });
-                start_file_monitor ();
-                change (document);
+                //  change (document);
             }
+
+            connect_events ();
+            load (document);
         }
 
-        public void open_chunk (Models.DocumentChunk chunk) {
+        public signal void open_chunk (Models.DocumentChunk chunk) {
             if (!opened_chunks.contains (chunk)) {
                 opened_chunks.add (chunk);
             }
-            start_editing (chunk);
+            active_chunk = chunk;
         }
 
-        public void add_chunk (owned Models.DocumentChunk chunk) {
+        public signal void add_chunk (Models.DocumentChunk chunk) {
             document.add_chunk (chunk);
             if (settings.autosave) {
                 queue_autosave ();
             }
         }
 
-        public void remove_chunk (Models.DocumentChunk chunk) {
+        public signal void remove_chunk (Models.DocumentChunk chunk) {
             close_chunk (chunk);
             document.remove_chunk (chunk);
-            chunk_deleted (chunk);
+            //  chunk_deleted (chunk);
             if (settings.autosave) {
                 queue_autosave ();
             }
         }
 
-        public void select_chunk (Models.DocumentChunk chunk) {
-            selected (chunk);
+        public signal void select_chunk (Models.DocumentChunk chunk) {
+            open_chunk (chunk);
         }
 
         public void move_chunk (Models.DocumentChunk chunk, Models.DocumentChunk ? before_this) {
@@ -264,6 +264,18 @@ namespace Manuscript.Services {
                 document = null;
             }
             unloaded ();
+        }
+
+        protected void connect_events () {
+            start_file_monitor ();
+            document.settings.notify.connect (on_document_setting_changed);
+            document.notify.connect ((pspec) => {
+                property_change (pspec.get_nick ());
+            });
+        }
+
+        protected void disconnect_events () {
+            stop_file_monitor ();
         }
 
         protected void start_file_monitor () {

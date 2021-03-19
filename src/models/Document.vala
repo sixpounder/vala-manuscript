@@ -33,9 +33,7 @@ namespace Manuscript.Models {
         public abstract Gee.ArrayList<DocumentChunk> chunks { get; set; }
     }
 
-    public class ChunkParser : Object {
-        public signal void done ();
-
+    public class ChunkParser : Object, Services.ThreadWorker<DocumentChunk> {
         public Json.Node serialized_chunk { get; construct; }
         public Document parent { get; construct; }
 
@@ -46,21 +44,27 @@ namespace Manuscript.Models {
             );
         }
 
-        public void parse () {
-            parent.add_chunk (DocumentChunk.from_json_object (serialized_chunk.get_object (), parent), false);
-            done ();
+        public string get_group () {
+            return "chunk_parsers";
+        }
+
+        public DocumentChunk parse () {
+            return DocumentChunk.from_json_object (serialized_chunk.get_object (), parent);
+        }
+
+        public DocumentChunk worker_run () {
+            return parse ();
         }
     }
 
     public class DocumentData : Object, DocumentBase {
+        public signal void load ();
         public File? file_ref { get; protected set; }
         public string version { get; set; }
         public string uuid { get; set; }
         public string title { get; set; }
         public string background { get; set; }
         public DocumentSettings settings { get; set; }
-
-        private uint worked_items = 0;
 
         private Gee.ArrayList<DocumentChunk> _chunks;
         public new Gee.ArrayList<DocumentChunk> chunks {
@@ -69,94 +73,6 @@ namespace Manuscript.Models {
             }
             set {
                 _chunks = value;
-            }
-        }
-
-        public void from_json (string data) throws DocumentError {
-            var parser = new Json.Parser ();
-            try {
-                parser.load_from_data (data, -1);
-            } catch (Error error) {
-                throw new DocumentError.PARSE (@"Cannot parse manuscript file: $(error.message)");
-            }
-
-            var root_object = parser.get_root ().get_object ();
-
-            if (root_object.has_member ("version")) {
-                version = root_object.get_string_member ("version");
-            } else {
-                version = "1.0";
-            }
-
-            if (root_object.has_member ("uuid")) {
-                uuid = root_object.get_string_member ("uuid");
-            } else {
-                info ("Document has no uuid, generating one now");
-                uuid = GLib.Uuid.string_random ();
-            }
-
-            title = root_object.get_string_member ("title");
-
-            if (root_object.has_member ("background")) {
-                background = root_object.get_string_member ("background");
-            } else {
-                background = "";
-            }
-
-            // Settings parsing
-            var settings_object = root_object.get_object_member ("settings");
-            settings = new DocumentSettings.from_json_object (settings_object);
-
-            // Chunks parsing
-            var chunks_array = root_object.get_array_member ("chunks");
-            chunks = new Gee.ArrayList<DocumentChunk> ();
-
-            ThreadPool<ChunkParser> ops_pool = null;
-            try {
-                ops_pool = new ThreadPool<ChunkParser>.with_owned_data ((worker) => {
-                    worker.parse ();
-                }, (int) Manuscript.Utils.Threads.get_thread_number (), false);
-                info ("Parsing pool created");
-            } catch (ThreadError err) {
-                warning (@"Fallback to non-threaded parsing due to error: $(err.message)");
-            }
-
-            if (ops_pool == null) {
-                foreach (var el in chunks_array.get_elements ()) {
-                    add_chunk (DocumentChunk.from_json_object (el.get_object (), (Document) this), false);
-                    // Sort chunks by their index
-                    chunks.sort ((a, b) => {
-                        return (int) (a.index - b.index);
-                    });
-                }
-            } else {
-                uint expected_chunks_length = chunks_array.get_elements ().length ();
-                worked_items = 0;
-
-                foreach (var el in chunks_array.get_elements ()) {
-                    var worker = new ChunkParser (el, (Document) this);
-                    worker.done.connect (() => {
-                        worked_items ++;
-                    });
-                    try {
-                        ops_pool.add (worker);
-                    } catch (ThreadError err) {
-                        critical (err.message);
-                        // Abort loading
-                        throw new DocumentError.PARSE (err.message);
-                    }
-                }
-
-                GLib.Idle.add (() => {
-                    if (expected_chunks_length == worked_items) {
-                        chunks.sort ((a, b) => {
-                            return (int) (a.index - b.index);
-                        });
-                        return false;
-                    } else {
-                        return true;
-                    }
-                });
             }
         }
 
@@ -186,21 +102,20 @@ namespace Manuscript.Models {
             return gen.to_data (null);
         }
 
-        public virtual void add_chunk (owned DocumentChunk chunk, bool activate = true) {}
-        public virtual void remove_chunk (DocumentChunk chunk) {}
-        public virtual bool move_chunk (DocumentChunk chunk, DocumentChunk ? before_this) { return false; }
+        //  public virtual signal void add_chunk (owned DocumentChunk chunk) {}
+        //  public virtual signal void remove_chunk (DocumentChunk chunk) {}
+        //  public virtual signal bool move_chunk (DocumentChunk chunk, DocumentChunk ? before_this) { return false; }
 
     }
 
     public class Document : DocumentData, DocumentBase {
         public signal void saved (string target_path);
-        public signal void load ();
         public signal void read_error (GLib.Error error);
         public signal void save_error (GLib.Error e);
         public signal void chunk_added (DocumentChunk chunk, bool active);
         public signal void chunk_removed (DocumentChunk chunk);
         public signal void chunk_moved (DocumentChunk chunk);
-        public signal void active_changed (DocumentChunk chunk);
+        //  public signal void active_changed (DocumentChunk chunk);
         public signal void drain ();
 
         private string original_path;
@@ -268,21 +183,24 @@ namespace Manuscript.Models {
             );
         }
 
-        public Document.from_file (string path, bool temporary = false) throws GLib.Error {
+        public async Document.from_file (string path, bool temporary = false) throws DocumentError {
             this (path, temporary);
-            try {
-                load_from_file (path);
-            } catch (Models.DocumentError document_error) {
-                critical ("Cannot create document: %s\n", document_error.message);
-                throw document_error;
-            }
+            //  load_from_file.begin (path, (obj, res) => {
+            //      try {
+            //          load_from_file.end (res);
+            //      } catch (Models.DocumentError document_error) {
+            //          critical ("Cannot create document: %s\n", document_error.message);
+            //          // throw document_error;
+            //      }
+            //  });
+            yield load_from_file (path);
         }
 
         public Document.empty () throws GLib.Error {
             this (null, true);
         }
 
-        protected Document (string ? file_path, bool temporary_doc = false) throws GLib.Error, DocumentError {
+        protected Document (string ? file_path, bool temporary_doc = false) throws DocumentError {
             Object (
                 file_path: file_path,
                 uuid: GLib.Uuid.string_random (),
@@ -300,32 +218,122 @@ namespace Manuscript.Models {
             debug (@"Unloading document $uuid");
         }
 
-        private void load_from_file (string file_path) throws DocumentError {
+        public async void from_json (string data) throws DocumentError {
+            var parser = new Json.Parser ();
+            SourceFunc callback = from_json.callback;
+            try {
+                parser.load_from_data (data, -1);
+            } catch (Error error) {
+                throw new DocumentError.PARSE (@"Cannot parse manuscript file: $(error.message)");
+            }
+
+            var root_object = parser.get_root ().get_object ();
+
+            if (root_object.has_member ("version")) {
+                version = root_object.get_string_member ("version");
+            } else {
+                version = "1.0";
+            }
+
+            if (root_object.has_member ("uuid")) {
+                uuid = root_object.get_string_member ("uuid");
+            } else {
+                info ("Document has no uuid, generating one now");
+                uuid = GLib.Uuid.string_random ();
+            }
+
+            title = root_object.get_string_member ("title");
+
+            if (root_object.has_member ("background")) {
+                background = root_object.get_string_member ("background");
+            } else {
+                background = "";
+            }
+
+            // Settings parsing
+            var settings_object = root_object.get_object_member ("settings");
+            settings = new DocumentSettings.from_json_object (settings_object);
+
+            // Chunks parsing
+            var chunks_array = root_object.get_array_member ("chunks");
+            chunks = new Gee.ArrayList<DocumentChunk> ();
+
+            if (!Services.ThreadPool.supported) {
+                foreach (var el in chunks_array.get_elements ()) {
+                    add_chunk (DocumentChunk.from_json_object (el.get_object (), (Document) this));
+                    // Sort chunks by their index
+                    chunks.sort ((a, b) => {
+                        return (int) (a.index - b.index);
+                    });
+                }
+            } else {
+                uint expected_chunks_length = chunks_array.get_elements ().length ();
+                Gee.ArrayList<DocumentChunk> worked_items = new Gee.ArrayList<DocumentChunk> ();
+
+                foreach (var el in chunks_array.get_elements ()) {
+                    var worker = new ChunkParser (el, (Document) this);
+                    worker.done.connect ((c) => {
+                        worked_items.add (c);
+                    });
+
+                    Services.ThreadPool.get_default ().add (worker);
+                }
+
+                GLib.Idle.add (() => {
+                    if (expected_chunks_length == worked_items.size) {
+                        debug ("Document parsed, sorting chunks and removing idle task");
+
+                        worked_items.iterator().@foreach ((c) => {
+                            add_chunk (c);
+                            return GLib.Source.CONTINUE;
+                        });
+
+                        chunks.sort ((a, b) => {
+                            return (int) (a.index - b.index);
+                        });
+
+                        Idle.add ((owned) callback);
+                        return GLib.Source.REMOVE;
+                    } else {
+                        return GLib.Source.CONTINUE;
+                    }
+                });
+
+                yield;
+            }
+        }
+
+        private async void load_from_file (string file_path) throws DocumentError {
             load_state = DocumentLoadState.LOADING;
             File file_for_path = File.new_for_path (file_path);
 
-            var res = FileUtils.read_file (file_for_path);
+            string? res = null;
+            try {
+                res = yield FileUtils.read_async (file_for_path);
+            } catch (Error e) {
+                throw new DocumentError.READ(e.message);
+            }
+
             if (res == null) {
                 warning ("File not read (not found?)");
                 load_state = DocumentLoadState.ERROR;
                 throw new DocumentError.NOT_FOUND ("File not found");
             } else {
                 file_ref = file_for_path;
-                from_json (res);
+                yield from_json (res);
+                load ();
             }
         }
 
         /**
          * Adds a chunk to the collection, making it active by default
          */
-        public override void add_chunk (owned DocumentChunk chunk, bool activate = true) {
+        public signal void add_chunk (owned DocumentChunk chunk) {
             chunks.add (chunk);
-            chunk_added (chunk, activate);
-
-            debug ("Chunk added to document");
+            debug (@"Chunk '$(chunk.title)' added to document");
         }
 
-        public override void remove_chunk (DocumentChunk chunk) {
+        public signal void remove_chunk (DocumentChunk chunk) {
             chunks.remove (chunk);
             chunk_removed (chunk);
             if (chunks.size == 0) {
@@ -338,7 +346,7 @@ namespace Manuscript.Models {
         /**
          * Moves `chunk` to the position prior to `before_this`.
          */
-        public override bool move_chunk (DocumentChunk chunk, DocumentChunk ? before_this) {
+        public signal bool move_chunk (DocumentChunk chunk, DocumentChunk ? before_this) {
             if (before_this == null) {
                 // `chunk` moved to the bottom
                 debug ("Moving item to the bottom");
@@ -370,12 +378,12 @@ namespace Manuscript.Models {
             return true;
         }
 
-        public void set_active (DocumentChunk chunk) {
-            if (chunk != active_chunk && chunks.contains (chunk) ) {
-                active_chunk = chunk;
-                active_changed (active_chunk);
-            }
-        }
+        //  public void set_active (DocumentChunk chunk) {
+        //      if (chunk != active_chunk && chunks.contains (chunk) ) {
+        //          active_chunk = chunk;
+        //          active_changed (active_chunk);
+        //      }
+        //  }
 
         public long save (string ? path = null) {
             try {

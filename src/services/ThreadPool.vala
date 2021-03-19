@@ -1,3 +1,22 @@
+/*
+ * Copyright 2021 Andrea Coronese <sixpounder@protonmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 namespace Manuscript.Services {
 
     /**
@@ -7,18 +26,18 @@ namespace Manuscript.Services {
         private static Services.ThreadPool instance { get; set; }
         private GLib.ThreadPool<ThreadWorker> pool;
 
-        public bool supported {
+        public static bool supported {
             get {
                 return GLib.Thread.supported ();
             }
         }
 
         public static Services.ThreadPool get_default () {
-            return instance;
-        }
+            if (Services.ThreadPool.instance == null) {
+                Services.ThreadPool.instance = new Services.ThreadPool ();
+            }
 
-        static construct {
-            Services.ThreadPool.instance = new Services.ThreadPool ();
+            return instance;
         }
 
         construct {
@@ -43,9 +62,12 @@ namespace Manuscript.Services {
         }
 
         protected void on_worker_added (ThreadWorker<void*> worker) {
-            debug ("Added thread worker");
+            debug (@"Added thread worker to _$(worker.get_group ())_ group");
             var result = worker.worker_run ();
-            worker.worker_done (result);
+            GLib.MainContext.get_thread_default ().invoke (() => {
+                worker.done (result);
+                return GLib.Source.REMOVE;
+            });
         }
  
         public void add (owned ThreadWorker worker) {
@@ -63,7 +85,10 @@ namespace Manuscript.Services {
     public delegate void ThreadWorkerDoneFn<T> (T returned_data);
 
     public interface ThreadWorker<T> : Object {
+        public virtual string get_group () {
+            return "default";
+        }
         public abstract T worker_run ();
-        public abstract void worker_done (T? result = null);
+        public virtual signal void done (T? result = null);
     }
 }
