@@ -266,6 +266,10 @@ namespace Manuscript.Services {
             unloaded ();
         }
 
+        public void search_next (string hint) {}
+
+        public void search_previous (string hint) {}
+
         protected void connect_events () {
             start_file_monitor ();
             document.settings.notify.connect (on_document_setting_changed);

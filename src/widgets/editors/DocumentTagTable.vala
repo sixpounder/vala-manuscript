@@ -24,6 +24,8 @@ namespace Manuscript {
         public Gtk.TextTag light_focused;
         public Gtk.TextTag dark_dimmed;
         public Gtk.TextTag dark_focused;
+        public Gtk.TextTag italic;
+        public Gtk.TextTag bold;
 
         construct {
             light_dimmed = new Gtk.TextTag ("light-dimmed");
@@ -38,10 +40,19 @@ namespace Manuscript {
             dark_focused = new Gtk.TextTag ("dark-focused");
             dark_focused.foreground = "#fafafa";
 
+            italic = new Gtk.TextTag ("italic");
+            italic.style = Pango.Style.NORMAL;
+            italic.style = Pango.Style.ITALIC;
+
+            bold = new Gtk.TextTag ("italic");
+            bold.weight = Pango.Weight.BOLD;
+            bold.style = Pango.Style.NORMAL;
+
             add (light_dimmed);
             add (light_focused);
             add (dark_dimmed);
             add (dark_focused);
+            add (italic);
         }
 
         public Gtk.TextTag[] for_theme (string? theme) {

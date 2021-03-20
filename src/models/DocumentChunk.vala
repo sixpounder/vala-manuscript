@@ -18,6 +18,12 @@
  */
 
 namespace Manuscript.Models {
+    public interface Searchable : Object {
+        public virtual async Protocols.SearchResult[] search (string hint) {
+            return {};
+        }
+    }
+
     public interface DocumentChunk : Object {
         public virtual signal void changed () {}
 
