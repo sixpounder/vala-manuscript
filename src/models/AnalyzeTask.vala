@@ -40,7 +40,7 @@ namespace Manuscript.Models {
 
         public AnalyzeResult worker_run () {
             uint words_count = Utils.Strings.count_words (buffer);
-            double estimate_reading_time = Utils.Strings.estimate_reading_time (words_count); 
+            double estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
             return new AnalyzeResult (words_count, estimate_reading_time);
         }
 

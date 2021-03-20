@@ -82,12 +82,17 @@ namespace Manuscript.Services {
         }
     }
 
-    public delegate void ThreadWorkerDoneFn<T> (T returned_data);
+    public delegate void ThreadWorkerFn<T> (T returned_data);
 
     public interface ThreadWorker<T> : Object {
+        public virtual string get_name () {
+            return "worker";
+        }
+
         public virtual string get_group () {
             return "default";
         }
+
         public abstract T worker_run ();
         public virtual signal void done (T? result = null) {}
     }

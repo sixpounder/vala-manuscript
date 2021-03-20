@@ -21,13 +21,8 @@ namespace Manuscript.Protocols {
 
     public class SearchResult : Object {
         public weak Protocols.ChunkEditor editor { get; set; }
+        public weak Gtk.Widget? focusable_widget { get; set; }
         public Gtk.TextIter? iter;
-        public string? field_name { get; set; }
-    }
-
-    public interface DocumentStats {
-        public abstract uint words_count { get; }
-        public abstract uint[] estimated_reading_time { get; }
     }
 
     public interface EditorViewController {
@@ -49,5 +44,13 @@ namespace Manuscript.Protocols {
         public virtual void lock_editor () {}
         public virtual void unlock_editor () {}
         public virtual void scroll_to_cursor () {}
+
+        public virtual SearchResult? search_previous (string hint) {
+            return null;
+        }
+
+        public virtual SearchResult? search_next (string hint) {
+            return null;
+        }
     }
 }

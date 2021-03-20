@@ -24,20 +24,18 @@ namespace Manuscript.Widgets {
      */
     public class EditorsController : Gtk.Stack, Protocols.EditorViewController {
 
-        protected bool _on_viewport = true;
         protected Services.AppSettings settings;
+        public weak Manuscript.Window parent_window { get; construct; }
         protected Services.DocumentManager document_manager;
         protected Manuscript.Widgets.EditorCourtesyView editors_courtesy_view;
         protected Gee.HashMap<string, Protocols.ChunkEditor> editors_cache;
         protected uint collision_counter = 0;
-
-        public weak Manuscript.Window parent_window { get; construct; }
+        protected bool _on_viewport = true;
 
         public bool on_viewport {
             get {
                 return _on_viewport;
             }
-
             set {
                 _on_viewport = value;
                 var style = get_style_context ();
@@ -62,10 +60,8 @@ namespace Manuscript.Widgets {
 
             document_manager = parent_window.document_manager;
             document_manager.load.connect_after (on_document_set);
-            //  document_manager.change.connect_after (on_document_set);
             document_manager.unload.connect_after (on_document_unload);
             document_manager.unloaded.connect_after (update_ui);
-            //  document_manager.select_chunk_after.connect (on_start_chunk_editing);
             document_manager.open_chunk.connect_after (on_start_chunk_editing);
             document_manager.stop_editing.connect_after (on_stop_chunk_editing);
 
@@ -217,17 +213,6 @@ namespace Manuscript.Widgets {
 
             update_ui ();
         }
-
-        //  private void select_chunk (Models.DocumentChunk chunk) {
-        //      assert (chunk != null);
-        //      add_editor_view_for_chunk (chunk);
-        //  }
-
-        // Editor view protocol
-
-        //  public List<weak Protocols.EditorController>? list_editors () {
-        //      return get_children ();
-        //  }
 
         public unowned Protocols.ChunkEditor? get_current_editor () {
             return null;

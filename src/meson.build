@@ -32,7 +32,7 @@ executable(
 	'widgets/SourceListCategoryItem.vala',
     'widgets/SourceListChunkItem.vala',
     'widgets/DocumentSettings.vala',
-    # 'widgets/SearchPanel.vala',
+    'widgets/SearchPanel.vala',
 	'widgets/QuickOpenPanel.vala',
 	'widgets/QuickOpenEntry.vala',
 	'widgets/EditorCourtesyView.vala',

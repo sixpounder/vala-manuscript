@@ -91,11 +91,10 @@ namespace Manuscript {
             // Quick open panel
             quick_open_panel = new Manuscript.Widgets.QuickOpenPanel (document_manager);
             quick_open_panel.no_show_all = true;
+            quick_open_panel.hide ();
 
             // Main layout containers
             container = new Gtk.Overlay ();
-            //  container.homogeneous = true;
-            //  container.transition_type = Gtk.StackTransitionType.OVER_LEFT;
             add (container);
 
             // Search panel
@@ -136,8 +135,6 @@ namespace Manuscript {
             layout.pack_start (body);
 
             connect_events ();
-
-            quick_open_panel.hide ();
 
             container.add (layout);
             container.add_overlay (quick_open_panel);
