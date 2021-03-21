@@ -112,7 +112,7 @@ namespace Manuscript.Widgets {
                 assert (chunk != null);
                 unselect ();
                 if (chunk is Models.TextChunkBase) {
-                    text_buffer = chunk.buffer;
+                    text_buffer = ((Models.TextChunkBase) chunk).buffer;
                     search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
                 } else {
                     text_buffer = null;
