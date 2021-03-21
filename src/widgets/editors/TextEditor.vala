@@ -201,7 +201,7 @@ namespace Manuscript.Widgets {
                     buffer.select_range (start_iter, end_iter);
                     scroll_to_iter (start_iter, 0, false, 0, 0);
                 }
-    
+
                 return found;
             } catch (Error e) {
                 warning (e.message);
@@ -217,7 +217,7 @@ namespace Manuscript.Widgets {
                     buffer.select_range (start_iter, end_iter);
                     scroll_to_iter (start_iter, 0, false, 0, 0);
                 }
-    
+
                 return found;
             } catch (Error e) {
                 warning (e.message);

@@ -232,7 +232,7 @@ namespace Manuscript.Widgets {
             if (text_buffer != null) {
                 Gtk.TextIter? cursor_iter = null;
                 text_buffer.get_iter_at_mark (out cursor_iter, text_buffer.get_insert ());
-                
+
                 if (cursor_iter != null) {
                     text_buffer.select_range (
                         cursor_iter,

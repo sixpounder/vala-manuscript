@@ -65,6 +65,21 @@ namespace Manuscript.Models {
             return self;
         }
 
+        ~ ChapterChunk () {
+            if (buffer != null) {
+                buffer.changed.disconnect (on_content_changed);
+                buffer.undo.disconnect (on_buffer_undo);
+                buffer.redo.disconnect (on_buffer_redo);
+
+                buffer.insert_text.disconnect (text_inserted);
+                buffer.delete_range.disconnect (range_deleted);
+
+                buffer.undo_manager.can_undo_changed.disconnect (on_can_undo_changed);
+                buffer.undo_manager.can_redo_changed.disconnect (on_can_redo_changed);    
+                buffer.unref ();
+            }
+        }
+
         public override Json.Object to_json_object () {
             var root = base.to_json_object ();
             root.set_string_member ("raw_content", buffer.text);
