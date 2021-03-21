@@ -22,10 +22,20 @@ namespace Manuscript.Mathz {
         int max = val1;
         var list = va_list ();
         for (int? v = list.arg<int?> (); v != null ; v = list.arg<int?> ()) {
-            max = max > v ? max :v;
+            max = max > v ? max : v;
         }
 
         return max;
+    }
+
+    public int min (int val1, ...) {
+        int min = val1;
+        var list = va_list ();
+        for (int? v = list.arg<int?> (); v != null ; v = list.arg<int?> ()) {
+            min = min < v ? min : v;
+        }
+
+        return min;
     }
 
     public double fmax (double val1, ...) {

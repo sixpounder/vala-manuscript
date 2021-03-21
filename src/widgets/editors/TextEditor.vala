@@ -160,32 +160,12 @@ namespace Manuscript.Widgets {
                 Gtk.TextIter sentence_end = cursor_iter;
 
                 if (cursor_iter != start) {
-                    //  sentence_start.backward_find_char ((c) => {
-                    //      return c == '.';
-                    //  }, null);
-                    //  var bc = 0;
-                    //  while (sentence_start.get_char () != '.' && !sentence_start.is_start ()) {
-                    //      sentence_start.backward_word_start ();
-                    //      bc++;
-                    //  }
                     if (!sentence_start.starts_sentence ()) {
                         sentence_start.backward_sentence_start ();
                     }
-
-                    //  debug (@"Moved back $bc words");
                 }
 
                 if (cursor_iter != end) {
-                    //  sentence_end.forward_find_char ((c) => {
-                    //      return c == '.';
-                    //  }, null);
-                    //  sentence_end.forward_char ();
-                    //  var fc = 0;
-                    //  while (sentence_end.get_char () != '.' && !sentence_end.is_end () && sentence_end != sentence_start) {
-                    //      sentence_end.forward_word_end ();
-                    //      fc++;
-                    //  }
-                    //  debug (@"Moved forward $fc words");
                     if (!sentence_end.ends_sentence ()) {
                         sentence_end.forward_sentence_end ();
                     }

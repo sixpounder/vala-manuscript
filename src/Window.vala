@@ -32,7 +32,7 @@ namespace Manuscript {
         protected weak Models.Document selected_document = null;
         protected Gtk.InfoBar infobar;
         protected Manuscript.Widgets.QuickOpenPanel quick_open_panel;
-        protected int last_editor_grid_panel_position;
+        protected int last_editor_grid_panel_position = 0;
         //  public Widgets.SearchPanel search_panel { get; private set; }
 
         public Services.DocumentManager document_manager;
@@ -120,6 +120,7 @@ namespace Manuscript {
             editor_grid.valign = Gtk.Align.FILL;
             editor_grid.pack1 (sidebar, false, true);
             editor_grid.pack2 (right_panel, true, false);
+            editor_grid.position = Mathz.max (250, last_editor_grid_panel_position);
 
             // Setup welcome view
             welcome_view = new Widgets.WelcomeView ();
@@ -146,7 +147,7 @@ namespace Manuscript {
             } else {
                 set_layout_body (welcome_view);
             }
-            editor_grid.position = 300;
+
             update_ui ();
         }
 
@@ -179,9 +180,7 @@ namespace Manuscript {
                 last_editor_grid_panel_position = editor_grid.position;
                 editor_grid.position = 0;
             } else {
-                if (editor_grid.position == 0 && last_editor_grid_panel_position != 0) {
-                    editor_grid.position = last_editor_grid_panel_position;
-                }
+                editor_grid.position = last_editor_grid_panel_position < 250 ? 250 : last_editor_grid_panel_position;
 
                 //  search_panel.reveal_child = settings.searchbar;
                 //  if (search_panel.search_entry != null && search_panel.reveal_child) {
