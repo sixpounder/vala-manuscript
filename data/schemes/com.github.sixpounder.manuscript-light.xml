@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<style-scheme id="manuscript-light" _name="Manuscript" version="1.0">
+  <author>Andrea Coronese</author>
+  <_description>Light manuscript scheme</_description>
+
+  <style name="text"            foreground="#333" background="#FFF"/>
+  <style name="cursor"          foreground="#3689e6"/>
+  <style name="current-line"    background="#eff0f1"/>
+  <style name="selection"       foreground="#fafafa" background="#3689e6"/>
+  <style name="search-match"    foreground="#333" background="#f6d32d"/>
+
+  <!-- Bold -->
+  <style name="def:strong-emphasis" bold="true"/>
+
+  <!-- Italic -->
+  <style name="def:emphasis" foreground="#555" italic="true"/>
+</style-scheme>

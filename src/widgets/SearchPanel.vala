@@ -68,6 +68,7 @@ namespace Manuscript.Widgets {
 
             //  search_entry_item ();
             search_entry = new Gtk.SearchEntry ();
+            search_entry.get_style_context ().add_class ("p-1");
             search_entry.hexpand = true;
             search_entry.placeholder_text = _("Find…");
             search_entry.set_icon_from_icon_name (Gtk.EntryIconPosition.PRIMARY, "edit-find-symbolic");
@@ -107,12 +108,17 @@ namespace Manuscript.Widgets {
 
             add (grid);
 
-            //  parent_window.document_manager.select_chunk.connect ((chunk) => {
-            //      assert (chunk != null);
-            //      unselect ();
-            //      text_buffer = chunk.buffer;
-            //      search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
-            //  });
+            parent_window.document_manager.open_chunk.connect ((chunk) => {
+                assert (chunk != null);
+                unselect ();
+                if (chunk is Models.TextChunkBase) {
+                    text_buffer = chunk.buffer;
+                    search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
+                } else {
+                    text_buffer = null;
+                    search_context = null;
+                }
+            });
 
             //  parent_window.document_manager.open_chunk.connect ((chunk) => {
             //      assert (chunk != null);
@@ -158,6 +164,7 @@ namespace Manuscript.Widgets {
                     }
                 case "Escape":
                     settings.searchbar = false;
+                    unselect ();
                     return true;
                 case "Tab":
                     if (search_entry.is_focus) {
@@ -171,36 +178,30 @@ namespace Manuscript.Widgets {
         }
 
         public bool search () {
-            //  text_buffer = editor.get_buffer ();
-            //  if (search_context == null) {
-            //      warning ("No search context is set");
-            //      return false;
-            //  }
-            //  var search_string = search_entry.text;
-            //  search_context.settings.regex_enabled = false;
-            //  search_context.settings.search_text = search_string;
+            if (search_context == null) {
+                debug ("No search context is set");
+                return false;
+            }
+            var search_string = search_entry.text;
+            search_context.settings.regex_enabled = false;
+            search_context.settings.search_text = search_string;
             //  bool case_sensitive = !((search_string.up () == search_string) || (search_string.down () == search_string));
-            //  search_context.settings.case_sensitive = case_sensitive;
+            search_context.settings.case_sensitive = false;
 
-            //  if (text_buffer == null || text_buffer.text == "") {
-            //      debug ("Can't search anything in an inexistant buffer and/or without anything to search.");
-            //      return false;
-            //  }
+            if (text_buffer == null || text_buffer.text == "") {
+                debug ("Can't search anything in an inexistent buffer and/or without anything to search.");
+                return false;
+            }
 
-            //  if (editor == null) {
-            //      warning ("No SourceView found");
-            //      return false;
-            //  }
-
-            //  Gtk.TextIter? start_iter;
-            //  text_buffer.get_iter_at_offset (out start_iter, text_buffer.cursor_position);
-            //  bool found = (search_entry.text != "" && search_entry.text in text_buffer.text);
-            //  if (found) {
-            //      search_entry.get_style_context ().remove_class (Gtk.STYLE_CLASS_ERROR);
-            //      text_buffer.select_range (start_iter, start_iter);
-            //  } else if (search_entry.text != "") {
-            //      search_entry.get_style_context ().add_class (Gtk.STYLE_CLASS_ERROR);
-            //  }
+            Gtk.TextIter? start_iter;
+            text_buffer.get_iter_at_offset (out start_iter, text_buffer.cursor_position);
+            bool found = (search_entry.text != "" && search_entry.text in text_buffer.text);
+            if (found) {
+                search_entry.get_style_context ().remove_class (Gtk.STYLE_CLASS_ERROR);
+                text_buffer.select_range (start_iter, start_iter);
+            } else if (search_entry.text != "") {
+                search_entry.get_style_context ().add_class (Gtk.STYLE_CLASS_ERROR);
+            }
 
             return true;
         }
@@ -228,7 +229,17 @@ namespace Manuscript.Widgets {
         }
 
         public void unselect () {
-            if (text_buffer != null && text_buffer.has_selection) {}
+            if (text_buffer != null) {
+                Gtk.TextIter? cursor_iter = null;
+                text_buffer.get_iter_at_mark (out cursor_iter, text_buffer.get_insert ());
+                
+                if (cursor_iter != null) {
+                    text_buffer.select_range (
+                        cursor_iter,
+                        cursor_iter
+                    );
+                }
+            }
         }
 
         private bool search_for_iter (Gtk.TextIter? start_iter, out Gtk.TextIter? end_iter) {

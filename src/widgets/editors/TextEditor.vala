@@ -37,7 +37,6 @@ namespace Manuscript.Widgets {
 
             try {
                 init_editor ();
-                search_context = new Gtk.SourceSearchContext (buffer as Gtk.SourceBuffer, null);
                 settings.change.connect (on_setting_change);
                 destroy.connect (on_destroy);
             } catch (GLib.Error e) {
@@ -100,8 +99,9 @@ namespace Manuscript.Widgets {
 
         protected void init_editor () throws GLib.Error {
             font_style_provider = new Gtk.CssProvider ();
-            get_style_context ().add_class ("manuscript-text-editor");
             get_style_context ().add_provider (font_style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+            get_style_context ().add_class ("manuscript-text-editor");
+            insert_spaces_instead_of_tabs = true;
             right_margin = 100;
             left_margin = 100;
             top_margin = 50;
@@ -109,6 +109,7 @@ namespace Manuscript.Widgets {
             wrap_mode = Gtk.WrapMode.WORD;
             indent = 20;
             input_hints = Gtk.InputHints.SPELLCHECK | Gtk.InputHints.NO_EMOJI;
+            search_context = new Gtk.SourceSearchContext (buffer as Gtk.SourceBuffer, null);
         }
 
         protected void load_buffer (Gtk.SourceBuffer new_buffer) {
@@ -119,8 +120,8 @@ namespace Manuscript.Widgets {
         protected void update_settings (string ? key = null) {
             if (buffer != null) {
                 if (settings.zen) {
-                    set_focused_paragraph ();
-                    buffer.notify["cursor-position"].connect (set_focused_paragraph);
+                    focus_mode_update_highlight ();
+                    buffer.notify["cursor-position"].connect (focus_mode_update_highlight);
                 } else {
                     Gtk.TextIter start, end;
                     string focused_tag;
@@ -135,7 +136,7 @@ namespace Manuscript.Widgets {
                     buffer.get_bounds (out start, out end);
                     buffer.remove_tag (buffer.tag_table.lookup (focused_tag), start, end);
                     buffer.remove_tag (buffer.tag_table.lookup (dimmed_tag), start, end);
-                    buffer.notify["cursor-position"].disconnect (set_focused_paragraph);
+                    buffer.notify["cursor-position"].disconnect (focus_mode_update_highlight);
                 }
             } else {
                 warning ("Settings not updated, current buffer is null");
@@ -146,7 +147,10 @@ namespace Manuscript.Widgets {
             if (buffer.has_selection) {}
         }
 
-        protected void set_focused_paragraph () {
+        /**
+         * Updates text iters to highlight the current sentence and dim other parts.
+         */
+        protected void focus_mode_update_highlight () {
             Gtk.TextIter cursor_iter;
             Gtk.TextIter start, end;
 
@@ -189,26 +193,36 @@ namespace Manuscript.Widgets {
             }
         }
 
-        public bool search_for_iter (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
+        public async bool search_for_iter (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
             end_iter = start_iter;
-            bool found = search_context.forward2 (start_iter, out start_iter, out end_iter, null);
-            if (found) {
-                buffer.select_range (start_iter, end_iter);
-                scroll_to_iter (start_iter, 0, false, 0, 0);
+            try {
+                bool found = yield search_context.forward_async (start_iter, null, out start_iter, out end_iter);
+                if (found) {
+                    buffer.select_range (start_iter, end_iter);
+                    scroll_to_iter (start_iter, 0, false, 0, 0);
+                }
+    
+                return found;
+            } catch (Error e) {
+                warning (e.message);
+                return false;
             }
-
-            return found;
         }
 
-        public bool search_for_iter_backward (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
+        public async bool search_for_iter_backward (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
             end_iter = start_iter;
-            bool found = search_context.backward2 (start_iter, out start_iter, out end_iter, null);
-            if (found) {
-                buffer.select_range (start_iter, end_iter);
-                scroll_to_iter (start_iter, 0, false, 0, 0);
+            try {
+                bool found = yield search_context.backward_async (start_iter, null, out start_iter, out end_iter);
+                if (found) {
+                    buffer.select_range (start_iter, end_iter);
+                    scroll_to_iter (start_iter, 0, false, 0, 0);
+                }
+    
+                return found;
+            } catch (Error e) {
+                warning (e.message);
+                return false;
             }
-
-            return found;
         }
 
         protected void on_setting_change (string key) {

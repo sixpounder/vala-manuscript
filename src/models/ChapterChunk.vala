@@ -19,6 +19,7 @@
 
 namespace Manuscript.Models {
     public class ChapterChunk : TextChunkBase {
+        protected Services.AppSettings settings = Services.AppSettings.get_default ();
         protected uint words_counter_timer = 0;
         public string notes { get; set; }
 
@@ -95,6 +96,19 @@ namespace Manuscript.Models {
 
             buffer.undo_manager.can_undo_changed.connect (on_can_undo_changed);
             buffer.undo_manager.can_redo_changed.connect (on_can_redo_changed);
+
+            settings.change.connect (() => {
+                set_buffer_scheme ();
+            });
+
+            set_buffer_scheme ();
+        }
+
+        private void set_buffer_scheme () {
+            var scheme = settings.desktop_prefers_dark_theme ? "manuscript-dark" : "manuscript-light";
+            var style_manager = Gtk.SourceStyleSchemeManager.get_default ();
+            var style = style_manager.get_scheme (scheme);
+            buffer.style_scheme = style;
         }
 
         private void text_inserted () {

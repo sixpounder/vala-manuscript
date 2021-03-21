@@ -40,6 +40,17 @@ install_data(
     install_dir: join_paths(manuscript_datadir, 'mime', 'packages')
 )
 
+# Install sourceview schemes
+install_data(
+    join_paths('schemes', meson.project_name() + '-light.xml'),
+    install_dir: join_paths(get_option('datadir'), 'gtksourceview-3.0', 'styles')
+)
+
+install_data(
+    join_paths('schemes', meson.project_name() + '-dark.xml'),
+    install_dir: join_paths(get_option('datadir'), 'gtksourceview-3.0', 'styles')
+)
+
 desktop_utils = find_program('desktop-file-validate', required: true)
 if desktop_utils.found()
     test('Validate desktop file', desktop_utils,

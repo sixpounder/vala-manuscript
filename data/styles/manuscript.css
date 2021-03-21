@@ -13,9 +13,14 @@ button.theme-button-dark {
     background-color: @BLACK_500;
 }
 
-sourceview {
+textview {
     background-color: @bg_color;
+    /* caret-color: rgb(54, 137, 230); */
 }
+
+/* textview text {
+    caret-color: rgb(54, 137, 230);
+} */
 
 .status-bar {
     transition: color 300ms ease-in-out;

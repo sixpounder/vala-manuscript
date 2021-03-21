@@ -4,11 +4,11 @@
         "prefix": "Manuscript class with namespace",
         "body": [
             "namespace Manuscript.$1 {",
-            "   public class $2 {",
-            "       public $2 () {",
-            "           Object ();",
-            "       }",
-            "   }",
+            "    public class $2 {",
+            "        public $2 () {",
+            "            Object ();",
+            "        }",
+            "    }",
             "}"
         ],
         "description": "Basic Manuscript project class declaration"

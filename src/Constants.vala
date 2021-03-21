@@ -28,7 +28,7 @@ namespace Manuscript {
         public const int64 DEFAULT_FONT_SIZE = 18;
 
         public const uint QUICK_SEARCH_DEBOUNCE_TIME = 100;
-        public const uint AUTOSAVE_DEBOUNCE_TIME = 1000;
+        public const uint AUTOSAVE_DEBOUNCE_TIME = 5000;
         public const int FILE_MONITOR_RATE_LIMIT = 500;
 
         public const uint A4_WIDHT_IN_POINTS = 595;

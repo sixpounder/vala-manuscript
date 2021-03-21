@@ -33,7 +33,7 @@ namespace Manuscript {
         protected Gtk.InfoBar infobar;
         protected Manuscript.Widgets.QuickOpenPanel quick_open_panel;
         protected int last_editor_grid_panel_position = 0;
-        //  public Widgets.SearchPanel search_panel { get; private set; }
+        public Widgets.SearchPanel search_panel { get; private set; }
 
         public Services.DocumentManager document_manager;
         public Services.ActionManager action_manager { get; private set; }
@@ -98,7 +98,7 @@ namespace Manuscript {
             add (container);
 
             // Search panel
-            //  search_panel = new Widgets.SearchPanel (this);
+            search_panel = new Widgets.SearchPanel (this);
 
             // Sidebar
             sidebar = new Widgets.Sidebar (this);
@@ -111,7 +111,7 @@ namespace Manuscript {
             // right panel layout (search + tabs)
             var right_panel = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             tabs = new Widgets.EditorsController (this);
-            //  right_panel.pack_start (search_panel, false, false, 0);
+            right_panel.pack_start (search_panel, false, false, 0);
             right_panel.pack_start (tabs);
 
             // Grid
@@ -182,14 +182,14 @@ namespace Manuscript {
             } else {
                 editor_grid.position = last_editor_grid_panel_position < 250 ? 250 : last_editor_grid_panel_position;
 
-                //  search_panel.reveal_child = settings.searchbar;
-                //  if (search_panel.search_entry != null && search_panel.reveal_child) {
-                //      search_panel.search_entry.grab_focus_without_selecting ();
-                //  }
+                search_panel.reveal_child = settings.searchbar;
+                if (search_panel.search_entry != null && search_panel.reveal_child) {
+                    search_panel.search_entry.grab_focus_without_selecting ();
+                }
 
-                //  if (settings.searchbar == false) {
-                //      search_panel.unselect ();
-                //  }
+                if (settings.searchbar == false) {
+                    search_panel.unselect ();
+                }
             }
         }
 
