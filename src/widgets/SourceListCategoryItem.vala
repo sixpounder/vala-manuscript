@@ -38,9 +38,9 @@ namespace Manuscript.Widgets {
         }
 
         ~ SourceListCategoryItem () {
-            child_chunks.clear ();
             child_added.disconnect (on_child_added);
             child_removed.disconnect (on_child_removed);
+            child_chunks.clear ();
         }
 
         private void on_child_added (Granite.Widgets.SourceList.Item item) {

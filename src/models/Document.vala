@@ -185,14 +185,6 @@ namespace Manuscript.Models {
 
         public async Document.from_file (string path, bool temporary = false) throws DocumentError {
             this (path, temporary);
-            //  load_from_file.begin (path, (obj, res) => {
-            //      try {
-            //          load_from_file.end (res);
-            //      } catch (Models.DocumentError document_error) {
-            //          critical ("Cannot create document: %s\n", document_error.message);
-            //          // throw document_error;
-            //      }
-            //  });
             yield load_from_file (path);
         }
 
@@ -267,13 +259,16 @@ namespace Manuscript.Models {
                     });
                 }
             } else {
+                Mutex worked_items_mutex = Mutex ();
                 uint expected_chunks_length = chunks_array.get_elements ().length ();
                 Gee.ArrayList<DocumentChunk> worked_items = new Gee.ArrayList<DocumentChunk> ();
 
                 foreach (var el in chunks_array.get_elements ()) {
                     var worker = new ChunkParser (el, (Document) this);
                     worker.done.connect ((c) => {
+                        worked_items_mutex.@lock ();
                         worked_items.add (c);
+                        worked_items_mutex.@unlock ();
                     });
 
                     Services.ThreadPool.get_default ().add (worker);

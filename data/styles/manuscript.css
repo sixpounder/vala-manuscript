@@ -1,26 +1,6 @@
-button.theme-button {
-    border-radius: 50%;
-}
-button.theme-button-light {
-    background-color: #FFFFFF;
-}
-
-button.theme-button-sepia {
-    background-color: @BANANA_100;
-}
-
-button.theme-button-dark {
-    background-color: @BLACK_500;
-}
-
 textview {
     background-color: @bg_color;
-    /* caret-color: rgb(54, 137, 230); */
 }
-
-/* textview text {
-    caret-color: rgb(54, 137, 230);
-} */
 
 .status-bar {
     transition: color 300ms ease-in-out;
@@ -79,4 +59,20 @@ textview {
 
 .character-sheet-editor textview.view {
     padding: 10px 15px;
+}
+
+.color-button radio,
+.color-button radio:checked {
+   padding: 10px;
+   -gtk-icon-shadow: none;
+}
+
+.color-dark radio {
+    background-color: rgb(46, 46, 46);
+    color: #a5a5a5;
+}
+
+.color-white radio {
+    background-color: #fff;
+    color: #000;
 }

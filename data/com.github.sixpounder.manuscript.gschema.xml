@@ -8,12 +8,12 @@
     </enum>
     <schema id="com.github.sixpounder.manuscript" path="/com/github/sixpounder/manuscript/" gettext-domain="manuscript">
         <key name="mime-types" type="as">
-            <default>["text/plain", "application/json"]</default>
+            <default>["application/x-manuscript", "application/json", "text/plain"]</default>
             <summary>Supported mime types</summary>
             <description>Cached supported mime types which the app can open and handle</description>
         </key>
         <key name="extensions" type="as">
-            <default>["*.manuscript"]</default>
+            <default>["*.manuscript", "*.json"]</default>
             <summary>Supported files by extension</summary>
             <description>Cached supported extensions which the app can open and handle</description>
         </key>
@@ -57,7 +57,7 @@
             <summary>The last opened document</summary>
             <description>The absolute path to the last opened document</description>
         </key>
-        <key name="zen" type="b">
+        <key name="focus-mode" type="b">
             <default>false</default>
             <summary>Zen (focus) mode on or off</summary>
             <description>Determines if focus mode is activated or not</description>
@@ -71,6 +71,11 @@
             <default>"Light"</default>
             <summary>Application theme</summary>
             <description>Sets the theme to use for the application</description>
+        </key>
+        <key name="prefer-dark-style" type="b">
+            <default>false</default>
+            <summary>Defined whether to use dark stylesheet from Gtk</summary>
+            <description>Switches between dark and light style</description>
         </key>
         <key name="text-scale-factor" type="d">
             <default>1.0</default>

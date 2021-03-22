@@ -21,10 +21,7 @@ namespace Manuscript.Widgets {
     public class SettingsPopover : Gtk.Popover {
         protected Gtk.Grid layout;
         protected Gtk.Box theme_layout;
-        //  protected ThemeButton light_theme_button;
-        //  protected ThemeButton dark_theme_button;
-        //  protected ThemeButton sepia_theme_button;
-        public Gtk.Switch zen_switch { get; private set; }
+        public Gtk.Switch focus_mode_switch { get; private set; }
         public Gtk.Switch autosave_switch { get; private set; }
         public Services.AppSettings settings { get; private set; }
 
@@ -35,55 +32,60 @@ namespace Manuscript.Widgets {
         }
 
         construct {
+            modal = true;
             set_size_request (-1, -1);
             get_style_context ().add_class ("p-2");
 
             settings = Services.AppSettings.get_default ();
 
             layout = new Gtk.Grid ();
-            layout.halign = Gtk.Align.CENTER;
-            layout.margin_top = 10;
-            layout.margin_bottom = 10;
-            layout.row_spacing = 15;
-            layout.column_spacing = 15;
+            layout.column_spacing = 6;
+            layout.margin_bottom = 6;
+            layout.margin_top = 12;
+            layout.orientation = Gtk.Orientation.VERTICAL;
+            layout.row_spacing = 6;
             layout.column_homogeneous = true;
 
-            //  theme_layout = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
+            var color_button_white = new Gtk.RadioButton (null);
+            color_button_white.active = settings.theme == "Light";
+            color_button_white.halign = Gtk.Align.CENTER;
+            color_button_white.tooltip_text = _("Light");
+            color_button_white.clicked.connect (() => {
+                settings.theme = "Light";
+                settings.prefer_dark_style = false;
+            });
 
-            //  light_theme_button = new ThemeButton ("Light");
-            //  sepia_theme_button = new ThemeButton ("Sepia");
-            //  dark_theme_button = new ThemeButton ("Dark");
+            var color_button_white_context = color_button_white.get_style_context ();
+            color_button_white_context.add_class (Granite.STYLE_CLASS_COLOR_BUTTON);
+            color_button_white_context.add_class ("color-white");
 
-            //  light_theme_button.selected.connect (on_theme_set);
-            //  sepia_theme_button.selected.connect (on_theme_set);
-            //  dark_theme_button.selected.connect (on_theme_set);
+            var color_button_dark = new Gtk.RadioButton.from_widget (color_button_white);
+            color_button_dark.active = settings.theme == "Dark" || settings.prefer_dark_style;
+            color_button_dark.halign = Gtk.Align.CENTER;
+            color_button_dark.tooltip_text = _("Dark");
+            color_button_dark.clicked.connect (() => {
+                settings.theme = "Dark";
+                settings.prefer_dark_style = true;
+            });
 
-            //  theme_layout.pack_start (light_theme_button, false, true, 15);
-            //  theme_layout.pack_start (sepia_theme_button, false, true, 15);
-            //  theme_layout.pack_start (dark_theme_button, false, true, 15);
-
-            //  layout.attach (theme_layout, 0, 0, 2, 1);
-
-            //  layout.attach (new Gtk.Separator (Gtk.Align.HORIZONTAL), 0, 1, 2, 1);
+            var color_button_dark_context = color_button_dark.get_style_context ();
+            color_button_dark_context.add_class (Granite.STYLE_CLASS_COLOR_BUTTON);
+            color_button_dark_context.add_class ("color-dark");
 
             Gtk.Label zen_label = new Gtk.Label (_("Focus mode"));
             zen_label.halign = Gtk.Align.START;
 
-            zen_switch = new Gtk.Switch ();
-            zen_switch.expand = false;
-            zen_switch.halign = Gtk.Align.END;
-            zen_switch.active = settings.zen;
-            zen_switch.state_set.connect (() => {
+            focus_mode_switch = new Gtk.Switch ();
+            focus_mode_switch.expand = false;
+            focus_mode_switch.halign = Gtk.Align.END;
+            focus_mode_switch.active = settings.focus_mode;
+            focus_mode_switch.state_set.connect (() => {
                 update_settings ();
                 return false;
             });
 
-            layout.attach (zen_label, 0, 2, 1, 1);
-            layout.attach (zen_switch, 1, 2, 1, 1);
-
             Gtk.Label autosave_label = new Gtk.Label (_("Autosave"));
             autosave_label.halign = Gtk.Align.START;
-
             autosave_switch = new Gtk.Switch ();
             autosave_switch.expand = false;
             autosave_switch.halign = Gtk.Align.END;
@@ -93,21 +95,25 @@ namespace Manuscript.Widgets {
                 return false;
             });
 
-            layout.attach (autosave_label, 0, 3, 1, 1);
-            layout.attach (autosave_switch, 1, 3, 1, 1);
+            var sep = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
+
+            layout.attach_next_to (color_button_white, null, Gtk.PositionType.LEFT, 1);
+            layout.attach_next_to (color_button_dark, color_button_white, Gtk.PositionType.RIGHT, 1);
+            layout.attach_next_to (sep, color_button_white, Gtk.PositionType.BOTTOM, 2);
+            layout.attach_next_to (zen_label, sep, Gtk.PositionType.BOTTOM);
+            layout.attach_next_to (focus_mode_switch, zen_label, Gtk.PositionType.RIGHT);
+            layout.attach_next_to (autosave_label, zen_label, Gtk.PositionType.BOTTOM);
+            layout.attach_next_to (autosave_switch, autosave_label, Gtk.PositionType.RIGHT);
 
             layout.show_all ();
 
             add (layout);
 
-            settings.change.connect ((key) => {
-                update_ui ();
-            });
+            settings.change.connect (update_ui);
         }
 
         ~SettingsPopover () {
-            //  light_theme_button.selected.disconnect (on_theme_set);
-            //  dark_theme_button.selected.disconnect (on_theme_set);
+            settings.change.disconnect (update_ui);
         }
 
         protected void on_theme_set (string theme) {
@@ -115,13 +121,13 @@ namespace Manuscript.Widgets {
             settings.theme = theme;
         }
 
-        protected void update_ui () {
-            zen_switch.active = settings.zen;
+        protected void update_ui (string? for_key = null) {
+            focus_mode_switch.active = settings.focus_mode;
             autosave_switch.active = settings.autosave;
         }
 
         protected void update_settings () {
-            settings.zen = zen_switch.active;
+            settings.focus_mode = focus_mode_switch.active;
             settings.autosave = autosave_switch.active;
         }
     }

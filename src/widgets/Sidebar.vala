@@ -43,7 +43,6 @@ namespace Manuscript.Widgets {
         construct {
             document_manager = ((Manuscript.Window) parent_window).document_manager;
             document_manager.load.connect_after (on_document_set);
-            //  document_manager.change.connect_after (on_document_set);
             document_manager.unload.connect_after (on_document_unload);
             document_manager.open_chunk.connect_after (on_start_edit);
             document_manager.select_chunk.connect_after (on_start_edit);
@@ -54,7 +53,6 @@ namespace Manuscript.Widgets {
 
         ~ Sidebar () {
             document_manager.load.disconnect (on_document_set);
-            //  document_manager.change.disconnect (on_document_set);
             document_manager.unload.disconnect (on_document_unload);
             document_manager.open_chunk.disconnect (on_start_edit);
             document_manager.select_chunk.disconnect (on_start_edit);

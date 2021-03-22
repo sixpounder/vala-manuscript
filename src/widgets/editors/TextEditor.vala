@@ -119,14 +119,14 @@ namespace Manuscript.Widgets {
 
         protected void update_settings (string ? key = null) {
             if (buffer != null) {
-                if (settings.zen) {
+                if (settings.focus_mode) {
                     focus_mode_update_highlight ();
                     buffer.notify["cursor-position"].connect (focus_mode_update_highlight);
                 } else {
                     Gtk.TextIter start, end;
                     string focused_tag;
                     string dimmed_tag;
-                    if (settings.desktop_prefers_dark_theme) {
+                    if (settings.prefer_dark_style) {
                         focused_tag = "dark-focused";
                         dimmed_tag = "dark-dimmed";
                     } else {
@@ -177,7 +177,7 @@ namespace Manuscript.Widgets {
 
                 string focused_tag;
                 string dimmed_tag;
-                if (settings.desktop_prefers_dark_theme) {
+                if (settings.prefer_dark_style) {
                     focused_tag = "dark-focused";
                     dimmed_tag = "dark-dimmed";
                 } else {

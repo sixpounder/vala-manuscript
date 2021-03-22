@@ -66,10 +66,10 @@ namespace Manuscript.Widgets {
             document_manager.stop_editing.connect_after (on_stop_chunk_editing);
 
             settings = Services.AppSettings.get_default ();
-            on_viewport = !settings.zen;
+            on_viewport = !settings.focus_mode;
             settings.change.connect ((key) => {
                 if (key == "zen") {
-                    on_viewport = !settings.zen;
+                    on_viewport = !settings.focus_mode;
                 }
             });
 
@@ -84,10 +84,8 @@ namespace Manuscript.Widgets {
 
         ~ EditorsController () {
             document_manager.load.disconnect (on_document_set);
-            //  document_manager.change.disconnect (on_document_set);
             document_manager.unload.disconnect (on_document_unload);
             document_manager.unloaded.disconnect (update_ui);
-            //  document_manager.select_chunk.disconnect (on_start_chunk_editing);
             document_manager.open_chunk.disconnect (on_start_chunk_editing);
             document_manager.stop_editing.disconnect (on_stop_chunk_editing);
 

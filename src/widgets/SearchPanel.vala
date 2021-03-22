@@ -86,6 +86,7 @@ namespace Manuscript.Widgets {
             });
 
             search_entry.key_press_event.connect (on_search_entry_key_press);
+            search_entry.changed.connect (on_search_entry_change);
 
             //  search_previous_item ();
             var tool_arrow_up = new Gtk.Button.from_icon_name ("go-up-symbolic", Gtk.IconSize.SMALL_TOOLBAR);
@@ -139,6 +140,12 @@ namespace Manuscript.Widgets {
             //  }
         }
 
+        private void on_search_entry_change () {
+            if (search_entry.text.length == 0) {
+                search_entry.get_style_context ().remove_class (Gtk.STYLE_CLASS_ERROR);
+            }
+        }
+
         private bool on_search_entry_key_press (Gdk.EventKey event) {
             string key = Gdk.keyval_name (event.keyval);
             if (Gdk.ModifierType.SHIFT_MASK in event.state) {
@@ -151,7 +158,7 @@ namespace Manuscript.Widgets {
                     if (search_entry.text == "") {
                         return false;
                     } else {
-                        //  search_previous ();
+                        search_previous ();
                         return true;
                     }
                 case "Return":
@@ -159,7 +166,7 @@ namespace Manuscript.Widgets {
                     if (search_entry.text == "") {
                         return false;
                     } else {
-                        //  search_next ();
+                        search_next ();
                         return true;
                     }
                 case "Escape":
@@ -207,25 +214,25 @@ namespace Manuscript.Widgets {
         }
 
         public void search_next () {
-            //  Gtk.TextIter? start_iter, end_iter, end_iter_tmp;
-            //  if (text_buffer != null) {
-            //      text_buffer.get_selection_bounds (out start_iter, out end_iter);
-            //      if (!editor.search_for_iter (end_iter, out end_iter_tmp)) {
-            //          text_buffer.get_start_iter (out start_iter);
-            //          editor.search_for_iter (start_iter, out end_iter);
-            //      }
-            //  }
+            Gtk.TextIter? start_iter, end_iter, end_iter_tmp;
+            if (text_buffer != null) {
+                text_buffer.get_selection_bounds (out start_iter, out end_iter);
+                if (!search_for_iter (end_iter, out end_iter_tmp)) {
+                    text_buffer.get_start_iter (out start_iter);
+                    search_for_iter (start_iter, out end_iter);
+                }
+            }
         }
 
         public void search_previous () {
-            //  Gtk.TextIter? start_iter, end_iter;
-            //  if (text_buffer != null) {
-            //      text_buffer.get_selection_bounds (out start_iter, out end_iter);
-            //      if (!search_for_iter_backward (start_iter, out end_iter)) {
-            //          text_buffer.get_end_iter (out start_iter);
-            //          search_for_iter_backward (start_iter, out end_iter);
-            //      }
-            //  }
+            Gtk.TextIter? start_iter, end_iter;
+            if (text_buffer != null) {
+                text_buffer.get_selection_bounds (out start_iter, out end_iter);
+                if (!search_for_iter_backward (start_iter, out end_iter)) {
+                    text_buffer.get_end_iter (out start_iter);
+                    search_for_iter_backward (start_iter, out end_iter);
+                }
+            }
         }
 
         public void unselect () {
@@ -243,27 +250,25 @@ namespace Manuscript.Widgets {
         }
 
         private bool search_for_iter (Gtk.TextIter? start_iter, out Gtk.TextIter? end_iter) {
-            //  end_iter = start_iter;
-            //  bool found = search_context.forward2 (start_iter, out start_iter, out end_iter, null);
-            //  if (found) {
-            //      text_buffer.select_range (start_iter, end_iter);
-            //      editor.scroll_to_iter (start_iter, 0, false, 0, 0);
-            //  }
+            end_iter = start_iter;
+            bool found = search_context.forward2 (start_iter, out start_iter, out end_iter, null);
+            if (found) {
+                text_buffer.select_range (start_iter, end_iter);
+                //  editor.scroll_to_iter (start_iter, 0, false, 0, 0);
+            }
 
-            //  return found;
-            return false;
+            return found;
         }
 
         private bool search_for_iter_backward (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
-            //  end_iter = start_iter;
-            //  bool found = search_context.backward2 (start_iter, out start_iter, out end_iter, null);
-            //  if (found) {
-            //      text_buffer.select_range (start_iter, end_iter);
-            //      editor.scroll_to_iter (start_iter, 0, false, 0, 0);
-            //  }
+            end_iter = start_iter;
+            bool found = search_context.backward2 (start_iter, out start_iter, out end_iter, null);
+            if (found) {
+                text_buffer.select_range (start_iter, end_iter);
+                //  editor.scroll_to_iter (start_iter, 0, false, 0, 0);
+            }
 
-            //  return found;
-            return false;
+            return found;
         }
 
         private void on_replace_entry_activate () {

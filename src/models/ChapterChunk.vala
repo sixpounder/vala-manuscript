@@ -70,13 +70,13 @@ namespace Manuscript.Models {
                 buffer.changed.disconnect (on_content_changed);
                 buffer.undo.disconnect (on_buffer_undo);
                 buffer.redo.disconnect (on_buffer_redo);
-
                 buffer.insert_text.disconnect (text_inserted);
                 buffer.delete_range.disconnect (range_deleted);
-
                 buffer.undo_manager.can_undo_changed.disconnect (on_can_undo_changed);
-                buffer.undo_manager.can_redo_changed.disconnect (on_can_redo_changed);    
-                buffer.unref ();
+                buffer.undo_manager.can_redo_changed.disconnect (on_can_redo_changed);
+                if (buffer.ref_count > 1) {
+                    buffer.unref ();
+                }
             }
         }
 
@@ -120,7 +120,7 @@ namespace Manuscript.Models {
         }
 
         private void set_buffer_scheme () {
-            var scheme = settings.desktop_prefers_dark_theme ? "manuscript-dark" : "manuscript-light";
+            var scheme = settings.prefer_dark_style ? "manuscript-dark" : "manuscript-light";
             var style_manager = Gtk.SourceStyleSchemeManager.get_default ();
             var style = style_manager.get_scheme (scheme);
             buffer.style_scheme = style;

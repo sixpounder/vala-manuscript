@@ -176,7 +176,7 @@ namespace Manuscript {
         }
 
         public void update_ui () {
-            if (settings.zen) {
+            if (settings.focus_mode) {
                 last_editor_grid_panel_position = editor_grid.position;
                 editor_grid.position = 0;
             } else {

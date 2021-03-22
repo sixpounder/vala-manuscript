@@ -4,7 +4,7 @@
   <_description>Dark manuscript scheme</_description>
 
   <style name="text"            foreground="#fafafa" background="#3D3D3D"/>
-  <style name="cursor"          foreground="#62a0ea"/>
+  <style name="cursor"          foreground="#e4c6fa"/>
   <style name="selection"       foreground="#fafafa" background="#3689e6"/>
   <style name="search-match"    foreground="#fafafa" background="#de3e80"/>
 

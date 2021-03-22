@@ -19,7 +19,6 @@
 
 namespace Manuscript.Services {
     public class AppSettings : Object {
-
         public signal void change (string key);
         public string[] supported_mime_types { get; set; }
         public string[] supported_extensions { get; set; }
@@ -29,7 +28,8 @@ namespace Manuscript.Services {
         public int window_y { get; set; }
         public string last_opened_document { get; set; }
         public bool searchbar { get; set; }
-        public bool zen { get; set; }
+        public bool focus_mode { get; set; }
+        public bool prefer_dark_style { get; set; }
         public bool autosave { get; set; }
         public string theme { get; set; }
         public double text_scale_factor { get; set; }
@@ -48,10 +48,11 @@ namespace Manuscript.Services {
             settings.bind ("window-x", this, "window_x", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("window-y", this, "window_y", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("last-opened-document", this, "last_opened_document", GLib.SettingsBindFlags.DEFAULT);
-            settings.bind ("zen", this, "zen", GLib.SettingsBindFlags.DEFAULT);
+            settings.bind ("focus-mode", this, "focus_mode", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("autosave", this, "autosave", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("theme", this, "theme", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("text-scale-factor", this, "text_scale_factor", GLib.SettingsBindFlags.DEFAULT);
+            settings.bind ("prefer-dark-style", this, "prefer_dark_style", GLib.SettingsBindFlags.DEFAULT);
 
             settings.changed.connect (this.on_change);
         }
@@ -65,14 +66,20 @@ namespace Manuscript.Services {
         }
 
         protected void on_change (string key) {
-            //  debug (@"Changed $key");
+            if (key == "prefer-dark-style") {Gtk.Settings.get_default ();
+                Gtk.Settings.get_default ().gtk_application_prefer_dark_theme = prefer_dark_style;
+            }
+
             change (key);
         }
 
-        public bool desktop_prefers_dark_theme {
-            get {
-                return Gtk.Settings.get_default ().gtk_application_prefer_dark_theme;
-            }
-        }
+        //  public bool application_prefers_dark_theme {
+        //      get {
+        //          return Gtk.Settings.get_default ().gtk_application_prefer_dark_theme;
+        //      }
+        //      set {
+        //          Gtk.Settings.get_default ().gtk_application_prefer_dark_theme = value;
+        //      }
+        //  }
     }
 }
