@@ -50,22 +50,27 @@ namespace Manuscript.Widgets {
             color_button_white.active = settings.theme == "Light";
             color_button_white.halign = Gtk.Align.CENTER;
             color_button_white.tooltip_text = _("Light");
-            color_button_white.clicked.connect (() => {
-                settings.theme = "Light";
-                settings.prefer_dark_style = false;
+            color_button_white.toggled.connect (() => {
+                if (color_button_white.active) {
+                    settings.theme = "Light";
+                    settings.prefer_dark_style = false;
+                }
             });
 
             var color_button_white_context = color_button_white.get_style_context ();
             color_button_white_context.add_class (Granite.STYLE_CLASS_COLOR_BUTTON);
             color_button_white_context.add_class ("color-white");
 
-            var color_button_dark = new Gtk.RadioButton.from_widget (color_button_white);
+            var color_button_dark = new Gtk.RadioButton (null);
+            color_button_dark.set_group (color_button_white.get_group ());
             color_button_dark.active = settings.theme == "Dark" || settings.prefer_dark_style;
             color_button_dark.halign = Gtk.Align.CENTER;
             color_button_dark.tooltip_text = _("Dark");
-            color_button_dark.clicked.connect (() => {
-                settings.theme = "Dark";
-                settings.prefer_dark_style = true;
+            color_button_dark.toggled.connect (() => {
+                if (color_button_dark.active) {
+                    settings.theme = "Dark";
+                    settings.prefer_dark_style = true;
+                }
             });
 
             var color_button_dark_context = color_button_dark.get_style_context ();

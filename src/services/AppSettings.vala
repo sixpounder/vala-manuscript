@@ -29,10 +29,18 @@ namespace Manuscript.Services {
         public string last_opened_document { get; set; }
         public bool searchbar { get; set; }
         public bool focus_mode { get; set; }
-        public bool prefer_dark_style { get; set; }
         public bool autosave { get; set; }
         public string theme { get; set; }
         public double text_scale_factor { get; set; }
+        public bool prefer_dark_style {
+            get {
+                return settings.get_boolean ("prefer-dark-style");
+            }
+            set {
+                settings.set_boolean ("prefer-dark-style", value);
+                Gtk.Settings.get_default ().gtk_application_prefer_dark_theme = value;
+            }
+        }
 
         private GLib.Settings ? settings = null;
 
@@ -66,20 +74,7 @@ namespace Manuscript.Services {
         }
 
         protected void on_change (string key) {
-            if (key == "prefer-dark-style") {Gtk.Settings.get_default ();
-                Gtk.Settings.get_default ().gtk_application_prefer_dark_theme = prefer_dark_style;
-            }
-
             change (key);
         }
-
-        //  public bool application_prefers_dark_theme {
-        //      get {
-        //          return Gtk.Settings.get_default ().gtk_application_prefer_dark_theme;
-        //      }
-        //      set {
-        //          Gtk.Settings.get_default ().gtk_application_prefer_dark_theme = value;
-        //      }
-        //  }
     }
 }

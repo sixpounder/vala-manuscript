@@ -54,15 +54,5 @@ namespace Manuscript {
             add (dark_focused);
             add (italic);
         }
-
-        public Gtk.TextTag[] for_theme (string? theme) {
-            switch (theme) {
-                case "light":
-                default:
-                    return { light_dimmed, light_focused };
-                case "dark":
-                    return { dark_dimmed, dark_focused };
-            }
-        }
     }
 }

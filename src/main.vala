@@ -63,8 +63,6 @@ namespace Manuscript {
             weak Gtk.IconTheme default_theme = Gtk.IconTheme.get_default ();
             default_theme.add_resource_path ("/com/github/sixpounder/manuscript/icons");
 
-            settings.prefer_dark_style = Gtk.Settings.get_default ().gtk_application_prefer_dark_theme;
-
             Manuscript.Window main_window;
 
             if (files != null) {

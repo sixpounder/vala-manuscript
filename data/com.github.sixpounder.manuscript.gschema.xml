@@ -68,7 +68,7 @@
             <description>The application will try to save opened documents at specific points in its lifecycle</description>
         </key>
         <key name="theme" enum="com.github.sixpounder.manuscript.themes">
-            <default>"Light"</default>
+            <default>""</default>
             <summary>Application theme</summary>
             <description>Sets the theme to use for the application</description>
         </key>

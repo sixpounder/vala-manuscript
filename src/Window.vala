@@ -63,11 +63,19 @@ namespace Manuscript {
                 cache_folder: Path.build_path (
                     Path.DIR_SEPARATOR_S, Environment.get_user_cache_dir (), Constants.APP_ID
                 )
-                );
+            );
 
             settings = Services.AppSettings.get_default ();
             action_manager = new Services.ActionManager ((Manuscript.Application)application, this);
             document_manager = new Services.DocumentManager ((Manuscript.Application)application, this);
+
+            // In case the theme has never been set, rely on gtk.settings
+            if (settings.theme == "") {
+                settings.prefer_dark_style = Gtk.Settings.get_default ().gtk_application_prefer_dark_theme;
+                settings.theme = settings.prefer_dark_style ? "Dark" : "Light";
+            } else {
+                settings.prefer_dark_style = settings.theme == "Dark";
+            }
 
             // Load some styles
             var css_provider = new Gtk.CssProvider ();
