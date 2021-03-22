@@ -268,31 +268,25 @@ namespace Manuscript.Models {
                     worker.done.connect ((c) => {
                         worked_items_mutex.@lock ();
                         worked_items.add (c);
+                        if (expected_chunks_length == worked_items.size) {
+                            debug ("Document parsed, sorting chunks and removing idle task");
+    
+                            worked_items.iterator ().@foreach ((c) => {
+                                add_chunk (c);
+                                return GLib.Source.CONTINUE;
+                            });
+    
+                            chunks.sort ((a, b) => {
+                                return (int) (a.index - b.index);
+                            });
+    
+                            Idle.add ((owned) callback);
+                        }
                         worked_items_mutex.@unlock ();
                     });
 
                     Services.ThreadPool.get_default ().add (worker);
                 }
-
-                GLib.Idle.add (() => {
-                    if (expected_chunks_length == worked_items.size) {
-                        debug ("Document parsed, sorting chunks and removing idle task");
-
-                        worked_items.iterator ().@foreach ((c) => {
-                            add_chunk (c);
-                            return GLib.Source.CONTINUE;
-                        });
-
-                        chunks.sort ((a, b) => {
-                            return (int) (a.index - b.index);
-                        });
-
-                        Idle.add ((owned) callback);
-                        return GLib.Source.REMOVE;
-                    } else {
-                        return GLib.Source.CONTINUE;
-                    }
-                });
 
                 yield;
             }

@@ -34,16 +34,16 @@ namespace Manuscript.Widgets {
         construct {
             modal = true;
             set_size_request (-1, -1);
-            get_style_context ().add_class ("p-2");
 
             settings = Services.AppSettings.get_default ();
 
             layout = new Gtk.Grid ();
+            layout.get_style_context ().add_class ("px-2");
             layout.column_spacing = 6;
+            layout.row_spacing = 10;
             layout.margin_bottom = 6;
             layout.margin_top = 12;
             layout.orientation = Gtk.Orientation.VERTICAL;
-            layout.row_spacing = 6;
             layout.column_homogeneous = true;
 
             var color_button_white = new Gtk.RadioButton (null);

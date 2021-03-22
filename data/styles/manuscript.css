@@ -40,6 +40,11 @@ textview {
     padding: 20px;
 }
 
+.px-2 {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
 .p-3 {
     padding: 30px;
 }

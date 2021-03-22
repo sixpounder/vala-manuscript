@@ -47,8 +47,6 @@ namespace Manuscript {
             Application.ensure_directory_exists (
                 File.new_for_path (cache_path)
             );
-
-            settings = Services.AppSettings.get_default ();
         }
 
         protected override void activate () {
@@ -60,6 +58,8 @@ namespace Manuscript {
         }
 
         protected void init (File[] ? files = null, string ? hint = "") {
+            settings = Services.AppSettings.get_default ();
+
             weak Gtk.IconTheme default_theme = Gtk.IconTheme.get_default ();
             default_theme.add_resource_path ("/com/github/sixpounder/manuscript/icons");
 
