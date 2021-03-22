@@ -99,7 +99,8 @@
 
             if (_pixel_buffer != null) {
                 if (parent_document.settings.inline_cover_images || image_source_file == null) {
-                    var image_data = _pixel_buffer.read_pixel_bytes ().get_data ();
+                    uint8[] image_data;
+                    _pixel_buffer.save_to_buffer (out image_data, "png");
                     var image_data_encoded = GLib.Base64.encode (image_data);
                     node.set_string_member ("image_data_base64", image_data_encoded);
                 } else {

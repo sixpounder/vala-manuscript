@@ -35,7 +35,7 @@ namespace Manuscript.Models {
 
     public class ChunkParser : Object, Services.ThreadWorker<DocumentChunk> {
         public Json.Node serialized_chunk { get; construct; }
-        public Document parent { get; construct; }
+        public weak Document parent { get; construct; }
 
         public ChunkParser (Json.Node serialized_chunk, Document parent) {
             Object (
@@ -49,6 +49,7 @@ namespace Manuscript.Models {
         }
 
         public DocumentChunk parse () {
+            assert (parent != null);
             return DocumentChunk.from_json_object (serialized_chunk.get_object (), parent);
         }
 
@@ -270,16 +271,15 @@ namespace Manuscript.Models {
                         worked_items.add (c);
                         if (expected_chunks_length == worked_items.size) {
                             debug ("Document parsed, sorting chunks and removing idle task");
-    
                             worked_items.iterator ().@foreach ((c) => {
                                 add_chunk (c);
                                 return GLib.Source.CONTINUE;
                             });
-    
+
                             chunks.sort ((a, b) => {
                                 return (int) (a.index - b.index);
                             });
-    
+
                             Idle.add ((owned) callback);
                         }
                         worked_items_mutex.@unlock ();
