@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-17 14:48+0100\n"
+"POT-Creation-Date: 2021-03-23 10:33+0100\n"
 "PO-Revision-Date: 2019-07-05 11:20+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "Save"
 msgstr "Salva manoscritto"
 
-#: src/Window.vala:244 src/Window.vala:350
+#: src/Window.vala:244 src/Window.vala:351
 msgid "Dismiss"
 msgstr "Chiudi"
 
@@ -57,22 +57,22 @@ msgstr "Tutti i file"
 msgid "Unable to create temporary document"
 msgstr "Impossibile creare un documento temporaneo "
 
-#: src/Window.vala:335
+#: src/Window.vala:336
 #, c-format
 msgid "File at %s could not be found. It may have been moved or deleted."
 msgstr ""
 "Il file %s non è stato trovato. Potrebbe essere stato spostato o eliminato."
 
-#: src/Window.vala:342
+#: src/Window.vala:343
 #, c-format
 msgid "Cannot read %s"
 msgstr "Impossibile leggere %s"
 
-#: src/Window.vala:343
+#: src/Window.vala:344
 msgid "The file you selected does not appear to be a valid Manuscript file"
 msgstr "Il file selezionato non sembra essere valido"
 
-#: src/Window.vala:346
+#: src/Window.vala:347
 #, c-format
 msgid "Some strange error happened while trying to open file at %s"
 msgstr "Si è verificato qualcosa di strano aprendo il file %s"
@@ -229,27 +229,27 @@ msgstr "Questo file potrebbe essere stato eliminato oppure spostato."
 msgid "not found"
 msgstr "non trovato"
 
-#: src/widgets/SearchPanel.vala:61 src/widgets/SearchBar.vala:43
+#: src/widgets/SearchPanel.vala:57 src/widgets/SearchBar.vala:43
 msgid "Replace with…"
 msgstr "Sostituisci con…"
 
-#: src/widgets/SearchPanel.vala:65 src/widgets/SearchBar.vala:47
+#: src/widgets/SearchPanel.vala:61 src/widgets/SearchBar.vala:47
 msgid "Replace"
 msgstr "Sostituisci"
 
-#: src/widgets/SearchPanel.vala:68 src/widgets/SearchBar.vala:50
+#: src/widgets/SearchPanel.vala:64 src/widgets/SearchBar.vala:50
 msgid "Replace all"
 msgstr "Sostituisci tutti"
 
-#: src/widgets/SearchPanel.vala:78 src/widgets/SearchBar.vala:79
+#: src/widgets/SearchPanel.vala:75 src/widgets/SearchBar.vala:79
 msgid "Find…"
 msgstr "Trova…"
 
-#: src/widgets/SearchPanel.vala:98 src/widgets/SearchBar.vala:98
+#: src/widgets/SearchPanel.vala:96 src/widgets/SearchBar.vala:98
 msgid "Search previous"
 msgstr "Risultato precedente"
 
-#: src/widgets/SearchPanel.vala:103 src/widgets/SearchBar.vala:116
+#: src/widgets/SearchPanel.vala:101 src/widgets/SearchBar.vala:116
 msgid "Search next"
 msgstr "Risultato successivo"
 
@@ -274,25 +274,33 @@ msgstr "oppure"
 msgid "Add a new chapter"
 msgstr "Aggiungi un capitolo"
 
-#: src/widgets/SettingsPopover.vala:69
+#: src/widgets/SettingsPopover.vala:52
+msgid "Light"
+msgstr "Chiaro"
+
+#: src/widgets/SettingsPopover.vala:68
+msgid "Dark"
+msgstr "Scuro"
+
+#: src/widgets/SettingsPopover.vala:80
 msgid "Focus mode"
 msgstr "Modalità concentrazione"
 
-#: src/widgets/SettingsPopover.vala:84
+#: src/widgets/SettingsPopover.vala:92
 msgid "Autosave"
 msgstr "Salva automaticamente"
 
-#: src/widgets/Sidebar.vala:73 src/widgets/DocumentSettings.vala:55
+#: src/widgets/Sidebar.vala:70 src/widgets/DocumentSettings.vala:55
 #, fuzzy
 msgid "Covers"
 msgstr "Copertina"
 
-#: src/widgets/Sidebar.vala:77
+#: src/widgets/Sidebar.vala:74
 #, fuzzy
 msgid "Chapters"
 msgstr "Capitolo"
 
-#: src/widgets/Sidebar.vala:85 src/widgets/editors/CharacterSheetEditor.vala:72
+#: src/widgets/Sidebar.vala:82 src/widgets/editors/CharacterSheetEditor.vala:72
 #, fuzzy
 msgid "Notes"
 msgstr "Nota"
@@ -342,8 +350,10 @@ msgid ""
 "<small>Store cover images inline into the manuscript (increases file size).\n"
 "<b>Existing covers are not affected by the change of this setting</b></small>"
 msgstr ""
-"<small>Copia le immagini di copertina nel manoscritto (aumenta la dimensione del file).\n"
-"<b>Le copertine esistenti non sono affette dal cambiamente di questa impostazione</b></small>"
+"<small>Copia le immagini di copertina nel manoscritto (aumenta la dimensione "
+"del file).\n"
+"<b>Le copertine esistenti non sono affette dal cambiamente di questa "
+"impostazione</b></small>"
 
 #: src/widgets/editors/CoverEditor.vala:72
 #, fuzzy
@@ -380,7 +390,11 @@ msgstr "Background"
 msgid "Traits"
 msgstr "Tratti fisici / caratteriali"
 
-#: src/models/ChapterChunk.vala:40
+#: src/models/DocumentChunk.vala:102
+msgid "Untitled"
+msgstr "Senza titolo"
+
+#: src/models/ChapterChunk.vala:41
 #, fuzzy
 msgid "New chapter"
 msgstr "Capitolo"
@@ -395,15 +409,15 @@ msgstr "Scheda personaggio"
 msgid "New note"
 msgstr "Nuova finestra"
 
-#: src/models/CoverChunk.vala:43
+#: src/models/CoverChunk.vala:51
 msgid "New cover"
 msgstr "Nuova copertina"
 
-#: src/services/ActionManager.vala:181
+#: src/services/ActionManager.vala:184
 msgid "Export succeeded"
 msgstr "Esportato con successo"
 
-#: src/services/ActionManager.vala:182
+#: src/services/ActionManager.vala:185
 msgid "Your manuscript has been successfully exported"
 msgstr "Il tuo manoscritto è stato esportato correttamente"
 

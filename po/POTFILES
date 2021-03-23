@@ -7,7 +7,6 @@ src/widgets/Header.vala
 src/widgets/StatusBar.vala
 src/widgets/SourceListChunkItem.vala
 src/widgets/FileNotFound.vala
-src/widgets/ThemeButton.vala
 src/widgets/SearchPanel.vala
 src/widgets/SearchBar.vala
 src/widgets/QuickOpenPanel.vala
@@ -21,6 +20,7 @@ src/widgets/settings/Metrics.vala
 src/widgets/settings/Covers.vala
 src/widgets/editors/CoverEditor.vala
 src/widgets/editors/CharacterSheetEditor.vala
+src/models/DocumentChunk.vala
 src/models/ChapterChunk.vala
 src/models/CharacterSheetChunk.vala
 src/models/NoteChunk.vala

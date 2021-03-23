@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-17 14:48+0100\n"
+"POT-Creation-Date: 2021-03-23 10:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: src/Window.vala:244 src/Window.vala:350
+#: src/Window.vala:244 src/Window.vala:351
 msgid "Dismiss"
 msgstr ""
 
@@ -52,21 +52,21 @@ msgstr ""
 msgid "Unable to create temporary document"
 msgstr ""
 
-#: src/Window.vala:335
+#: src/Window.vala:336
 #, c-format
 msgid "File at %s could not be found. It may have been moved or deleted."
 msgstr ""
 
-#: src/Window.vala:342
+#: src/Window.vala:343
 #, c-format
 msgid "Cannot read %s"
 msgstr ""
 
-#: src/Window.vala:343
+#: src/Window.vala:344
 msgid "The file you selected does not appear to be a valid Manuscript file"
 msgstr ""
 
-#: src/Window.vala:346
+#: src/Window.vala:347
 #, c-format
 msgid "Some strange error happened while trying to open file at %s"
 msgstr ""
@@ -212,27 +212,27 @@ msgstr ""
 msgid "not found"
 msgstr ""
 
-#: src/widgets/SearchPanel.vala:61 src/widgets/SearchBar.vala:43
+#: src/widgets/SearchPanel.vala:57 src/widgets/SearchBar.vala:43
 msgid "Replace with…"
 msgstr ""
 
-#: src/widgets/SearchPanel.vala:65 src/widgets/SearchBar.vala:47
+#: src/widgets/SearchPanel.vala:61 src/widgets/SearchBar.vala:47
 msgid "Replace"
 msgstr ""
 
-#: src/widgets/SearchPanel.vala:68 src/widgets/SearchBar.vala:50
+#: src/widgets/SearchPanel.vala:64 src/widgets/SearchBar.vala:50
 msgid "Replace all"
 msgstr ""
 
-#: src/widgets/SearchPanel.vala:78 src/widgets/SearchBar.vala:79
+#: src/widgets/SearchPanel.vala:75 src/widgets/SearchBar.vala:79
 msgid "Find…"
 msgstr ""
 
-#: src/widgets/SearchPanel.vala:98 src/widgets/SearchBar.vala:98
+#: src/widgets/SearchPanel.vala:96 src/widgets/SearchBar.vala:98
 msgid "Search previous"
 msgstr ""
 
-#: src/widgets/SearchPanel.vala:103 src/widgets/SearchBar.vala:116
+#: src/widgets/SearchPanel.vala:101 src/widgets/SearchBar.vala:116
 msgid "Search next"
 msgstr ""
 
@@ -256,23 +256,31 @@ msgstr ""
 msgid "Add a new chapter"
 msgstr ""
 
-#: src/widgets/SettingsPopover.vala:69
+#: src/widgets/SettingsPopover.vala:52
+msgid "Light"
+msgstr ""
+
+#: src/widgets/SettingsPopover.vala:68
+msgid "Dark"
+msgstr ""
+
+#: src/widgets/SettingsPopover.vala:80
 msgid "Focus mode"
 msgstr ""
 
-#: src/widgets/SettingsPopover.vala:84
+#: src/widgets/SettingsPopover.vala:92
 msgid "Autosave"
 msgstr ""
 
-#: src/widgets/Sidebar.vala:73 src/widgets/DocumentSettings.vala:55
+#: src/widgets/Sidebar.vala:70 src/widgets/DocumentSettings.vala:55
 msgid "Covers"
 msgstr ""
 
-#: src/widgets/Sidebar.vala:77
+#: src/widgets/Sidebar.vala:74
 msgid "Chapters"
 msgstr ""
 
-#: src/widgets/Sidebar.vala:85 src/widgets/editors/CharacterSheetEditor.vala:72
+#: src/widgets/Sidebar.vala:82 src/widgets/editors/CharacterSheetEditor.vala:72
 msgid "Notes"
 msgstr ""
 
@@ -350,7 +358,11 @@ msgstr ""
 msgid "Traits"
 msgstr ""
 
-#: src/models/ChapterChunk.vala:40
+#: src/models/DocumentChunk.vala:102
+msgid "Untitled"
+msgstr ""
+
+#: src/models/ChapterChunk.vala:41
 msgid "New chapter"
 msgstr ""
 
@@ -362,14 +374,14 @@ msgstr ""
 msgid "New note"
 msgstr ""
 
-#: src/models/CoverChunk.vala:43
+#: src/models/CoverChunk.vala:51
 msgid "New cover"
 msgstr ""
 
-#: src/services/ActionManager.vala:181
+#: src/services/ActionManager.vala:184
 msgid "Export succeeded"
 msgstr ""
 
-#: src/services/ActionManager.vala:182
+#: src/services/ActionManager.vala:185
 msgid "Your manuscript has been successfully exported"
 msgstr ""

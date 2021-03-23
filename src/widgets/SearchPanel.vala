@@ -123,23 +123,18 @@ namespace Manuscript.Widgets {
                 }
             });
 
-            //  parent_window.document_manager.open_chunk.connect ((chunk) => {
-            //      assert (chunk != null);
-            //      unselect ();
-            //      text_buffer = chunk.buffer;
-            //      search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
-            //  });
-
             parent_window.document_manager.stop_editing.connect ((chunk) => {
                 unselect ();
                 text_buffer = null;
                 search_context = null;
             });
 
-            //  if (parent_window.document_manager.has_document && parent_window.current_editor != null) {
-            //      text_buffer = parent_window.current_editor.chunk.buffer;
-            //      search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
-            //  }
+            if (parent_window.document_manager.has_document
+                    && parent_window.document_manager.document.active_chunk != null
+                    && parent_window.document_manager.document.active_chunk is Models.TextChunkBase) {
+                text_buffer = ((Models.TextChunkBase) parent_window.document_manager.document.active_chunk).buffer;
+                search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
+            }
         }
 
         private void on_search_entry_change () {
