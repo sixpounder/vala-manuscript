@@ -19,6 +19,8 @@
 
 namespace Manuscript {
     public class Window : Gtk.ApplicationWindow {
+        public signal void search_result (Gtk.TextBuffer buffer, Gtk.TextIter result_start);
+
         protected uint configure_id = 0;
         protected Services.AppSettings settings;
         protected Gtk.Overlay container;
@@ -70,7 +72,7 @@ namespace Manuscript {
             document_manager = new Services.DocumentManager ((Manuscript.Application)application, this);
 
             // In case the theme has never been set, rely on gtk.settings
-            if (settings.theme == "") {
+            if (settings.theme == "System") {
                 settings.prefer_dark_style = Gtk.Settings.get_default ().gtk_application_prefer_dark_theme;
                 settings.theme = settings.prefer_dark_style ? "Dark" : "Light";
             } else {
@@ -161,9 +163,10 @@ namespace Manuscript {
 
         ~ Window () {
             settings.change.disconnect (update_ui);
-            delete_event.disconnect (on_destroy);
+            //  delete_event.disconnect (on_destroy);
             welcome_view.should_open_file.disconnect (open_file_dialog);
             welcome_view.should_create_new_file.disconnect (open_with_temp_file);
+            search_panel.result.connect (on_search_result);
 
             // Connect document manager events
             document_manager.load.disconnect (on_document_manager_load);
@@ -173,7 +176,7 @@ namespace Manuscript {
 
         public void connect_events () {
             settings.change.connect (update_ui);
-            delete_event.connect (on_destroy);
+            //  delete_event.connect (on_destroy);
             welcome_view.should_open_file.connect (open_file_dialog);
             welcome_view.should_create_new_file.connect (open_with_temp_file);
 
@@ -202,12 +205,18 @@ namespace Manuscript {
         }
 
         public override bool delete_event (Gdk.EventAny event) {
-            if (document_manager.has_document) {
-                document_manager.close ();
+            if (settings.autosave) {
+                if (document_manager.has_document) {
+                    document_manager.close ();
+                }
+                return false;
+            } else {
+                if (quit_dialog ()) {
+                    return false;
+                } else {
+                    return true;
+                }
             }
-
-            // return base.delete_event (event);
-            return false;
         }
 
         public override bool configure_event (Gdk.EventConfigure event) {
@@ -233,6 +242,11 @@ namespace Manuscript {
             });
 
             return base.configure_event (event);
+        }
+
+        protected void on_search_result (Gtk.TextBuffer buffer, Gtk.TextIter result_start) {
+            // Broadcast the event for editors to listen
+            search_result (buffer, result_start);
         }
 
         protected void on_backend_file_deleted () {
@@ -384,7 +398,7 @@ namespace Manuscript {
             document_settings_dialog.run ();
         }
 
-        protected void set_layout_body (Gtk.Widget widget) {
+        private void set_layout_body (Gtk.Widget widget) {
             if (body.get_child () != null) {
                 body.remove (body.get_child () );
             }
@@ -393,15 +407,7 @@ namespace Manuscript {
             widget.focus (Gtk.DirectionType.UP);
         }
 
-        protected void close_document (Models.Document document) {
-            document_manager.close ();
-        }
-
-        protected bool on_destroy () {
-            return false;
-        }
-
-        protected void message (string message, Gtk.MessageType level = Gtk.MessageType.ERROR) {
+        private void message (string message, Gtk.MessageType level = Gtk.MessageType.ERROR) {
             var messagedialog = new Gtk.MessageDialog (
                 this,
                 Gtk.DialogFlags.MODAL,
@@ -412,7 +418,7 @@ namespace Manuscript {
             messagedialog.show ();
         }
 
-        protected bool quit_dialog () {
+        private bool quit_dialog () {
             QuitDialog confirm_dialog = new QuitDialog (this);
 
             int outcome = confirm_dialog.run ();
@@ -421,12 +427,12 @@ namespace Manuscript {
             return outcome == 1;
         }
 
-        protected void show_not_found_alert () {
-            FileNotFound fnf = new FileNotFound (document.file_path);
-            set_layout_body (fnf);
-        }
+        //  private void show_not_found_alert () {
+        //      FileNotFound fnf = new FileNotFound (document.file_path);
+        //      set_layout_body (fnf);
+        //  }
 
-        protected Gtk.InfoBar show_infobar (Gtk.MessageType level, string message) {
+        private Gtk.InfoBar show_infobar (Gtk.MessageType level, string message) {
             var label = new Gtk.Label (message);
             label.lines = 2;
             label.wrap = true;
@@ -445,10 +451,9 @@ namespace Manuscript {
             return infobar;
         }
 
-        protected void hide_infobar () {
+        private void hide_infobar () {
             if (infobar != null) {
                 infobar.destroy ();
-                infobar.unref ();
             }
         }
     }

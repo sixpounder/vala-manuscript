@@ -86,7 +86,9 @@ namespace Manuscript.Widgets {
 
         ~ SourceListChunkItem () {
             edited.disconnect (on_edited);
-            chunk.changed.disconnect (on_chunk_changed);
+            if (chunk != null) {
+                chunk.changed.disconnect (on_chunk_changed);
+            }
         }
 
         public bool has_changes {

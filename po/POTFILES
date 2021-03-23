@@ -8,7 +8,6 @@ src/widgets/StatusBar.vala
 src/widgets/SourceListChunkItem.vala
 src/widgets/FileNotFound.vala
 src/widgets/SearchPanel.vala
-src/widgets/SearchBar.vala
 src/widgets/QuickOpenPanel.vala
 src/widgets/QuickOpenEntry.vala
 src/widgets/EditorCourtesyView.vala

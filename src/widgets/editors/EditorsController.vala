@@ -31,6 +31,7 @@ namespace Manuscript.Widgets {
         protected Gee.HashMap<string, Protocols.ChunkEditor> editors_cache;
         protected uint collision_counter = 0;
         protected bool _on_viewport = true;
+        private bool document_loaded = false;
 
         public bool on_viewport {
             get {
@@ -95,29 +96,29 @@ namespace Manuscript.Widgets {
         }
 
         private void on_document_set (Models.Document doc) {
-            if (doc != null) {
-                //  doc.chunk_added.connect (add_chunk);
-                //  doc.chunk_removed.connect (remove_chunk);
-                //  doc.active_changed.connect (select_chunk);
-            }
+            assert (doc != null);
+            document_loaded = true;
         }
 
         private void on_document_unload (Models.Document doc) {
             assert (doc != null);
             doc.chunk_added.disconnect (add_chunk);
             doc.chunk_removed.disconnect (remove_chunk);
-            //  doc.active_changed.disconnect (select_chunk);
-            //  editors_cache = new List<EditorView> ();
             editors_cache.clear ();
+            document_loaded = false;
         }
 
         private void on_start_chunk_editing (Models.DocumentChunk chunk) {
-            debug (@"EditorsController - Start editing chunk $(chunk.title)");
-            add_editor_view_for_chunk (chunk, true);
+            if (document_loaded) {
+                debug (@"EditorsController - Start editing chunk $(chunk.title)");
+                add_editor_view_for_chunk (chunk, true);
+            }
         }
 
         private void on_stop_chunk_editing (Models.DocumentChunk? chunk) {
-            debug (@"EditorsController - Stop editing chunk $(chunk.title)");
+            if (document_loaded) {
+                debug (@"EditorsController - Stop editing chunk $(chunk.title)");
+            }
         }
 
         // Updates various components of this widget to reflect current

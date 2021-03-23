@@ -2,8 +2,8 @@
 <!-- Copyright 2021 Andrea Coronese <sixpounder@protonmail.com> -->
 <schemalist>
     <enum id="com.github.sixpounder.manuscript.themes">
-        <value nick="Light" value="0" />
-        <value nick="Sepia" value="1" />
+        <value nick="System" value="0" />
+        <value nick="Light" value="1" />
         <value nick="Dark" value="2" />
     </enum>
     <schema id="com.github.sixpounder.manuscript" path="/com/github/sixpounder/manuscript/" gettext-domain="manuscript">
@@ -68,7 +68,7 @@
             <description>The application will try to save opened documents at specific points in its lifecycle</description>
         </key>
         <key name="theme" enum="com.github.sixpounder.manuscript.themes">
-            <default>""</default>
+            <default>"System"</default>
             <summary>Application theme</summary>
             <description>Sets the theme to use for the application</description>
         </key>

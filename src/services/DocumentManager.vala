@@ -121,6 +121,10 @@ namespace Manuscript.Services {
             }
         }
 
+        ~ DocumentManager () {
+            disconnect_events ();
+        }
+
         public async void load_from_path (string path) throws Models.DocumentError requires (path != null) {
             try {
                 var doc = yield new Models.Document.from_file (path);
@@ -145,11 +149,12 @@ namespace Manuscript.Services {
                 document = doc;
                 settings.last_opened_document = document.file_path;
                 _opened_chunks.clear ();
-                //  change (document);
             }
 
-            connect_events ();
-            load (document);
+            if (document != null) {
+                connect_events ();
+                load (document);
+            }
         }
 
         public virtual signal void open_chunk (Models.DocumentChunk chunk) {
@@ -278,7 +283,7 @@ namespace Manuscript.Services {
             });
         }
 
-        protected void disconnect_events () {
+        private void disconnect_events () {
             stop_file_monitor ();
         }
 
