@@ -100,9 +100,14 @@
             if (_pixel_buffer != null) {
                 if (parent_document.settings.inline_cover_images || image_source_file == null) {
                     uint8[] image_data;
-                    _pixel_buffer.save_to_buffer (out image_data, "png");
-                    var image_data_encoded = GLib.Base64.encode (image_data);
-                    node.set_string_member ("image_data_base64", image_data_encoded);
+                    try {
+                        _pixel_buffer.save_to_buffer (out image_data, "png");
+                        var image_data_encoded = GLib.Base64.encode (image_data);
+                        node.set_string_member ("image_data_base64", image_data_encoded);
+                    } catch (Error e) {
+                        warning (@"Could not load cover image buffer: $(e.message)");
+                        node.set_string_member ("image_data_base64", "");
+                    }
                 } else {
                     node.set_string_member ("image_source_file", image_source_file.get_path ());
                 }

@@ -30,6 +30,8 @@ namespace Manuscript.Widgets {
         public Gtk.TextBuffer? text_buffer = null;
         public Gtk.SourceSearchContext search_context = null;
 
+        public signal void result (Gtk.TextBuffer buffer, Gtk.TextIter iter);
+
         public SearchPanel (Manuscript.Window parent_window) {
             Object (
                 parent_window: parent_window
@@ -128,11 +130,11 @@ namespace Manuscript.Widgets {
             //      search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
             //  });
 
-            //  parent_window.document_manager.stop_editing.connect ((chunk) => {
-            //      unselect ();
-            //      text_buffer = null;
-            //      search_context = null;
-            //  });
+            parent_window.document_manager.stop_editing.connect ((chunk) => {
+                unselect ();
+                text_buffer = null;
+                search_context = null;
+            });
 
             //  if (parent_window.document_manager.has_document && parent_window.current_editor != null) {
             //      text_buffer = parent_window.current_editor.chunk.buffer;
@@ -190,9 +192,9 @@ namespace Manuscript.Widgets {
                 return false;
             }
             var search_string = search_entry.text;
+            search_context.highlight = true;
             search_context.settings.regex_enabled = false;
             search_context.settings.search_text = search_string;
-            //  bool case_sensitive = !((search_string.up () == search_string) || (search_string.down () == search_string));
             search_context.settings.case_sensitive = false;
 
             if (text_buffer == null || text_buffer.text == "") {
@@ -236,16 +238,8 @@ namespace Manuscript.Widgets {
         }
 
         public void unselect () {
-            if (text_buffer != null) {
-                Gtk.TextIter? cursor_iter = null;
-                text_buffer.get_iter_at_mark (out cursor_iter, text_buffer.get_insert ());
-
-                if (cursor_iter != null) {
-                    text_buffer.select_range (
-                        cursor_iter,
-                        cursor_iter
-                    );
-                }
+            if (search_context != null) {
+                search_context.highlight = false;
             }
         }
 
@@ -254,7 +248,7 @@ namespace Manuscript.Widgets {
             bool found = search_context.forward2 (start_iter, out start_iter, out end_iter, null);
             if (found) {
                 text_buffer.select_range (start_iter, end_iter);
-                //  editor.scroll_to_iter (start_iter, 0, false, 0, 0);
+                result (text_buffer, start_iter);
             }
 
             return found;
@@ -265,50 +259,47 @@ namespace Manuscript.Widgets {
             bool found = search_context.backward2 (start_iter, out start_iter, out end_iter, null);
             if (found) {
                 text_buffer.select_range (start_iter, end_iter);
-                //  editor.scroll_to_iter (start_iter, 0, false, 0, 0);
+                result (text_buffer, start_iter);
             }
 
             return found;
         }
 
         private void on_replace_entry_activate () {
-            //  text_buffer = editor.get_buffer ();
-            //  if (text_buffer == null) {
-            //      warning ("No valid buffer to replace");
-            //      return;
-            //  }
+            if (text_buffer == null) {
+                warning ("No valid buffer to replace");
+                return;
+            }
 
-            //  Gtk.TextIter? start_iter, end_iter;
-            //  text_buffer.get_iter_at_offset (out start_iter, text_buffer.cursor_position);
+            Gtk.TextIter? start_iter, end_iter;
+            text_buffer.get_iter_at_offset (out start_iter, text_buffer.cursor_position);
 
-            //  if (search_for_iter (start_iter, out end_iter)) {
-            //      string replace_string = replace_entry.text;
-            //      try {
-            //          search_context.replace2 (start_iter, end_iter, replace_string, replace_string.length);
-            //          update_replace_tool_sensitivities (search_entry.text);
-            //          debug ("Replace \"%s\" with \"%s\"", search_entry.text, replace_entry.text);
-            //      } catch (Error e) {
-            //          critical (e.message);
-            //      }
-            //  }
+            if (search_for_iter (start_iter, out end_iter)) {
+                string replace_string = replace_entry.text;
+                try {
+                    search_context.replace2 (start_iter, end_iter, replace_string, replace_string.length);
+                    update_replace_tool_sensitivities (search_entry.text);
+                    debug ("Replace \"%s\" with \"%s\"", search_entry.text, replace_entry.text);
+                } catch (Error e) {
+                    critical (e.message);
+                }
+            }
         }
 
         private void on_replace_all_entry_activate () {
-            //  this.text_buffer = editor.get_buffer ();
-            //  if (text_buffer == null) {
-            //      debug ("No valid buffer to replace");
-            //      return;
-            //  }
+            if (text_buffer == null) {
+                debug ("No valid buffer to replace");
+                return;
+            }
 
-            //  string replace_string = replace_entry.text;
+            string replace_string = replace_entry.text;
 
-            //  try {
-            //      search_context.replace_all (replace_string, replace_string.length);
-            //      update_replace_tool_sensitivities (search_entry.text);
-            //  } catch (Error e) {
-            //      critical (e.message);
-            //  }
-
+            try {
+                search_context.replace_all (replace_string, replace_string.length);
+                update_replace_tool_sensitivities (search_entry.text);
+            } catch (Error e) {
+                critical (e.message);
+            }
         }
 
         private void update_replace_tool_sensitivities (string search_text) {
