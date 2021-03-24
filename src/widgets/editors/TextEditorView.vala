@@ -21,7 +21,7 @@ namespace Manuscript.Widgets {
     /**
      * Groups all the items relative to a single text editor view
      */
-    public class EditorView: Gtk.Box, Protocols.ChunkEditor {
+    public class TextEditorView: Gtk.Box, Protocols.ChunkEditor {
         public weak Manuscript.Window parent_window { get; construct; }
         public Widgets.FormatToolbar format_toolbar { get; construct; }
         public Widgets.StatusBar status_bar { get; set; }
@@ -29,7 +29,7 @@ namespace Manuscript.Widgets {
         public string label { get; set; }
         public weak Models.DocumentChunk chunk { get; construct; }
 
-        public EditorView (Manuscript.Window parent_window, Models.DocumentChunk chunk) {
+        public TextEditorView (Manuscript.Window parent_window, Models.DocumentChunk chunk) {
             Object (
                 orientation: Gtk.Orientation.VERTICAL,
                 parent_window: parent_window,

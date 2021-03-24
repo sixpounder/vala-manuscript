@@ -149,7 +149,7 @@ namespace Manuscript.Widgets {
                 switch (chunk.kind) {
                     case Models.ChunkType.CHAPTER:
                     case Models.ChunkType.NOTE:
-                        EditorView new_editor = new EditorView (parent_window, chunk);
+                        TextEditorView new_editor = new TextEditorView (parent_window, chunk);
                         add_named (new_editor, view_id);
                         returned_view = new_editor;
                         returned_view.scroll_to_cursor ();

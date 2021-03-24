@@ -32,9 +32,9 @@
             NoteChunk self = (NoteChunk) DocumentChunk.deserialize_chunk_base (obj, document);
 
             if (obj.has_member ("raw_content")) {
-                self.raw_content = Base64.decode (obj.get_string_member ("raw_content"));
+                self.set_raw (Base64.decode (obj.get_string_member ("raw_content")));
             } else {
-                self.raw_content = {};
+                self.set_raw ({});
             }
 
             self.build_buffer ();
@@ -57,6 +57,7 @@
             buffer.highlight_syntax = false;
 
             try {
+                var raw_content = get_raw ();
                 if (raw_content.length != 0) {
                     buffer.begin_not_undoable_action ();
                     Gtk.TextIter start;

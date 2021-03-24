@@ -38,7 +38,7 @@ executable(
 	'widgets/EditorCourtesyView.vala',
 
 	'widgets/editors/EditorsController.vala',
-	'widgets/editors/EditorView.vala',
+	'widgets/editors/TextEditorView.vala',
 	'widgets/editors/TextEditor.vala',
 	'widgets/editors/CoverEditor.vala',
 	'widgets/editors/CharacterSheetEditor.vala',

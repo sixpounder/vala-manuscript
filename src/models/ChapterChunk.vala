@@ -40,7 +40,7 @@ namespace Manuscript.Models {
             uuid = GLib.Uuid.string_random ();
             title = _("New chapter");
             kind = ChunkType.CHAPTER;
-            raw_content = {};
+            set_raw ({});
 
             build_buffer ();
         }
@@ -49,9 +49,9 @@ namespace Manuscript.Models {
             ChapterChunk self = (ChapterChunk) DocumentChunk.deserialize_chunk_base (obj, document);
 
             if (obj.has_member ("raw_content")) {
-                self.raw_content = Base64.decode (obj.get_string_member ("raw_content"));
+                self.set_raw (Base64.decode (obj.get_string_member ("raw_content")));
             } else {
-                self.raw_content = {};
+                self.set_raw ({});
             }
 
             if (obj.has_member ("notes")) {
@@ -95,6 +95,7 @@ namespace Manuscript.Models {
             buffer.highlight_syntax = false;
 
             try {
+                var raw_content = get_raw ();
                 if (raw_content.length != 0) {
                     buffer.begin_not_undoable_action ();
                     Gtk.TextIter start;

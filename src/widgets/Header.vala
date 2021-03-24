@@ -102,8 +102,8 @@ namespace Manuscript.Widgets {
             pack_end (settings_button);
 
             settings.change.connect (update_ui);
-            document_manager.load.connect (update_ui);
-            document_manager.unloaded.connect (update_ui);
+            document_manager.load.connect_after (update_ui);
+            document_manager.unloaded.connect_after (update_ui);
             //  document_manager.change.connect (update_ui);
             document_manager.property_change.connect (update_ui);
 
@@ -274,7 +274,5 @@ namespace Manuscript.Widgets {
             add_element_button.sensitive = document_manager.has_document;
             export_button.sensitive = document_manager.has_document;
         }
-
-        protected void on_document_unloaded () {}
     }
 }

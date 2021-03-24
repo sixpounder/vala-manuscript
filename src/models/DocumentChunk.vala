@@ -145,11 +145,19 @@ namespace Manuscript.Models {
         public virtual signal void redo () {}
         public virtual signal void analyze () {}
 
-        public virtual uchar[] raw_content { get; set; }
+        private uchar[] raw_content;
         public virtual uint words_count { get; protected set; }
         public virtual double estimate_reading_time { get; protected set; }
 
         public virtual Models.TextBuffer buffer { get; protected set; }
+        
+        public uchar[] get_raw () {
+            return raw_content;
+        }
+
+        public void set_raw (uchar[] value) {
+            raw_content = value;
+        }
 
         public override Json.Object to_json_object () {
             var node = base.to_json_object ();
