@@ -27,6 +27,7 @@ namespace Manuscript.Models {
     public interface DocumentChunk : Object {
         public virtual signal void changed () {}
 
+        public abstract bool broken { get; set; }
         public abstract weak Document parent_document { get; protected set; }
         public abstract int64 index { get; set; }
         public abstract ChunkType kind { get; protected set; }
@@ -117,6 +118,7 @@ namespace Manuscript.Models {
     }
 
     public abstract class DocumentChunkBase : Object, DocumentChunk {
+        public virtual bool broken { get; protected set; }
         public virtual int64 index { get; set; }
         public virtual ChunkType kind { get; protected set; }
         public virtual string title { get; set; }
@@ -143,14 +145,22 @@ namespace Manuscript.Models {
         public virtual signal void redo () {}
         public virtual signal void analyze () {}
 
-        public virtual string raw_content { get; set; }
+        public virtual uchar[] raw_content { get; set; }
         public virtual uint words_count { get; protected set; }
         public virtual double estimate_reading_time { get; protected set; }
 
-        public virtual Gtk.SourceBuffer buffer { get; protected set; }
+        public virtual Models.TextBuffer buffer { get; protected set; }
 
         public override Json.Object to_json_object () {
             var node = base.to_json_object ();
+            var atom = buffer.get_manuscript_serialize_format ();
+            Gtk.TextIter start, end;
+            buffer.get_start_iter (out start);
+            buffer.get_end_iter (out end);
+            uint8[] serialized_data = buffer.serialize (buffer, atom, start, end);
+            debug (@"$(serialized_data.length) bytes of text");
+
+            node.set_string_member ("raw_content", Base64.encode (serialized_data));
 
             return node;
         }

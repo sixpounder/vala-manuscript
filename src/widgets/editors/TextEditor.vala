@@ -94,18 +94,18 @@ namespace Manuscript.Widgets {
             string tag_name = "";
             switch (markup) {
                 case TextMarkup.ITALIC:
-                    tag_name = "emphasis";
+                    tag_name = "italic";
                 break;
 
                 case TextMarkup.BOLD:
-                    tag_name = "strong-emphasis";
+                    tag_name = "bold";
                 break;
 
                 default:
                 break;
             }
             if (tag_name != "" && has_selection) {
-                buffer.apply_tag (buffer.tag_table.get_data (tag_name), selection_start, selection_end);
+                buffer.apply_tag_by_name (tag_name, selection_start, selection_end);
             }
         }
 
@@ -160,7 +160,7 @@ namespace Manuscript.Widgets {
             left_margin = 100;
             top_margin = 50;
             bottom_margin = 50;
-            wrap_mode = Gtk.WrapMode.WORD;
+            wrap_mode = Gtk.WrapMode.WORD_CHAR;
             indent = 20;
             input_hints = Gtk.InputHints.SPELLCHECK | Gtk.InputHints.NO_EMOJI;
             search_context = new Gtk.SourceSearchContext (buffer as Gtk.SourceBuffer, null);

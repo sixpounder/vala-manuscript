@@ -40,7 +40,7 @@ namespace Manuscript.Models {
             uuid = GLib.Uuid.string_random ();
             title = _("New chapter");
             kind = ChunkType.CHAPTER;
-            raw_content = "";
+            raw_content = {};
 
             build_buffer ();
         }
@@ -49,9 +49,9 @@ namespace Manuscript.Models {
             ChapterChunk self = (ChapterChunk) DocumentChunk.deserialize_chunk_base (obj, document);
 
             if (obj.has_member ("raw_content")) {
-                self.raw_content = obj.get_string_member ("raw_content");
+                self.raw_content = Base64.decode (obj.get_string_member ("raw_content"));
             } else {
-                self.raw_content = "";
+                self.raw_content = {};
             }
 
             if (obj.has_member ("notes")) {
@@ -74,30 +74,38 @@ namespace Manuscript.Models {
                 buffer.delete_range.disconnect (range_deleted);
                 buffer.undo_manager.can_undo_changed.disconnect (on_can_undo_changed);
                 buffer.undo_manager.can_redo_changed.disconnect (on_can_redo_changed);
-                if (buffer.ref_count > 1) {
+                if (buffer.ref_count > 0) {
                     buffer.unref ();
                 }
             }
         }
 
         public override Json.Object to_json_object () {
-            var root = base.to_json_object ();
-            root.set_string_member ("raw_content", buffer.text);
-            root.set_string_member ("notes", notes);
+            var node = base.to_json_object ();
+            node.set_string_member ("notes", notes);
 
-            return root;
+            return node;
         }
 
         protected void build_buffer () {
 
-            buffer = new Gtk.SourceBuffer (new DocumentTagTable () );
+            buffer = new Models.TextBuffer (new DocumentTagTable ());
             buffer.highlight_matching_brackets = false;
             buffer.max_undo_levels = -1;
             buffer.highlight_syntax = false;
 
-            buffer.begin_not_undoable_action ();
-            buffer.set_text (raw_content, raw_content.length);
-            buffer.end_not_undoable_action ();
+            try {
+                if (raw_content.length != 0) {
+                    buffer.begin_not_undoable_action ();
+                    Gtk.TextIter start;
+                    buffer.get_start_iter (out start);
+                    buffer.deserialize (buffer, buffer.get_manuscript_deserialize_format (), start, raw_content);
+                    buffer.end_not_undoable_action ();
+                }
+            } catch (Error e) {
+                warning (e.message);
+                broken = true;
+            }
 
             words_count = Utils.Strings.count_words (buffer.text);
             estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);

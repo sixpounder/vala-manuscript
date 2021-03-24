@@ -42,12 +42,14 @@ executable(
 	'widgets/editors/TextEditor.vala',
 	'widgets/editors/CoverEditor.vala',
 	'widgets/editors/CharacterSheetEditor.vala',
-	'widgets/editors/DocumentTagTable.vala',
+	'widgets/editors/FormatToolbar.vala',
 
     'widgets/settings/Metrics.vala',
     'widgets/settings/General.vala',
 	'widgets/settings/Covers.vala',
 
+	'models/TextBuffer.vala',
+	'models/DocumentTagTable.vala',
 	'models/Document.vala',
 	'models/DocumentChunk.vala',
 	'models/ChunkType.vala',

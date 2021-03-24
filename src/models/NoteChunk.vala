@@ -32,9 +32,9 @@
             NoteChunk self = (NoteChunk) DocumentChunk.deserialize_chunk_base (obj, document);
 
             if (obj.has_member ("raw_content")) {
-                self.raw_content = obj.get_string_member ("raw_content");
+                self.raw_content = Base64.decode (obj.get_string_member ("raw_content"));
             } else {
-                self.raw_content = "";
+                self.raw_content = {};
             }
 
             self.build_buffer ();
@@ -51,14 +51,23 @@
 
         protected void build_buffer (string content = "") {
 
-            buffer = new Gtk.SourceBuffer (new DocumentTagTable () );
+            buffer = new Models.TextBuffer (new DocumentTagTable () );
             buffer.highlight_matching_brackets = false;
             buffer.max_undo_levels = -1;
             buffer.highlight_syntax = false;
 
-            buffer.begin_not_undoable_action ();
-            buffer.set_text (content, content.length);
-            buffer.end_not_undoable_action ();
+            try {
+                if (raw_content.length != 0) {
+                    buffer.begin_not_undoable_action ();
+                    Gtk.TextIter start;
+                    buffer.get_start_iter (out start);
+                    buffer.deserialize (buffer, buffer.get_manuscript_deserialize_format (), start, raw_content);
+                    buffer.end_not_undoable_action ();
+                }
+            } catch (Error e) {
+                warning (e.message);
+                broken = true;
+            }
 
             words_count = Utils.Strings.count_words (buffer.text);
             estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);

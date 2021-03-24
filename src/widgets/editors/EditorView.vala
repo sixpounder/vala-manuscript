@@ -23,6 +23,7 @@ namespace Manuscript.Widgets {
      */
     public class EditorView: Gtk.Box, Protocols.ChunkEditor {
         public weak Manuscript.Window parent_window { get; construct; }
+        public Widgets.FormatToolbar format_toolbar { get; construct; }
         public Widgets.StatusBar status_bar { get; set; }
         public TextEditor editor { get; private set; }
         public string label { get; set; }
@@ -33,16 +34,17 @@ namespace Manuscript.Widgets {
                 orientation: Gtk.Orientation.VERTICAL,
                 parent_window: parent_window,
                 chunk: chunk,
-                label: chunk.title
+                label: chunk.title,
+                expand: true,
+                homogeneous: false,
+                halign: Gtk.Align.FILL,
+                valign: Gtk.Align.FILL
             );
         }
 
         construct {
             assert (chunk != null);
             get_style_context ().add_class ("editor-view");
-            expand = true;
-            homogeneous = false;
-            halign = Gtk.Align.FILL;
             Gtk.ScrolledWindow scrolled_container = new Gtk.ScrolledWindow (null, null);
             scrolled_container.kinetic_scrolling = true;
             scrolled_container.overlay_scrolling = true;
@@ -59,10 +61,14 @@ namespace Manuscript.Widgets {
             });
             editor = new TextEditor (chunk as Models.TextChunkBase);
             reflect_document_settings ();
+
+            format_toolbar = new Widgets.FormatToolbar (((Models.TextChunkBase) chunk).buffer);
+
             status_bar = new Widgets.StatusBar (parent_window, chunk as Models.TextChunkBase);
             status_bar.height_request = 50;
             scrolled_container.add (editor);
 
+            pack_start (format_toolbar, false, true, 0);
             pack_start (scrolled_container);
             pack_start (status_bar, false, true, 0);
 

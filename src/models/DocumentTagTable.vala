@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace Manuscript {
+namespace Manuscript.Models {
     public class DocumentTagTable : Gtk.TextTagTable {
 
         public Gtk.TextTag light_dimmed;
@@ -26,6 +26,10 @@ namespace Manuscript {
         public Gtk.TextTag dark_focused;
         public Gtk.TextTag italic;
         public Gtk.TextTag bold;
+        public Gtk.TextTag justify_left;
+        public Gtk.TextTag justify_center;
+        public Gtk.TextTag justify_right;
+        public Gtk.TextTag justify_fill;
 
         construct {
             light_dimmed = new Gtk.TextTag ("light-dimmed");
@@ -41,18 +45,33 @@ namespace Manuscript {
             dark_focused.foreground = "#fafafa";
 
             italic = new Gtk.TextTag ("italic");
-            italic.style = Pango.Style.NORMAL;
             italic.style = Pango.Style.ITALIC;
 
-            bold = new Gtk.TextTag ("italic");
+            bold = new Gtk.TextTag ("bold");
             bold.weight = Pango.Weight.BOLD;
-            bold.style = Pango.Style.NORMAL;
+
+            justify_left = new Gtk.TextTag ("justify-left");
+            justify_left.justification = Gtk.Justification.LEFT;
+
+            justify_right = new Gtk.TextTag ("justify-right");
+            justify_right.justification = Gtk.Justification.RIGHT;
+
+            justify_center = new Gtk.TextTag ("justify-center");
+            justify_center.justification = Gtk.Justification.CENTER;
+
+            justify_fill = new Gtk.TextTag ("justify-fill");
+            justify_fill.justification = Gtk.Justification.FILL;
 
             add (light_dimmed);
             add (light_focused);
             add (dark_dimmed);
             add (dark_focused);
             add (italic);
+            add (bold);
+            add (justify_left);
+            add (justify_right);
+            add (justify_center);
+            add (justify_fill);
         }
     }
 }

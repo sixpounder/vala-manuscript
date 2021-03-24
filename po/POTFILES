@@ -19,6 +19,8 @@ src/widgets/settings/Metrics.vala
 src/widgets/settings/Covers.vala
 src/widgets/editors/CoverEditor.vala
 src/widgets/editors/CharacterSheetEditor.vala
+src/widgets/editors/TextEditor.vala
+src/widgets/editors/FormatToolbar.vala
 src/models/DocumentChunk.vala
 src/models/ChapterChunk.vala
 src/models/CharacterSheetChunk.vala

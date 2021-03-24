@@ -7,10 +7,4 @@
   <style name="cursor"          foreground="#e4c6fa"/>
   <style name="selection"       foreground="#fafafa" background="#3689e6"/>
   <style name="search-match"    foreground="#fafafa" background="#de3e80"/>
-
-  <!-- Bold -->
-  <style name="def:strong-emphasis" bold="true"/>
-
-  <!-- Italic -->
-  <style name="def:emphasis" foreground="#fafafa" italic="true"/>
 </style-scheme>

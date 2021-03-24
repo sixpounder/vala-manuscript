@@ -8,10 +8,4 @@
   <style name="current-line"    background="#eff0f1"/>
   <style name="selection"       foreground="#fafafa" background="#3689e6"/>
   <style name="search-match"    foreground="#333" background="#f6d32d"/>
-
-  <!-- Bold -->
-  <style name="def:strong-emphasis" bold="true"/>
-
-  <!-- Italic -->
-  <style name="def:emphasis" foreground="#555" italic="true"/>
 </style-scheme>
