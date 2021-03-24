@@ -161,22 +161,8 @@ namespace Manuscript {
             update_ui ();
         }
 
-        ~ Window () {
-            settings.change.disconnect (update_ui);
-            //  delete_event.disconnect (on_destroy);
-            welcome_view.should_open_file.disconnect (open_file_dialog);
-            welcome_view.should_create_new_file.disconnect (open_with_temp_file);
-            search_panel.result.connect (on_search_result);
-
-            // Connect document manager events
-            document_manager.load.disconnect (on_document_manager_load);
-            document_manager.unloaded.disconnect (on_document_manager_unload);
-            document_manager.backend_file_unlinked.disconnect (on_backend_file_deleted);
-        }
-
         public void connect_events () {
             settings.change.connect (update_ui);
-            //  delete_event.connect (on_destroy);
             welcome_view.should_open_file.connect (open_file_dialog);
             welcome_view.should_create_new_file.connect (open_with_temp_file);
 
@@ -202,6 +188,19 @@ namespace Manuscript {
                     search_panel.unselect ();
                 }
             }
+        }
+
+        public override void destroy () {
+            settings.change.disconnect (update_ui);
+            welcome_view.should_open_file.disconnect (open_file_dialog);
+            welcome_view.should_create_new_file.disconnect (open_with_temp_file);
+            search_panel.result.connect (on_search_result);
+
+            // Connect document manager events
+            document_manager.load.disconnect (on_document_manager_load);
+            document_manager.unloaded.disconnect (on_document_manager_unload);
+            document_manager.backend_file_unlinked.disconnect (on_backend_file_deleted);
+            base.destroy ();
         }
 
         public override bool delete_event (Gdk.EventAny event) {

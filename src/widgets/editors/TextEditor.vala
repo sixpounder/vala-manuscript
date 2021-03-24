@@ -18,6 +18,11 @@
  */
 
 namespace Manuscript.Widgets {
+
+    enum TextMarkup {
+        ITALIC,
+        BOLD
+    }
     public class TextEditor : Gtk.SourceView, Protocols.ChunkEditor {
         public bool has_changes { get; private set; }
         public Gtk.SourceSearchContext search_context = null;
@@ -32,17 +37,22 @@ namespace Manuscript.Widgets {
                 pixels_inside_wrap: 0,
                 pixels_below_lines: 20,
                 wrap_mode: Gtk.WrapMode.WORD,
-                expand: true
+                expand: true,
+                populate_all: true
             );
 
             try {
                 init_editor ();
-                settings.change.connect (on_setting_change);
-                destroy.connect (on_destroy);
+                connect_events ();
             } catch (GLib.Error e) {
                 error ("Cannot instantiate editor view: " + e.message);
             }
+        }
 
+        ~ TextEditor () {
+            settings.change.disconnect (on_setting_change);
+            destroy.disconnect (on_destroy);
+            populate_popup.disconnect (populate_context_menu);
         }
 
         public weak Models.TextChunkBase chunk {
@@ -56,6 +66,50 @@ namespace Manuscript.Widgets {
             }
         }
 
+        private void connect_events () {
+            settings.change.connect (on_setting_change);
+            destroy.connect (on_destroy);
+            populate_popup.connect (populate_context_menu);
+        }
+
+        private void populate_context_menu (Gtk.Menu menu) {
+            Gtk.MenuItem bold_menu_item = new Gtk.MenuItem.with_label (_("Bold"));
+            bold_menu_item.activate.connect (() => {
+                markup_for_selection (TextMarkup.BOLD);
+            });
+            Gtk.MenuItem italic_menu_item = new Gtk.MenuItem.with_label (_("Italic"));
+            italic_menu_item.activate.connect (() => {
+                markup_for_selection (TextMarkup.ITALIC);
+            });
+
+            menu.prepend (new Gtk.SeparatorMenuItem ());
+            menu.prepend (italic_menu_item);
+            menu.prepend (bold_menu_item);
+            menu.show_all ();
+        }
+
+        private void markup_for_selection (TextMarkup markup) {
+            Gtk.TextIter selection_start, selection_end;
+            var has_selection = buffer.get_selection_bounds (out selection_start, out selection_end);
+            string tag_name = "";
+            switch (markup) {
+                case TextMarkup.ITALIC:
+                    tag_name = "emphasis";
+                break;
+
+                case TextMarkup.BOLD:
+                    tag_name = "strong-emphasis";
+                break;
+
+                default:
+                break;
+            }
+            if (tag_name != "" && has_selection) {
+                buffer.apply_tag (buffer.tag_table.get_data (tag_name), selection_start, selection_end);
+            }
+        }
+
+        /** Simple cubic eased scrolling for the editor view */
         public void scroll_down () {
             var clock = get_frame_clock ();
             var duration = 200;

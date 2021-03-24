@@ -18,11 +18,11 @@
  */
 
 namespace Manuscript.Services {
-    public class DocumentManagerWorker : Object {
-        public virtual void run () {}
-    }
+    //  public class DocumentManagerWorker : Object {
+    //      public virtual void run () {}
+    //  }
 
-    public class SaveWorker : DocumentManagerWorker {
+    public class SaveWorker : Object, ThreadWorker<void> {
         public Models.Document document { get; construct; }
 
         public SaveWorker (Models.Document document) {
@@ -31,7 +31,7 @@ namespace Manuscript.Services {
             );
         }
 
-        public override void run () {
+        public void worker_run () {
             document.save ();
         }
     }
@@ -39,7 +39,7 @@ namespace Manuscript.Services {
     public class DocumentManager : Object {
         protected uint autosave_timer_id = 0;
         protected FileMonitor? file_monitor;
-        protected GLib.ThreadPool<DocumentManagerWorker> ops_pool;
+        protected Services.ThreadPool ops_pool;
         protected weak Models.DocumentChunk active_chunk;
 
         public signal void load (Models.Document document);
@@ -100,22 +100,15 @@ namespace Manuscript.Services {
             settings = Services.AppSettings.get_default ();
             _opened_chunks = new Gee.ArrayList<Models.DocumentChunk> ();
 
-            if (GLib.Thread.supported ()) {
-                uint concurrency = get_num_processors () - 1;
-                if (concurrency <= 0) {
-                    // Single CPU env? In 2021?
-                    concurrency = 1;
-                }
-
-                info (@"Using thread pool with $concurrency max concurrent threads");
-
-                try {
-                    ops_pool = new GLib.ThreadPool<DocumentManagerWorker>.with_owned_data ((worker) => {
-                        worker.run ();
-                    }, (int) concurrency, false);
-                } catch (ThreadError err) {
-                    warning (err.message);
-                }
+            if (Services.ThreadPool.supported) {
+                ops_pool = Services.ThreadPool.get_default ();
+                //  try {
+                    //  ops_pool = new GLib.ThreadPool<DocumentManagerWorker>.with_owned_data ((worker) => {
+                    //      worker.run ();
+                    //  }, (int) concurrency, false);
+                //  } catch (ThreadError err) {
+                //      warning (err.message);
+                //  }
             } else {
                 warning ("*** Current environment does not support threads. Application could experience problems ***");
             }
@@ -211,10 +204,10 @@ namespace Manuscript.Services {
                 save_as ();
             } else {
                 //  document.save ();
-                try {
+                if (ops_pool != null) {
                     ops_pool.add (new SaveWorker (document));
-                } catch (ThreadError err) {
-                    warning (err.message);
+                } else {
+                    document.save ();
                 }
             }
         }
@@ -241,11 +234,7 @@ namespace Manuscript.Services {
                 }
 
                 settings.last_opened_document = document.file_path;
-                try {
-                    ops_pool.add (new SaveWorker (document));
-                } catch (ThreadError err) {
-                    warning (err.message);
-                }
+                save ();
             }
             dialog.destroy ();
         }
