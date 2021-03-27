@@ -92,7 +92,8 @@ executable(
 		dependency('cairo', version : '>= 1.15'),
 		dependency('pangocairo', version : '>= 1.40'),
 		dependency('json-glib-1.0', version : '>= 1.4.2'),
-		dependency('gtksourceview-3.0')
+		dependency('gtksourceview-3.0'),
+		dependency('libarchive')
 	],
 	install: true
 )

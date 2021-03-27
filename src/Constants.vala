@@ -22,7 +22,7 @@ namespace Manuscript {
         public const string APP_ID = "com.github.sixpounder.manuscript";
         public const string APP_NAME = "Manuscript";
         public const string MAIN_CSS_URI = "/com/github/sixpounder/manuscript/main.css";
-        public const string DEFAULT_FILE_EXT = ".manuscript";
+        public const string DEFAULT_FILE_EXT = ".mscript";
 
         public const string DEFAULT_FONT_FAMILY = "iA Writer Duospace";
         public const int64 DEFAULT_FONT_SIZE = 18;

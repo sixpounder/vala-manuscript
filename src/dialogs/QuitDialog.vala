@@ -33,7 +33,7 @@ namespace Manuscript {
 
             primary_text = _("Document has unsaved changes");
 
-            secondary_text = _("Leaving now will result in a loss of unsaved changes. It is strongly suggested to save your changes before proceeding.");
+            secondary_text = _("Leaving now will result in a loss of unsaved changes. It is strongly suggested to save your changes before proceeding."); // vala-lint=line-length
 
             add_button (_("Keep editing"), 0);
 

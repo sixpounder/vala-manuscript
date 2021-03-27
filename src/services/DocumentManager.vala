@@ -24,15 +24,17 @@ namespace Manuscript.Services {
 
     public class SaveWorker : Object, ThreadWorker<void> {
         public Models.Document document { get; construct; }
+        public string? path { get; construct; }
 
-        public SaveWorker (Models.Document document) {
+        public SaveWorker (Models.Document document, string? path = null) {
             Object (
-                document: document
+                document: document,
+                path: path
             );
         }
 
         public void worker_run () {
-            document.save ();
+            document.save (path);
         }
     }
 
@@ -102,13 +104,6 @@ namespace Manuscript.Services {
 
             if (Services.ThreadPool.supported) {
                 ops_pool = Services.ThreadPool.get_default ();
-                //  try {
-                    //  ops_pool = new GLib.ThreadPool<DocumentManagerWorker>.with_owned_data ((worker) => {
-                    //      worker.run ();
-                    //  }, (int) concurrency, false);
-                //  } catch (ThreadError err) {
-                //      warning (err.message);
-                //  }
             } else {
                 warning ("*** Current environment does not support threads. Application could experience problems ***");
             }
@@ -212,7 +207,7 @@ namespace Manuscript.Services {
             }
         }
 
-        public async Thread<long>? save_async (bool ignore_temporary = false) {
+        private async Thread<long>? save_async (bool ignore_temporary = false) {
             if (document.is_temporary () && !ignore_temporary) {
                 // Ask where to save this
                 save_as ();
@@ -234,7 +229,12 @@ namespace Manuscript.Services {
                 }
 
                 settings.last_opened_document = document.file_path;
-                save ();
+
+                if (ops_pool != null) {
+                    ops_pool.add (new SaveWorker (document, filename));
+                } else {
+                    document.save (filename);
+                }
             }
             dialog.destroy ();
         }
@@ -259,10 +259,6 @@ namespace Manuscript.Services {
             }
             unloaded ();
         }
-
-        public void search_next (string hint) {}
-
-        public void search_previous (string hint) {}
 
         protected void connect_events () {
             start_file_monitor ();

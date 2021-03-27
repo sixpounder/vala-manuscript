@@ -49,7 +49,7 @@
             return node;
         }
 
-        protected void build_buffer (string content = "") {
+        protected override void build_buffer () {
 
             buffer = new Models.TextBuffer (new DocumentTagTable () );
             buffer.highlight_matching_brackets = false;

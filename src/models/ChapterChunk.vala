@@ -18,10 +18,14 @@
  */
 
 namespace Manuscript.Models {
-    public class ChapterChunk : TextChunkBase {
+    public class ChapterChunk : TextChunkBase, Archivable {
         protected Services.AppSettings settings = Services.AppSettings.get_default ();
         protected uint words_counter_timer = 0;
         public string notes { get; set; }
+
+        public new void set_raw (uchar[] value) {
+            base.raw_content = value;
+        }
 
         protected string _title;
         public new string title {
@@ -60,9 +64,15 @@ namespace Manuscript.Models {
                 self.notes = null;
             }
 
-            self.build_buffer ();
-
             return self;
+        }
+
+        public override Gee.Collection<ArchivableItem> to_archivable_entries () {
+            return base.to_archivable_entries ();
+        }
+
+        public override Archivable from_archive_entries (Gee.Collection<ArchivableItem> entries) {
+            return this;
         }
 
         ~ ChapterChunk () {
@@ -87,8 +97,7 @@ namespace Manuscript.Models {
             return node;
         }
 
-        protected void build_buffer () {
-
+        protected override void build_buffer () {
             buffer = new Models.TextBuffer (new DocumentTagTable ());
             buffer.highlight_matching_brackets = false;
             buffer.max_undo_levels = -1;
@@ -102,6 +111,8 @@ namespace Manuscript.Models {
                     buffer.get_start_iter (out start);
                     buffer.deserialize (buffer, buffer.get_manuscript_deserialize_format (), start, raw_content);
                     buffer.end_not_undoable_action ();
+                } else {
+                    
                 }
             } catch (Error e) {
                 warning (e.message);

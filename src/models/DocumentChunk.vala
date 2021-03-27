@@ -18,13 +18,36 @@
  */
 
 namespace Manuscript.Models {
-    public interface Searchable : Object {
-        public virtual async Protocols.SearchResult[] search (string hint) {
-            return {};
+
+    //  public DocumentChunk from_archive_entry (Archive.Entry entry) {}
+    //  public interface Searchable : Object {
+    //      public virtual async Protocols.SearchResult[] search (string hint) {
+    //          return {};
+    //      }
+    //  }
+
+    public static DocumentChunk chunk_from_json_object (Json.Object obj, Document document) {
+        assert (obj != null);
+        assert (document != null);
+        assert (obj.has_member ("chunk_type"));
+
+        Models.ChunkType kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
+
+        switch (kind) {
+            case Models.ChunkType.CHAPTER:
+                return ChapterChunk.from_json_object (obj, document);
+            case Models.ChunkType.CHARACTER_SHEET:
+                return CharacterSheetChunk.from_json_object (obj, document);
+            case Models.ChunkType.NOTE:
+                return NoteChunk.from_json_object (obj, document);
+            case Models.ChunkType.COVER:
+                return CoverChunk.from_json_object (obj, document);
+            default:
+                assert_not_reached ();
         }
     }
 
-    public interface DocumentChunk : Object {
+    public interface DocumentChunk : Object, Archivable {
         public virtual signal void changed () {}
 
         public abstract bool broken { get; set; }
@@ -60,27 +83,6 @@ namespace Manuscript.Models {
             return new_chunk;
         }
 
-        public static DocumentChunk from_json_object (Json.Object obj, Document document) {
-            assert (obj != null);
-            assert (document != null);
-            assert (obj.has_member ("chunk_type"));
-
-            Models.ChunkType kind = (Models.ChunkType) obj.get_int_member ("chunk_type");
-
-            switch (kind) {
-                case Models.ChunkType.CHAPTER:
-                    return ChapterChunk.from_json_object (obj, document);
-                case Models.ChunkType.CHARACTER_SHEET:
-                    return CharacterSheetChunk.from_json_object (obj, document);
-                case Models.ChunkType.NOTE:
-                    return NoteChunk.from_json_object (obj, document);
-                case Models.ChunkType.COVER:
-                    return CoverChunk.from_json_object (obj, document);
-                default:
-                    assert_not_reached ();
-            }
-        }
-
         public static DocumentChunk deserialize_chunk_base (Json.Object obj, Document parent) {
             DocumentChunk chunk
                 = DocumentChunk.new_for_document (parent, (Models.ChunkType) obj.get_int_member ("chunk_type"));
@@ -114,10 +116,22 @@ namespace Manuscript.Models {
             return chunk;
         }
 
+        public static async DocumentChunk deserialize_chunk_base_from_data (uint8[] data, Document parent)
+        throws DocumentError {    
+            var parser = new Json.Parser ();
+            try {
+                parser.load_from_stream (new MemoryInputStream.from_data (data, null), null);
+                var root_object = parser.get_root ().get_object ();
+                return Models.chunk_from_json_object (root_object, parent);
+            } catch (Error error) {
+                throw new DocumentError.PARSE (@"Cannot parse manuscript file: $(error.message)");
+            }
+        }
+
         public abstract Json.Object to_json_object ();
     }
 
-    public abstract class DocumentChunkBase : Object, DocumentChunk {
+    public abstract class DocumentChunkBase : Object, Archivable, DocumentChunk {
         public virtual bool broken { get; protected set; }
         public virtual int64 index { get; set; }
         public virtual ChunkType kind { get; protected set; }
@@ -137,20 +151,40 @@ namespace Manuscript.Models {
 
             return node;
         }
+
+        public virtual Gee.Collection<ArchivableItem> to_archivable_entries () {
+            Json.Generator gen = new Json.Generator ();
+            var root = new Json.Node (Json.NodeType.OBJECT);
+            root.set_object (to_json_object ());
+            gen.set_root (root);
+            var c = new Gee.ArrayList<ArchivableItem> ();
+            var item = new ArchivableItem ();
+            item.name = @"$uuid.json";
+            item.data = gen.to_data (null).data;
+
+            c.add (item);
+
+            return c;
+        }
+
+        public virtual Archivable from_archive_entries (Gee.Collection<ArchivableItem> entries) {
+            return this;
+        }
     }
 
-    public abstract class TextChunkBase : DocumentChunkBase {
+    public abstract class TextChunkBase : DocumentChunkBase, Archivable {
         public virtual signal void undo_queue_drain () {}
         public virtual signal void undo () {}
         public virtual signal void redo () {}
         public virtual signal void analyze () {}
 
-        private uchar[] raw_content;
+        protected uchar[] raw_content;
         public virtual uint words_count { get; protected set; }
         public virtual double estimate_reading_time { get; protected set; }
+        public virtual string content_ref { get; protected set; }
 
         public virtual Models.TextBuffer buffer { get; protected set; }
-        
+
         public uchar[] get_raw () {
             return raw_content;
         }
@@ -161,16 +195,40 @@ namespace Manuscript.Models {
 
         public override Json.Object to_json_object () {
             var node = base.to_json_object ();
+            node.set_string_member ("content_ref", @"$uuid.text");
+            return node;
+        }
+
+        public new virtual Gee.Collection<ArchivableItem> to_archivable_entries () {
+            Json.Generator gen = new Json.Generator ();
+            var root = new Json.Node (Json.NodeType.OBJECT);
+            root.set_object (to_json_object ());
+            gen.set_root (root);
+
+            var c = new Gee.ArrayList<ArchivableItem> ();
+            var item = new ArchivableItem ();
+            item.name = @"$uuid.json";
+            item.group = kind.to_string ();
+            item.data = gen.to_data (null).data;
+
             var atom = buffer.get_manuscript_serialize_format ();
             Gtk.TextIter start, end;
             buffer.get_start_iter (out start);
             buffer.get_end_iter (out end);
             uint8[] serialized_data = buffer.serialize (buffer, atom, start, end);
             debug (@"$(serialized_data.length) bytes of text");
+            var text_item = new ArchivableItem.with_props (@"$uuid.text", "Resource", serialized_data);
 
-            node.set_string_member ("raw_content", Base64.encode (serialized_data));
+            c.add (item);
+            c.add (text_item);
 
-            return node;
+            return c;
+        }
+
+        protected abstract void build_buffer ();
+        public virtual void load_text_data (uint8[] data) {
+            set_raw (data);
+            build_buffer ();
         }
     }
 }

@@ -13,7 +13,7 @@
             <description>Cached supported mime types which the app can open and handle</description>
         </key>
         <key name="extensions" type="as">
-            <default>["*.manuscript", "*.json"]</default>
+            <default>["*.mscript", "*.manuscript"]</default>
             <summary>Supported files by extension</summary>
             <description>Cached supported extensions which the app can open and handle</description>
         </key>

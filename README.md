@@ -18,6 +18,7 @@ cairo, version : '>= 1.15'
 pangocairo, version : '>= 1.40'
 json-glib-1.0, version : '>= 1.4.2'
 gtksourceview-3.0
+libarchive
 
 # Optional
 m

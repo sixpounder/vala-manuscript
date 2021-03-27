@@ -18,7 +18,7 @@
  */
 
 namespace Manuscript.Models {
-    public class DocumentSettings : Object, Json.Serializable {
+    public class DocumentSettings : Object, Json.Serializable, Archivable {
         public string author_name { get; set; }
         public string font_family { get; set; }
         public int64 font_size { get; set; }
@@ -31,6 +31,58 @@ namespace Manuscript.Models {
         }
 
         public DocumentSettings.from_json_object (Json.Object? obj) {
+            if (obj != null) {
+                if (obj.has_member ("author_name")) {
+                    author_name = obj.get_string_member ("author_name");
+                } else {
+                    author_name = Environment.get_real_name ();
+                }
+
+                if (obj.has_member ("font_family")) {
+                    font_family = obj.get_string_member ("font_family");
+                } else {
+                    font_family = Constants.DEFAULT_FONT_FAMILY;
+                }
+
+                if (obj.has_member ("font_size")) {
+                    font_size = obj.get_int_member ("font_size");
+                } else {
+                    font_size = Constants.DEFAULT_FONT_SIZE;
+                }
+
+                if (obj.has_member ("paragraph_spacing")) {
+                    paragraph_spacing = obj.get_int_member ("paragraph_spacing");
+                } else {
+                    paragraph_spacing = 20;
+                }
+
+                if (obj.has_member ("paragraph_start_padding")) {
+                    paragraph_start_padding = obj.get_int_member ("paragraph_start_padding");
+                } else {
+                    paragraph_start_padding = 10;
+                }
+
+                if (obj.has_member ("inline_cover_images")) {
+                    inline_cover_images = obj.get_boolean_member ("inline_cover_images");
+                } else {
+                    inline_cover_images = false;
+                }
+            } else {
+                set_defaults ();
+            }
+        }
+
+        public DocumentSettings.from_data (uint8[] data) throws DocumentError {
+            var parser = new Json.Parser ();
+            //  SourceFunc callback = from_json.callback;
+            try {
+                parser.load_from_stream (new MemoryInputStream.from_data (data), null);
+            } catch (Error error) {
+                throw new DocumentError.PARSE (@"Cannot parse settings data: $(error.message)");
+            }
+
+            var obj = parser.get_root ().get_object ();
+
             if (obj != null) {
                 if (obj.has_member ("author_name")) {
                     author_name = obj.get_string_member ("author_name");
@@ -91,6 +143,26 @@ namespace Manuscript.Models {
             root.set_boolean_member ("inline_cover_images", inline_cover_images);
 
             return root;
+        }
+
+        public Gee.Collection<ArchivableItem> to_archivable_entries () {
+            Json.Generator gen = new Json.Generator ();
+            var root = new Json.Node (Json.NodeType.OBJECT);
+            root.set_object (to_json_object ());
+            gen.set_root (root);
+            var c = new Gee.ArrayList<ArchivableItem> ();
+            var item = new ArchivableItem ();
+            item.name = "settings.json";
+            item.group = "";
+            item.data = gen.to_data (null).data;
+
+            c.add (item);
+
+            return c;
+        }
+
+        public Archivable from_archive_entries (Gee.Collection<ArchivableItem> entries) {
+            return this;
         }
     }
 }

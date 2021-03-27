@@ -296,7 +296,7 @@ namespace Manuscript {
             dialog.do_overwrite_confirmation = false;
 
             Gtk.FileFilter file_filter = new Gtk.FileFilter ();
-            file_filter.set_filter_name (_ ("Manuscripts") + @" ($(Constants.DEFAULT_FILE_EXT))");
+            file_filter.set_filter_name (_ ("Manuscripts"));
 
             foreach (string ext in settings.supported_extensions) {
                 file_filter.add_pattern (ext);
@@ -323,10 +323,14 @@ namespace Manuscript {
         // Like open_file_at_path, but with a temporary file
         public void open_with_temp_file () {
             try {
-                File tmp_file = FileUtils.new_temp_file (
-                    new Manuscript.Models.Document.empty ().to_json ()
+                var new_tmp_document = new Manuscript.Models.Document.empty ();
+                var tmp_file_path = Path.build_filename (
+                    Environment.get_user_cache_dir (),
+                    Constants.APP_ID,
+                    @"$(GLib.Uuid.string_random ()).$(Constants.DEFAULT_FILE_EXT)"
                 );
-                open_file_at_path.begin (tmp_file.get_path (), true);
+                new_tmp_document.save_archive (tmp_file_path);
+                open_file_at_path.begin (tmp_file_path, true);
             } catch (GLib.Error err) {
                 message (_ ("Unable to create temporary document") );
                 error (err.message);
@@ -338,9 +342,6 @@ namespace Manuscript {
         requires (path != null) {
             try {
                 hide_infobar ();
-                //  document_manager.set_current_document (
-                //      new Models.Document.from_file (path)
-                //  );
                 yield document_manager.load_from_path (path);
             } catch (Models.DocumentError error) {
                 warning (error.message);
@@ -351,10 +352,16 @@ namespace Manuscript {
                         set_layout_body (welcome_view);
                     }
                 } else if (error is Models.DocumentError.READ) {
-                    msg = "<b>%s</b><br><span>%s</span>"
-                          .printf (
-                        _ ("Cannot read %s").printf (path),
-                        _ ("The file you selected does not appear to be a valid Manuscript file")
+                    msg = "<b>%s</b> - <span>%s</span>"
+                        .printf (
+                            _ ("Cannot read %s").printf (path),
+                            _ ("The file you selected does not appear to be readable")
+                        );
+                } else if (error is Models.DocumentError.PARSE) {
+                    msg = "<b>%s</b> - <span>%s</span>"
+                        .printf (
+                            _ ("Cannot parse %s").printf (path),
+                            _ ("The file you selected does not appear to be a valid Manuscript file")
                         );
                 } else {
                     msg = _ ("Some strange error happened while trying to open file at %s").printf (path);
