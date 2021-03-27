@@ -111,8 +111,6 @@ namespace Manuscript.Models {
                     buffer.get_start_iter (out start);
                     buffer.deserialize (buffer, buffer.get_manuscript_deserialize_format (), start, raw_content);
                     buffer.end_not_undoable_action ();
-                } else {
-                    
                 }
             } catch (Error e) {
                 warning (e.message);

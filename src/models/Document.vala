@@ -134,7 +134,7 @@ namespace Manuscript.Models {
 
             var c = new Gee.ArrayList<ArchivableItem> ();
             var item = new ArchivableItem ();
-            item.name = @"manifest.json";
+            item.name = "manifest.json";
             item.group = "";
             item.data = gen.to_data (null).data;
 
@@ -416,13 +416,18 @@ namespace Manuscript.Models {
                 Archive.Read archive = new Archive.Read ();
                 archive.support_format_all ();
                 archive.support_filter_gzip ();
-    
+
                 if (archive.open_filename (file_for_path.get_path (), 10240) != Archive.Result.OK) {
-                    critical ("Error opening %s: %s (%d)", file_for_path.get_path (), archive.error_string (), archive.errno ());
+                    critical (
+                        "Error opening %s: %s (%d)",
+                        file_for_path.get_path (),
+                        archive.error_string (),
+                        archive.errno ()
+                    );
                     load_state = DocumentLoadState.ERROR;
                     throw new DocumentError.READ (archive.error_string ());
                 }
-    
+
                 file_ref = file_for_path;
                 yield read_archive (archive);
                 load ();
@@ -450,7 +455,7 @@ namespace Manuscript.Models {
 
                 while ((last_read_result = archive.read_data_block (out buffer, out offset)) == Archive.Result.OK) {
                     string entry_path = entry.pathname ();
-                    string entry_name = GLib.Path.get_basename(entry_path);
+                    string entry_name = GLib.Path.get_basename (entry_path);
                     string group_name = GLib.Path.get_dirname (entry_path);
                     if (entry.filetype () == Archive.FileType.IFREG) {
                         switch (entry_name) {
@@ -491,7 +496,7 @@ namespace Manuscript.Models {
                 while (chunks_iter.has_next ()) {
                     chunks_iter.next ();
                     ArchivableItem item = chunks_iter.@get ();
-                    
+
                     DocumentChunk chunk = yield DocumentChunk.deserialize_chunk_base_from_data (item.data, this);
                     chunks.add (chunk);
                 }

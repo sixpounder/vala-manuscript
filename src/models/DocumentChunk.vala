@@ -117,7 +117,7 @@ namespace Manuscript.Models {
         }
 
         public static async DocumentChunk deserialize_chunk_base_from_data (uint8[] data, Document parent)
-        throws DocumentError {    
+        throws DocumentError {
             var parser = new Json.Parser ();
             try {
                 parser.load_from_stream (new MemoryInputStream.from_data (data, null), null);
