@@ -39,7 +39,7 @@ namespace Manuscript.Widgets {
         }
 
         ~ SearchPanel () {
-            if (text_buffer != null) {
+            if (text_buffer != null && text_buffer.ref_count > 0) {
                 text_buffer.unref ();
             }
         }
@@ -114,8 +114,8 @@ namespace Manuscript.Widgets {
             parent_window.document_manager.open_chunk.connect ((chunk) => {
                 assert (chunk != null);
                 unselect ();
-                if (chunk is Models.TextChunkBase) {
-                    text_buffer = ((Models.TextChunkBase) chunk).buffer;
+                if (chunk is Models.TextChunk) {
+                    text_buffer = ((Models.TextChunk) chunk).buffer;
                     search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
                 } else {
                     text_buffer = null;
@@ -131,8 +131,8 @@ namespace Manuscript.Widgets {
 
             if (parent_window.document_manager.has_document
                     && parent_window.document_manager.document.active_chunk != null
-                    && parent_window.document_manager.document.active_chunk is Models.TextChunkBase) {
-                text_buffer = ((Models.TextChunkBase) parent_window.document_manager.document.active_chunk).buffer;
+                    && parent_window.document_manager.document.active_chunk is Models.TextChunk) {
+                text_buffer = ((Models.TextChunk) parent_window.document_manager.document.active_chunk).buffer;
                 search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
             }
         }

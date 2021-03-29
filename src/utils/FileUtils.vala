@@ -24,7 +24,7 @@ namespace Manuscript {
                 Path.build_filename (
                     Environment.get_user_cache_dir (),
                     Constants.APP_ID,
-                    @"$(GLib.Uuid.string_random ()).$(Constants.DEFAULT_FILE_EXT)"
+                    @"$(GLib.Uuid.string_random ())$(Constants.DEFAULT_FILE_EXT)"
                 )
             );
 

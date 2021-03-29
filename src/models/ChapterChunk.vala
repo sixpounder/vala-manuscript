@@ -18,9 +18,7 @@
  */
 
 namespace Manuscript.Models {
-    public class ChapterChunk : TextChunkBase, Archivable {
-        protected Services.AppSettings settings = Services.AppSettings.get_default ();
-        protected uint words_counter_timer = 0;
+    public class ChapterChunk : TextChunk, Archivable {
         public string notes { get; set; }
 
         public new void set_raw (uchar[] value) {
@@ -46,11 +44,11 @@ namespace Manuscript.Models {
             kind = ChunkType.CHAPTER;
             set_raw ({});
 
-            build_buffer ();
+            create_buffer ();
         }
 
         public static ChapterChunk from_json_object (Json.Object obj, Document document) {
-            ChapterChunk self = (ChapterChunk) DocumentChunk.deserialize_chunk_base (obj, document);
+            ChapterChunk self = (ChapterChunk) DocumentChunk.new_from_json_object (obj, document);
 
             if (obj.has_member ("raw_content")) {
                 self.set_raw (Base64.decode (obj.get_string_member ("raw_content")));
@@ -71,133 +69,26 @@ namespace Manuscript.Models {
             return base.to_archivable_entries ();
         }
 
-        public override Archivable from_archive_entries (Gee.Collection<ArchivableItem> entries) {
-            return this;
-        }
-
-        ~ ChapterChunk () {
-            if (buffer != null) {
-                buffer.changed.disconnect (on_content_changed);
-                buffer.undo.disconnect (on_buffer_undo);
-                buffer.redo.disconnect (on_buffer_redo);
-                buffer.insert_text.disconnect (text_inserted);
-                buffer.delete_range.disconnect (range_deleted);
-                buffer.undo_manager.can_undo_changed.disconnect (on_can_undo_changed);
-                buffer.undo_manager.can_redo_changed.disconnect (on_can_redo_changed);
-                if (buffer.ref_count > 0) {
-                    buffer.unref ();
-                }
-            }
-        }
+        //  ~ ChapterChunk () {
+        //      if (buffer != null) {
+        //          buffer.changed.disconnect (on_content_changed);
+        //          buffer.undo.disconnect (on_buffer_undo);
+        //          buffer.redo.disconnect (on_buffer_redo);
+        //          buffer.insert_text.disconnect (text_inserted);
+        //          buffer.delete_range.disconnect (range_deleted);
+        //          buffer.undo_manager.can_undo_changed.disconnect (on_can_undo_changed);
+        //          buffer.undo_manager.can_redo_changed.disconnect (on_can_redo_changed);
+        //          if (buffer.ref_count > 0) {
+        //              buffer.unref ();
+        //          }
+        //      }
+        //  }
 
         public override Json.Object to_json_object () {
             var node = base.to_json_object ();
             node.set_string_member ("notes", notes);
 
             return node;
-        }
-
-        protected override void build_buffer () {
-            buffer = new Models.TextBuffer (new DocumentTagTable ());
-            buffer.highlight_matching_brackets = false;
-            buffer.max_undo_levels = -1;
-            buffer.highlight_syntax = false;
-
-            try {
-                var raw_content = get_raw ();
-                if (raw_content.length != 0) {
-                    buffer.begin_not_undoable_action ();
-                    Gtk.TextIter start;
-                    buffer.get_start_iter (out start);
-                    buffer.deserialize (buffer, buffer.get_manuscript_deserialize_format (), start, raw_content);
-                    buffer.end_not_undoable_action ();
-                }
-            } catch (Error e) {
-                warning (e.message);
-                broken = true;
-            }
-
-            words_count = Utils.Strings.count_words (buffer.text);
-            estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
-
-            buffer.changed.connect (on_content_changed);
-            buffer.undo.connect (on_buffer_undo);
-            buffer.redo.connect (on_buffer_redo);
-
-            buffer.insert_text.connect (text_inserted);
-            buffer.delete_range.connect (range_deleted);
-
-            buffer.undo_manager.can_undo_changed.connect (on_can_undo_changed);
-            buffer.undo_manager.can_redo_changed.connect (on_can_redo_changed);
-
-            settings.change.connect (() => {
-                set_buffer_scheme ();
-            });
-
-            set_buffer_scheme ();
-        }
-
-        private void set_buffer_scheme () {
-            var scheme = settings.prefer_dark_style ? "manuscript-dark" : "manuscript-light";
-            var style_manager = Gtk.SourceStyleSchemeManager.get_default ();
-            var style = style_manager.get_scheme (scheme);
-            buffer.style_scheme = style;
-        }
-
-        private void text_inserted () {
-        }
-
-        private void range_deleted () {
-        }
-
-        private void on_can_undo_changed () {
-            if (buffer.can_undo) {
-                has_changes = true;
-                changed ();
-            } else {
-                has_changes = false;
-            }
-        }
-
-        private void on_can_redo_changed () {
-            changed ();
-        }
-
-        private void on_buffer_redo () {
-            redo ();
-        }
-
-        private void on_buffer_undo () {
-            undo ();
-            if (!buffer.undo_manager.can_undo () ) {
-                undo_queue_drain ();
-            }
-        }
-
-        /**
-         * Emit content_changed event to listeners
-         */
-        private void on_content_changed () {
-            if (words_counter_timer != 0) {
-                GLib.Source.remove (words_counter_timer);
-            }
-
-            // Count words every 200 milliseconds to avoid thrashing the CPU
-            this.words_counter_timer = Timeout.add (200, () => {
-                words_counter_timer = 0;
-                //  words_count = Utils.Strings.count_words (buffer.text);
-                //  estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
-                var analyze_task = new AnalyzeTask (buffer.text);
-                analyze_task.done.connect ((analyze_result) => {
-                    words_count = analyze_result.words_count;
-                    estimate_reading_time = analyze_result.estimate_reading_time;
-                    analyze ();
-                });
-                Services.ThreadPool.get_default ().add (analyze_task);
-                return false;
-            });
-
-            changed ();
         }
     }
 }

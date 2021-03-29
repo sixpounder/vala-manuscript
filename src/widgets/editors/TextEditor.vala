@@ -26,11 +26,11 @@ namespace Manuscript.Widgets {
     public class TextEditor : Gtk.SourceView, Protocols.ChunkEditor {
         public bool has_changes { get; private set; }
         public Gtk.SourceSearchContext search_context = null;
-        protected weak Models.TextChunkBase _chunk;
+        protected weak Models.TextChunk _chunk;
         protected Gtk.CssProvider font_style_provider;
         protected Services.AppSettings settings = Services.AppSettings.get_default ();
 
-        public TextEditor (Models.TextChunkBase chunk) {
+        public TextEditor (Models.TextChunk chunk) {
             Object (
                 chunk: chunk,
                 has_focus: true,
@@ -55,7 +55,7 @@ namespace Manuscript.Widgets {
             populate_popup.disconnect (populate_context_menu);
         }
 
-        public weak Models.TextChunkBase chunk {
+        public weak Models.TextChunk chunk {
             get {
                 return _chunk;
             }
@@ -152,6 +152,9 @@ namespace Manuscript.Widgets {
         }
 
         protected void init_editor () throws GLib.Error {
+            chunk.create_buffer (chunk.get_raw ());
+            load_buffer (chunk.buffer);
+
             font_style_provider = new Gtk.CssProvider ();
             get_style_context ().add_provider (font_style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             get_style_context ().add_class ("manuscript-text-editor");
@@ -168,10 +171,10 @@ namespace Manuscript.Widgets {
 
         protected void load_buffer (Gtk.SourceBuffer new_buffer) {
             buffer = new_buffer;
-            update_settings (null);
+            update_ui ();
         }
 
-        protected void update_settings (string ? key = null) {
+        protected void update_ui () {
             if (buffer != null) {
                 if (settings.focus_mode) {
                     focus_mode_update_highlight ();
@@ -280,7 +283,7 @@ namespace Manuscript.Widgets {
         }
 
         protected void on_setting_change (string key) {
-            update_settings (key);
+            update_ui ();
         }
 
         protected void on_document_change () {

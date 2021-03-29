@@ -31,9 +31,9 @@ namespace Manuscript.Widgets {
             }
         }
 
-        public Models.TextChunkBase chunk { get; set; }
+        public Models.TextChunk chunk { get; set; }
 
-        public StatusBar (Manuscript.Window parent_window, Models.TextChunkBase chunk) {
+        public StatusBar (Manuscript.Window parent_window, Models.TextChunk chunk) {
             Object (
                 parent_window: parent_window,
                 chunk: chunk

@@ -160,9 +160,5 @@ namespace Manuscript.Models {
 
             return c;
         }
-
-        public Archivable from_archive_entries (Gee.Collection<ArchivableItem> entries) {
-            return this;
-        }
     }
 }

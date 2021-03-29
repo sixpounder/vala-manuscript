@@ -18,7 +18,7 @@
  */
 
 namespace Manuscript.Models {
-    public class CharacterSheetChunk : DocumentChunkBase {
+    public class CharacterSheetChunk : DocumentChunk {
         public string name { get; set; }
         public string background { get; set; }
         public string traits { get; set; }
@@ -35,7 +35,7 @@ namespace Manuscript.Models {
         }
 
         public override Json.Object to_json_object () {
-            var node = base.to_json_object ();
+            var node = to_json_object ();
             node.set_string_member ("name", name);
             node.set_string_member ("background", background);
             node.set_string_member ("traits", traits);
@@ -44,7 +44,7 @@ namespace Manuscript.Models {
         }
 
         public static CharacterSheetChunk from_json_object (Json.Object obj, Document document) {
-            CharacterSheetChunk self = (CharacterSheetChunk) DocumentChunk.deserialize_chunk_base (obj, document);
+            CharacterSheetChunk self = (CharacterSheetChunk) DocumentChunk.new_from_json_object (obj, document);
 
             if (obj.has_member ("name")) {
                 self.name = obj.get_string_member ("name");

@@ -18,7 +18,7 @@
  */
 
  namespace Manuscript.Models {
-    public class CoverChunk : DocumentChunkBase {
+    public class CoverChunk : DocumentChunk, Archivable {
 
         public GLib.Error load_error { get; private set; }
 
@@ -97,21 +97,21 @@
         public override Json.Object to_json_object () {
             var node = base.to_json_object ();
 
-            if (_pixel_buffer != null) {
-                if (parent_document.settings.inline_cover_images || image_source_file == null) {
-                    uint8[] image_data;
-                    try {
-                        _pixel_buffer.save_to_buffer (out image_data, "png");
-                        var image_data_encoded = GLib.Base64.encode (image_data);
-                        node.set_string_member ("image_data_base64", image_data_encoded);
-                    } catch (Error e) {
-                        warning (@"Could not load cover image buffer: $(e.message)");
-                        node.set_string_member ("image_data_base64", "");
-                    }
-                } else {
-                    node.set_string_member ("image_source_file", image_source_file.get_path ());
-                }
-            }
+            //  if (_pixel_buffer != null) {
+            //      if (parent_document.settings.inline_cover_images || image_source_file == null) {
+            //          uint8[] image_data;
+            //          try {
+            //              _pixel_buffer.save_to_buffer (out image_data, "png");
+            //              var image_data_encoded = GLib.Base64.encode (image_data);
+            //              node.set_string_member ("image_data_base64", image_data_encoded);
+            //          } catch (Error e) {
+            //              warning (@"Could not load cover image buffer: $(e.message)");
+            //              node.set_string_member ("image_data_base64", "");
+            //          }
+            //      } else {
+            //          node.set_string_member ("image_source_file", image_source_file.get_path ());
+            //      }
+            //  }
 
             node.set_boolean_member ("paint_title", paint_title);
             node.set_boolean_member ("paint_author_name", paint_author_name);
@@ -120,7 +120,7 @@
         }
 
         public static CoverChunk from_json_object (Json.Object obj, Document document) {
-            CoverChunk self = (CoverChunk) DocumentChunk.deserialize_chunk_base (obj, document);
+            CoverChunk self = (CoverChunk) DocumentChunk.new_from_json_object (obj, document);
 
             if (obj.has_member ("paint_title")) {
                 self.paint_title = obj.get_boolean_member ("paint_title");
@@ -150,6 +150,36 @@
             }
 
             return self;
+        }
+
+        public override Gee.Collection<ArchivableItem> to_archivable_entries () {
+            Json.Generator gen = new Json.Generator ();
+            var root = new Json.Node (Json.NodeType.OBJECT);
+            root.set_object (to_json_object ());
+            gen.set_root (root);
+
+            var c = new Gee.ArrayList<ArchivableItem> ();
+            var item = new ArchivableItem ();
+            item.name = @"$uuid.json";
+            item.group = kind.to_string ();
+            item.data = gen.to_data (null).data;
+            c.add (item);
+
+            if (_pixel_buffer != null) {
+                try {
+                    var image_file = new ArchivableItem ();
+                    image_file.name = @"$uuid.png";
+                    uint8[] image_data;
+                    _pixel_buffer.save_to_buffer (out image_data, "png");
+                    image_file.data = image_data;
+                    image_file.group = "Resource";
+                    c.add (image_file);
+                } catch (Error e) {
+                    warning (e.message);
+                }
+            }
+
+            return c;
         }
     }
 }

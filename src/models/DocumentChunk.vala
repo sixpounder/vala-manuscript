@@ -47,17 +47,17 @@ namespace Manuscript.Models {
         }
     }
 
-    public interface DocumentChunk : Object, Archivable {
+    public abstract class DocumentChunk : Object, Archivable {
         public virtual signal void changed () {}
 
-        public abstract bool broken { get; set; }
-        public abstract weak Document parent_document { get; protected set; }
-        public abstract int64 index { get; set; }
-        public abstract ChunkType kind { get; protected set; }
-        public abstract string title { get; set; }
-        public abstract bool has_changes { get; protected set; }
-        public abstract string uuid { get; set; }
-        public abstract bool locked { get; set; }
+        public virtual weak Document parent_document { get; protected set; }
+        public virtual bool broken { get; set; }
+        public virtual int64 index { get; set; }
+        public virtual ChunkType kind { get; protected set; }
+        public virtual string title { get; set; }
+        public virtual string uuid { get; set; }
+        public virtual bool locked { get; set; }
+        public virtual bool has_changes { get; protected set; }
 
         public static DocumentChunk new_for_document (Document document, ChunkType kind) {
             DocumentChunk new_chunk;
@@ -83,7 +83,7 @@ namespace Manuscript.Models {
             return new_chunk;
         }
 
-        public static DocumentChunk deserialize_chunk_base (Json.Object obj, Document parent) {
+        public static DocumentChunk new_from_json_object (Json.Object obj, Document parent) {
             DocumentChunk chunk
                 = DocumentChunk.new_for_document (parent, (Models.ChunkType) obj.get_int_member ("chunk_type"));
             if (obj.has_member ("uuid")) {
@@ -116,7 +116,7 @@ namespace Manuscript.Models {
             return chunk;
         }
 
-        public static async DocumentChunk deserialize_chunk_base_from_data (uint8[] data, Document parent)
+        public static async DocumentChunk new_from_data (uint8[] data, Document parent)
         throws DocumentError {
             var parser = new Json.Parser ();
             try {
@@ -127,19 +127,6 @@ namespace Manuscript.Models {
                 throw new DocumentError.PARSE (@"Cannot parse manuscript file: $(error.message)");
             }
         }
-
-        public abstract Json.Object to_json_object ();
-    }
-
-    public abstract class DocumentChunkBase : Object, Archivable, DocumentChunk {
-        public virtual bool broken { get; protected set; }
-        public virtual int64 index { get; set; }
-        public virtual ChunkType kind { get; protected set; }
-        public virtual string title { get; set; }
-        public virtual bool has_changes { get; protected set; }
-        public virtual string uuid { get; set; }
-        public virtual bool locked { get; set; }
-        public virtual weak Document parent_document { get; protected set; }
 
         public virtual Json.Object to_json_object () {
             var node = new Json.Object ();
@@ -166,13 +153,12 @@ namespace Manuscript.Models {
 
             return c;
         }
-
-        public virtual Archivable from_archive_entries (Gee.Collection<ArchivableItem> entries) {
-            return this;
-        }
     }
 
-    public abstract class TextChunkBase : DocumentChunkBase, Archivable {
+    public abstract class TextChunk : DocumentChunk, Archivable {
+        protected Services.AppSettings settings = Services.AppSettings.get_default ();
+        protected uint words_counter_timer = 0;
+
         public virtual signal void undo_queue_drain () {}
         public virtual signal void undo () {}
         public virtual signal void redo () {}
@@ -199,7 +185,7 @@ namespace Manuscript.Models {
             return node;
         }
 
-        public new virtual Gee.Collection<ArchivableItem> to_archivable_entries () {
+        public override Gee.Collection<ArchivableItem> to_archivable_entries () {
             Json.Generator gen = new Json.Generator ();
             var root = new Json.Node (Json.NodeType.OBJECT);
             root.set_object (to_json_object ());
@@ -225,10 +211,131 @@ namespace Manuscript.Models {
             return c;
         }
 
-        protected abstract void build_buffer ();
-        public virtual void load_text_data (uint8[] data) {
+        public virtual void load_buffer_data (uint8[] data) {
             set_raw (data);
-            build_buffer ();
+        }
+
+        //  public virtual void load_buffer_immediate (uint8[] data) {
+        //      set_raw (data);
+        //      create_buffer (get_raw ());
+        //  }
+        
+        public virtual void create_buffer (uint8[]? data = null) {
+            buffer = new Models.TextBuffer (new DocumentTagTable ());
+            buffer.highlight_matching_brackets = false;
+            buffer.max_undo_levels = -1;
+            buffer.highlight_syntax = false;
+
+            try {
+                var raw_content = data;
+                if (raw_content.length != 0) {
+                    buffer.begin_not_undoable_action ();
+                    Gtk.TextIter start;
+                    buffer.get_start_iter (out start);
+                    buffer.deserialize (buffer, buffer.get_manuscript_deserialize_format (), start, raw_content);
+                    buffer.end_not_undoable_action ();
+                }
+            } catch (Error e) {
+                warning (e.message);
+                broken = true;
+            }
+
+            words_count = Utils.Strings.count_words (buffer.text);
+            estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
+
+            buffer.changed.connect (on_content_changed);
+            buffer.undo.connect (on_buffer_undo);
+            buffer.redo.connect (on_buffer_redo);
+
+            buffer.insert_text.connect (text_inserted);
+            buffer.delete_range.connect (range_deleted);
+
+            buffer.undo_manager.can_undo_changed.connect (on_can_undo_changed);
+            buffer.undo_manager.can_redo_changed.connect (on_can_redo_changed);
+
+            settings.change.connect (() => {
+                set_buffer_scheme ();
+            });
+
+            set_buffer_scheme ();
+        }
+
+        protected void set_buffer_scheme () {
+            var scheme = settings.prefer_dark_style ? "manuscript-dark" : "manuscript-light";
+            var style_manager = Gtk.SourceStyleSchemeManager.get_default ();
+            var style = style_manager.get_scheme (scheme);
+            buffer.style_scheme = style;
+        }
+
+        protected void text_inserted () {
+        }
+
+        protected void range_deleted () {
+        }
+
+        protected void on_can_undo_changed () {
+            if (buffer.can_undo) {
+                has_changes = true;
+                changed ();
+            } else {
+                has_changes = false;
+            }
+        }
+
+        protected void on_can_redo_changed () {
+            changed ();
+        }
+
+        protected void on_buffer_redo () {
+            redo ();
+        }
+
+        protected void on_buffer_undo () {
+            undo ();
+            if (!buffer.undo_manager.can_undo () ) {
+                undo_queue_drain ();
+            }
+        }
+
+        /**
+         * Emit content_changed event to listeners
+         */
+        protected void on_content_changed () {
+            if (words_counter_timer != 0) {
+                GLib.Source.remove (words_counter_timer);
+            }
+
+            // Count words every 200 milliseconds to avoid thrashing the CPU
+            words_counter_timer = Timeout.add (200, () => {
+                words_counter_timer = 0;
+                //  words_count = Utils.Strings.count_words (buffer.text);
+                //  estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
+                var analyze_task = new AnalyzeTask (buffer.text);
+                analyze_task.done.connect ((analyze_result) => {
+                    words_count = analyze_result.words_count;
+                    estimate_reading_time = analyze_result.estimate_reading_time;
+                    analyze ();
+                });
+                Services.ThreadPool.get_default ().add (analyze_task);
+                return false;
+            });
+
+            changed ();
+        }
+
+        ~ TextChunk () {
+            if (buffer != null) {
+                buffer.changed.disconnect (on_content_changed);
+                buffer.undo.disconnect (on_buffer_undo);
+                buffer.redo.disconnect (on_buffer_redo);
+                buffer.insert_text.disconnect (text_inserted);
+                buffer.delete_range.disconnect (range_deleted);
+                buffer.undo_manager.can_undo_changed.disconnect (on_can_undo_changed);
+                buffer.undo_manager.can_redo_changed.disconnect (on_can_redo_changed);
+                if (buffer.ref_count > 0) {
+                    buffer.unref ();
+                }
+            }
         }
     }
 }

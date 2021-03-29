@@ -43,7 +43,7 @@ namespace Manuscript.Models {
 
     public interface Archivable : Object {
         public abstract Gee.Collection<ArchivableItem> to_archivable_entries ();
-        public abstract Archivable from_archive_entries (Gee.Collection<ArchivableItem> entries);
+        //  public abstract Archivable from_archive_entries (Gee.Collection<ArchivableItem> entries);
     }
 
     public interface DocumentBase : Object {
@@ -141,10 +141,6 @@ namespace Manuscript.Models {
             c.add (item);
 
             return c;
-        }
-
-        public Archivable from_archive_entries (Gee.Collection<ArchivableItem> entries) {
-            return this;
         }
 
         //  public virtual signal void add_chunk (owned DocumentChunk chunk) {}
@@ -449,11 +445,20 @@ namespace Manuscript.Models {
             Archive.Result last_read_result;
 
             while ((last_read_result = archive.next_header (out entry)) == Archive.Result.OK) {
-                debug ("Reading archive entry %s", entry.pathname ());
-                uint8[] buffer = null;
-                Posix.off_t offset;
+                if (entry.pathname () != "" && entry.size () != 0) {
+                    debug ("Reading archive entry %s", entry.pathname ());
+                    uint8[] buffer = null;
+                    Posix.off_t offset;
+    
+                    while (
+                        (last_read_result = archive.read_data_block (out buffer, out offset)) == Archive.Result.OK
+                    ) {
+                        debug ("%i bytes read (rc -> %i)", buffer.length, last_read_result);
+                        if (buffer.length >= entry.size ()) {
+                            break;
+                        }
+                    }
 
-                while ((last_read_result = archive.read_data_block (out buffer, out offset)) == Archive.Result.OK) {
                     string entry_path = entry.pathname ();
                     string entry_name = GLib.Path.get_basename (entry_path);
                     string group_name = GLib.Path.get_dirname (entry_path);
@@ -473,6 +478,8 @@ namespace Manuscript.Models {
                             break;
                         }
                     }
+                } else {
+                    warning ("Archive entry %s ignored due to null size", entry.gname ());
                 }
             }
 
@@ -497,7 +504,7 @@ namespace Manuscript.Models {
                     chunks_iter.next ();
                     ArchivableItem item = chunks_iter.@get ();
 
-                    DocumentChunk chunk = yield DocumentChunk.deserialize_chunk_base_from_data (item.data, this);
+                    DocumentChunk chunk = yield DocumentChunk.new_from_data (item.data, this);
                     chunks.add (chunk);
                 }
 
@@ -509,7 +516,20 @@ namespace Manuscript.Models {
                         var target_chunk_uuid = resource.name.substring (0, resource.name.index_of (".text"));
                         chunks.@foreach ((chunk) => {
                             if (chunk != null && chunk.uuid == target_chunk_uuid) {
-                                ((TextChunkBase) chunk).load_text_data (resource.data);
+                                ((TextChunk) chunk).load_buffer_data (resource.data);
+                                return false;
+                            } else {
+                                return true;
+                            }
+                        });
+                    } else if (resource.name.has_suffix (".png")) {
+                        // SCENARIO: this is a cover image for some cover chunk
+                        var target_chunk_uuid = resource.name.substring (0, resource.name.index_of (".png"));
+                        chunks.@foreach ((chunk) => {
+                            if (chunk != null && chunk.uuid == target_chunk_uuid) {
+                                //  debug (chunk.uuid);
+                                CoverChunk cover_chunk = chunk as CoverChunk;
+                                cover_chunk.load_cover_from_stream.begin (new MemoryInputStream.from_data (resource.data));
                                 return false;
                             } else {
                                 return true;
