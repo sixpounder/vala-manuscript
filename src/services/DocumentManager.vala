@@ -25,6 +25,7 @@ namespace Manuscript.Services {
     public class SaveWorker : Object, ThreadWorker<void> {
         public Models.Document document { get; construct; }
         public string? path { get; construct; }
+        public Models.DocumentError? save_error { get; protected set; }
 
         public SaveWorker (Models.Document document, string? path = null) {
             Object (
@@ -34,7 +35,11 @@ namespace Manuscript.Services {
         }
 
         public void worker_run () {
-            document.save (path);
+            try {
+                document.save (path);
+            } catch (Models.DocumentError e) {
+                save_error = e;
+            }
         }
     }
 
@@ -200,9 +205,19 @@ namespace Manuscript.Services {
             } else {
                 //  document.save ();
                 if (ops_pool != null) {
-                    ops_pool.add (new SaveWorker (document));
+                    var wrk = new SaveWorker (document);
+                    wrk.done.connect (() => {
+                        if (wrk.save_error != null) {
+                            critical (wrk.save_error.message);
+                        }
+                    });
+                    ops_pool.add (wrk);
                 } else {
-                    document.save ();
+                    try {
+                        document.save ();
+                    } catch (Models.DocumentError e) {
+                        save_error (e);
+                    }
                 }
             }
         }
@@ -234,7 +249,11 @@ namespace Manuscript.Services {
                 if (ops_pool != null) {
                     ops_pool.add (new SaveWorker (document, filename));
                 } else {
-                    document.save (filename);
+                    try {
+                        document.save (filename);
+                    } catch (Models.DocumentError e) {
+                        save_error (e);
+                    }
                 }
             }
             dialog.destroy ();
@@ -308,6 +327,10 @@ namespace Manuscript.Services {
             if (event_type == FileMonitorEvent.DELETED) {
                 backend_file_unlinked ();
             }
+        }
+
+        public virtual signal void save_error (Models.DocumentError error) {
+            critical ("Document save error: %s", error.message);
         }
     }
 }

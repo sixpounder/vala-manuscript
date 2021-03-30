@@ -329,7 +329,7 @@ namespace Manuscript {
                     Constants.APP_ID,
                     @"$(GLib.Uuid.string_random ())$(Constants.DEFAULT_FILE_EXT)"
                 );
-                new_tmp_document.save_archive (tmp_file_path);
+                new_tmp_document.save (tmp_file_path);
                 open_file_at_path.begin (tmp_file_path, true);
             } catch (GLib.Error err) {
                 message (_ ("Unable to create temporary document") );

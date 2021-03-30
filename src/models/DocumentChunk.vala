@@ -57,7 +57,7 @@ namespace Manuscript.Models {
         public virtual string title { get; set; }
         public virtual string uuid { get; set; }
         public virtual bool locked { get; set; }
-        public virtual bool has_changes { get; protected set; }
+        public virtual bool has_changes { get; internal set; }
 
         public static DocumentChunk new_for_document (Document document, ChunkType kind) {
             DocumentChunk new_chunk;

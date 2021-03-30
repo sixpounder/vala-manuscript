@@ -18,10 +18,18 @@
  */
 
 namespace Manuscript.Models {
+    [ CCode (cprefix="DOCUMENT_STATE_FLAG_") ]
+	public enum DocumentStateFlags {
+        OK,
+		BROKEN,
+        ERR_LAST_SAVE
+	}
+
     public errordomain DocumentError {
         NOT_FOUND,
         READ,
-        PARSE
+        PARSE,
+        SAVE
     }
 
     public class ArchivableItem : Object {
@@ -97,30 +105,30 @@ namespace Manuscript.Models {
             }
         }
 
-        public string to_json () {
-            var gen = new Json.Generator ();
-            var root = new Json.Node (Json.NodeType.OBJECT);
-            var object = new Json.Object ();
-            root.set_object (object);
-            gen.set_root (root);
+        //  public string to_json () {
+        //      var gen = new Json.Generator ();
+        //      var root = new Json.Node (Json.NodeType.OBJECT);
+        //      var object = new Json.Object ();
+        //      root.set_object (object);
+        //      gen.set_root (root);
 
-            object.set_string_member ("version", version);
-            object.set_string_member ("uuid", uuid);
-            object.set_string_member ("title", title);
-            object.set_object_member ("settings", settings.to_json_object ());
+        //      object.set_string_member ("version", version);
+        //      object.set_string_member ("uuid", uuid);
+        //      object.set_string_member ("title", title);
+        //      object.set_object_member ("settings", settings.to_json_object ());
 
-            // Serialize chunks
+        //      // Serialize chunks
 
-            Json.Array chunks_array = new Json.Array.sized (chunks.size);
-            var it = chunks.iterator ();
-            while (it.next ()) {
-                chunks_array.add_object_element (it.@get ().to_json_object ());
-            }
-            object.set_array_member ("chunks", chunks_array);
-            debug (@"Document.to_json -> Serializing $(chunks_array.get_length()) chunks");
+        //      Json.Array chunks_array = new Json.Array.sized (chunks.size);
+        //      var it = chunks.iterator ();
+        //      while (it.next ()) {
+        //          chunks_array.add_object_element (it.@get ().to_json_object ());
+        //      }
+        //      object.set_array_member ("chunks", chunks_array);
+        //      debug (@"Document.to_json -> Serializing $(chunks_array.get_length()) chunks");
 
-            return gen.to_data (null);
-        }
+        //      return gen.to_data (null);
+        //  }
 
         public Gee.Collection<ArchivableItem> to_archivable_entries () {
             var gen = new Json.Generator ();
@@ -152,13 +160,14 @@ namespace Manuscript.Models {
     public class Document : DocumentData, DocumentBase {
         public signal void saved (string target_path);
         public signal void read_error (GLib.Error error);
-        public signal void save_error (GLib.Error e);
+        public signal void save_error (DocumentError e);
         public signal void chunk_added (DocumentChunk chunk, bool active);
         public signal void chunk_removed (DocumentChunk chunk);
         public signal void chunk_moved (DocumentChunk chunk);
         //  public signal void active_changed (DocumentChunk chunk);
         public signal void drain ();
 
+        public DocumentStateFlags state_flags { get; protected set construct; }
         private string original_path;
         private string modified_path;
         private uint _load_state = DocumentLoadState.EMPTY;
@@ -169,15 +178,7 @@ namespace Manuscript.Models {
 
         public bool has_changes {
             get {
-                bool changes_found = false;
-                var it = chunks.iterator ();
-                while (it.next () && !changes_found) {
-                    if (it.@get ().has_changes) {
-                        changes_found = true;
-                        break;
-                    }
-                }
-                return changes_found;
+                return chunks.any_match ((item) => item.has_changes);
             }
         }
 
@@ -238,7 +239,8 @@ namespace Manuscript.Models {
                 file_path: file_path,
                 uuid: GLib.Uuid.string_random (),
                 version: "1.0",
-                temporary: temporary_doc
+                temporary: temporary_doc,
+                state_flags: DocumentStateFlags.BROKEN
             );
         }
 
@@ -326,29 +328,7 @@ namespace Manuscript.Models {
             //  }
         }
 
-        public long save (string ? path = null) {
-            //  try {
-            //      if (path != null) {
-            //          modified_path = path;
-            //      }
-            //      string data = to_json ();
-            //      long written_bytes = FileUtils.save (data, file_path);
-            //      info (@"Document saved to $file_path ($written_bytes bytes written)");
-            //      this.temporary = false;
-            //      // Dev: save both formats
-            //      save_archive (@"$file_path.$(Constants.DEFAULT_ARCHIVE_FILE_EXT)");
-            //      this.saved (file_path);
-
-            //      return written_bytes;
-            //  } catch (Error e) {
-            //      critical (e.message);
-            //      this.save_error (e);
-            //      return 0;
-            //  }
-            return save_archive (path);
-        }
-
-        public long save_archive (string ? path = null) {
+        public long save (string ? path = null) throws DocumentError {
             if (path != null) {
                 modified_path = path;
             }
@@ -386,49 +366,68 @@ namespace Manuscript.Models {
 
             if (archive.close () != Archive.Result.OK) {
                 critical ("Error closing archive: %s", archive.error_string ());
+                var err = new DocumentError.SAVE ("Could not finalize archive");
+                state_flags |= DocumentStateFlags.ERR_LAST_SAVE;
+                save_error (err);
+                throw err;
             } else {
                 info (@"Document saved to $file_path ($size bytes of data)");
+                state_flags = DocumentStateFlags.OK;
             }
+
+            chunks.@foreach ((chunk) => {
+                chunk.has_changes = false;
+                return true;
+            });
 
             //  info (@"Document saved to $file_path ($written_bytes bytes written)");
             this.temporary = false;
-            //  this.saved (file_path);
             return (long) size;
         }
 
-        public async Thread<long> save_async (string ? path = null) {
+        public Thread<long> save_async (string ? path = null) {
             return new GLib.Thread<long> ("save_thread", () => {
-                return this.save (path);
+                try {
+                    return this.save (path);
+                } catch (DocumentError e) {
+                    critical (e.message);
+                    return 0;
+                }
             });
         }
 
         private async void load_from_archive_file (string file_path) throws DocumentError {
-            chunks.clear ();
-
-            File file_for_path = File.new_for_path (file_path);
-
-            if (file_for_path.query_exists ()) {
-                load_state = DocumentLoadState.LOADING;
-                Archive.Read archive = new Archive.Read ();
-                archive.support_format_all ();
-                archive.support_filter_gzip ();
-
-                if (archive.open_filename (file_for_path.get_path (), 10240) != Archive.Result.OK) {
-                    critical (
-                        "Error opening %s: %s (%d)",
-                        file_for_path.get_path (),
-                        archive.error_string (),
-                        archive.errno ()
-                    );
-                    load_state = DocumentLoadState.ERROR;
-                    throw new DocumentError.READ (archive.error_string ());
+            try {
+                chunks.clear ();
+    
+                File file_for_path = File.new_for_path (file_path);
+    
+                if (file_for_path.query_exists ()) {
+                    load_state = DocumentLoadState.LOADING;
+                    Archive.Read archive = new Archive.Read ();
+                    archive.support_format_all ();
+                    archive.support_filter_gzip ();
+    
+                    if (archive.open_filename (file_for_path.get_path (), 10240) != Archive.Result.OK) {
+                        critical (
+                            "Error opening %s: %s (%d)",
+                            file_for_path.get_path (),
+                            archive.error_string (),
+                            archive.errno ()
+                        );
+                        load_state = DocumentLoadState.ERROR;
+                        throw new DocumentError.READ (archive.error_string ());
+                    }
+    
+                    file_ref = file_for_path;
+                    yield read_archive (archive);
+                    load ();
+                } else {
+                    throw new DocumentError.NOT_FOUND ("File does not exist");
                 }
-
-                file_ref = file_for_path;
-                yield read_archive (archive);
-                load ();
-            } else {
-                throw new DocumentError.NOT_FOUND ("File does not exist");
+            } catch (DocumentError e) {
+                state_flags = DocumentStateFlags.BROKEN;
+                throw e;
             }
         }
 
@@ -447,7 +446,7 @@ namespace Manuscript.Models {
             while ((last_read_result = archive.next_header (out entry)) == Archive.Result.OK) {
                 if (entry.pathname () != "" && entry.size () != 0) {
                     debug ("Reading archive entry %s", entry.pathname ());
-                    MemoryOutputStream accumulator = new MemoryOutputStream (null);
+                    MemoryOutputStream os = new MemoryOutputStream (null);
                     uint8[] buffer = null;
                     Posix.off_t offset;
 
@@ -456,19 +455,24 @@ namespace Manuscript.Models {
                     ) {
                         try {
                             size_t bytes_written;
-                            accumulator.write_all (buffer, out bytes_written);
-                            debug ("%i bytes read", (int)bytes_written);
-                            if (accumulator.size >= entry.size ()) {
-                                accumulator.close ();
+                            os.write_all (buffer, out bytes_written);
+                            if (os.size >= entry.size ()) {
+                                os.close ();
                                 break;
                             }
                         } catch (IOError e) {
                             critical (e.message);
+                            try {
+                                os.close ();
+                            } catch (IOError skip) {
+                                warning (skip.message);
+                            }
+                            throw new DocumentError.READ (e.message);
                         }
                     }
 
-                    uint8[] data_copy = accumulator.steal_data ();
-                    data_copy.length = (int) accumulator.get_data_size ();
+                    uint8[] data_copy = os.steal_data ();
+                    data_copy.length = (int) os.get_data_size ();
                     string entry_path = entry.pathname ();
                     string entry_name = GLib.Path.get_basename (entry_path);
                     string group_name = GLib.Path.get_dirname (entry_path);
@@ -539,7 +543,6 @@ namespace Manuscript.Models {
                             if (chunk != null && chunk.uuid == target_chunk_uuid) {
                                 //  debug (chunk.uuid);
                                 CoverChunk cover_chunk = chunk as CoverChunk;
-                                debug ("%i", resource.data.length);
                                 cover_chunk.load_cover_from_stream.begin (
                                     new MemoryInputStream.from_data (resource.data)
                                 );
