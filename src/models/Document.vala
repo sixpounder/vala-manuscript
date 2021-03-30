@@ -447,33 +447,43 @@ namespace Manuscript.Models {
             while ((last_read_result = archive.next_header (out entry)) == Archive.Result.OK) {
                 if (entry.pathname () != "" && entry.size () != 0) {
                     debug ("Reading archive entry %s", entry.pathname ());
+                    MemoryOutputStream accumulator = new MemoryOutputStream (null);
                     uint8[] buffer = null;
                     Posix.off_t offset;
-    
+
                     while (
                         (last_read_result = archive.read_data_block (out buffer, out offset)) == Archive.Result.OK
                     ) {
-                        debug ("%i bytes read (rc -> %i)", buffer.length, last_read_result);
-                        if (buffer.length >= entry.size ()) {
-                            break;
+                        try {
+                            size_t bytes_written;
+                            accumulator.write_all (buffer, out bytes_written);
+                            debug ("%i bytes read", (int)bytes_written);
+                            if (accumulator.size >= entry.size ()) {
+                                accumulator.close ();
+                                break;
+                            }
+                        } catch (IOError e) {
+                            critical (e.message);
                         }
                     }
 
+                    uint8[] data_copy = accumulator.steal_data ();
+                    data_copy.length = (int) accumulator.get_data_size ();
                     string entry_path = entry.pathname ();
                     string entry_name = GLib.Path.get_basename (entry_path);
                     string group_name = GLib.Path.get_dirname (entry_path);
                     if (entry.filetype () == Archive.FileType.IFREG) {
                         switch (entry_name) {
                             case "manifest.json":
-                                from_json (buffer);
+                                from_json (data_copy);
                             break;
                             case "settings.json":
-                                settings = new DocumentSettings.from_data (buffer);
+                                settings = new DocumentSettings.from_data (data_copy);
                             break;
                             default:
                                 // Everything else cached for later parsing
                                 entries_cache.add (
-                                    new ArchivableItem.with_props (entry_name, group_name, buffer)
+                                    new ArchivableItem.with_props (entry_name, group_name, data_copy)
                                 );
                             break;
                         }
@@ -529,7 +539,10 @@ namespace Manuscript.Models {
                             if (chunk != null && chunk.uuid == target_chunk_uuid) {
                                 //  debug (chunk.uuid);
                                 CoverChunk cover_chunk = chunk as CoverChunk;
-                                cover_chunk.load_cover_from_stream.begin (new MemoryInputStream.from_data (resource.data));
+                                debug ("%i", resource.data.length);
+                                cover_chunk.load_cover_from_stream.begin (
+                                    new MemoryInputStream.from_data (resource.data)
+                                );
                                 return false;
                             } else {
                                 return true;

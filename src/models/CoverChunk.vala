@@ -73,7 +73,7 @@
             try {
                 load_error = null;
                 pixel_buffer = yield new Gdk.Pixbuf.from_stream_async (input_stream);
-                debug (@"Image length: $(pixel_buffer.read_pixel_bytes ().length) bytes");
+                debug (@"Pixel buffer from image with length $(pixel_buffer.read_pixel_bytes ().length) bytes");
                 return pixel_buffer;
             } catch (GLib.Error e) {
                 warning (@"Could not load cover image buffer: $(e.message)");
@@ -134,20 +134,20 @@
                 self.paint_author_name = false;
             }
 
-            InputStream stream = null;
-            if (obj.has_member ("image_data_base64")) {
-                string raw_data = obj.get_string_member ("image_data_base64");
-                uchar[] decoded_data = GLib.Base64.decode (raw_data);
-                stream = new MemoryInputStream.from_data (decoded_data, GLib.free);
+            //  InputStream stream = null;
+            //  if (obj.has_member ("image_data_base64")) {
+            //      string raw_data = obj.get_string_member ("image_data_base64");
+            //      uchar[] decoded_data = GLib.Base64.decode (raw_data);
+            //      stream = new MemoryInputStream.from_data (decoded_data, GLib.free);
 
-                if (stream != null) {
-                    self.load_cover_from_stream.begin (stream);
-                }
-            } else if (obj.has_member ("image_source_file")) {
-                self.image_source_file = File.new_for_path (obj.get_string_member ("image_source_file"));
-            } else {
-                self.pixel_buffer = null;
-            }
+            //      if (stream != null) {
+            //          self.load_cover_from_stream.begin (stream);
+            //      }
+            //  } else if (obj.has_member ("image_source_file")) {
+            //      self.image_source_file = File.new_for_path (obj.get_string_member ("image_source_file"));
+            //  } else {
+            //      self.pixel_buffer = null;
+            //  }
 
             return self;
         }

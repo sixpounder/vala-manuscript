@@ -54,7 +54,7 @@ namespace Manuscript.Services {
 
             if (settings.autosave) {
                 save_async.begin (true, (obj, res) => {
-                    Thread<long> t = save_async.end (res);
+                    Thread<void> t = save_async.end (res);
                     t.join ();
                 });
             }
@@ -207,14 +207,15 @@ namespace Manuscript.Services {
             }
         }
 
-        private async Thread<long>? save_async (bool ignore_temporary = false) {
+        private async Thread<void>? save_async (bool ignore_temporary = false) {
             if (document.is_temporary () && !ignore_temporary) {
                 // Ask where to save this
                 save_as ();
                 return null;
             } else {
-                var thread = yield document.save_async ();
-                return thread;
+                return new GLib.Thread<void> ("save_thread", () => {
+                    this.save ();
+                });
             }
         }
 

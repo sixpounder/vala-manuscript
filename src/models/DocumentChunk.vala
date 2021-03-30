@@ -215,11 +215,6 @@ namespace Manuscript.Models {
             set_raw (data);
         }
 
-        //  public virtual void load_buffer_immediate (uint8[] data) {
-        //      set_raw (data);
-        //      create_buffer (get_raw ());
-        //  }
-        
         public virtual void create_buffer (uint8[]? data = null) {
             buffer = new Models.TextBuffer (new DocumentTagTable ());
             buffer.highlight_matching_brackets = false;
@@ -325,6 +320,7 @@ namespace Manuscript.Models {
 
         ~ TextChunk () {
             if (buffer != null) {
+                debug ("Disconnecting text chunk buffer events");
                 buffer.changed.disconnect (on_content_changed);
                 buffer.undo.disconnect (on_buffer_undo);
                 buffer.redo.disconnect (on_buffer_redo);

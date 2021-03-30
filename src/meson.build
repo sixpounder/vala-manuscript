@@ -46,7 +46,7 @@ executable(
 
     'widgets/settings/Metrics.vala',
     'widgets/settings/General.vala',
-	'widgets/settings/Covers.vala',
+	# 'widgets/settings/Covers.vala',
 
 	'models/TextBuffer.vala',
 	'models/DocumentTagTable.vala',
