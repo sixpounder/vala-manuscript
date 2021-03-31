@@ -224,7 +224,7 @@ namespace Manuscript.Services {
                         if (wrk.save_error != null) {
                             critical (wrk.save_error.message);
                         }
-                        Idle.add((owned) callback);
+                        Idle.add ((owned) callback);
                         doc_mutex.@unlock ();
                     });
                     ops_pool.add (wrk);
