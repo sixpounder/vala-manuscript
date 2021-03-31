@@ -21,7 +21,8 @@ namespace Manuscript.Widgets {
 
     enum TextMarkup {
         ITALIC,
-        BOLD
+        BOLD,
+        UNDERLINE
     }
     public class TextEditor : Gtk.SourceView, Protocols.ChunkEditor {
         public bool has_changes { get; private set; }
@@ -81,8 +82,13 @@ namespace Manuscript.Widgets {
             italic_menu_item.activate.connect (() => {
                 markup_for_selection (TextMarkup.ITALIC);
             });
+            Gtk.MenuItem underline_menu_item = new Gtk.MenuItem.with_label (_("Underline"));
+            underline_menu_item.activate.connect (() => {
+                markup_for_selection (TextMarkup.UNDERLINE);
+            });
 
             menu.prepend (new Gtk.SeparatorMenuItem ());
+            menu.prepend (underline_menu_item);
             menu.prepend (italic_menu_item);
             menu.prepend (bold_menu_item);
             menu.show_all ();
@@ -99,6 +105,10 @@ namespace Manuscript.Widgets {
 
                 case TextMarkup.BOLD:
                     tag_name = "bold";
+                break;
+
+                case TextMarkup.UNDERLINE:
+                    tag_name = "underline";
                 break;
 
                 default:

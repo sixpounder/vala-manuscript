@@ -26,6 +26,7 @@ namespace Manuscript.Models {
         public Gtk.TextTag dark_focused;
         public Gtk.TextTag italic;
         public Gtk.TextTag bold;
+        public Gtk.TextTag underline;
         public Gtk.TextTag justify_left;
         public Gtk.TextTag justify_center;
         public Gtk.TextTag justify_right;
@@ -50,6 +51,9 @@ namespace Manuscript.Models {
             bold = new Gtk.TextTag ("bold");
             bold.weight = Pango.Weight.BOLD;
 
+            underline = new Gtk.TextTag ("underline");
+            underline.underline = Pango.Underline.SINGLE;
+
             justify_left = new Gtk.TextTag ("justify-left");
             justify_left.justification = Gtk.Justification.LEFT;
 
@@ -68,6 +72,7 @@ namespace Manuscript.Models {
             add (dark_focused);
             add (italic);
             add (bold);
+            add (underline);
             add (justify_left);
             add (justify_right);
             add (justify_center);

@@ -39,9 +39,9 @@ namespace Manuscript.Widgets {
         }
 
         ~ SearchPanel () {
-            if (text_buffer != null && text_buffer.ref_count > 0) {
-                text_buffer.unref ();
-            }
+            //  if (text_buffer != null && text_buffer.ref_count > 0) {
+            //      text_buffer.unref ();
+            //  }
         }
 
         construct {
