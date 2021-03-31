@@ -19,11 +19,11 @@
 
 namespace Manuscript.Models {
     [ CCode (cprefix="DOCUMENT_STATE_FLAG_") ]
-	public enum DocumentStateFlags {
+    public enum DocumentStateFlags {
         OK,
-		BROKEN,
+        BROKEN,
         ERR_LAST_SAVE
-	}
+    }
 
     public errordomain DocumentError {
         NOT_FOUND,
@@ -240,7 +240,7 @@ namespace Manuscript.Models {
                 uuid: GLib.Uuid.string_random (),
                 version: "1.0",
                 temporary: temporary_doc,
-                state_flags: DocumentStateFlags.BROKEN
+                state_flags: DocumentStateFlags.OK
             );
         }
 
@@ -278,54 +278,6 @@ namespace Manuscript.Models {
             }
 
             title = root_object.get_string_member ("title");
-
-            // Settings parsing
-            //  var settings_object = root_object.get_object_member ("settings");
-            //  settings = new DocumentSettings.from_json_object (settings_object);
-
-            // Chunks parsing
-            //  var chunks_array = root_object.get_array_member ("chunks");
-            //  chunks = new Gee.ArrayList<DocumentChunk> ();
-
-            //  if (!Services.ThreadPool.supported) {
-            //      foreach (var el in chunks_array.get_elements ()) {
-            //          add_chunk (chunk_from_json_object (el.get_object (), (Document) this));
-            //          // Sort chunks by their index
-            //          chunks.sort ((a, b) => {
-            //              return (int) (a.index - b.index);
-            //          });
-            //      }
-            //  } else {
-            //      Mutex worked_items_mutex = Mutex ();
-            //      uint expected_chunks_length = chunks_array.get_elements ().length ();
-            //      Gee.ArrayList<DocumentChunk> worked_items = new Gee.ArrayList<DocumentChunk> ();
-
-            //      foreach (var el in chunks_array.get_elements ()) {
-            //          var worker = new ChunkParser (el, (Document) this);
-            //          worker.done.connect ((c) => {
-            //              worked_items_mutex.@lock ();
-            //              worked_items.add (c);
-            //              if (expected_chunks_length == worked_items.size) {
-            //                  debug ("Document parsed, sorting chunks and removing idle task");
-            //                  worked_items.iterator ().@foreach ((c) => {
-            //                      add_chunk (c);
-            //                      return GLib.Source.CONTINUE;
-            //                  });
-
-            //                  chunks.sort ((a, b) => {
-            //                      return (int) (a.index - b.index);
-            //                  });
-
-            //                  Idle.add ((owned) callback);
-            //              }
-            //              worked_items_mutex.@unlock ();
-            //          });
-
-            //          Services.ThreadPool.get_default ().add (worker);
-            //      }
-
-            //      yield;
-            //  }
         }
 
         public long save (string ? path = null) throws DocumentError {
@@ -399,15 +351,15 @@ namespace Manuscript.Models {
         private async void load_from_archive_file (string file_path) throws DocumentError {
             try {
                 chunks.clear ();
-    
+
                 File file_for_path = File.new_for_path (file_path);
-    
+
                 if (file_for_path.query_exists ()) {
                     load_state = DocumentLoadState.LOADING;
                     Archive.Read archive = new Archive.Read ();
                     archive.support_format_all ();
                     archive.support_filter_gzip ();
-    
+
                     if (archive.open_filename (file_for_path.get_path (), 10240) != Archive.Result.OK) {
                         critical (
                             "Error opening %s: %s (%d)",
@@ -418,7 +370,7 @@ namespace Manuscript.Models {
                         load_state = DocumentLoadState.ERROR;
                         throw new DocumentError.READ (archive.error_string ());
                     }
-    
+
                     file_ref = file_for_path;
                     yield read_archive (archive);
                     load ();
@@ -473,6 +425,7 @@ namespace Manuscript.Models {
 
                     uint8[] data_copy = os.steal_data ();
                     data_copy.length = (int) os.get_data_size ();
+
                     string entry_path = entry.pathname ();
                     string entry_name = GLib.Path.get_basename (entry_path);
                     string group_name = GLib.Path.get_dirname (entry_path);

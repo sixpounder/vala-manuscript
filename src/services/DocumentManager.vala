@@ -23,7 +23,7 @@ namespace Manuscript.Services {
     //  }
 
     public class SaveWorker : Object, ThreadWorker<void> {
-        public Models.Document document { get; construct; }
+        public weak Models.Document document { get; construct; }
         public string? path { get; construct; }
         public Models.DocumentError? save_error { get; protected set; }
 
@@ -36,7 +36,9 @@ namespace Manuscript.Services {
 
         public void worker_run () {
             try {
-                document.save (path);
+                if (document != null) {
+                    document.save (path);
+                }
             } catch (Models.DocumentError e) {
                 save_error = e;
             }
@@ -58,10 +60,12 @@ namespace Manuscript.Services {
             stop_file_monitor ();
 
             if (settings.autosave) {
-                save_async.begin (true, (obj, res) => {
-                    Thread<void> t = save_async.end (res);
-                    t.join ();
-                });
+                //  save_async.begin (true, (obj, res) => {
+                //      Thread<void> t = save_async.end (res);
+                //      t.join ();
+                //  });
+                //  save.begin (true);
+                save_sync ();
             }
         }
         public signal void unloaded ();
@@ -198,20 +202,33 @@ namespace Manuscript.Services {
 
         // FS ops
 
-        public void save (bool ignore_temporary = false) {
+        public void save_sync () {
+            try {
+                document.save ();
+            } catch (Models.DocumentError e) {
+                save_error (e);
+            }
+        }
+
+        public async void save (bool ignore_temporary = false) {
             if (document.is_temporary () && !ignore_temporary) {
                 // Ask where to save this
                 save_as ();
             } else {
-                //  document.save ();
+                SourceFunc callback = save.callback;
+                Mutex doc_mutex = Mutex ();
                 if (ops_pool != null) {
+                    doc_mutex.@lock ();
                     var wrk = new SaveWorker (document);
                     wrk.done.connect (() => {
                         if (wrk.save_error != null) {
                             critical (wrk.save_error.message);
                         }
+                        Idle.add((owned) callback);
+                        doc_mutex.@unlock ();
                     });
                     ops_pool.add (wrk);
+                    yield;
                 } else {
                     try {
                         document.save ();
@@ -219,18 +236,6 @@ namespace Manuscript.Services {
                         save_error (e);
                     }
                 }
-            }
-        }
-
-        private async Thread<void>? save_async (bool ignore_temporary = false) {
-            if (document.is_temporary () && !ignore_temporary) {
-                // Ask where to save this
-                save_as ();
-                return null;
-            } else {
-                return new GLib.Thread<void> ("save_thread", () => {
-                    this.save ();
-                });
             }
         }
 
@@ -267,12 +272,20 @@ namespace Manuscript.Services {
             // Avoid trashing the disk
             autosave_timer_id = Timeout.add (Constants.AUTOSAVE_DEBOUNCE_TIME, () => {
                 autosave_timer_id = 0;
-                save (true);
+                save.begin (true);
                 return false;
             });
         }
 
         public void close () {
+            if (document != null) {
+                unload (document);
+                document = null;
+            }
+            unloaded ();
+        }
+
+        public void close_immediate () {
             if (document != null) {
                 unload (document);
                 document = null;

@@ -111,7 +111,7 @@ namespace Manuscript.Services {
         }
 
         protected void action_save () {
-            window.document_manager.save ();
+            window.document_manager.save.begin ();
         }
 
         protected void action_save_as () {

@@ -320,7 +320,7 @@ namespace Manuscript.Models {
 
         ~ TextChunk () {
             if (buffer != null) {
-                debug ("Disconnecting text chunk buffer events");
+                debug ("Disposing TextChunkInstance");
                 buffer.changed.disconnect (on_content_changed);
                 buffer.undo.disconnect (on_buffer_undo);
                 buffer.redo.disconnect (on_buffer_redo);
@@ -328,9 +328,6 @@ namespace Manuscript.Models {
                 buffer.delete_range.disconnect (range_deleted);
                 buffer.undo_manager.can_undo_changed.disconnect (on_can_undo_changed);
                 buffer.undo_manager.can_redo_changed.disconnect (on_can_redo_changed);
-                if (buffer.ref_count > 0) {
-                    buffer.unref ();
-                }
             }
         }
     }

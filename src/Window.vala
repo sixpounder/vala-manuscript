@@ -260,7 +260,7 @@ namespace Manuscript {
                 case Gtk.ResponseType.NO:
                     break;
                 case Gtk.ResponseType.YES:
-                    document_manager.save (true);
+                    document_manager.save.begin (true);
                     break;
                 default:
                     assert_not_reached ();

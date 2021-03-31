@@ -70,6 +70,7 @@ textview {
 .color-button radio:checked {
    padding: 10px;
    -gtk-icon-shadow: none;
+   background-image: none;
 }
 
 .color-dark radio {
