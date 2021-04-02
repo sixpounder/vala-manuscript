@@ -59,14 +59,14 @@ namespace Manuscript.Services {
 
             stop_file_monitor ();
 
-            if (settings.autosave) {
-                //  save_async.begin (true, (obj, res) => {
-                //      Thread<void> t = save_async.end (res);
-                //      t.join ();
-                //  });
-                //  save.begin (true);
-                save_sync ();
-            }
+            //  if (settings.autosave) {
+            //      //  save_async.begin (true, (obj, res) => {
+            //      //      Thread<void> t = save_async.end (res);
+            //      //      t.join ();
+            //      //  });
+            //      //  save.begin (true);
+            //      save_sync ();
+            //  }
         }
         public signal void unloaded ();
         public signal void property_change (string property_name);
@@ -202,11 +202,12 @@ namespace Manuscript.Services {
 
         // FS ops
 
-        public void save_sync () {
+        public void save_sync () throws Models.DocumentError {
             try {
                 document.save ();
             } catch (Models.DocumentError e) {
                 save_error (e);
+                throw e;
             }
         }
 
@@ -277,17 +278,12 @@ namespace Manuscript.Services {
             });
         }
 
-        public void close () {
+        public void close () throws Models.DocumentError {
             if (document != null) {
                 unload (document);
-                document = null;
-            }
-            unloaded ();
-        }
-
-        public void close_immediate () {
-            if (document != null) {
-                unload (document);
+                if (settings.autosave) {
+                    save_sync ();
+                }
                 document = null;
             }
             unloaded ();
@@ -302,6 +298,7 @@ namespace Manuscript.Services {
         }
 
         private void disconnect_events () {
+            document.settings.notify.disconnect (on_document_setting_changed);
             stop_file_monitor ();
         }
 

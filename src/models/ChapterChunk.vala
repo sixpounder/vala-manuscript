@@ -25,19 +25,6 @@ namespace Manuscript.Models {
             base.raw_content = value;
         }
 
-        protected string _title;
-        public new string title {
-            get {
-                return _title;
-            }
-            set {
-                assert (value != null);
-                if (value != "") {
-                    _title = value;
-                }
-            }
-        }
-
         public ChapterChunk.empty () {
             uuid = GLib.Uuid.string_random ();
             title = _("New chapter");

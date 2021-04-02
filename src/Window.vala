@@ -205,10 +205,16 @@ namespace Manuscript {
 
         public override bool delete_event (Gdk.EventAny event) {
             if (settings.autosave) {
-                if (document_manager.has_document) {
-                    document_manager.close ();
+                try {
+                    if (document_manager.has_document) {
+                        document_manager.close ();
+                    }
+                    return false;
+                } catch (Models.DocumentError e) {
+                    critical (e.message);
+                    show_infobar (Gtk.MessageType.ERROR, @"$(_("Could not save this file")): $(e.message)");
+                    return true;
                 }
-                return false;
             } else {
                 if (quit_dialog ()) {
                     return false;
@@ -379,7 +385,11 @@ namespace Manuscript {
                     }
                 });
 
-                document_manager.close ();
+                try {
+                    document_manager.close ();
+                } catch (Models.DocumentError e) {
+                    critical (e.message);
+                }
             }
         }
 

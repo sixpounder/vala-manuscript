@@ -171,7 +171,11 @@ namespace Manuscript.Services {
         }
 
         protected void action_close_document () {
-            window.document_manager.close ();
+            try {
+                window.document_manager.close ();
+            } catch (Models.DocumentError error) {
+                critical (error.message);
+            }
         }
 
         protected void action_export () {
