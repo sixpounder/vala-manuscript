@@ -21,9 +21,9 @@ namespace Manuscript.Widgets {
     public class FormatToolbar : Gtk.Box {
         public weak Models.TextBuffer buffer { get; construct; }
 
-        private Gtk.ToggleButton format_bold;
-        private Gtk.ToggleButton format_italic;
-        private Gtk.ToggleButton format_underline;
+        public Gtk.ToggleButton format_bold { get; protected set; }
+        public Gtk.ToggleButton format_italic { get; protected set; }
+        public Gtk.ToggleButton format_underline { get; protected set; }
         private const int ICON_SIZE = 18;
 
         public FormatToolbar (Models.TextBuffer buffer) {

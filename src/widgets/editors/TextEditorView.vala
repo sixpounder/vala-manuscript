@@ -29,6 +29,10 @@ namespace Manuscript.Widgets {
         public string label { get; set; }
         public weak Models.DocumentChunk chunk { get; construct; }
 
+        private ulong bold_activate_event;
+        private ulong italic_activate_event;
+        private ulong underline_activate_event;
+
         public TextEditorView (Manuscript.Window parent_window, Models.DocumentChunk chunk) {
             Object (
                 orientation: Gtk.Orientation.VERTICAL,
@@ -60,7 +64,6 @@ namespace Manuscript.Widgets {
                 );
             });
             editor = new TextEditor (chunk as Models.TextChunk);
-            reflect_document_settings ();
 
             format_toolbar = new Widgets.FormatToolbar (((Models.TextChunk) chunk).buffer);
 
@@ -72,23 +75,41 @@ namespace Manuscript.Widgets {
             pack_start (scrolled_container);
             pack_start (status_bar, false, true, 0);
 
-            label = chunk.title;
-            chunk.notify["title"].connect (() => {
-                if (chunk != null) {
-                    label = chunk.title;
-                }
-            });
-
-            chunk.notify["locked"].connect (reflect_lock_status);
-
-            reflect_lock_status ();
-
-            parent_window.document_manager.document.settings.notify.connect (reflect_document_settings);
-
+            connect_events ();
+            update_ui ();
             show_all ();
         }
 
-        protected void reflect_document_settings () {
+        ~ TextEditorView () {
+            chunk.notify["title"].disconnect (update_ui);
+            chunk.notify["locked"].disconnect (update_ui);
+            editor.mark_set.disconnect (update_format_toolbar);
+            format_toolbar.format_bold.disconnect (bold_activate_event);
+            format_toolbar.format_italic.disconnect (italic_activate_event);
+            format_toolbar.format_underline.disconnect (underline_activate_event);
+            if (parent_window.document_manager.has_document) {
+                parent_window.document_manager.document.settings.notify.disconnect (update_ui);
+            }
+        }
+
+        private void connect_events () {
+            chunk.notify["title"].connect (update_ui);
+            chunk.notify["locked"].connect (update_ui);
+            editor.mark_set.connect (update_format_toolbar);
+            parent_window.document_manager.document.settings.notify.connect (update_ui);
+
+            bold_activate_event = format_toolbar.format_bold.activate.connect (() => {
+                apply_format (Models.TAG_NAME_BOLD);
+            });
+            italic_activate_event = format_toolbar.format_italic.activate.connect (() => {
+                apply_format (Models.TAG_NAME_ITALIC);
+            });
+            underline_activate_event = format_toolbar.format_underline.activate.connect (() => {
+                apply_format (Models.TAG_NAME_UNDERLINE);
+            });
+        }
+
+        private void reflect_document_settings () {
             string font_family_string =
                 parent_window.document_manager.document.settings.font_family != null
                     ? parent_window.document_manager.document.settings.font_family
@@ -112,12 +133,48 @@ namespace Manuscript.Widgets {
             editor.scroll_to_cursor ();
         }
 
-        private void reflect_lock_status () {
-            if (chunk.locked) {
-                lock_editor ();
-            } else {
-                unlock_editor ();
+        private void update_ui () {
+            if (chunk != null) {
+                label = chunk.title;
+
+                if (chunk.locked) {
+                    lock_editor ();
+                } else {
+                    unlock_editor ();
+                }
             }
+            reflect_document_settings ();
+        }
+
+        private void update_format_toolbar (Gtk.TextIter location, Gtk.TextMark mark) {
+            Gtk.TextIter start, end;
+            editor.buffer.get_selection_bounds (out start, out end);
+            GLib.SList<weak Gtk.TextTag> tags_at_selection_start = start.get_tags ();
+            //  GLib.SList<weak Gtk.TextTag> tags_at_selection_end = end.get_tags ();
+
+            format_toolbar.format_bold.set_active (false);
+            format_toolbar.format_italic.set_active (false);
+            format_toolbar.format_underline.set_active (false);
+
+            tags_at_selection_start.@foreach ((tag) => {
+                switch (tag.name) {
+                    case "bold":
+                        format_toolbar.format_bold.set_active (true);
+                    break;
+
+                    case "italic":
+                        format_toolbar.format_italic.set_active (true);
+                    break;
+
+                    case "underline":
+                        format_toolbar.format_underline.set_active (true);
+                    break;
+                }
+            });
+        }
+
+        private void apply_format (string tag_name) {
+            editor.markup_for_selection (tag_name);
         }
 
         public void lock_editor () {

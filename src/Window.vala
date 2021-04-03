@@ -52,12 +52,6 @@ namespace Manuscript {
             }
         }
 
-        public weak Protocols.ChunkEditor current_editor {
-            get {
-                return tabs.get_current_editor ();
-            }
-        }
-
         public Window.with_document (Manuscript.Application app, string ? document_path = null) {
             Object (
                 application: app,

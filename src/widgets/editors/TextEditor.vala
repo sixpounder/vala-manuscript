@@ -18,13 +18,9 @@
  */
 
 namespace Manuscript.Widgets {
-
-    enum TextMarkup {
-        ITALIC,
-        BOLD,
-        UNDERLINE
-    }
     public class TextEditor : Gtk.SourceView, Protocols.ChunkEditor {
+        public signal void mark_set (Gtk.TextIter location, Gtk.TextMark mark);
+
         public bool has_changes { get; private set; }
         public Gtk.SourceSearchContext search_context = null;
         protected weak Models.TextChunk _chunk;
@@ -71,20 +67,25 @@ namespace Manuscript.Widgets {
             settings.change.connect (on_setting_change);
             destroy.connect (on_destroy);
             populate_popup.connect (populate_context_menu);
+            buffer.mark_set.connect (on_mark_set);
+        }
+
+        private void on_mark_set (Gtk.TextIter location, Gtk.TextMark mark) {
+            mark_set (location, mark);
         }
 
         private void populate_context_menu (Gtk.Menu menu) {
             Gtk.MenuItem bold_menu_item = new Gtk.MenuItem.with_label (_("Bold"));
             bold_menu_item.activate.connect (() => {
-                markup_for_selection (TextMarkup.BOLD);
+                markup_for_selection (Models.TAG_NAME_BOLD);
             });
             Gtk.MenuItem italic_menu_item = new Gtk.MenuItem.with_label (_("Italic"));
             italic_menu_item.activate.connect (() => {
-                markup_for_selection (TextMarkup.ITALIC);
+                markup_for_selection (Models.TAG_NAME_ITALIC);
             });
             Gtk.MenuItem underline_menu_item = new Gtk.MenuItem.with_label (_("Underline"));
             underline_menu_item.activate.connect (() => {
-                markup_for_selection (TextMarkup.UNDERLINE);
+                markup_for_selection (Models.TAG_NAME_UNDERLINE);
             });
 
             menu.prepend (new Gtk.SeparatorMenuItem ());
@@ -94,26 +95,10 @@ namespace Manuscript.Widgets {
             menu.show_all ();
         }
 
-        private void markup_for_selection (TextMarkup markup) {
+        public void markup_for_selection (string tag_name) {
             Gtk.TextIter selection_start, selection_end;
             var has_selection = buffer.get_selection_bounds (out selection_start, out selection_end);
-            string tag_name = "";
-            switch (markup) {
-                case TextMarkup.ITALIC:
-                    tag_name = "italic";
-                break;
 
-                case TextMarkup.BOLD:
-                    tag_name = "bold";
-                break;
-
-                case TextMarkup.UNDERLINE:
-                    tag_name = "underline";
-                break;
-
-                default:
-                break;
-            }
             if (tag_name != "" && has_selection) {
                 buffer.apply_tag_by_name (tag_name, selection_start, selection_end);
             }
@@ -162,6 +147,7 @@ namespace Manuscript.Widgets {
         }
 
         protected void init_editor () throws GLib.Error {
+            // Ensure that buffer in chunk is built
             chunk.create_buffer (chunk.get_raw ());
             load_buffer (chunk.buffer);
 

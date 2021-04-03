@@ -18,6 +18,10 @@
  */
 
 namespace Manuscript.Models {
+    public const string TAG_NAME_BOLD = "bold";
+    public const string TAG_NAME_ITALIC = "italic";
+    public const string TAG_NAME_UNDERLINE = "underline";
+
     public class DocumentTagTable : Gtk.TextTagTable {
 
         public Gtk.TextTag light_dimmed;
@@ -45,13 +49,13 @@ namespace Manuscript.Models {
             dark_focused = new Gtk.TextTag ("dark-focused");
             dark_focused.foreground = "#fafafa";
 
-            italic = new Gtk.TextTag ("italic");
+            italic = new Gtk.TextTag (TAG_NAME_ITALIC);
             italic.style = Pango.Style.ITALIC;
 
-            bold = new Gtk.TextTag ("bold");
+            bold = new Gtk.TextTag (TAG_NAME_BOLD);
             bold.weight = Pango.Weight.BOLD;
 
-            underline = new Gtk.TextTag ("underline");
+            underline = new Gtk.TextTag (TAG_NAME_UNDERLINE);
             underline.underline = Pango.Underline.SINGLE;
 
             justify_left = new Gtk.TextTag ("justify-left");

@@ -20,18 +20,21 @@
 namespace Manuscript.Widgets {
 
     /**
-     * Serves as controller for a group of `EditorView`s.
+     * Serves as controller for a group of `ChunkEditor`s.
      */
-    public class EditorsController : Gtk.Stack, Protocols.EditorViewController {
+    public class EditorsController : Gtk.Stack {
 
         protected Services.AppSettings settings;
         public weak Manuscript.Window parent_window { get; construct; }
         protected Services.DocumentManager document_manager;
         protected Manuscript.Widgets.EditorCourtesyView editors_courtesy_view;
         protected Gee.HashMap<string, Protocols.ChunkEditor> editors_cache;
-        protected uint collision_counter = 0;
         protected bool _on_viewport = true;
-        private bool document_loaded = false;
+        private bool document_loaded {
+            get {
+                return document_manager.has_document;
+            }
+        }
 
         public bool on_viewport {
             get {
@@ -97,7 +100,6 @@ namespace Manuscript.Widgets {
 
         private void on_document_set (Models.Document doc) {
             assert (doc != null);
-            document_loaded = true;
         }
 
         private void on_document_unload (Models.Document doc) {
@@ -105,7 +107,6 @@ namespace Manuscript.Widgets {
             doc.chunk_added.disconnect (add_chunk);
             doc.chunk_removed.disconnect (remove_chunk);
             editors_cache.clear ();
-            document_loaded = false;
         }
 
         private void on_start_chunk_editing (Models.DocumentChunk chunk) {
@@ -121,13 +122,14 @@ namespace Manuscript.Widgets {
             }
         }
 
-        // Updates various components of this widget to reflect current
-        // document status
-        //
+        /**
+         * Updates various components of this widget to reflect current
+         * document status
+         */
         private void update_ui () {
             if (document_manager.has_document && document_manager.opened_chunks.size != 0) {
-                // add_editor_view_for_chunk (document_manager.opened_chunks.first as Models.DocumentChunk, true);
-                visible_child = editors_courtesy_view;
+                add_editor_view_for_chunk (document_manager.opened_chunks.first as Models.DocumentChunk, true);
+                //  visible_child = editors_courtesy_view;
             } else {
                 visible_child = editors_courtesy_view;
             }
@@ -186,12 +188,6 @@ namespace Manuscript.Widgets {
 
         private string build_view_id (Models.DocumentChunk chunk) {
             string proposed_id = @"chunk-view-$(chunk.uuid)";
-            //  if (get_child_by_name (proposed_id) != null) {
-            //      collision_counter++;
-            //      return @"chunk-view-$(chunk.uuid)-$(collision_counter)";
-            //  } else {
-            //      return proposed_id;
-            //  }
             return proposed_id;
         }
 
@@ -214,10 +210,6 @@ namespace Manuscript.Widgets {
             update_ui ();
         }
 
-        public unowned Protocols.ChunkEditor? get_current_editor () {
-            return null;
-        }
-
         public Protocols.ChunkEditor? get_editor (Models.DocumentChunk chunk) {
             //  return get_tab_for_chunk (chunk);
             if (visible_child is Protocols.ChunkEditor) {
@@ -225,18 +217,6 @@ namespace Manuscript.Widgets {
             } else {
                 return null;
             }
-        }
-
-        public void add_editor (Models.DocumentChunk chunk) {
-            add_editor_view_for_chunk (chunk);
-        }
-
-        public void remove_editor (Models.DocumentChunk chunk) {
-            //  remove_chunk (chunk);
-        }
-
-        public void show_editor (Models.DocumentChunk chunk) {
-            //  select_chunk (chunk);
         }
     }
 }

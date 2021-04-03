@@ -25,14 +25,6 @@ namespace Manuscript.Protocols {
         public Gtk.TextIter? iter;
     }
 
-    public interface EditorViewController {
-        //  public abstract EditorController? get_editor (Models.DocumentChunk chunk);
-        public abstract unowned Protocols.ChunkEditor? get_current_editor ();
-        public abstract void add_editor (Models.DocumentChunk chunk);
-        public abstract void remove_editor (Models.DocumentChunk chunk);
-        public abstract void show_editor (Models.DocumentChunk chunk);
-    }
-
     public interface ChunkEditor : Object {
         public virtual signal void model_change () {}
 
