@@ -77,15 +77,15 @@ namespace Manuscript.Widgets {
         private void populate_context_menu (Gtk.Menu menu) {
             Gtk.MenuItem bold_menu_item = new Gtk.MenuItem.with_label (_("Bold"));
             bold_menu_item.activate.connect (() => {
-                markup_for_selection (Models.TAG_NAME_BOLD);
+                toggle_markup_for_selection (Models.TAG_NAME_BOLD);
             });
             Gtk.MenuItem italic_menu_item = new Gtk.MenuItem.with_label (_("Italic"));
             italic_menu_item.activate.connect (() => {
-                markup_for_selection (Models.TAG_NAME_ITALIC);
+                toggle_markup_for_selection (Models.TAG_NAME_ITALIC);
             });
             Gtk.MenuItem underline_menu_item = new Gtk.MenuItem.with_label (_("Underline"));
             underline_menu_item.activate.connect (() => {
-                markup_for_selection (Models.TAG_NAME_UNDERLINE);
+                toggle_markup_for_selection (Models.TAG_NAME_UNDERLINE);
             });
 
             menu.prepend (new Gtk.SeparatorMenuItem ());
@@ -95,11 +95,19 @@ namespace Manuscript.Widgets {
             menu.show_all ();
         }
 
-        public void markup_for_selection (string tag_name) {
+        public void toggle_markup_for_selection (string tag_name) {
             Gtk.TextIter selection_start, selection_end;
-            var has_selection = buffer.get_selection_bounds (out selection_start, out selection_end);
+            buffer.get_selection_bounds (out selection_start, out selection_end);
+            var removed = false;
 
-            if (tag_name != "" && has_selection) {
+            selection_start.get_tags ().@foreach ((tag) => {
+                if (tag.name == tag_name) {
+                    buffer.remove_tag_by_name (tag_name, selection_start, selection_end);
+                    removed = true;
+                }
+            });
+
+            if (tag_name != "" && !removed) {
                 buffer.apply_tag_by_name (tag_name, selection_start, selection_end);
             }
         }

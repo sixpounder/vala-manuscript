@@ -43,7 +43,9 @@ namespace Manuscript.Widgets {
         construct {
             get_style_context ().add_class ("px-2");
             get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
+
             format_bold = new Gtk.ToggleButton ();
+            format_bold.can_focus = false;
             format_bold.halign = Gtk.Align.START;
             format_bold.valign = Gtk.Align.FILL;
             format_bold.tooltip_text = _("Bold");
@@ -55,6 +57,7 @@ namespace Manuscript.Widgets {
             pack_start (format_bold);
 
             format_italic = new Gtk.ToggleButton ();
+            format_italic.can_focus = false;
             format_italic.halign = Gtk.Align.START;
             format_italic.valign = Gtk.Align.FILL;
             format_italic.tooltip_text = _("Italic");
@@ -66,6 +69,7 @@ namespace Manuscript.Widgets {
             pack_start (format_italic);
 
             format_underline = new Gtk.ToggleButton ();
+            format_underline.can_focus = false;
             format_underline.halign = Gtk.Align.START;
             format_underline.valign = Gtk.Align.FILL;
             format_underline.tooltip_text = _("Underline");

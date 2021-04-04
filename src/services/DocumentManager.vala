@@ -298,7 +298,9 @@ namespace Manuscript.Services {
         }
 
         private void disconnect_events () {
-            document.settings.notify.disconnect (on_document_setting_changed);
+            if (document != null && document.settings != null) {
+                document.settings.notify.disconnect (on_document_setting_changed);
+            }
             stop_file_monitor ();
         }
 
