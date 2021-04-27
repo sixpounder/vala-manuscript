@@ -81,15 +81,7 @@ namespace Manuscript.Widgets {
         }
 
         ~ TextEditorView () {
-            chunk.notify["title"].disconnect (update_ui);
-            chunk.notify["locked"].disconnect (update_ui);
-            editor.mark_set.disconnect (update_format_toolbar);
-            //  format_toolbar.format_bold.disconnect (bold_activate_event);
-            //  format_toolbar.format_italic.disconnect (italic_activate_event);
-            //  format_toolbar.format_underline.disconnect (underline_activate_event);
-            if (parent_window.document_manager.has_document) {
-                parent_window.document_manager.document.settings.notify.disconnect (update_ui);
-            }
+            disconnect_events ();
         }
 
         private void connect_events () {
@@ -107,6 +99,18 @@ namespace Manuscript.Widgets {
             underline_activate_event = format_toolbar.format_underline.toggled.connect (() => {
                 apply_format (Models.TAG_NAME_UNDERLINE);
             });
+        }
+
+        private void disconnect_events () {
+            chunk.notify["title"].disconnect (update_ui);
+            chunk.notify["locked"].disconnect (update_ui);
+            editor.mark_set.disconnect (update_format_toolbar);
+            format_toolbar.format_bold.disconnect (bold_activate_event);
+            format_toolbar.format_italic.disconnect (italic_activate_event);
+            format_toolbar.format_underline.disconnect (underline_activate_event);
+            if (parent_window.document_manager.has_document) {
+                parent_window.document_manager.document.settings.notify.disconnect (update_ui);
+            }
         }
 
         private void reflect_document_settings () {
@@ -152,25 +156,29 @@ namespace Manuscript.Widgets {
             GLib.SList<weak Gtk.TextTag> tags_at_selection_start = start.get_tags ();
             //  GLib.SList<weak Gtk.TextTag> tags_at_selection_end = end.get_tags ();
 
-            format_toolbar.format_bold.set_active (false);
-            format_toolbar.format_italic.set_active (false);
-            format_toolbar.format_underline.set_active (false);
+            disconnect_events ();
+
+            format_toolbar.format_bold.active = false;
+            format_toolbar.format_italic.active = false;
+            format_toolbar.format_underline.active = false;
 
             tags_at_selection_start.@foreach ((tag) => {
                 switch (tag.name) {
                     case "bold":
-                        format_toolbar.format_bold.set_active (true);
+                        format_toolbar.format_bold.active = true;
                     break;
 
                     case "italic":
-                        format_toolbar.format_italic.set_active (true);
+                        format_toolbar.format_italic.active = true;
                     break;
 
                     case "underline":
-                        format_toolbar.format_underline.set_active (true);
+                        format_toolbar.format_underline.active = true;
                     break;
                 }
             });
+
+            connect_events ();
         }
 
         private void apply_format (string tag_name) {

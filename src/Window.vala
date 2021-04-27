@@ -110,7 +110,9 @@ namespace Manuscript {
 
             // Setup header
             header = new Widgets.Header (this);
-            set_titlebar (header);
+            if (get_realized () == false) {
+                set_titlebar (header);
+            }
 
             // right panel layout (search + tabs)
             var right_panel = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);

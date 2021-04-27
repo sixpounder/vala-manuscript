@@ -174,8 +174,12 @@ namespace Manuscript.Widgets {
         }
 
         protected void load_buffer (Gtk.SourceBuffer new_buffer) {
-            buffer = new_buffer;
-            update_ui ();
+            if (new_buffer != null) {
+                buffer = new_buffer;
+                update_ui ();
+            } else {
+                warning("Trying to set a null buffer on this editor");
+            }
         }
 
         protected void update_ui () {

@@ -61,18 +61,7 @@ namespace Manuscript.Dialogs {
             format_selection_grid.valign = Gtk.Align.CENTER;
             format_selection_grid.homogeneous = true;
 
-            var json_radio = new Gtk.RadioButton (null);
-            var json_icon = new Gtk.Image ();
-            json_icon.gicon = new ThemedIcon ("text-css");
-            json_icon.pixel_size = 64;
-            json_radio.image = json_icon;
-            json_radio.toggled.connect (() => {
-                export_format = Manuscript.Models.ExportFormat.JSON;
-            });
-            format_selection_grid.pack_start (json_radio);
-
-#if EXPORT_COMPILER_PDF
-            var pdf_radio = new Gtk.RadioButton.from_widget (json_radio);
+            var pdf_radio = new Gtk.RadioButton (null);
             var pdf_icon = new Gtk.Image ();
             pdf_icon.gicon = new ThemedIcon ("application-pdf");
             pdf_icon.pixel_size = ICON_SIZE;
@@ -81,10 +70,9 @@ namespace Manuscript.Dialogs {
                 export_format = Manuscript.Models.ExportFormat.PDF;
             });
             format_selection_grid.pack_start (pdf_radio);
-#endif
 
 #if EXPORT_COMPILER_MARKDOWN
-            var markdown_radio = new Gtk.RadioButton.from_widget (json_radio);
+            var markdown_radio = new Gtk.RadioButton.from_widget (pdf_radio);
             var markdown_icon = new Gtk.Image ();
             markdown_icon.gicon = new ThemedIcon ("text-markdown");
             markdown_icon.pixel_size = ICON_SIZE;
@@ -96,7 +84,7 @@ namespace Manuscript.Dialogs {
 #endif
 
 #if EXPORT_COMPILER_PLAIN
-            var plain_radio = new Gtk.RadioButton.from_widget (json_radio);
+            var plain_radio = new Gtk.RadioButton.from_widget (pdf_radio);
             var plain_icon = new Gtk.Image ();
             plain_icon.gicon = new ThemedIcon ("text-x-generic");
             plain_icon.pixel_size = ICON_SIZE;
@@ -105,6 +93,18 @@ namespace Manuscript.Dialogs {
                 export_format = Manuscript.Models.ExportFormat.PLAIN;
             });
             format_selection_grid.pack_start (plain_radio);
+#endif
+
+#if EXPORT_COMPILER_ARCHIVE
+            var archive_radio = new Gtk.RadioButton.from_widget (pdf_radio);
+            var archive_icon = new Gtk.Image ();
+            archive_icon.gicon = new ThemedIcon ("package-x-generic");
+            archive_icon.pixel_size = 64;
+            archive_radio.image = archive_icon;
+            archive_radio.toggled.connect (() => {
+                export_format = Manuscript.Models.ExportFormat.ARCHIVE;
+            });
+            format_selection_grid.pack_start (archive_radio);
 #endif
 
             layout.pack_start (format_selection_grid);
@@ -135,10 +135,15 @@ namespace Manuscript.Dialogs {
         }
 
         protected void compile (Manuscript.Models.ExportFormat output_format) {
-            response (Gtk.ResponseType.ACCEPT);
+            Manuscript.Compilers.ManuscriptCompiler compiler = Manuscript.Compilers.ManuscriptCompiler.for_format (Models.ExportFormat.PDF);
+            compiler.filename = "export.test.pdf";
+
+            compiler.compile.begin (document, () => {
+                response (Gtk.ResponseType.ACCEPT);
+            });
         }
 
-        public void start_export () {
+        public async void start_export () {
             disable_ui ();
 #if EXPORT_DEMO_MODE
             Timeout.add (5000, () => {
@@ -149,8 +154,5 @@ namespace Manuscript.Dialogs {
             compile (export_format);
 #endif
         }
-
-        //  ~ ExportDialog () {
-        //  }
     }
 }

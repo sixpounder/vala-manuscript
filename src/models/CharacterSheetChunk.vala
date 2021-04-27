@@ -35,7 +35,7 @@ namespace Manuscript.Models {
         }
 
         public override Json.Object to_json_object () {
-            var node = to_json_object ();
+            var node = base.to_json_object ();
             node.set_string_member ("name", name);
             node.set_string_member ("background", background);
             node.set_string_member ("traits", traits);

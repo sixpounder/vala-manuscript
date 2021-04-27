@@ -58,15 +58,6 @@ namespace Manuscript.Services {
             }
 
             stop_file_monitor ();
-
-            //  if (settings.autosave) {
-            //      //  save_async.begin (true, (obj, res) => {
-            //      //      Thread<void> t = save_async.end (res);
-            //      //      t.join ();
-            //      //  });
-            //      //  save.begin (true);
-            //      save_sync ();
-            //  }
         }
         public signal void unloaded ();
         public signal void property_change (string property_name);

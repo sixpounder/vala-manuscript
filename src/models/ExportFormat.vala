@@ -20,7 +20,7 @@
 namespace Manuscript.Models {
     public enum ExportFormat {
         PDF,
-        JSON,
+        ARCHIVE,
         PLAIN,
         MARKDOWN
     }

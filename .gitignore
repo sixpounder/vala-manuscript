@@ -4,3 +4,4 @@ build
 *.*~
 .flatpak-builder
 build-dir
+*.test.*

@@ -18,9 +18,9 @@
  */
 
 namespace Manuscript.Compilers {
-    public class MarkdownCompiler : Compiler {
+    public class MarkdownCompiler : ManuscriptCompiler {
         internal MarkdownCompiler () {}
 
-        public override void compile (Manuscript.Models.Document document) {}
+        public override async void compile (Manuscript.Models.Document document) {}
     }
 }

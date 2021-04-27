@@ -18,10 +18,10 @@
  */
 
 namespace Manuscript.Compilers {
-    public abstract class Compiler : Object {
-        public string filename { get; construct; }
+    public abstract class ManuscriptCompiler : Object {
+        public string filename { get; set; }
 
-        public static Compiler for_format (Manuscript.Models.ExportFormat format) {
+        public static ManuscriptCompiler for_format (Manuscript.Models.ExportFormat format) {
             switch (format) {
                 case Manuscript.Models.ExportFormat.PDF:
                     return new PDFCompiler ();
@@ -32,6 +32,6 @@ namespace Manuscript.Compilers {
             }
         }
 
-        public abstract void compile (Manuscript.Models.Document document);
+        public abstract async void compile (Manuscript.Models.Document document);
     }
 }

@@ -562,13 +562,6 @@ namespace Manuscript.Models {
             return true;
         }
 
-        //  public void set_active (DocumentChunk chunk) {
-        //      if (chunk != active_chunk && chunks.contains (chunk) ) {
-        //          active_chunk = chunk;
-        //          active_changed (active_chunk);
-        //      }
-        //  }
-
         public Gee.Iterator<DocumentChunk> iter_chunks_with_changes () {
             return chunks.filter ((item) => {
                 return item.has_changes;
@@ -578,6 +571,8 @@ namespace Manuscript.Models {
         public Gee.Iterator<DocumentChunk> iter_chunks_by_type (ChunkType kind) {
             return chunks.filter ((item) => {
                 return item.kind == kind;
+            }).order_by ((a, b) => {
+                return (int) (a.index - b.index);
             });
         }
 

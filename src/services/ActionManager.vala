@@ -191,7 +191,7 @@ namespace Manuscript.Services {
                     } else if (res == Gtk.ResponseType.CLOSE) {
                         dialog.destroy ();
                     } else if (res == Gtk.ResponseType.NONE) {
-                        dialog.start_export ();
+                        dialog.start_export.begin ();
                     }
                 });
                 dialog.run ();
