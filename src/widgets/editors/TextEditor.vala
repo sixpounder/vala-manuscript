@@ -31,8 +31,8 @@ namespace Manuscript.Widgets {
             Object (
                 chunk: chunk,
                 has_focus: true,
-                pixels_inside_wrap: 0,
-                pixels_below_lines: 20,
+                pixels_below_lines: (int) chunk.parent_document.settings.paragraph_spacing,
+                pixels_inside_wrap: (int) chunk.parent_document.settings.line_spacing,
                 wrap_mode: Gtk.WrapMode.WORD,
                 expand: true,
                 populate_all: true
@@ -156,8 +156,7 @@ namespace Manuscript.Widgets {
 
         protected void init_editor () throws GLib.Error {
             // Ensure that buffer in chunk is built
-            chunk.create_buffer (chunk.get_raw ());
-            load_buffer (chunk.buffer);
+            load_buffer (chunk.ensure_buffer ());
 
             font_style_provider = new Gtk.CssProvider ();
             get_style_context ().add_provider (font_style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
@@ -178,7 +177,7 @@ namespace Manuscript.Widgets {
                 buffer = new_buffer;
                 update_ui ();
             } else {
-                warning("Trying to set a null buffer on this editor");
+                warning ("Trying to set a null buffer on this editor");
             }
         }
 

@@ -169,7 +169,7 @@ namespace Manuscript.Models {
         public virtual double estimate_reading_time { get; protected set; }
         public virtual string content_ref { get; protected set; }
 
-        public virtual Models.TextBuffer buffer { get; protected set; }
+        public virtual Models.TextBuffer? buffer { get; protected set; }
 
         public uchar[] get_raw () {
             return raw_content;
@@ -186,6 +186,10 @@ namespace Manuscript.Models {
         }
 
         public override Gee.Collection<ArchivableItem> to_archivable_entries () {
+
+            // Ensure buffer is something before exporting for save
+            ensure_buffer ();
+
             Json.Generator gen = new Json.Generator ();
             var root = new Json.Node (Json.NodeType.OBJECT);
             root.set_object (to_json_object ());
@@ -211,7 +215,7 @@ namespace Manuscript.Models {
             return c;
         }
 
-        public virtual void load_buffer_data (uint8[] data) {
+        public virtual void store_raw_data (uint8[] data) {
             set_raw (data);
         }
 
@@ -222,7 +226,9 @@ namespace Manuscript.Models {
             buffer.highlight_syntax = false;
 
             try {
-                var raw_content = data;
+                if (data != null) {
+                    raw_content = data;
+                }
                 if (raw_content.length != 0) {
                     buffer.begin_not_undoable_action ();
                     Gtk.TextIter start;
@@ -255,7 +261,18 @@ namespace Manuscript.Models {
             set_buffer_scheme ();
         }
 
+        public TextBuffer ensure_buffer () {
+            if (buffer == null) {
+                create_buffer ();
+            }
+
+            assert (buffer != null);
+
+            return buffer;
+        }
+
         protected void set_buffer_scheme () {
+            ensure_buffer ();
             var scheme = settings.prefer_dark_style ? "manuscript-dark" : "manuscript-light";
             var style_manager = Gtk.SourceStyleSchemeManager.get_default ();
             var style = style_manager.get_scheme (scheme);
@@ -269,6 +286,7 @@ namespace Manuscript.Models {
         }
 
         protected void on_can_undo_changed () {
+            ensure_buffer ();
             if (buffer.can_undo) {
                 has_changes = true;
                 changed ();
@@ -286,6 +304,7 @@ namespace Manuscript.Models {
         }
 
         protected void on_buffer_undo () {
+            ensure_buffer ();
             undo ();
             if (!buffer.undo_manager.can_undo () ) {
                 undo_queue_drain ();
@@ -296,6 +315,7 @@ namespace Manuscript.Models {
          * Emit content_changed event to listeners
          */
         protected void on_content_changed () {
+            ensure_buffer ();
             if (words_counter_timer != 0) {
                 GLib.Source.remove (words_counter_timer);
             }

@@ -27,7 +27,6 @@ executable(
 	# 'widgets/ThemeButton.vala',
 	'widgets/FileNotFound.vala',
     'widgets/ScrollProgress.vala',
-	# 'widgets/ChunkPreview.vala',
 	'widgets/DocumentSourceList.vala',
 	'widgets/SourceListCategoryItem.vala',
     'widgets/SourceListChunkItem.vala',
@@ -78,6 +77,7 @@ executable(
 
     'dialogs/GenericDialog.vala',
 	'dialogs/ExportDialog.vala',
+	'dialogs/ExportMetrics.vala',
 	'dialogs/QuitDialog.vala',
 	'dialogs/FileSaveDialog.vala',
 	'dialogs/InfoBar.vala',

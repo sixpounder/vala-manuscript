@@ -50,7 +50,7 @@
                 self.set_raw ({});
             }
 
-            self.create_buffer ();
+            //  self.create_buffer ();
 
             return self;
         }

@@ -21,6 +21,7 @@ namespace Manuscript.Widgets.Settings {
     public class DocumentMetricsView : Gtk.Grid {
         public Manuscript.Window parent_window { get; construct; }
         public Services.DocumentManager document_manager { get; private set; }
+        public Gtk.SpinButton line_spacing_input { get; set; }
         public Gtk.SpinButton paragraph_spacing_input { get; set; }
         public Gtk.SpinButton paragraph_start_padding_input { get; set; }
         public Gtk.FontButton font_button { get; set; }
@@ -64,31 +65,44 @@ namespace Manuscript.Widgets.Settings {
             attach (font_label, 0, 0, 1, 1);
             attach (font_button, 1, 0, 1, 1);
 
+            Gtk.Label line_spacing_label = new Gtk.Label (_("Line spacing"));
+            line_spacing_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
+            line_spacing_label.halign = Gtk.Align.END;
+            line_spacing_input = new Gtk.SpinButton.with_range (0, 1000, 1);
+            line_spacing_input.value = document_manager.document.settings.line_spacing;
+            line_spacing_input.value_changed.connect (() => {
+                if (document_manager.has_document) {
+                    document_manager.document.settings.line_spacing = line_spacing_input.value;
+                }
+            });
+            attach (line_spacing_label, 0, 1, 1, 1);
+            attach (line_spacing_input, 1, 1, 1, 1);
+
             Gtk.Label paragraph_spacing_label = new Gtk.Label (_("Paragraph spacing"));
             paragraph_spacing_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
             paragraph_spacing_label.halign = Gtk.Align.END;
             paragraph_spacing_input = new Gtk.SpinButton.with_range (0, 1000, 1);
-            paragraph_spacing_input.value = 10;
+            paragraph_spacing_input.value = document_manager.document.settings.paragraph_spacing;
             paragraph_spacing_input.value_changed.connect (() => {
                 if (document_manager.has_document) {
                     document_manager.document.settings.paragraph_spacing = paragraph_spacing_input.value;
                 }
             });
-            attach (paragraph_spacing_label, 0, 1, 1, 1);
-            attach (paragraph_spacing_input, 1, 1, 1, 1);
+            attach (paragraph_spacing_label, 0, 2, 1, 1);
+            attach (paragraph_spacing_input, 1, 2, 1, 1);
 
             Gtk.Label paragraph_start_padding_label = new Gtk.Label (_("Paragraph initial padding"));
             paragraph_start_padding_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
             paragraph_start_padding_label.halign = Gtk.Align.END;
             paragraph_start_padding_input = new Gtk.SpinButton.with_range (0, 1000, 1);
-            paragraph_start_padding_input.value = 10;
+            paragraph_start_padding_input.value = document_manager.document.settings.paragraph_start_padding;
             paragraph_start_padding_input.value_changed.connect (() => {
                 if (document_manager.has_document) {
                     document_manager.document.settings.paragraph_start_padding = paragraph_start_padding_input.value;
                 }
             });
-            attach (paragraph_start_padding_label, 0, 2, 1, 1);
-            attach (paragraph_start_padding_input, 1, 2, 1, 1);
+            attach (paragraph_start_padding_label, 0, 3, 1, 1);
+            attach (paragraph_start_padding_input, 1, 3, 1, 1);
 
             document_manager.load.connect_after (load_document_settings);
 
@@ -112,6 +126,7 @@ namespace Manuscript.Widgets.Settings {
             int64 size = document_manager.document.settings.font_size != 0
                 ? document_manager.document.settings.font_size
                 : Constants.DEFAULT_FONT_SIZE;
+            debug (@"Font size: $size * $(Pango.SCALE)");
             font.set_size ((int) size * Pango.SCALE);
             font_button.set_font_desc (font);
 

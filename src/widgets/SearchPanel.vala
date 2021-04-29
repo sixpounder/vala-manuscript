@@ -111,11 +111,12 @@ namespace Manuscript.Widgets {
 
             add (grid);
 
-            parent_window.document_manager.open_chunk.connect ((chunk) => {
+            parent_window.document_manager.open_chunk.connect_after ((chunk) => {
                 assert (chunk != null);
                 unselect ();
                 if (chunk is Models.TextChunk) {
-                    text_buffer = ((Models.TextChunk) chunk).buffer;
+                    var text_chunk = ((Models.TextChunk) chunk);
+                    text_buffer = text_chunk.ensure_buffer ();
                     search_context = new Gtk.SourceSearchContext (text_buffer as Gtk.SourceBuffer, null);
                 } else {
                     text_buffer = null;

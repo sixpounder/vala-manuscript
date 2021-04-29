@@ -135,7 +135,8 @@ namespace Manuscript.Dialogs {
         }
 
         protected void compile (Manuscript.Models.ExportFormat output_format) {
-            Manuscript.Compilers.ManuscriptCompiler compiler = Manuscript.Compilers.ManuscriptCompiler.for_format (Models.ExportFormat.PDF);
+            Manuscript.Compilers.ManuscriptCompiler compiler
+                = Manuscript.Compilers.ManuscriptCompiler.for_format (Models.ExportFormat.PDF);
             compiler.filename = "export.test.pdf";
 
             compiler.compile.begin (document, () => {

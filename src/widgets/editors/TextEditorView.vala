@@ -80,10 +80,6 @@ namespace Manuscript.Widgets {
             show_all ();
         }
 
-        ~ TextEditorView () {
-            disconnect_events ();
-        }
-
         private void connect_events () {
             chunk.notify["title"].connect (update_ui);
             chunk.notify["locked"].connect (update_ui);
@@ -126,7 +122,7 @@ namespace Manuscript.Widgets {
             set_font (font_family_string, font_size);
             editor.indent = (int) parent_window.document_manager.document.settings.paragraph_start_padding;
             editor.pixels_below_lines = (int) parent_window.document_manager.document.settings.paragraph_spacing;
-
+            editor.pixels_inside_wrap = (int) parent_window.document_manager.document.settings.line_spacing;
         }
 
         public void set_font (string font_family, int64 font_size) {

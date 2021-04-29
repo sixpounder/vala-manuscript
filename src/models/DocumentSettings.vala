@@ -22,8 +22,9 @@ namespace Manuscript.Models {
         public string author_name { get; set; }
         public string font_family { get; set; }
         public int64 font_size { get; set; }
-        public double paragraph_spacing { get; set; }
+        public double line_spacing { get; set; }
         public double paragraph_start_padding { get; set; }
+        public double paragraph_spacing { get; set; }
 
         public DocumentSettings () {
             set_defaults ();
@@ -49,14 +50,20 @@ namespace Manuscript.Models {
                     font_size = Constants.DEFAULT_FONT_SIZE;
                 }
 
+                if (obj.has_member ("line_spacing")) {
+                    line_spacing = obj.get_double_member ("line_spacing");
+                } else {
+                    line_spacing = 2;
+                }
+
                 if (obj.has_member ("paragraph_spacing")) {
-                    paragraph_spacing = obj.get_int_member ("paragraph_spacing");
+                    paragraph_spacing = obj.get_double_member ("paragraph_spacing");
                 } else {
                     paragraph_spacing = 20;
                 }
 
                 if (obj.has_member ("paragraph_start_padding")) {
-                    paragraph_start_padding = obj.get_int_member ("paragraph_start_padding");
+                    paragraph_start_padding = obj.get_double_member ("paragraph_start_padding");
                 } else {
                     paragraph_start_padding = 10;
                 }
@@ -95,14 +102,20 @@ namespace Manuscript.Models {
                     font_size = Constants.DEFAULT_FONT_SIZE;
                 }
 
+                if (obj.has_member ("line_spacing")) {
+                    line_spacing = obj.get_double_member ("line_spacing");
+                } else {
+                    line_spacing = 2;
+                }
+
                 if (obj.has_member ("paragraph_spacing")) {
-                    paragraph_spacing = obj.get_int_member ("paragraph_spacing");
+                    paragraph_spacing = obj.get_double_member ("paragraph_spacing");
                 } else {
                     paragraph_spacing = 20;
                 }
 
                 if (obj.has_member ("paragraph_start_padding")) {
-                    paragraph_start_padding = obj.get_int_member ("paragraph_start_padding");
+                    paragraph_start_padding = obj.get_double_member ("paragraph_start_padding");
                 } else {
                     paragraph_start_padding = 10;
                 }
@@ -113,6 +126,7 @@ namespace Manuscript.Models {
 
         public void set_defaults () {
             author_name = Environment.get_real_name ();
+            line_spacing = 2;
             paragraph_spacing = 20;
             paragraph_start_padding = 10;
             font_family = Constants.DEFAULT_FONT_FAMILY;
@@ -124,6 +138,7 @@ namespace Manuscript.Models {
             root.set_string_member ("author_name", author_name);
             root.set_string_member ("font_family", font_family);
             root.set_int_member ("font_size", font_size);
+            root.set_double_member ("line_spacing", line_spacing);
             root.set_double_member ("paragraph_spacing", paragraph_spacing);
             root.set_double_member ("paragraph_start_padding", paragraph_start_padding);
 

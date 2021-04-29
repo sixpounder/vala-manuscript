@@ -483,7 +483,7 @@ namespace Manuscript.Models {
                         var target_chunk_uuid = resource.name.substring (0, resource.name.index_of (".text"));
                         chunks.@foreach ((chunk) => {
                             if (chunk != null && chunk.uuid == target_chunk_uuid) {
-                                ((TextChunk) chunk).load_buffer_data (resource.data);
+                                ((TextChunk) chunk).store_raw_data (resource.data);
                                 return false;
                             } else {
                                 return true;

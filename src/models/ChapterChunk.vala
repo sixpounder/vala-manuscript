@@ -31,7 +31,7 @@ namespace Manuscript.Models {
             kind = ChunkType.CHAPTER;
             set_raw ({});
 
-            create_buffer ();
+            //  create_buffer ();
         }
 
         public static ChapterChunk from_json_object (Json.Object obj, Document document) {
@@ -48,6 +48,8 @@ namespace Manuscript.Models {
             } else {
                 self.notes = null;
             }
+
+            //  self.create_buffer ();
 
             return self;
         }
