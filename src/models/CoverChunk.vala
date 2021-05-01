@@ -97,22 +97,6 @@
         public override Json.Object to_json_object () {
             var node = base.to_json_object ();
 
-            //  if (_pixel_buffer != null) {
-            //      if (parent_document.settings.inline_cover_images || image_source_file == null) {
-            //          uint8[] image_data;
-            //          try {
-            //              _pixel_buffer.save_to_buffer (out image_data, "png");
-            //              var image_data_encoded = GLib.Base64.encode (image_data);
-            //              node.set_string_member ("image_data_base64", image_data_encoded);
-            //          } catch (Error e) {
-            //              warning (@"Could not load cover image buffer: $(e.message)");
-            //              node.set_string_member ("image_data_base64", "");
-            //          }
-            //      } else {
-            //          node.set_string_member ("image_source_file", image_source_file.get_path ());
-            //      }
-            //  }
-
             node.set_boolean_member ("paint_title", paint_title);
             node.set_boolean_member ("paint_author_name", paint_author_name);
 
@@ -133,21 +117,6 @@
             } else {
                 self.paint_author_name = false;
             }
-
-            //  InputStream stream = null;
-            //  if (obj.has_member ("image_data_base64")) {
-            //      string raw_data = obj.get_string_member ("image_data_base64");
-            //      uchar[] decoded_data = GLib.Base64.decode (raw_data);
-            //      stream = new MemoryInputStream.from_data (decoded_data, GLib.free);
-
-            //      if (stream != null) {
-            //          self.load_cover_from_stream.begin (stream);
-            //      }
-            //  } else if (obj.has_member ("image_source_file")) {
-            //      self.image_source_file = File.new_for_path (obj.get_string_member ("image_source_file"));
-            //  } else {
-            //      self.pixel_buffer = null;
-            //  }
 
             return self;
         }

@@ -44,9 +44,15 @@ namespace Manuscript.Widgets {
                 _("General")
             );
             settings_views.add_titled (
-                new Settings.DocumentMetricsView (parent_window),
+                new Settings.DocumentTypographyView (parent_window),
                 "typography",
                 _("Typography")
+            );
+
+            settings_views.add_titled (
+                new Settings.DocumentMetricsView (parent_window),
+                "metrics",
+                _("Metrics")
             );
 
             //  settings_views.add_titled (

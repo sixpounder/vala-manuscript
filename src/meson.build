@@ -43,7 +43,8 @@ executable(
 	'widgets/editors/CharacterSheetEditor.vala',
 	'widgets/editors/FormatToolbar.vala',
 
-    'widgets/settings/Metrics.vala',
+	'widgets/settings/Metrics.vala',
+    'widgets/settings/Typography.vala',
     'widgets/settings/General.vala',
 	# 'widgets/settings/Covers.vala',
 

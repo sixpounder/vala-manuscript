@@ -215,10 +215,16 @@ namespace Manuscript.Models {
             return c;
         }
 
+        /**
+         * Stores data to lazily create a buffer
+         */
         public virtual void store_raw_data (uint8[] data) {
             set_raw (data);
         }
 
+        /**
+         * Stores data and creates a buffer from it
+         */
         public virtual void create_buffer (uint8[]? data = null) {
             buffer = new Models.TextBuffer (new DocumentTagTable ());
             buffer.highlight_matching_brackets = false;

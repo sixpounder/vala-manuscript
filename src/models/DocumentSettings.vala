@@ -18,6 +18,11 @@
  */
 
 namespace Manuscript.Models {
+    public enum PageMargin {
+        SMALL = 40,
+        MEDIUM = 70,
+        LARGE = 100
+    }
     public class DocumentSettings : Object, Json.Serializable, Archivable {
         public string author_name { get; set; }
         public string font_family { get; set; }
@@ -25,51 +30,14 @@ namespace Manuscript.Models {
         public double line_spacing { get; set; }
         public double paragraph_start_padding { get; set; }
         public double paragraph_spacing { get; set; }
+        public PageMargin page_margin { get; set; }
 
         public DocumentSettings () {
             set_defaults ();
         }
 
         public DocumentSettings.from_json_object (Json.Object? obj) {
-            if (obj != null) {
-                if (obj.has_member ("author_name")) {
-                    author_name = obj.get_string_member ("author_name");
-                } else {
-                    author_name = Environment.get_real_name ();
-                }
-
-                if (obj.has_member ("font_family")) {
-                    font_family = obj.get_string_member ("font_family");
-                } else {
-                    font_family = Constants.DEFAULT_FONT_FAMILY;
-                }
-
-                if (obj.has_member ("font_size")) {
-                    font_size = obj.get_int_member ("font_size");
-                } else {
-                    font_size = Constants.DEFAULT_FONT_SIZE;
-                }
-
-                if (obj.has_member ("line_spacing")) {
-                    line_spacing = obj.get_double_member ("line_spacing");
-                } else {
-                    line_spacing = 2;
-                }
-
-                if (obj.has_member ("paragraph_spacing")) {
-                    paragraph_spacing = obj.get_double_member ("paragraph_spacing");
-                } else {
-                    paragraph_spacing = 20;
-                }
-
-                if (obj.has_member ("paragraph_start_padding")) {
-                    paragraph_start_padding = obj.get_double_member ("paragraph_start_padding");
-                } else {
-                    paragraph_start_padding = 10;
-                }
-            } else {
-                set_defaults ();
-            }
+            DocumentSettings.populate_from_json_object (this, obj);
         }
 
         public DocumentSettings.from_data (uint8[] data) throws DocumentError {
@@ -83,44 +51,54 @@ namespace Manuscript.Models {
 
             var obj = parser.get_root ().get_object ();
 
+            DocumentSettings.populate_from_json_object (this, obj);
+        }
+
+        private static void populate_from_json_object (DocumentSettings target, Json.Object? obj) {
             if (obj != null) {
                 if (obj.has_member ("author_name")) {
-                    author_name = obj.get_string_member ("author_name");
+                    target.author_name = obj.get_string_member ("author_name");
                 } else {
-                    author_name = Environment.get_real_name ();
+                    target.author_name = Environment.get_real_name ();
                 }
 
                 if (obj.has_member ("font_family")) {
-                    font_family = obj.get_string_member ("font_family");
+                    target.font_family = obj.get_string_member ("font_family");
                 } else {
-                    font_family = Constants.DEFAULT_FONT_FAMILY;
+                    target.font_family = Constants.DEFAULT_FONT_FAMILY;
                 }
 
                 if (obj.has_member ("font_size")) {
-                    font_size = obj.get_int_member ("font_size");
+                    target.font_size = obj.get_int_member ("font_size");
                 } else {
-                    font_size = Constants.DEFAULT_FONT_SIZE;
+                    target.font_size = Constants.DEFAULT_FONT_SIZE;
                 }
 
                 if (obj.has_member ("line_spacing")) {
-                    line_spacing = obj.get_double_member ("line_spacing");
+                    target.line_spacing = obj.get_double_member ("line_spacing");
                 } else {
-                    line_spacing = 2;
+                    target.line_spacing = 2;
                 }
 
                 if (obj.has_member ("paragraph_spacing")) {
-                    paragraph_spacing = obj.get_double_member ("paragraph_spacing");
+                    target.paragraph_spacing = obj.get_double_member ("paragraph_spacing");
                 } else {
-                    paragraph_spacing = 20;
+                    target.paragraph_spacing = 20;
                 }
 
                 if (obj.has_member ("paragraph_start_padding")) {
-                    paragraph_start_padding = obj.get_double_member ("paragraph_start_padding");
+                    target.paragraph_start_padding = obj.get_double_member ("paragraph_start_padding");
                 } else {
-                    paragraph_start_padding = 10;
+                    target.paragraph_start_padding = 10;
+                }
+
+                if (obj.has_member ("page_margin")) {
+                    target.page_margin = (PageMargin) obj.get_double_member ("page_margin");
+                } else {
+                    target.page_margin = PageMargin.MEDIUM;
                 }
             } else {
-                set_defaults ();
+                target.set_defaults ();
             }
         }
 
@@ -141,6 +119,7 @@ namespace Manuscript.Models {
             root.set_double_member ("line_spacing", line_spacing);
             root.set_double_member ("paragraph_spacing", paragraph_spacing);
             root.set_double_member ("paragraph_start_padding", paragraph_start_padding);
+            root.set_double_member ("page_margin", (double) page_margin);
 
             return root;
         }
