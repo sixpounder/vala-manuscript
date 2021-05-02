@@ -30,6 +30,7 @@ namespace Manuscript.Widgets {
         protected Widgets.MenuButton menu_button;
         protected Widgets.MenuButton add_element_button;
         protected Widgets.MenuButton export_button;
+        protected Widgets.MenuButton document_settings_button;
 
         protected Widgets.SettingsPopover settings_popover;
         protected Widgets.ExportPopover export_popover;
@@ -87,6 +88,14 @@ namespace Manuscript.Widgets {
             pack_start (add_element_button);
 
             //  export_popover = new Widgets.ExportPopover (export_button);
+            document_settings_button = new Widgets.MenuButton.with_properties (
+                "document-properties",
+                "Properties",
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_DOCUMENT_SETTINGS)"
+            );
+            document_settings_button.sensitive = document_manager.has_document;
+            pack_start (document_settings_button);
+
             export_button = new Widgets.MenuButton.with_properties (
                 "document-export",
                 "Export",
@@ -270,6 +279,7 @@ namespace Manuscript.Widgets {
 
         protected void update_ui () {
             subtitle = document_manager.has_document ? document_manager.document.title : null;
+            document_settings_button.sensitive = document_manager.has_document;
             menu_button.sensitive = document_manager.has_document;
             add_element_button.sensitive = document_manager.has_document;
             export_button.sensitive = document_manager.has_document;

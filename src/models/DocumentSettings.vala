@@ -19,10 +19,36 @@
 
 namespace Manuscript.Models {
     public enum PageMargin {
-        SMALL = 40,
-        MEDIUM = 70,
-        LARGE = 100
+        SMALL,
+        MEDIUM,
+        LARGE
     }
+
+    public double page_margin_get_value (PageMargin source) {
+        switch (source) {
+            case PageMargin.SMALL:
+                return 40;
+            case PageMargin.MEDIUM:
+                return 70;
+            case PageMargin.LARGE:
+                return 100;
+            default:
+                return 70;
+        }
+    }
+
+    public PageMargin value_get_page_margin (double source) {
+        if (source == 40) {
+            return PageMargin.SMALL;
+        } else if (source == 70) {
+            return PageMargin.MEDIUM;
+        } else if (source == 100) {
+            return PageMargin.LARGE;
+        } else {
+            return PageMargin.MEDIUM;
+        }
+    }
+
     public class DocumentSettings : Object, Json.Serializable, Archivable {
         public string author_name { get; set; }
         public string font_family { get; set; }
@@ -93,7 +119,7 @@ namespace Manuscript.Models {
                 }
 
                 if (obj.has_member ("page_margin")) {
-                    target.page_margin = (PageMargin) obj.get_double_member ("page_margin");
+                    target.page_margin = value_get_page_margin(obj.get_double_member ("page_margin"));
                 } else {
                     target.page_margin = PageMargin.MEDIUM;
                 }
@@ -119,7 +145,7 @@ namespace Manuscript.Models {
             root.set_double_member ("line_spacing", line_spacing);
             root.set_double_member ("paragraph_spacing", paragraph_spacing);
             root.set_double_member ("paragraph_start_padding", paragraph_start_padding);
-            root.set_double_member ("page_margin", (double) page_margin);
+            root.set_double_member ("page_margin", page_margin_get_value(page_margin));
 
             return root;
         }

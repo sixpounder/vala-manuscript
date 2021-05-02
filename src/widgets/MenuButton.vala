@@ -56,16 +56,16 @@ namespace Manuscript.Widgets {
             icon.gicon = new ThemedIcon (icon_name);
             icon.pixel_size = 24;
             button.image = icon;
-            button.clicked.connect (() => {
-                on_activate (button);
-            });
 
             if (accels != null) {
                 button.action_name = accels;
             } else {
-                button.touch_event.connect (() => {
-                    on_activate ();
-                    return true;
+                //  button.touch_event.connect (() => {
+                //      on_activate ();
+                //      return true;
+                //  });
+                button.clicked.connect (() => {
+                    on_activate (button);
                 });
             }
 

@@ -8,5 +8,8 @@
     <gresource prefix="/com/github/sixpounder/manuscript/icons">
         <file alias="note-symbolic.svg">icons/symbolic/notes-symbolic.svg</file>
         <file alias="document-settings-symbolic.svg">icons/symbolic/document-settings-symbolic.svg</file>
+        <file alias="document-page-margin-large.svg">icons/128/document-page-margin-large.svg</file>
+        <file alias="document-page-margin-medium.svg">icons/128/document-page-margin-medium.svg</file>
+        <file alias="document-page-margin-small.svg">icons/128/document-page-margin-small.svg</file>
     </gresource>
 </gresources>

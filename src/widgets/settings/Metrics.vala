@@ -35,9 +35,10 @@ namespace Manuscript.Widgets.Settings {
             attach_next_to (page_margin_label, null, Gtk.PositionType.LEFT, 3);
 
             Gtk.RadioButton page_margin_small_radio = new Gtk.RadioButton (null);
-            var page_margin_small_radio_icon = new Gtk.Image ();
-            page_margin_small_radio_icon.gicon = new ThemedIcon ("application-pdf");
+            var page_margin_small_radio_icon = new Gtk.Image.from_icon_name ("document-page-margin-small", Gtk.IconSize.LARGE_TOOLBAR);
             page_margin_small_radio_icon.pixel_size = 64;
+            //  page_margin_small_radio_icon.gicon = new ThemedIcon ("application-pdf");
+            //  page_margin_small_radio_icon.pixel_size = 64;
             page_margin_small_radio.image = page_margin_small_radio_icon;
             page_margin_small_radio.toggled.connect (() => {
                 page_margin_changed (Models.PageMargin.SMALL);
@@ -45,9 +46,10 @@ namespace Manuscript.Widgets.Settings {
             attach_next_to (page_margin_small_radio, page_margin_label, Gtk.PositionType.BOTTOM, 1);
 
             Gtk.RadioButton page_margin_medium_radio = new Gtk.RadioButton.from_widget (page_margin_small_radio);
-            var page_margin_medium_radio_icon = new Gtk.Image ();
-            page_margin_medium_radio_icon.gicon = new ThemedIcon ("application-pdf");
+            var page_margin_medium_radio_icon = new Gtk.Image.from_icon_name ("document-page-margin-medium", Gtk.IconSize.LARGE_TOOLBAR);
             page_margin_medium_radio_icon.pixel_size = 64;
+            //  page_margin_medium_radio_icon.gicon = new ThemedIcon ("application-pdf");
+            //  page_margin_medium_radio_icon.pixel_size = 64;
             page_margin_medium_radio.image = page_margin_medium_radio_icon;
             page_margin_medium_radio.toggled.connect (() => {
                 page_margin_changed (Models.PageMargin.MEDIUM);
@@ -55,9 +57,10 @@ namespace Manuscript.Widgets.Settings {
             attach_next_to (page_margin_medium_radio, page_margin_small_radio, Gtk.PositionType.RIGHT, 1);
 
             Gtk.RadioButton page_margin_large_radio = new Gtk.RadioButton.from_widget (page_margin_small_radio);
-            var page_margin_large_radio_icon = new Gtk.Image ();
-            page_margin_large_radio_icon.gicon = new ThemedIcon ("application-pdf");
+            var page_margin_large_radio_icon = new Gtk.Image.from_icon_name ("document-page-margin-large", Gtk.IconSize.LARGE_TOOLBAR);
             page_margin_large_radio_icon.pixel_size = 64;
+            //  page_margin_large_radio_icon.gicon = new ThemedIcon ("application-pdf");
+            //  page_margin_large_radio_icon.pixel_size = 64;
             page_margin_large_radio.image = page_margin_large_radio_icon;
             page_margin_large_radio.toggled.connect (() => {
                 page_margin_changed (Models.PageMargin.LARGE);

@@ -196,10 +196,17 @@ namespace Manuscript {
             document_manager.load.disconnect (on_document_manager_load);
             document_manager.unloaded.disconnect (on_document_manager_unload);
             document_manager.backend_file_unlinked.disconnect (on_backend_file_deleted);
+
             base.destroy ();
         }
 
         public override bool delete_event (Gdk.EventAny event) {
+            if (!document_manager.has_document) {
+                settings.last_opened_document = "";
+            } else {
+                settings.last_opened_document = document_manager.document.file_path;
+            }
+
             if (settings.autosave) {
                 try {
                     if (document_manager.has_document) {
