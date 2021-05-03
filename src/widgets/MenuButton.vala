@@ -20,9 +20,9 @@
 namespace Manuscript.Widgets {
 
     public enum MenuButtonHint {
-        DropdownMenu,
-        Modal,
-        None
+        DROPDOWN_MENU,
+        MODAL,
+        NONE
     }
     public class MenuButton : Gtk.Grid {
         public signal void activated ();
@@ -68,7 +68,7 @@ namespace Manuscript.Widgets {
             if (accels != null) {
                 button.action_name = accels;
                 button.clicked.connect (() => {
-                    if (hint == MenuButtonHint.Modal) {
+                    if (hint == MenuButtonHint.MODAL) {
                         button.set_state_flags (Gtk.StateFlags.NORMAL, true);
                     }
                 });
@@ -98,7 +98,7 @@ namespace Manuscript.Widgets {
             valign = Gtk.Align.CENTER;
             halign = Gtk.Align.FILL;
             expand = false;
-            hint = MenuButtonHint.None;
+            hint = MenuButtonHint.NONE;
         }
 
         protected void on_activate (Gtk.Widget ? widget = null, Gdk.Event ? event = null) {

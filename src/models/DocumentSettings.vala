@@ -119,7 +119,7 @@ namespace Manuscript.Models {
                 }
 
                 if (obj.has_member ("page_margin")) {
-                    target.page_margin = value_get_page_margin(obj.get_double_member ("page_margin"));
+                    target.page_margin = value_get_page_margin (obj.get_double_member ("page_margin"));
                 } else {
                     target.page_margin = PageMargin.MEDIUM;
                 }
@@ -145,7 +145,7 @@ namespace Manuscript.Models {
             root.set_double_member ("line_spacing", line_spacing);
             root.set_double_member ("paragraph_spacing", paragraph_spacing);
             root.set_double_member ("paragraph_start_padding", paragraph_start_padding);
-            root.set_double_member ("page_margin", page_margin_get_value(page_margin));
+            root.set_double_member ("page_margin", page_margin_get_value (page_margin));
 
             return root;
         }

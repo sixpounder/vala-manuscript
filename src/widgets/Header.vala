@@ -87,13 +87,12 @@ namespace Manuscript.Widgets {
             add_element_button.popover = build_add_element_menu ();
             pack_start (add_element_button);
 
-            //  export_popover = new Widgets.ExportPopover (export_button);
             document_settings_button = new Widgets.MenuButton.with_properties (
                 "document-properties",
                 "Properties",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_DOCUMENT_SETTINGS)"
             );
-            document_settings_button.hint = MenuButtonHint.Modal;
+            document_settings_button.hint = MenuButtonHint.MODAL;
             document_settings_button.sensitive = document_manager.has_document;
             pack_start (document_settings_button);
 
@@ -102,7 +101,7 @@ namespace Manuscript.Widgets {
                 "Export",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_EXPORT)"
             );
-            export_button.hint = MenuButtonHint.Modal;
+            export_button.hint = MenuButtonHint.MODAL;
             export_button.sensitive = document_manager.has_document;
             pack_start (export_button);
 
@@ -115,7 +114,6 @@ namespace Manuscript.Widgets {
             settings.change.connect (update_ui);
             document_manager.load.connect_after (update_ui);
             document_manager.unloaded.connect_after (update_ui);
-            //  document_manager.change.connect (update_ui);
             document_manager.property_change.connect (update_ui);
 
             update_ui ();

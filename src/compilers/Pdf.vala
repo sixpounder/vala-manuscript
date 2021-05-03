@@ -29,6 +29,7 @@ namespace Manuscript.Compilers {
         private uint page_counter = 0;
         private Cairo.Context? ctx { get; set; }
         private Cairo.PdfSurface? surface { get; set; }
+        private Pango.Context pango_context { get; set; }
 
         internal PDFCompiler () {}
 
@@ -53,6 +54,9 @@ namespace Manuscript.Compilers {
             surface.get_device_scale (out x_scale, out y_scale);
 
             ctx = new Cairo.Context (surface);
+            ctx.set_antialias (Cairo.Antialias.BEST);
+
+            pango_context = Pango.cairo_create_context (ctx);
 
             ctx.select_font_face (
                 document.settings.font_family,
@@ -93,14 +97,16 @@ namespace Manuscript.Compilers {
         private void render_cover (Models.CoverChunk chunk) {
             new_page ();
 
+            pango_context.changed ();
+
             var layout_width_in_pixels = Manuscript.Constants.A4_WIDHT_IN_POINTS / 0.75;
             var layout_height_in_pixels = Manuscript.Constants.A4_HEIGHT_IN_POINTS / 0.75;
 
             ctx.move_to (page_margin, page_margin);
 
-            Pango.Layout layout = Pango.cairo_create_layout (ctx);
-            //  layout.set_width ((int) (layout_width_in_pixels);
-            //  layout.set_height ((int) layout_height_in_pixels);
+            Pango.Layout layout = new Pango.Layout (pango_context);
+            layout.set_width ((int) (layout_width_in_pixels * 600));
+            layout.set_height ((int) (layout_height_in_pixels * 600));
             layout.set_font_description (Pango.FontDescription.from_string (
                 @"$(chunk.parent_document.settings.font_family) 36px"
             ));
@@ -123,8 +129,9 @@ namespace Manuscript.Compilers {
         private void render_chapter (Models.ChapterChunk chunk) {
             chunk.ensure_buffer ();
 
+            var line_spacing = chunk.parent_document.settings.line_spacing;
+
             new_page ();
-            ctx.set_antialias (Cairo.Antialias.BEST);
             ctx.set_source_rgb (1, 1, 1);
             ctx.fill_preserve ();
             ctx.save ();
@@ -139,7 +146,10 @@ namespace Manuscript.Compilers {
             ctx.set_font_size (chunk.parent_document.settings.font_size * TITLE_SCALE);
             Cairo.TextExtents extents;
             ctx.text_extents (chunk.title, out extents);
-            ctx.move_to ((Manuscript.Constants.A4_WIDHT_IN_POINTS / 2) - ((extents.width / 2) + extents.x_bearing), page_margin);
+            ctx.move_to (
+                (Manuscript.Constants.A4_WIDHT_IN_POINTS / 2) - ((extents.width / 2) + extents.x_bearing),
+                page_margin
+            );
             ctx.show_text (chunk.title);
 
             // Render chapter body
@@ -166,23 +176,39 @@ namespace Manuscript.Compilers {
             layout.set_text (text, text.length);
 
             ctx.move_to (page_margin, 140);
-            Pango.cairo_show_layout (ctx, layout);
+            
+            Pango.Rectangle ink_rect, logical_rect;
+            layout.get_extents (out ink_rect, out logical_rect);
+
+            var iter = layout.get_iter ();
+            var first_line_done = false;
+            while (!first_line_done || iter.next_line ()) {
+                first_line_done = true;
+                var ln = iter.get_line_readonly ();
+                Pango.Rectangle line_extent, line_logical_extent;
+                ln.get_extents (out line_extent, out line_logical_extent);
+                Pango.cairo_show_layout_line (ctx, ln);
+                ctx.rel_move_to (0, (line_extent.height / Pango.SCALE) + line_spacing);
+            }
+
+            //  Pango.cairo_show_layout (ctx, layout);
         }
 
         private Pango.Layout create_paragraph_layout (Models.DocumentChunk chunk) {
             var layout_width_in_pixels = Manuscript.Constants.A4_WIDHT_IN_POINTS / 0.75;
             var layout_height_in_pixels = Manuscript.Constants.A4_HEIGHT_IN_POINTS / 0.75;
             debug (@"Layout size: $layout_width_in_pixels x $layout_height_in_pixels");
-    
+
             Pango.Layout layout = Pango.cairo_create_layout (ctx);
-            //  layout.set_width ((int) layout_width_in_pixels);
-            //  layout.set_height ((int) layout_height_in_pixels);
+            layout.set_width ((int) (layout_width_in_pixels * 600));
+            layout.set_height ((int) (layout_height_in_pixels * 600));
             layout.set_font_description (Pango.FontDescription.from_string (
                 @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size)px"
             ));
             layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
             layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
-            layout.set_ellipsize (Pango.EllipsizeMode.NONE);
+            // layout.set_line_spacing((int) chunk.parent_document.settings.line_spacing);
+            layout.set_ellipsize (Pango.EllipsizeMode.END);
             layout.set_wrap (Pango.WrapMode.WORD);
             layout.set_justify (true);
 
