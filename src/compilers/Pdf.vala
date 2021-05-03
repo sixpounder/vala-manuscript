@@ -37,6 +37,8 @@ namespace Manuscript.Compilers {
         }
 
         public override async void compile (Manuscript.Models.Document document) {
+            page_margin = Models.page_margin_get_value (document.settings.page_margin);
+
             surface = new Cairo.PdfSurface (
                 filename,
                 Manuscript.Constants.A4_WIDHT_IN_POINTS,
@@ -114,7 +116,7 @@ namespace Manuscript.Compilers {
 
             Pango.cairo_show_layout (ctx, layout);
 
-            ctx.move_to (page_margin, 700);
+            ctx.move_to (page_margin, -page_margin + 10);
             ctx.show_text (chunk.parent_document.settings.author_name);
         }
 

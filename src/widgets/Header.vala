@@ -55,7 +55,7 @@ namespace Manuscript.Widgets {
                 parent_window: parent,
                 has_subtitle: true,
                 show_close_button: true,
-                spacing: 10
+                spacing: 15
             );
         }
 
@@ -93,6 +93,7 @@ namespace Manuscript.Widgets {
                 "Properties",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_DOCUMENT_SETTINGS)"
             );
+            document_settings_button.hint = MenuButtonHint.Modal;
             document_settings_button.sensitive = document_manager.has_document;
             pack_start (document_settings_button);
 
@@ -101,6 +102,7 @@ namespace Manuscript.Widgets {
                 "Export",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_EXPORT)"
             );
+            export_button.hint = MenuButtonHint.Modal;
             export_button.sensitive = document_manager.has_document;
             pack_start (export_button);
 
