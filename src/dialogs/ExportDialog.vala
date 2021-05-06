@@ -152,7 +152,16 @@ namespace Manuscript.Dialogs {
                 return false;
             });
 #else
-            compile (export_format);
+            if (Thread.supported ()) {
+                Thread<void> t = new Thread<void> ("compile-thread", () => {
+                    compile (export_format);
+                    enable_ui ();
+                });
+    
+                t.join ();
+            } else {
+                compile (export_format);
+            }
 #endif
         }
     }

@@ -129,7 +129,9 @@ namespace Manuscript.Compilers {
         private void render_chapter (Models.ChapterChunk chunk) {
             chunk.ensure_buffer ();
 
-            var line_spacing = chunk.parent_document.settings.line_spacing;
+            //  var line_spacing = chunk.parent_document.settings.line_spacing;
+            var layout_width_in_pixels = Manuscript.Constants.A4_WIDHT_IN_POINTS / 0.75;
+            var layout_height_in_pixels = Manuscript.Constants.A4_HEIGHT_IN_POINTS / 0.75;
 
             new_page ();
             ctx.set_source_rgb (1, 1, 1);
@@ -144,13 +146,36 @@ namespace Manuscript.Compilers {
                 Cairo.FontWeight.BOLD
             );
             ctx.set_font_size (chunk.parent_document.settings.font_size * TITLE_SCALE);
-            Cairo.TextExtents extents;
-            ctx.text_extents (chunk.title, out extents);
-            ctx.move_to (
-                (Manuscript.Constants.A4_WIDHT_IN_POINTS / 2) - ((extents.width / 2) + extents.x_bearing),
-                page_margin
-            );
-            ctx.show_text (chunk.title);
+            
+            //  Cairo.TextExtents extents;
+            //  ctx.text_extents (chunk.title, out extents);
+            //  ctx.move_to (
+            //      (Manuscript.Constants.A4_WIDHT_IN_POINTS / 2) - ((extents.width / 2) + extents.x_bearing),
+            //      page_margin
+            //  );
+            //  ctx.show_text (chunk.title);
+            ctx.move_to (page_margin, page_margin);
+            Pango.Layout title_layout = Pango.cairo_create_layout (ctx);
+            title_layout.set_width ((int) (layout_width_in_pixels * 600));
+            title_layout.set_alignment (Pango.Alignment.CENTER);
+            title_layout.set_justify (false);
+            title_layout.set_font_description (Pango.FontDescription.from_string (
+                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * TITLE_SCALE)px"
+            ));
+            title_layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
+            title_layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
+            // layout.set_line_spacing((int) chunk.parent_document.settings.line_spacing);
+            title_layout.set_ellipsize (Pango.EllipsizeMode.NONE);
+            title_layout.set_wrap (Pango.WrapMode.WORD);
+            //  title_layout.set_text (chunk.title, chunk.title.length);
+            var title_markup = @"<b>$(chunk.title)</b>";
+            title_layout.set_markup (title_markup, title_markup.length);
+            title_layout.context_changed ();
+
+            Pango.Rectangle title_ink_rect, title_logical_rect;
+            title_layout.get_extents (out title_ink_rect, out title_logical_rect);
+
+            Pango.cairo_show_layout (ctx, title_layout);
 
             // Render chapter body
             ctx.set_font_size (chunk.parent_document.settings.font_size);
@@ -162,53 +187,146 @@ namespace Manuscript.Compilers {
                 Cairo.FontWeight.NORMAL
             );
             ctx.set_font_size (chunk.parent_document.settings.font_size);
+            ctx.rel_move_to (0, (title_logical_rect.height / Pango.SCALE) + chunk.parent_document.settings.paragraph_spacing);
 
             var buffer = chunk.buffer;
-            Gtk.TextIter cursor;
+
+            Gtk.TextIter cursor, end_iter;
             buffer.get_start_iter (out cursor);
-
-            var layout = create_paragraph_layout (chunk);
-
-            Gtk.TextIter start_iter, end_iter;
-            buffer.get_start_iter (out start_iter);
             buffer.get_end_iter (out end_iter);
-            var text = buffer.get_text (start_iter, end_iter, true);
-            layout.set_text (text, text.length);
 
-            ctx.move_to (page_margin, 140);
+            // Estimate number of pages needed;
+            var layout = create_paragraph_layout (chunk);
+            var all_text = buffer.get_text (cursor, end_iter, false);
+            layout.set_text (all_text, all_text.length);
+            Pango.Rectangle tmp_ink_rect, tmp_logical_rect;
+            layout.get_extents (out tmp_ink_rect, out tmp_logical_rect);
+
+            debug (@"Ink height: $(tmp_ink_rect.height / Pango.SCALE) - Logical height: $(tmp_logical_rect.height / Pango.SCALE)");
+
+            var estimated_pages = Math.fabs (
+                Math.ceil (((tmp_logical_rect.height / Pango.SCALE) - (page_margin * 2)) / layout_height_in_pixels)
+            );
+            debug (@"Estimated pages: $estimated_pages");
             
-            Pango.Rectangle ink_rect, logical_rect;
-            layout.get_extents (out ink_rect, out logical_rect);
+            StringBuilder markup_buffer = new StringBuilder.sized (all_text.length);
+            layout = create_paragraph_layout (chunk);
 
-            var iter = layout.get_iter ();
-            var first_line_done = false;
-            while (!first_line_done || iter.next_line ()) {
-                first_line_done = true;
-                var ln = iter.get_line_readonly ();
-                Pango.Rectangle line_extent, line_logical_extent;
-                ln.get_extents (out line_extent, out line_logical_extent);
-                Pango.cairo_show_layout_line (ctx, ln);
-                ctx.rel_move_to (0, (line_extent.height / Pango.SCALE) + line_spacing);
+            while (!cursor.is_end ()) {
+                //  Gtk.TextIter step = cursor;
+                //  step.forward_char ();
+                if (cursor.starts_tag (null)) {
+                    var tags = cursor.get_tags ();
+                    tags.foreach ((tag) => {
+                        debug (@"Started tag $(tag.name)");
+                        string tag_text = null;
+                        switch (tag.name) {
+                            case "bold":
+                                tag_text = "b";
+                                break;
+                            case "italic":
+                                tag_text = "i";
+                                break;
+                            case "underline":
+                                tag_text = "u";
+                                break;
+                            default:
+                                break;
+                        }
+                        if (tag_text != null) {
+                            markup_buffer.append (@"<$(tag_text)>");
+                            Gtk.TextIter step = cursor;
+                            step.forward_to_tag_toggle (tag);
+                            string tagged_text = buffer.get_text (cursor, step, false);
+                            markup_buffer.append (tagged_text);
+                            markup_buffer.append (@"</$(tag_text)>");
+                            cursor = step;
+                        }
+                    });
+                } else {
+                    unichar text = cursor.get_char ();
+                    markup_buffer.append_unichar (text);
+                    cursor.forward_char ();
+                }
+
+                //  if (cursor.ends_tag (null)) {
+                //      var tags = cursor.get_tags ();
+                //      tags.foreach ((tag) => {
+                //          debug (@"Ended tag $(tag.name)");
+                //          markup_buffer.append (@"</b>");
+                //      });
+                //      cursor.forward_char ();
+                //  }
+
+                layout.set_markup (markup_buffer.str, markup_buffer.str.length);
+                Pango.Rectangle ink_rect, logical_rect;
+                layout.get_extents (out ink_rect, out logical_rect);
+
+                if ((ink_rect.height / Pango.SCALE) > (layout_height_in_pixels - (page_margin * 2))) {
+                    //  if (cursor.inside_word ()) {
+                    //      cursor.backward_word_start ();
+                    //  }
+                    Pango.cairo_show_layout (ctx, layout);
+                    markup_buffer = new StringBuilder.sized (all_text.length);
+                    layout = create_paragraph_layout (chunk);
+                    if (!cursor.is_end ()) {
+                        new_page ();
+                        layout.context_changed ();
+                    }
+                }
             }
 
-            //  Pango.cairo_show_layout (ctx, layout);
+            if (markup_buffer.data.length != 0) {
+                Pango.cairo_show_layout (ctx, layout);
+            }
+
+            //  int num_lines = buffer.get_line_count ();
+            //  int line_counter = 0;
+            //  int y_acc = 0;
+            //  for (line_counter = 0; line_counter < num_lines; line_counter ++) {
+
+            //      // Get a line from this buffer
+            //      Gtk.TextIter start_iter, end_iter;
+            //      buffer.get_iter_at_line (out start_iter, line_counter);
+            //      end_iter = start_iter;
+            //      end_iter.forward_to_line_end ();
+
+            //      var layout = create_paragraph_layout (chunk);
+
+            //      // Get text for said line
+            //      var text = buffer.get_text (start_iter, end_iter, true);
+
+            //      layout.set_text (text, text.length);
+
+            //      Pango.Rectangle ink_rect, logical_rect;
+            //      layout.get_extents (out ink_rect, out logical_rect);
+            //      y_acc += logical_rect.height / Pango.SCALE;
+
+            //      if (y_acc > (layout_height_in_pixels - page_margin)) {
+            //          y_acc = 0;
+            //          new_page ();
+            //      } else {
+            //          Pango.cairo_show_layout (ctx, layout);
+            //          ctx.rel_move_to (0, (logical_rect.height / Pango.SCALE) + line_spacing);
+            //      }
+            //  }
         }
 
         private Pango.Layout create_paragraph_layout (Models.DocumentChunk chunk) {
             var layout_width_in_pixels = Manuscript.Constants.A4_WIDHT_IN_POINTS / 0.75;
             var layout_height_in_pixels = Manuscript.Constants.A4_HEIGHT_IN_POINTS / 0.75;
-            debug (@"Layout size: $layout_width_in_pixels x $layout_height_in_pixels");
+            debug (@"Layout size: $(layout_width_in_pixels)px x $(layout_height_in_pixels)px");
 
             Pango.Layout layout = Pango.cairo_create_layout (ctx);
             layout.set_width ((int) (layout_width_in_pixels * 600));
-            layout.set_height ((int) (layout_height_in_pixels * 600));
+            //  layout.set_height ((int) ((layout_height_in_pixels - page_margin)));
             layout.set_font_description (Pango.FontDescription.from_string (
-                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size)px"
+                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * 0.75)"
             ));
             layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
             layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
             // layout.set_line_spacing((int) chunk.parent_document.settings.line_spacing);
-            layout.set_ellipsize (Pango.EllipsizeMode.END);
+            layout.set_ellipsize (Pango.EllipsizeMode.NONE);
             layout.set_wrap (Pango.WrapMode.WORD);
             layout.set_justify (true);
 
@@ -218,7 +336,9 @@ namespace Manuscript.Compilers {
         private void new_page () {
             if (page_counter != 0) {
                 ctx.show_page ();
+                ctx.move_to (page_margin, page_margin);
             }
+
 
             page_counter ++;
         }
