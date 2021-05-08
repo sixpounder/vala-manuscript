@@ -23,7 +23,7 @@ namespace Manuscript.Dialogs {
         public weak Manuscript.Window parent_window { get; construct; }
         public weak Manuscript.Models.Document document { get; construct; }
 
-        private Manuscript.Models.ExportFormat _export_format; 
+        private Manuscript.Models.ExportFormat _export_format;
         public Manuscript.Models.ExportFormat export_format {
             get {
                 return _export_format;
@@ -210,7 +210,7 @@ namespace Manuscript.Dialogs {
                 new Thread<void> ("compile-thread", () => {
                     compile.begin (export_format, () => {
                         enable_ui ();
-                        Idle.add((owned) callback);
+                        Idle.add ((owned) callback);
                     });
                 });
                 yield;

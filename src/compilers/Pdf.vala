@@ -154,14 +154,14 @@ namespace Manuscript.Compilers {
                 Cairo.FontWeight.BOLD
             );
             ctx.set_font_size (chunk.parent_document.settings.font_size * TITLE_SCALE);
-            
+
             ctx.move_to (page_margin, page_margin);
             Pango.Layout title_layout = Pango.cairo_create_layout (ctx);
             title_layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
             title_layout.set_alignment (Pango.Alignment.CENTER);
             title_layout.set_justify (false);
             title_layout.set_font_description (Pango.FontDescription.from_string (
-                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * TITLE_SCALE)px"
+                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * TITLE_SCALE)px" // vala-lint=line-length
             ));
             title_layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
             title_layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
@@ -189,7 +189,10 @@ namespace Manuscript.Compilers {
                 Cairo.FontWeight.NORMAL
             );
             ctx.set_font_size (chunk.parent_document.settings.font_size);
-            ctx.rel_move_to (0, (title_logical_rect.height / Pango.SCALE) + chunk.parent_document.settings.paragraph_spacing);
+            ctx.rel_move_to (
+                0,
+                (title_logical_rect.height / Pango.SCALE) + chunk.parent_document.settings.paragraph_spacing
+            );
 
             var buffer = chunk.buffer;
 
@@ -211,7 +214,7 @@ namespace Manuscript.Compilers {
             var all_text = buffer.get_text (cursor, end_iter, false);
             var max_text_length = all_text.length;
             uint line_counter = 0;
-            
+
             StringBuilder markup_buffer = new StringBuilder.sized (max_text_length);
             layout = create_paragraph_layout (chunk);
             layout.context_changed ();

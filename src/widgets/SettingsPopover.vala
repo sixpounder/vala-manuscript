@@ -21,7 +21,7 @@ namespace Manuscript.Widgets {
     public class SettingsPopover : Gtk.Popover {
         protected Gtk.Grid layout;
         protected Gtk.Box theme_layout;
-        public Gtk.Application application  { get; construct; }
+        public Gtk.Application application { get; construct; }
         public Gtk.Switch focus_mode_switch { get; private set; }
         public Gtk.Switch autosave_switch { get; private set; }
         public Services.AppSettings settings { get; private set; }
