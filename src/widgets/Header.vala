@@ -105,7 +105,7 @@ namespace Manuscript.Widgets {
             export_button.sensitive = document_manager.has_document;
             pack_start (export_button);
 
-            settings_popover = new Widgets.SettingsPopover ();
+            settings_popover = new Widgets.SettingsPopover (parent_window.application);
             settings_button = new Widgets.MenuButton.with_properties ("open-menu", _("Settings"));
             settings_button.tooltip_text = _ ("Application settings");
             settings_button.popover = settings_popover;

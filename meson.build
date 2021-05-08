@@ -28,9 +28,7 @@ add_project_arguments('-D', 'CHUNK_COVER', language: 'vala')
 # add_project_arguments('-D', 'EXPORT_COMPILER_ARCHIVE', language: 'vala')
 add_project_arguments('-D', 'EXPORT_COMPILER_MARKDOWN', language: 'vala')
 add_project_arguments('-D', 'EXPORT_COMPILER_PLAIN', language: 'vala')
-
-# Uncomment this to "fake" exports and return after five seconds
-# add_project_arguments('-D', 'EXPORT_DEMO_MODE', language: 'vala')
+add_project_arguments('-D', 'EXPORT_COMPILER_HTML', language: 'vala')
 
 # Comment this line to disable notification support
 add_project_arguments('-D', 'NOTIFICATIONS', language: 'vala')

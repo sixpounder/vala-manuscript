@@ -27,6 +27,9 @@ namespace Manuscript {
         public const string DEFAULT_FONT_FAMILY = "iA Writer Duospace";
         public const int64 DEFAULT_FONT_SIZE = 18;
 
+        public const double MIN_FONT_SCALE = 0.1;
+        public const double MAX_FONT_SCALE = 5;
+
         public const uint QUICK_SEARCH_DEBOUNCE_TIME = 100;
         public const uint AUTOSAVE_DEBOUNCE_TIME = 5000;
         public const int FILE_MONITOR_RATE_LIMIT = 500;

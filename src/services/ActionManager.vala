@@ -42,6 +42,10 @@ namespace Manuscript.Services {
         public const string ACTION_ADD_NOTE = "action_add_note";
         public const string ACTION_IMPORT = "action_import";
 
+        public const string ACTION_ZOOM_IN_FONT = "action_zoom_in_font";
+        public const string ACTION_ZOOM_OUT_FONT = "action_zoom_out_font";
+        public const string ACTION_ZOOM_DEFAULT_FONT = "action_zoom_default_font";
+
         private const ActionEntry[] ACTION_ENTRIES = {
             { ACTION_NEW_WINDOW, action_new_window },
             { ACTION_OPEN, action_open },
@@ -60,7 +64,11 @@ namespace Manuscript.Services {
             { ACTION_ADD_CHARACTER_SHEET, action_add_character_sheet },
             { ACTION_ADD_COVER, action_add_cover },
             { ACTION_ADD_NOTE, action_add_note },
-            { ACTION_IMPORT, action_import }
+            { ACTION_IMPORT, action_import },
+
+            { ACTION_ZOOM_OUT_FONT, action_zoom_out_font },
+            { ACTION_ZOOM_IN_FONT, action_zoom_in_font },
+            { ACTION_ZOOM_DEFAULT_FONT, action_zoom_default_font }
         };
 
         public weak Manuscript.Application application { get; construct; }
@@ -89,6 +97,9 @@ namespace Manuscript.Services {
             action_accelerators.set (ACTION_ADD_CHARACTER_SHEET, "<Alt>2");
             action_accelerators.set (ACTION_ADD_COVER, "<Alt>3");
             action_accelerators.set (ACTION_ADD_NOTE, "<Alt>4");
+            action_accelerators.set (ACTION_ZOOM_IN_FONT, "<Control>plus");
+            action_accelerators.set (ACTION_ZOOM_OUT_FONT, "<Control>minus");
+            action_accelerators.set (ACTION_ZOOM_DEFAULT_FONT, "<Control>0");
         }
 
         construct {
@@ -182,16 +193,16 @@ namespace Manuscript.Services {
             if (window.document_manager.has_document) {
                 var dialog = new Manuscript.Dialogs.ExportDialog (window, window.document_manager.document);
                 dialog.response.connect ((res) => {
-                    if (res == Gtk.ResponseType.ACCEPT) {
-                        dialog.destroy ();
-                        Manuscript.Services.Notification.show (
-                            _("Export succeeded"),
-                            _("Your manuscript has been successfully exported")
-                        );
-                    } else if (res == Gtk.ResponseType.CLOSE) {
+                    if (res == Gtk.ResponseType.CLOSE) {
                         dialog.destroy ();
                     } else if (res == Gtk.ResponseType.NONE) {
-                        dialog.start_export.begin ();
+                        dialog.start_export.begin ((res) => {
+                            dialog.destroy ();
+                            Manuscript.Services.Notification.show (
+                                _("Export succeeded"),
+                                _("Your manuscript has been successfully exported")
+                            );
+                        });
                     }
                 });
                 dialog.run ();
@@ -199,5 +210,19 @@ namespace Manuscript.Services {
         }
 
         protected void action_import () {}
+
+        protected void action_zoom_in_font () {
+            settings.text_scale_factor = (settings.text_scale_factor + 0.1)
+                .clamp (Constants.MIN_FONT_SCALE, Constants.MAX_FONT_SCALE);
+        }
+
+        protected void action_zoom_out_font () {
+            settings.text_scale_factor = (settings.text_scale_factor - 0.1)
+                .clamp (Constants.MIN_FONT_SCALE, Constants.MAX_FONT_SCALE);
+        }
+
+        protected void action_zoom_default_font () {
+            settings.text_scale_factor = 1.0;
+        }
     }
 }

@@ -33,6 +33,21 @@ namespace Manuscript {
             return file;
         }
 
+        public static string? get_extensionless (string path) {
+            var ext = FileUtils.get_extension (path);
+            return ext == "" ? path : path.substring (0, path.index_of (ext));
+        }
+
+        public static string? get_extension (string path) {
+            string basename = Path.get_basename (path);
+            var index_of_point = basename.index_of (".");
+            if (index_of_point != -1) {
+                return basename.substring (index_of_point);
+            } else {
+                return "";
+            }
+        }
+
         public static string? read (string path) throws Models.DocumentError {
             File file = File.new_for_path (path);
             if (file.query_exists ()) {

@@ -21,13 +21,16 @@ namespace Manuscript.Widgets {
     public class SettingsPopover : Gtk.Popover {
         protected Gtk.Grid layout;
         protected Gtk.Box theme_layout;
+        public Gtk.Application application  { get; construct; }
         public Gtk.Switch focus_mode_switch { get; private set; }
         public Gtk.Switch autosave_switch { get; private set; }
         public Services.AppSettings settings { get; private set; }
+        public Gtk.Button zoom_default_button { get; private set; }
 
-        public SettingsPopover () {
+        public SettingsPopover (Gtk.Application application) {
             Object (
-                modal: true
+                modal: true,
+                application: application
             );
         }
 
@@ -45,6 +48,41 @@ namespace Manuscript.Widgets {
             layout.margin_top = 12;
             layout.orientation = Gtk.Orientation.VERTICAL;
             layout.column_homogeneous = true;
+
+            var zoom_out_button = new Gtk.Button.from_icon_name ("zoom-out-symbolic", Gtk.IconSize.MENU);
+            zoom_out_button.action_name =
+                Services.ActionManager.ACTION_PREFIX + Services.ActionManager.ACTION_ZOOM_OUT_FONT;
+            zoom_out_button.tooltip_markup = Granite.markup_accel_tooltip (
+                application.get_accels_for_action (zoom_out_button.action_name),
+                _("Zoom out")
+            );
+
+            zoom_default_button = new Gtk.Button.with_label (font_scale_to_zoom (settings.text_scale_factor));
+            zoom_default_button.action_name =
+                Services.ActionManager.ACTION_PREFIX + Services.ActionManager.ACTION_ZOOM_DEFAULT_FONT;
+            zoom_default_button.tooltip_markup = Granite.markup_accel_tooltip (
+                application.get_accels_for_action (zoom_default_button.action_name),
+                _("Default zoom level")
+            );
+
+            var zoom_in_button = new Gtk.Button.from_icon_name ("zoom-in-symbolic", Gtk.IconSize.MENU);
+            zoom_in_button.action_name =
+                Services.ActionManager.ACTION_PREFIX + Services.ActionManager.ACTION_ZOOM_IN_FONT;
+            zoom_in_button.tooltip_markup = Granite.markup_accel_tooltip (
+                application.get_accels_for_action (zoom_in_button.action_name),
+                _("Zoom in")
+            );
+
+            var font_size_grid = new Gtk.Grid ();
+            font_size_grid.column_homogeneous = true;
+            font_size_grid.hexpand = true;
+            font_size_grid.margin_start = font_size_grid.margin_end = 0;
+            font_size_grid.margin_bottom = 6;
+            font_size_grid.get_style_context ().add_class (Gtk.STYLE_CLASS_LINKED);
+
+            font_size_grid.add (zoom_out_button);
+            font_size_grid.add (zoom_default_button);
+            font_size_grid.add (zoom_in_button);
 
             var color_button_white = new Gtk.RadioButton (null);
             color_button_white.active = settings.theme == "Light";
@@ -102,7 +140,8 @@ namespace Manuscript.Widgets {
 
             var sep = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
 
-            layout.attach_next_to (color_button_white, null, Gtk.PositionType.LEFT, 1);
+            layout.attach_next_to (font_size_grid, null, Gtk.PositionType.LEFT, 2);
+            layout.attach_next_to (color_button_white, font_size_grid, Gtk.PositionType.BOTTOM, 1);
             layout.attach_next_to (color_button_dark, color_button_white, Gtk.PositionType.RIGHT, 1);
             layout.attach_next_to (sep, color_button_white, Gtk.PositionType.BOTTOM, 2);
             layout.attach_next_to (zen_label, sep, Gtk.PositionType.BOTTOM);
@@ -129,11 +168,16 @@ namespace Manuscript.Widgets {
         protected void update_ui (string? for_key = null) {
             focus_mode_switch.active = settings.focus_mode;
             autosave_switch.active = settings.autosave;
+            zoom_default_button.label = font_scale_to_zoom (settings.text_scale_factor);
         }
 
         protected void update_settings () {
             settings.focus_mode = focus_mode_switch.active;
             settings.autosave = autosave_switch.active;
+        }
+
+        private string font_scale_to_zoom (double font_scale) {
+            return ("%.0f%%").printf (font_scale * 100);
         }
     }
 }

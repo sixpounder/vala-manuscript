@@ -8,7 +8,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -17,12 +17,19 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace Manuscript.Models {
-    public enum ExportFormat {
-        PDF,
-        ARCHIVE,
-        PLAIN,
-        MARKDOWN,
-        HTML
+namespace Manuscript.Compilers {
+    public class Utils {
+        public static string? tag_name_to_markup (string tag_name) {
+            switch (tag_name) {
+                case "bold":
+                    return "b";
+                case "italic":
+                    return "i";
+                case "underline":
+                    return "u";
+                default:
+                    return null;
+            }
+        }
     }
 }

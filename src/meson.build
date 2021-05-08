@@ -64,8 +64,11 @@ executable(
 	'models/AnalyzeTask.vala',
 
 	'compilers/Base.vala',
+	'compilers/Html.vala',
 	'compilers/Pdf.vala',
+	'compilers/Plain.vala',
 	'compilers/Markdown.vala',
+	'compilers/Utils.vala',
 
     'protocols/Editor.vala',
 

@@ -17,12 +17,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace Manuscript.Models {
-    public enum ExportFormat {
-        PDF,
-        ARCHIVE,
-        PLAIN,
-        MARKDOWN,
-        HTML
+ namespace Manuscript.Compilers {
+    public class HtmlCompiler : ManuscriptCompiler {
+        internal HtmlCompiler () {}
+
+        public override async void compile (Manuscript.Models.Document document) {}
     }
 }

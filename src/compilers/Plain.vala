@@ -8,7 +8,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -17,12 +17,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-namespace Manuscript.Models {
-    public enum ExportFormat {
-        PDF,
-        ARCHIVE,
-        PLAIN,
-        MARKDOWN,
-        HTML
+namespace Manuscript.Compilers {
+    public class PlainTextCompiler : ManuscriptCompiler {
+        internal PlainTextCompiler () {}
+
+        public override async void compile (Manuscript.Models.Document document) {
+        }
+
+        private void render_cover (Models.CoverChunk chunk) {}
+        private void render_chapter (Models.ChapterChunk chunk) {}
     }
 }
