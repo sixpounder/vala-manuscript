@@ -136,6 +136,7 @@ namespace Manuscript.Compilers {
             chunk.ensure_buffer ();
             new_page ();
 
+            bool on_title_page = true;
             var layout_width = Manuscript.Constants.A4_WIDHT_IN_POINTS;
             var layout_height = Manuscript.Constants.A4_HEIGHT_IN_POINTS;
 
@@ -196,45 +197,66 @@ namespace Manuscript.Compilers {
             buffer.get_start_iter (out cursor);
             buffer.get_end_iter (out end_iter);
 
-            // Estimate number of pages needed;
+            Cairo.FontExtents font_extents;
+            ctx.font_extents (out font_extents);
+            var single_line_height = font_extents.height;
+            var max_lines_per_page = Math.ceil ((layout_height - (page_margin * 2)) / single_line_height);
+            var max_lines_per_page_with_title = Math.ceil (
+                (layout_height - (page_margin * 2) - (title_logical_rect.height / Pango.SCALE)) / single_line_height
+            );
+            debug (@"Max lines on title page: $max_lines_per_page_with_title");
+            debug (@"Max lines per page: $max_lines_per_page");
+
             var layout = create_paragraph_layout (chunk);
             var all_text = buffer.get_text (cursor, end_iter, false);
             var max_text_length = all_text.length;
+            uint line_counter = 0;
             
             StringBuilder markup_buffer = new StringBuilder.sized (max_text_length);
             layout = create_paragraph_layout (chunk);
             layout.context_changed ();
 
             while (!cursor.is_end ()) {
-                Pango.Rectangle ink_rect, logical_rect;
-                layout.get_extents (out ink_rect, out logical_rect);
+                //  Pango.Rectangle ink_rect, logical_rect;
+                //  layout.get_extents (out ink_rect, out logical_rect);
 
-                var height_limit = (layout_height * Pango.SCALE) - (page_margin * Pango.SCALE * 2);
-                debug (@"$(logical_rect.height) > $(height_limit)");
-                if ((logical_rect.height) > height_limit) {
-                    //  debug (@"$(logical_rect.height) > $(height_limit)");
-                    if (cursor.ends_word () || cursor.inside_word ()) {
-                        Gtk.TextIter step = cursor;
-                        cursor.backward_word_start ();
-                        step.forward_word_end ();
-                        var text_to_undo = buffer.get_text (cursor, step, false);
-                        debug (@"Text to undo: $text_to_undo");
-                        markup_buffer.erase (markup_buffer.len - text_to_undo.length, text_to_undo.length);
-                        cursor = step;
-                    } else {
-                        cursor.backward_char ();
-                        markup_buffer.erase (markup_buffer.len - 1, 1);
-                        cursor.forward_char ();
-                    }
-                    layout.set_markup (markup_buffer.str, markup_buffer.str.length);
+                //  var height_limit = (layout_height * Pango.SCALE) - (page_margin * Pango.SCALE * 2);
+                //  //  debug (@"$(logical_rect.height) > $(height_limit)");
+                //  if ((logical_rect.height) > height_limit) {
+                //      //  debug (@"$(logical_rect.height) > $(height_limit)");
+                //      if (cursor.ends_word () || cursor.inside_word ()) {
+                //          Gtk.TextIter step = cursor;
+                //          cursor.backward_word_start ();
+                //          step.forward_word_end ();
+                //          var text_to_undo = buffer.get_text (cursor, step, false);
+                //          debug (@"Text to undo: $text_to_undo");
+                //          markup_buffer.erase (markup_buffer.len - text_to_undo.length, text_to_undo.length);
+                //          cursor = step;
+                //      } else {
+                //          cursor.backward_char ();
+                //          markup_buffer.erase (markup_buffer.len - 1, 1);
+                //          cursor.forward_char ();
+                //      }
+                //      layout.set_markup (markup_buffer.str, markup_buffer.str.length);
 
+                //      Pango.cairo_show_layout (ctx, layout);
+                //      markup_buffer = new StringBuilder.sized (max_text_length);
+                //      layout = create_paragraph_layout (chunk);
+                //      if (!cursor.is_end ()) {
+                //          new_page ();
+                //          layout.context_changed ();
+                //      }
+                //  }
+                if (line_counter > (on_title_page ? max_lines_per_page_with_title : max_lines_per_page)) {
                     Pango.cairo_show_layout (ctx, layout);
                     markup_buffer = new StringBuilder.sized (max_text_length);
                     layout = create_paragraph_layout (chunk);
                     if (!cursor.is_end ()) {
                         new_page ();
+                        on_title_page = false;
                         layout.context_changed ();
                     }
+                    line_counter = 0;
                 }
 
                 if (cursor.starts_tag (null)) {
@@ -266,6 +288,7 @@ namespace Manuscript.Compilers {
                 }
 
                 layout.set_markup (markup_buffer.str, markup_buffer.str.length);
+                line_counter = layout.get_line_count ();
             }
 
             if (markup_buffer.data.length != 0) {

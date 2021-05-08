@@ -140,13 +140,13 @@ namespace Manuscript.Widgets {
             scroll_to_mark (buffer.get_insert (), 0.0, true, 0.0, 0.5);
         }
 
-        public void set_font (string font_family, int64 font_size) {
+        public void update_font () {
             try {
                 // Regenerate provider with the desired font
                 font_style_provider.load_from_data (@"
                     .manuscript-text-editor {
-                        font-family: $font_family;
-                        font-size: $(font_size)px;
+                        font-family: $(Constants.DEFAULT_FONT_FAMILY);
+                        font-size: $(Constants.DEFAULT_FONT_SIZE * settings.text_scale_factor)px;
                     }
                 ");
             } catch (Error e) {

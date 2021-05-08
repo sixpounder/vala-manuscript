@@ -95,6 +95,8 @@ namespace Manuscript.Widgets {
             underline_activate_event = format_toolbar.format_underline.toggled.connect (() => {
                 apply_format (Models.TAG_NAME_UNDERLINE);
             });
+
+            Services.AppSettings.get_default ().change.connect (reflect_document_settings);
         }
 
         private void disconnect_events () {
@@ -104,29 +106,25 @@ namespace Manuscript.Widgets {
             format_toolbar.format_bold.disconnect (bold_activate_event);
             format_toolbar.format_italic.disconnect (italic_activate_event);
             format_toolbar.format_underline.disconnect (underline_activate_event);
+            Services.AppSettings.get_default ().change.disconnect (reflect_document_settings);
             if (parent_window.document_manager.has_document) {
                 parent_window.document_manager.document.settings.notify.disconnect (update_ui);
             }
         }
 
         private void reflect_document_settings () {
-            string font_family_string =
-                parent_window.document_manager.document.settings.font_family != null
-                    ? parent_window.document_manager.document.settings.font_family
-                    : Constants.DEFAULT_FONT_FAMILY;
-            int64 font_size =
-                parent_window.document_manager.document.settings.font_size != 0
-                    ? parent_window.document_manager.document.settings.font_size
-                    : Constants.DEFAULT_FONT_SIZE;
-
-            set_font (font_family_string, font_size);
+            //  string font_family_string =
+            //      parent_window.document_manager.document.settings.font_family != null
+            //          ? parent_window.document_manager.document.settings.font_family
+            //          : Constants.DEFAULT_FONT_FAMILY;
+            //  int64 font_size =
+            //      parent_window.document_manager.document.settings.font_size != 0
+            //          ? parent_window.document_manager.document.settings.font_size
+            //          : Constants.DEFAULT_FONT_SIZE;
             editor.indent = (int) parent_window.document_manager.document.settings.paragraph_start_padding;
             editor.pixels_below_lines = (int) parent_window.document_manager.document.settings.paragraph_spacing;
             editor.pixels_inside_wrap = (int) parent_window.document_manager.document.settings.line_spacing;
-        }
-
-        public void set_font (string font_family, int64 font_size) {
-            editor.set_font (font_family, font_size);
+            editor.update_font ();
         }
 
         public void scroll_to_cursor () {
