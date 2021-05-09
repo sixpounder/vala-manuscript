@@ -103,19 +103,19 @@ namespace Manuscript.Models {
                 if (obj.has_member ("line_spacing")) {
                     target.line_spacing = obj.get_double_member ("line_spacing");
                 } else {
-                    target.line_spacing = 2;
+                    target.line_spacing = Constants.DEFAULT_LINE_SPACING;
                 }
 
                 if (obj.has_member ("paragraph_spacing")) {
                     target.paragraph_spacing = obj.get_double_member ("paragraph_spacing");
                 } else {
-                    target.paragraph_spacing = 20;
+                    target.paragraph_spacing = Constants.DEFAULT_PARAGRAPH_SPACING;
                 }
 
                 if (obj.has_member ("paragraph_start_padding")) {
                     target.paragraph_start_padding = obj.get_double_member ("paragraph_start_padding");
                 } else {
-                    target.paragraph_start_padding = 10;
+                    target.paragraph_start_padding = Constants.DEFAULT_PARAGRAPH_INITIAL_PADDING;
                 }
 
                 if (obj.has_member ("page_margin")) {

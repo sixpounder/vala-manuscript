@@ -20,6 +20,7 @@
 namespace Manuscript.Compilers {
 
     const double TITLE_SCALE = 1.2;
+    const double POINT_SCALE = 0.75;
     const int DPI = 72;
 
     public enum PaperSize {
@@ -40,11 +41,11 @@ namespace Manuscript.Compilers {
         internal PDFCompiler () {}
 
         construct {
-            page_margin = 70;
+            page_margin = 70 * POINT_SCALE;
         }
 
         public override async void compile (Manuscript.Models.Document document) {
-            page_margin = Models.page_margin_get_value (document.settings.page_margin);
+            page_margin = Models.page_margin_get_value (document.settings.page_margin) * POINT_SCALE;
 
             surface = new Cairo.PdfSurface (
                 filename,
@@ -105,14 +106,14 @@ namespace Manuscript.Compilers {
 
             pango_context.changed ();
 
-            var layout_width_in_pixels = Manuscript.Constants.A4_WIDHT_IN_POINTS / 0.75;
-            var layout_height_in_pixels = Manuscript.Constants.A4_HEIGHT_IN_POINTS / 0.75;
+            var layout_width = Manuscript.Constants.A4_WIDHT_IN_POINTS;
+            var layout_height = Manuscript.Constants.A4_HEIGHT_IN_POINTS;
 
             ctx.move_to (page_margin, page_margin);
 
             Pango.Layout layout = new Pango.Layout (pango_context);
-            layout.set_width ((int) (layout_width_in_pixels * 600));
-            layout.set_height ((int) (layout_height_in_pixels * 600));
+            layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
+            layout.set_height ((int) (layout_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
             layout.set_font_description (Pango.FontDescription.from_string (
                 @"$(chunk.parent_document.settings.font_family) 36px"
             ));
@@ -161,7 +162,7 @@ namespace Manuscript.Compilers {
             title_layout.set_alignment (Pango.Alignment.CENTER);
             title_layout.set_justify (false);
             title_layout.set_font_description (Pango.FontDescription.from_string (
-                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * TITLE_SCALE)px" // vala-lint=line-length
+                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * TITLE_SCALE)" // vala-lint=line-length
             ));
             title_layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
             title_layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
@@ -210,56 +211,21 @@ namespace Manuscript.Compilers {
             debug (@"Max lines on title page: $max_lines_per_page_with_title");
             debug (@"Max lines per page: $max_lines_per_page");
 
-            var layout = create_paragraph_layout (chunk);
             var all_text = buffer.get_text (cursor, end_iter, false);
             var max_text_length = all_text.length;
             uint line_counter = 0;
 
             StringBuilder markup_buffer = new StringBuilder.sized (max_text_length);
-            layout = create_paragraph_layout (chunk);
-            layout.context_changed ();
+            var layout = create_paragraph_layout (chunk);
 
             while (!cursor.is_end ()) {
-                //  Pango.Rectangle ink_rect, logical_rect;
-                //  layout.get_extents (out ink_rect, out logical_rect);
-
-                //  var height_limit = (layout_height * Pango.SCALE) - (page_margin * Pango.SCALE * 2);
-                //  //  debug (@"$(logical_rect.height) > $(height_limit)");
-                //  if ((logical_rect.height) > height_limit) {
-                //      //  debug (@"$(logical_rect.height) > $(height_limit)");
-                //      if (cursor.ends_word () || cursor.inside_word ()) {
-                //          Gtk.TextIter step = cursor;
-                //          cursor.backward_word_start ();
-                //          step.forward_word_end ();
-                //          var text_to_undo = buffer.get_text (cursor, step, false);
-                //          debug (@"Text to undo: $text_to_undo");
-                //          markup_buffer.erase (markup_buffer.len - text_to_undo.length, text_to_undo.length);
-                //          cursor = step;
-                //      } else {
-                //          cursor.backward_char ();
-                //          markup_buffer.erase (markup_buffer.len - 1, 1);
-                //          cursor.forward_char ();
-                //      }
-                //      layout.set_markup (markup_buffer.str, markup_buffer.str.length);
-
-                //      Pango.cairo_show_layout (ctx, layout);
-                //      markup_buffer = new StringBuilder.sized (max_text_length);
-                //      layout = create_paragraph_layout (chunk);
-                //      if (!cursor.is_end ()) {
-                //          new_page ();
-                //          layout.context_changed ();
-                //      }
-                //  }
                 if (line_counter > (on_title_page ? max_lines_per_page_with_title : max_lines_per_page)) {
                     Pango.cairo_show_layout (ctx, layout);
+                    new_page ();
                     markup_buffer = new StringBuilder.sized (max_text_length);
-                    layout = create_paragraph_layout (chunk);
-                    if (!cursor.is_end ()) {
-                        new_page ();
-                        on_title_page = false;
-                        layout.context_changed ();
-                    }
+                    on_title_page = false;
                     line_counter = 0;
+                    layout = create_paragraph_layout (chunk);
                 }
 
                 if (cursor.starts_tag (null)) {
@@ -306,16 +272,16 @@ namespace Manuscript.Compilers {
 
             Pango.Layout layout = Pango.cairo_create_layout (ctx);
             layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
-            layout.set_height ((int) ((layout_height * Pango.SCALE - (page_margin * Pango.SCALE * 2))));
+            layout.set_height ((int) (layout_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
             layout.set_font_description (Pango.FontDescription.from_string (
-                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * 0.75)"
+                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * POINT_SCALE)"
             ));
             layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
-            layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
-            // layout.set_line_spacing((int) chunk.parent_document.settings.line_spacing);
+            layout.set_spacing ((int) Math.floor ((chunk.parent_document.settings.line_spacing * POINT_SCALE)));
             layout.set_ellipsize (Pango.EllipsizeMode.NONE);
             layout.set_wrap (Pango.WrapMode.WORD);
             layout.set_justify (true);
+            layout.context_changed ();
 
             return layout;
         }

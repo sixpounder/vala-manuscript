@@ -22,6 +22,7 @@ namespace Manuscript.Widgets {
      * Groups all the items relative to a single text editor view
      */
     public class TextEditorView: Gtk.Box, Protocols.ChunkEditor {
+        public weak Manuscript.Services.AppSettings settings { get; private set; }
         public weak Manuscript.Window parent_window { get; construct; }
         public Widgets.FormatToolbar format_toolbar { get; construct; }
         public Widgets.StatusBar status_bar { get; set; }
@@ -48,6 +49,7 @@ namespace Manuscript.Widgets {
 
         construct {
             assert (chunk != null);
+            settings = Services.AppSettings.get_default ();
             get_style_context ().add_class ("editor-view");
             Gtk.ScrolledWindow scrolled_container = new Gtk.ScrolledWindow (null, null);
             scrolled_container.kinetic_scrolling = true;
@@ -96,31 +98,23 @@ namespace Manuscript.Widgets {
                 apply_format (Models.TAG_NAME_UNDERLINE);
             });
 
-            Services.AppSettings.get_default ().change.connect (reflect_document_settings);
+            settings.change.connect (reflect_document_settings);
         }
 
-        private void disconnect_events () {
-            chunk.notify["title"].disconnect (update_ui);
-            chunk.notify["locked"].disconnect (update_ui);
-            editor.mark_set.disconnect (update_format_toolbar);
-            format_toolbar.format_bold.disconnect (bold_activate_event);
-            format_toolbar.format_italic.disconnect (italic_activate_event);
-            format_toolbar.format_underline.disconnect (underline_activate_event);
-            Services.AppSettings.get_default ().change.disconnect (reflect_document_settings);
-            if (parent_window.document_manager.has_document) {
-                parent_window.document_manager.document.settings.notify.disconnect (update_ui);
-            }
-        }
+        //  private void disconnect_events () {
+        //      chunk.notify["title"].disconnect (update_ui);
+        //      chunk.notify["locked"].disconnect (update_ui);
+        //      editor.mark_set.disconnect (update_format_toolbar);
+        //      format_toolbar.format_bold.disconnect (bold_activate_event);
+        //      format_toolbar.format_italic.disconnect (italic_activate_event);
+        //      format_toolbar.format_underline.disconnect (underline_activate_event);
+        //      settings.change.disconnect (reflect_document_settings);
+        //      if (parent_window.document_manager.has_document) {
+        //          parent_window.document_manager.document.settings.notify.disconnect (update_ui);
+        //      }
+        //  }
 
         private void reflect_document_settings () {
-            //  string font_family_string =
-            //      parent_window.document_manager.document.settings.font_family != null
-            //          ? parent_window.document_manager.document.settings.font_family
-            //          : Constants.DEFAULT_FONT_FAMILY;
-            //  int64 font_size =
-            //      parent_window.document_manager.document.settings.font_size != 0
-            //          ? parent_window.document_manager.document.settings.font_size
-            //          : Constants.DEFAULT_FONT_SIZE;
             editor.indent = (int) parent_window.document_manager.document.settings.paragraph_start_padding;
             editor.pixels_below_lines = (int) parent_window.document_manager.document.settings.paragraph_spacing;
             editor.pixels_inside_wrap = (int) parent_window.document_manager.document.settings.line_spacing;
@@ -150,7 +144,7 @@ namespace Manuscript.Widgets {
             GLib.SList<weak Gtk.TextTag> tags_at_selection_start = start.get_tags ();
             //  GLib.SList<weak Gtk.TextTag> tags_at_selection_end = end.get_tags ();
 
-            disconnect_events ();
+            //  disconnect_events ();
 
             format_toolbar.format_bold.active = false;
             format_toolbar.format_italic.active = false;
@@ -172,7 +166,7 @@ namespace Manuscript.Widgets {
                 }
             });
 
-            connect_events ();
+            //  connect_events ();
         }
 
         private void apply_format (string tag_name) {

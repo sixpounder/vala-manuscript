@@ -142,11 +142,21 @@ namespace Manuscript.Widgets {
 
         public void update_font () {
             try {
+                var use_font = settings.use_document_font
+                    ? chunk.parent_document.settings.font_family != null
+                        ? chunk.parent_document.settings.font_family
+                        : Constants.DEFAULT_FONT_FAMILY
+                    : Constants.DEFAULT_FONT_FAMILY;
+                var use_size = settings.use_document_font
+                    ? chunk.parent_document.settings.font_size != 0
+                        ? chunk.parent_document.settings.font_size
+                        : Constants.DEFAULT_FONT_SIZE
+                    : Constants.DEFAULT_FONT_SIZE;
                 // Regenerate provider with the desired font
                 font_style_provider.load_from_data (@"
                     .manuscript-text-editor {
-                        font-family: $(Constants.DEFAULT_FONT_FAMILY);
-                        font-size: $(Constants.DEFAULT_FONT_SIZE * settings.text_scale_factor)px;
+                        font-family: $(use_font);
+                        font-size: $(use_size * settings.text_scale_factor)pt;
                     }
                 ");
             } catch (Error e) {

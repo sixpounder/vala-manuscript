@@ -24,6 +24,7 @@ namespace Manuscript.Widgets {
         public Gtk.Application application { get; construct; }
         public Gtk.Switch focus_mode_switch { get; private set; }
         public Gtk.Switch autosave_switch { get; private set; }
+        public Gtk.Switch use_document_font_switch { get; private set; }
         public Services.AppSettings settings { get; private set; }
         public Gtk.Button zoom_default_button { get; private set; }
 
@@ -115,9 +116,19 @@ namespace Manuscript.Widgets {
             color_button_dark_context.add_class (Granite.STYLE_CLASS_COLOR_BUTTON);
             color_button_dark_context.add_class ("color-dark");
 
-            Gtk.Label zen_label = new Gtk.Label (_("Focus mode"));
-            zen_label.halign = Gtk.Align.START;
+            Gtk.Label use_document_font_label = new Gtk.Label (_("Use document font"));
+            use_document_font_label.halign = Gtk.Align.START;
+            use_document_font_switch = new Gtk.Switch ();
+            use_document_font_switch.expand = false;
+            use_document_font_switch.halign = Gtk.Align.END;
+            use_document_font_switch.active = settings.use_document_font;
+            use_document_font_switch.state_set.connect (() => {
+                update_settings ();
+                return false;
+            });
 
+            Gtk.Label focus_mode_label = new Gtk.Label (_("Focus mode"));
+            focus_mode_label.halign = Gtk.Align.START;
             focus_mode_switch = new Gtk.Switch ();
             focus_mode_switch.expand = false;
             focus_mode_switch.halign = Gtk.Align.END;
@@ -144,9 +155,11 @@ namespace Manuscript.Widgets {
             layout.attach_next_to (color_button_white, font_size_grid, Gtk.PositionType.BOTTOM, 1);
             layout.attach_next_to (color_button_dark, color_button_white, Gtk.PositionType.RIGHT, 1);
             layout.attach_next_to (sep, color_button_white, Gtk.PositionType.BOTTOM, 2);
-            layout.attach_next_to (zen_label, sep, Gtk.PositionType.BOTTOM);
-            layout.attach_next_to (focus_mode_switch, zen_label, Gtk.PositionType.RIGHT);
-            layout.attach_next_to (autosave_label, zen_label, Gtk.PositionType.BOTTOM);
+            layout.attach_next_to (focus_mode_label, sep, Gtk.PositionType.BOTTOM);
+            layout.attach_next_to (focus_mode_switch, focus_mode_label, Gtk.PositionType.RIGHT);
+            layout.attach_next_to (use_document_font_label, focus_mode_label, Gtk.PositionType.BOTTOM);
+            layout.attach_next_to (use_document_font_switch, use_document_font_label, Gtk.PositionType.RIGHT);
+            layout.attach_next_to (autosave_label, use_document_font_label, Gtk.PositionType.BOTTOM);
             layout.attach_next_to (autosave_switch, autosave_label, Gtk.PositionType.RIGHT);
 
             layout.show_all ();
@@ -168,12 +181,14 @@ namespace Manuscript.Widgets {
         protected void update_ui (string? for_key = null) {
             focus_mode_switch.active = settings.focus_mode;
             autosave_switch.active = settings.autosave;
+            use_document_font_switch.active = settings.use_document_font;
             zoom_default_button.label = font_scale_to_zoom (settings.text_scale_factor);
         }
 
         protected void update_settings () {
             settings.focus_mode = focus_mode_switch.active;
             settings.autosave = autosave_switch.active;
+            settings.use_document_font = use_document_font_switch.active;
         }
 
         private string font_scale_to_zoom (double font_scale) {

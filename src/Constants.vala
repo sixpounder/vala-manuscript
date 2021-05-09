@@ -25,7 +25,10 @@ namespace Manuscript {
         public const string DEFAULT_FILE_EXT = ".mscript";
 
         public const string DEFAULT_FONT_FAMILY = "iA Writer Duospace";
-        public const int64 DEFAULT_FONT_SIZE = 18;
+        public const int64 DEFAULT_FONT_SIZE = 14;
+        public const double DEFAULT_LINE_SPACING = 5;
+        public const double DEFAULT_PARAGRAPH_SPACING = 35;
+        public const double DEFAULT_PARAGRAPH_INITIAL_PADDING = 40;
 
         public const double MIN_FONT_SCALE = 0.1;
         public const double MAX_FONT_SCALE = 5;
