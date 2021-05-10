@@ -19,21 +19,19 @@
 
 namespace Manuscript.Compilers {
 
-    const double TITLE_SCALE = 1.2;
-    const double POINT_SCALE = 0.75;
-    const int DPI = 72;
-
-    public enum PaperSize {
-        A4,
-        A5,
-        A6
-    }
+    private const double TITLE_SCALE = 1.2;
+    private const double PAGE_NUMBER_SCALE_FACTOR = 0.7;
+    private const double POINT_SCALE = 0.75;
+    private const int DPI = 72;
 
     public class PDFCompiler : ManuscriptCompiler {
         //  private Cairo.Context context;
         //  private Cairo.PdfSurface surface;
+        private double surface_width;
+        private double surface_height;
         private double page_margin { get; set; }
         private uint page_counter = 0;
+        private weak Models.Document cached_document { get; set; }
         private Cairo.Context? ctx { get; set; }
         private Cairo.PdfSurface? surface { get; set; }
         private Pango.Context pango_context { get; set; }
@@ -42,15 +40,17 @@ namespace Manuscript.Compilers {
 
         construct {
             page_margin = 70 * POINT_SCALE;
+            paper_size_in_points (options.page_size, out surface_width, out surface_height);
         }
 
-        public override async void compile (Manuscript.Models.Document document) {
-            page_margin = Models.page_margin_get_value (document.settings.page_margin) * POINT_SCALE;
+        public override async void compile (Manuscript.Models.Document document) throws CompilerError {
+            cached_document = document;
+            page_margin = Models.page_margin_get_value (options.page_margin) * POINT_SCALE;
 
             surface = new Cairo.PdfSurface (
                 filename,
-                Manuscript.Constants.A4_WIDHT_IN_POINTS,
-                Manuscript.Constants.A4_HEIGHT_IN_POINTS
+                surface_width,
+                surface_height
             );
 
             //  surface.set_metadata (Cairo.PdfMetadata.TITLE, document.title);
@@ -106,16 +106,14 @@ namespace Manuscript.Compilers {
 
             pango_context.changed ();
 
-            var layout_width = Manuscript.Constants.A4_WIDHT_IN_POINTS;
-            var layout_height = Manuscript.Constants.A4_HEIGHT_IN_POINTS;
-
-            ctx.move_to (page_margin, page_margin);
+            var layout_width = surface_width;
+            var layout_height = surface_height;
 
             Pango.Layout layout = new Pango.Layout (pango_context);
             layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
             layout.set_height ((int) (layout_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
             layout.set_font_description (Pango.FontDescription.from_string (
-                @"$(chunk.parent_document.settings.font_family) 36px"
+                @"$(chunk.parent_document.settings.font_family) bold 36"
             ));
             layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
             layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
@@ -125,8 +123,30 @@ namespace Manuscript.Compilers {
 
             layout.set_text (chunk.parent_document.title, chunk.parent_document.title.length);
 
-            layout.context_changed ();
+            Pango.Rectangle title_ink_rect, title_logical_rect;
+            layout.get_extents (out title_ink_rect, out title_logical_rect);
 
+            ctx.move_to (page_margin, page_margin + (layout_height / 2) - (title_logical_rect.height / Pango.SCALE));
+    
+            layout.context_changed ();
+            Pango.cairo_show_layout (ctx, layout);
+
+            ctx.rel_move_to (0, 140);
+
+            layout = new Pango.Layout (pango_context);
+            layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
+            layout.set_height ((int) (layout_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
+            layout.set_font_description (Pango.FontDescription.from_string (
+                @"$(chunk.parent_document.settings.font_family) 16"
+            ));
+            layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
+            layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
+            layout.set_ellipsize (Pango.EllipsizeMode.NONE);
+            layout.set_wrap (Pango.WrapMode.WORD);
+            layout.set_alignment (Pango.Alignment.CENTER);
+
+            layout.set_text (chunk.parent_document.settings.author_name, chunk.parent_document.settings.author_name.length);
+            layout.context_changed ();
             Pango.cairo_show_layout (ctx, layout);
 
             ctx.move_to (page_margin, -page_margin + 10);
@@ -136,14 +156,14 @@ namespace Manuscript.Compilers {
         private void render_chapter (Models.ChapterChunk chunk) {
             chunk.ensure_buffer ();
             new_page ();
+            mark_page_number ();
 
             bool on_title_page = true;
-            var layout_width = Manuscript.Constants.A4_WIDHT_IN_POINTS;
-            var layout_height = Manuscript.Constants.A4_HEIGHT_IN_POINTS;
+            var layout_width = surface_width;
+            var layout_height = surface_height;
 
             ctx.set_source_rgb (1, 1, 1);
             ctx.fill_preserve ();
-            ctx.save ();
 
             //
             // Render centered title
@@ -155,8 +175,8 @@ namespace Manuscript.Compilers {
                 Cairo.FontWeight.BOLD
             );
             ctx.set_font_size (chunk.parent_document.settings.font_size * TITLE_SCALE);
-
             ctx.move_to (page_margin, page_margin);
+
             Pango.Layout title_layout = Pango.cairo_create_layout (ctx);
             title_layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
             title_layout.set_alignment (Pango.Alignment.CENTER);
@@ -204,10 +224,10 @@ namespace Manuscript.Compilers {
             Cairo.FontExtents font_extents;
             ctx.font_extents (out font_extents);
             var single_line_height = font_extents.height;
-            var max_lines_per_page = Math.ceil ((layout_height - (page_margin * 2)) / single_line_height);
-            var max_lines_per_page_with_title = Math.ceil (
-                (layout_height - (page_margin * 2) - (title_logical_rect.height / Pango.SCALE)) / single_line_height
-            );
+            var max_lines_per_page = Math.ceil ((layout_height - (page_margin * 3)) / single_line_height) - 1;
+            var max_lines_per_page_with_title = Math.floor (
+                (layout_height - (page_margin * 3) - (title_logical_rect.height / Pango.SCALE)) / single_line_height
+            ) - 2;
             debug (@"Max lines on title page: $max_lines_per_page_with_title");
             debug (@"Max lines per page: $max_lines_per_page");
 
@@ -219,8 +239,21 @@ namespace Manuscript.Compilers {
             var layout = create_paragraph_layout (chunk);
 
             while (!cursor.is_end ()) {
-                if (line_counter > (on_title_page ? max_lines_per_page_with_title : max_lines_per_page)) {
+                var line_count_limit = on_title_page ? max_lines_per_page_with_title : max_lines_per_page;
+                if (line_counter > line_count_limit) {
+                    if (cursor.inside_word () || cursor.ends_word ()) {
+                        uint undo_chars = 0;
+                        while (!cursor.starts_word ()) {
+                            cursor.backward_char ();
+                            undo_chars ++;
+                        }
+                        markup_buffer.erase (markup_buffer.len - 1 - undo_chars);
+                        layout.set_markup (markup_buffer.str, markup_buffer.str.length);
+                    }
+
+                    //  layout.context_changed ();
                     Pango.cairo_show_layout (ctx, layout);
+                    mark_page_number ();
                     new_page ();
                     markup_buffer = new StringBuilder.sized (max_text_length);
                     on_title_page = false;
@@ -262,19 +295,16 @@ namespace Manuscript.Compilers {
 
             if (markup_buffer.data.length != 0) {
                 Pango.cairo_show_layout (ctx, layout);
+                mark_page_number ();
             }
         }
 
         private Pango.Layout create_paragraph_layout (Models.DocumentChunk chunk) {
-            var layout_width = Manuscript.Constants.A4_WIDHT_IN_POINTS;
-            var layout_height = Manuscript.Constants.A4_HEIGHT_IN_POINTS;
-            //  debug (@"Layout size: $(layout_width_in_pixels)px x $(layout_height_in_pixels)px");
-
             Pango.Layout layout = Pango.cairo_create_layout (ctx);
-            layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
-            layout.set_height ((int) (layout_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
+            layout.set_width ((int) ((surface_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
+            layout.set_height ((int) (surface_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
             layout.set_font_description (Pango.FontDescription.from_string (
-                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * POINT_SCALE)"
+                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * POINT_SCALE)" // vala-lint=line-length
             ));
             layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
             layout.set_spacing ((int) Math.floor ((chunk.parent_document.settings.line_spacing * POINT_SCALE)));
@@ -286,12 +316,29 @@ namespace Manuscript.Compilers {
             return layout;
         }
 
+        private void mark_page_number () {
+            ctx.save ();
+            ctx.select_font_face (
+                cached_document.settings.font_family,
+                Cairo.FontSlant.NORMAL,
+                Cairo.FontWeight.NORMAL
+            );
+            ctx.set_font_size (cached_document.settings.font_size * PAGE_NUMBER_SCALE_FACTOR);
+            string page_number_text = page_counter.to_string ();
+            Cairo.TextExtents page_number_extent;
+            ctx.text_extents (page_number_text, out page_number_extent);
+            ctx.move_to (
+                (surface_width / 2) - page_number_extent.width,
+                surface_height - page_number_extent.height - page_margin);
+            ctx.show_text (page_number_text);
+            ctx.restore ();
+        }
+
         private void new_page () {
             if (page_counter != 0) {
                 ctx.show_page ();
                 ctx.move_to (page_margin, page_margin);
             }
-
 
             page_counter ++;
         }

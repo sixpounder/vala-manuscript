@@ -196,12 +196,17 @@ namespace Manuscript.Services {
                     if (res == Gtk.ResponseType.CLOSE) {
                         dialog.destroy ();
                     } else if (res == Gtk.ResponseType.NONE) {
-                        dialog.start_export.begin ((res) => {
-                            dialog.destroy ();
-                            Manuscript.Services.Notification.show (
-                                _("Export succeeded"),
-                                _("Your manuscript has been successfully exported")
-                            );
+                        dialog.start_export.begin ((obj, res) => {
+                            try {
+                                dialog.start_export.end (res);
+                                dialog.destroy ();
+                                Manuscript.Services.Notification.show (
+                                    _("Export succeeded"),
+                                    _("Your manuscript has been successfully exported")
+                                );
+                            } catch (Compilers.CompilerError e) {
+                                critical (e.message);
+                            }
                         });
                     }
                 });

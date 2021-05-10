@@ -191,7 +191,7 @@ namespace Manuscript.Dialogs {
             }
         }
 
-        protected async void compile (Manuscript.Models.ExportFormat output_format) {
+        protected async void compile (Manuscript.Models.ExportFormat output_format) throws Compilers.CompilerError {
             Manuscript.Compilers.ManuscriptCompiler compiler
                 = Manuscript.Compilers.ManuscriptCompiler.for_format (output_format);
 
@@ -203,7 +203,7 @@ namespace Manuscript.Dialogs {
             yield compiler.compile (document);
         }
 
-        public async void start_export () {
+        public async void start_export () throws Compilers.CompilerError {
             disable_ui ();
             SourceFunc callback = start_export.callback;
             if (Thread.supported ()) {
@@ -215,7 +215,11 @@ namespace Manuscript.Dialogs {
                 });
                 yield;
             } else {
-                yield compile (export_format);
+                try {
+                    yield compile (export_format);
+                } catch (Compilers.CompilerError e) {
+                    throw e;
+                }
             }
         }
     }

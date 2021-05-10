@@ -122,6 +122,7 @@ namespace Manuscript.Widgets {
             use_document_font_switch.expand = false;
             use_document_font_switch.halign = Gtk.Align.END;
             use_document_font_switch.active = settings.use_document_font;
+            use_document_font_switch.tooltip_markup = _("When toggled on, text editors will try to use the font specified in current document typographic settings"); // vala-lint=line-length
             use_document_font_switch.state_set.connect (() => {
                 update_settings ();
                 return false;
@@ -133,6 +134,7 @@ namespace Manuscript.Widgets {
             focus_mode_switch.expand = false;
             focus_mode_switch.halign = Gtk.Align.END;
             focus_mode_switch.active = settings.focus_mode;
+            focus_mode_switch.tooltip_markup = _("Reduces interface noise so you can focus on writing"); // vala-lint=line-length
             focus_mode_switch.state_set.connect (() => {
                 update_settings ();
                 return false;
@@ -144,6 +146,7 @@ namespace Manuscript.Widgets {
             autosave_switch.expand = false;
             autosave_switch.halign = Gtk.Align.END;
             autosave_switch.active = settings.autosave;
+            autosave_switch.tooltip_markup = _("Automatically save the document when edits are made"); // vala-lint=line-length
             autosave_switch.state_set.connect (() => {
                 update_settings ();
                 return false;
@@ -161,7 +164,6 @@ namespace Manuscript.Widgets {
             layout.attach_next_to (use_document_font_switch, use_document_font_label, Gtk.PositionType.RIGHT);
             layout.attach_next_to (autosave_label, use_document_font_label, Gtk.PositionType.BOTTOM);
             layout.attach_next_to (autosave_switch, autosave_label, Gtk.PositionType.RIGHT);
-
             layout.show_all ();
 
             add (layout);
@@ -171,11 +173,6 @@ namespace Manuscript.Widgets {
 
         ~SettingsPopover () {
             settings.change.disconnect (update_ui);
-        }
-
-        protected void on_theme_set (string theme) {
-            var settings = Services.AppSettings.get_default ();
-            settings.theme = theme;
         }
 
         protected void update_ui (string? for_key = null) {

@@ -18,8 +18,34 @@
  */
 
 namespace Manuscript.Compilers {
+    public errordomain CompilerError {
+        IO
+    }
+
+    public enum PaperSize {
+        A3,
+        A4,
+        A5,
+        A6
+    }
+
+    public void paper_size_in_points (PaperSize size, out double width, out double height) {
+        switch (size) {
+            case PaperSize.A4:
+            default:
+                width = Constants.A4_WIDHT_IN_POINTS;
+                height = Constants.A4_HEIGHT_IN_POINTS;
+                break;
+        }
+    }
+
     public abstract class ManuscriptCompiler : Object {
         public string filename { get; set; }
+        public CompilerOptions options { get; private set; }
+
+        construct {
+            options = new CompilerOptions ();
+        }
 
         public static ManuscriptCompiler for_format (Manuscript.Models.ExportFormat format) {
             switch (format) {
@@ -32,6 +58,18 @@ namespace Manuscript.Compilers {
             }
         }
 
-        public abstract async void compile (Manuscript.Models.Document document);
+        public abstract async void compile (Manuscript.Models.Document document) throws CompilerError;
+    }
+
+    public class CompilerOptions : Object {
+        public PaperSize page_size { get; set; }
+        public uint max_words_per_line { get; set; }
+        public Models.PageMargin page_margin { get; set; }
+
+        construct {
+            page_size = PaperSize.A4;
+            max_words_per_line  = 25;
+            page_margin = Models.PageMargin.MEDIUM;
+        }
     }
 }

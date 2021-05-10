@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-23 14:45+0100\n"
+"POT-Creation-Date: 2021-05-09 18:12+0200\n"
 "PO-Revision-Date: 2019-07-05 11:20+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -17,62 +17,72 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/Window.vala:257 src/dialogs/FileSaveDialog.vala:51
-#: src/widgets/Header.vala:134
+#: src/Window.vala:265 src/dialogs/FileSaveDialog.vala:51
+#: src/widgets/Header.vala:143
 #, fuzzy
 msgid "Save"
 msgstr "Salva manoscritto"
 
-#: src/Window.vala:258 src/Window.vala:365
+#: src/Window.vala:266 src/Window.vala:380
 msgid "Dismiss"
 msgstr "Chiudi"
 
-#: src/Window.vala:287
+#: src/Window.vala:295
 #, fuzzy
 msgid "Open document"
 msgstr "Apri documento "
 
-#: src/Window.vala:290 src/dialogs/ExportDialog.vala:47
+#: src/Window.vala:298 src/dialogs/ExportDialog.vala:60
 #: src/dialogs/FileSaveDialog.vala:49 src/widgets/editors/CoverEditor.vala:106
 msgid "Cancel"
 msgstr "Annulla"
 
-#: src/Window.vala:292 src/widgets/WelcomeView.vala:31
-#: src/widgets/Header.vala:128
+#: src/Window.vala:300 src/widgets/WelcomeView.vala:31
+#: src/widgets/Header.vala:137
 #, fuzzy
 msgid "Open"
 msgstr "Apri documento"
 
-#: src/Window.vala:300
+#: src/Window.vala:308
 #, fuzzy
 msgid "Manuscripts"
 msgstr "Manoscritti"
 
-#: src/Window.vala:308
+#: src/Window.vala:316
 msgid "All files"
 msgstr "Tutti i file"
 
-#: src/Window.vala:332
+#: src/Window.vala:344
 #, fuzzy
 msgid "Unable to create temporary document"
 msgstr "Impossibile creare un documento temporaneo "
 
-#: src/Window.vala:350
+#: src/Window.vala:359
 #, c-format
 msgid "File at %s could not be found. It may have been moved or deleted."
 msgstr ""
 "Il file %s non è stato trovato. Potrebbe essere stato spostato o eliminato."
 
-#: src/Window.vala:357
+#: src/Window.vala:366
 #, c-format
 msgid "Cannot read %s"
 msgstr "Impossibile leggere %s"
 
-#: src/Window.vala:358
+#: src/Window.vala:367
+#, fuzzy
+msgid "The file you selected does not appear to be readable"
+msgstr "Il file selezionato non sembra essere valido"
+
+#: src/Window.vala:372
+#, fuzzy, c-format
+msgid "Cannot parse %s"
+msgstr "Impossibile leggere %s"
+
+#: src/Window.vala:373
 msgid "The file you selected does not appear to be a valid Manuscript file"
 msgstr "Il file selezionato non sembra essere valido"
 
-#: src/Window.vala:361
+#: src/Window.vala:376
 #, c-format
 msgid "Some strange error happened while trying to open file at %s"
 msgstr "Si è verificato qualcosa di strano aprendo il file %s"
@@ -99,10 +109,30 @@ msgstr "Continua a scrivere"
 msgid "Close this document"
 msgstr "Chiudi questo manoscritto"
 
-#: src/dialogs/ExportDialog.vala:43
+#: src/dialogs/ExportDialog.vala:56
 #, fuzzy
 msgid "Export"
 msgstr "Importa"
+
+#: src/dialogs/ExportDialog.vala:144
+msgid "Output folder"
+msgstr ""
+
+#: src/dialogs/ExportMetrics.vala:59 src/widgets/settings/Typography.vala:43
+msgid "Font"
+msgstr "Carattere"
+
+#: src/dialogs/ExportMetrics.vala:74 src/widgets/settings/Typography.vala:68
+msgid "Line spacing"
+msgstr ""
+
+#: src/dialogs/ExportMetrics.vala:85 src/widgets/settings/Typography.vala:81
+msgid "Paragraph spacing"
+msgstr "Spaziatura paragrafi"
+
+#: src/dialogs/ExportMetrics.vala:96 src/widgets/settings/Typography.vala:94
+msgid "Paragraph initial padding"
+msgstr "Rientro iniziale paragrafo"
 
 #: src/dialogs/FileSaveDialog.vala:46
 #, fuzzy
@@ -130,58 +160,58 @@ msgstr "Crea un nuovo manoscritto"
 msgid "Open an existing manuscript"
 msgstr "Apri un manoscritto esistente"
 
-#: src/widgets/Header.vala:99
+#: src/widgets/Header.vala:109
 msgid "Settings"
 msgstr "Impostazioni"
 
-#: src/widgets/Header.vala:100
+#: src/widgets/Header.vala:110
 msgid "Application settings"
 msgstr "Impostazioni applicazione"
 
-#: src/widgets/Header.vala:122
+#: src/widgets/Header.vala:131
 msgid "New window"
 msgstr "Nuova finestra"
 
-#: src/widgets/Header.vala:140
+#: src/widgets/Header.vala:149
 #, fuzzy
 msgid "Save as"
 msgstr "Salva con nome"
 
-#: src/widgets/Header.vala:146
+#: src/widgets/Header.vala:155
 #, fuzzy
 msgid "Document settings"
 msgstr "Il documento ha delle modifiche non salvate"
 
-#: src/widgets/Header.vala:152
+#: src/widgets/Header.vala:161
 #, fuzzy
 msgid "Close document"
 msgstr "Chiudi questo manoscritto"
 
-#: src/widgets/Header.vala:158
+#: src/widgets/Header.vala:167
 msgid "Quit"
 msgstr "Esci"
 
-#: src/widgets/Header.vala:190
+#: src/widgets/Header.vala:199
 msgid "Chapter"
 msgstr "Capitolo"
 
-#: src/widgets/Header.vala:199
+#: src/widgets/Header.vala:208
 msgid "Character sheet"
 msgstr "Scheda personaggio"
 
-#: src/widgets/Header.vala:208
+#: src/widgets/Header.vala:217
 msgid "Cover"
 msgstr "Copertina"
 
-#: src/widgets/Header.vala:217
+#: src/widgets/Header.vala:226
 msgid "Note"
 msgstr "Nota"
 
-#: src/widgets/Header.vala:226
+#: src/widgets/Header.vala:235
 msgid "Import"
 msgstr "Importa"
 
-#: src/widgets/Header.vala:268
+#: src/widgets/Header.vala:277
 msgid "modified"
 msgstr "modificato"
 
@@ -271,23 +301,56 @@ msgstr "oppure"
 msgid "Add a new chapter"
 msgstr "Aggiungi un capitolo"
 
-#: src/widgets/SettingsPopover.vala:52
+#: src/widgets/SettingsPopover.vala:58
+msgid "Zoom out"
+msgstr "Riduci dimensione carattere"
+
+#: src/widgets/SettingsPopover.vala:66
+msgid "Default zoom level"
+msgstr "Dimensione carattere di default"
+
+#: src/widgets/SettingsPopover.vala:74
+msgid "Zoom in"
+msgstr "Aumenta dimensione carattere"
+
+#: src/widgets/SettingsPopover.vala:91
 msgid "Light"
 msgstr "Chiaro"
 
-#: src/widgets/SettingsPopover.vala:68
+#: src/widgets/SettingsPopover.vala:107
 msgid "Dark"
 msgstr "Scuro"
 
-#: src/widgets/SettingsPopover.vala:80
+#: src/widgets/SettingsPopover.vala:119
+#, fuzzy
+msgid "Use document font"
+msgstr "Chiudi questo manoscritto"
+
+#: src/widgets/SettingsPopover.vala:125
+msgid ""
+"When toggled on, text editors will try to use the font specified in current "
+"document typographic settings"
+msgstr ""
+"Quando abilitato, gli editor di testo utilizzeranno il font specificato nelle "
+"impostazioni tipografiche del documento corrente"
+
+#: src/widgets/SettingsPopover.vala:131
 msgid "Focus mode"
 msgstr "Modalità concentrazione"
 
-#: src/widgets/SettingsPopover.vala:92
+#: src/widgets/SettingsPopover.vala:137
+msgid "Reduces graphic interface noise so you can focus on writing"
+msgstr "Riduce gli elementi dell'interfaccia in modo da concentrarsi sulla scrittura"
+
+#: src/widgets/SettingsPopover.vala:143
 msgid "Autosave"
 msgstr "Salva automaticamente"
 
-#: src/widgets/Sidebar.vala:70 src/widgets/DocumentSettings.vala:55
+#: src/widgets/SettingsPopover.vala:149
+msgid "Automatically save the document when edits are made"
+msgstr "Salva automaticamente il documento quando ci sono modifiche"
+
+#: src/widgets/Sidebar.vala:70
 #, fuzzy
 msgid "Covers"
 msgstr "Copertina"
@@ -310,6 +373,10 @@ msgstr "Generali"
 msgid "Typography"
 msgstr "Tipografia"
 
+#: src/widgets/DocumentSettings.vala:55
+msgid "Metrics"
+msgstr "Metriche"
+
 #: src/widgets/settings/General.vala:41
 #, fuzzy
 msgid "Manuscript title"
@@ -324,33 +391,9 @@ msgstr "Apri un manoscritto esistente"
 msgid "Author"
 msgstr "Autore"
 
-#: src/widgets/settings/Metrics.vala:42
-msgid "Font"
-msgstr "Carattere"
-
-#: src/widgets/settings/Metrics.vala:67
-msgid "Paragraph spacing"
-msgstr "Spaziatura paragrafi"
-
-#: src/widgets/settings/Metrics.vala:80
-msgid "Paragraph initial padding"
-msgstr "Rientro iniziale paragrafo"
-
-#: src/widgets/settings/Covers.vala:43
-#, fuzzy
-msgid "Inline cover images"
-msgstr "Seleziona copertina"
-
-#: src/widgets/settings/Covers.vala:47
-#, fuzzy
-msgid ""
-"<small>Store cover images inline into the manuscript (increases file size).\n"
-"<b>Existing covers are not affected by the change of this setting</b></small>"
-msgstr ""
-"<small>Copia le immagini di copertina nel manoscritto (aumenta la dimensione "
-"del file).\n"
-"<b>Le copertine esistenti non sono affette dal cambiamente di questa "
-"impostazione</b></small>"
+#: src/widgets/settings/Metrics.vala:31
+msgid "Page margin"
+msgstr "Margine pagina"
 
 #: src/widgets/editors/CoverEditor.vala:72
 #, fuzzy
@@ -387,11 +430,26 @@ msgstr "Background"
 msgid "Traits"
 msgstr "Tratti fisici / caratteriali"
 
-#: src/models/DocumentChunk.vala:102
+#: src/widgets/editors/TextEditor.vala:78
+#: src/widgets/editors/FormatToolbar.vala:51
+msgid "Bold"
+msgstr "Grassetto"
+
+#: src/widgets/editors/TextEditor.vala:82
+#: src/widgets/editors/FormatToolbar.vala:63
+msgid "Italic"
+msgstr "Corsivo"
+
+#: src/widgets/editors/TextEditor.vala:86
+#: src/widgets/editors/FormatToolbar.vala:75
+msgid "Underline"
+msgstr "Sottolineato"
+
+#: src/models/DocumentChunk.vala:105
 msgid "Untitled"
 msgstr "Senza titolo"
 
-#: src/models/ChapterChunk.vala:41
+#: src/models/ChapterChunk.vala:30
 #, fuzzy
 msgid "New chapter"
 msgstr "Capitolo"
@@ -401,7 +459,7 @@ msgstr "Capitolo"
 msgid "New character sheet"
 msgstr "Scheda personaggio"
 
-#: src/models/NoteChunk.vala:26
+#: src/models/NoteChunk.vala:24
 #, fuzzy
 msgid "New note"
 msgstr "Nuova finestra"
@@ -410,13 +468,29 @@ msgstr "Nuova finestra"
 msgid "New cover"
 msgstr "Nuova copertina"
 
-#: src/services/ActionManager.vala:184
+#: src/services/ActionManager.vala:202
 msgid "Export succeeded"
 msgstr "Esportato con successo"
 
-#: src/services/ActionManager.vala:185
+#: src/services/ActionManager.vala:203
 msgid "Your manuscript has been successfully exported"
 msgstr "Il tuo manoscritto è stato esportato correttamente"
+
+#, fuzzy
+#~ msgid "Inline cover images"
+#~ msgstr "Seleziona copertina"
+
+#, fuzzy
+#~ msgid ""
+#~ "<small>Store cover images inline into the manuscript (increases file "
+#~ "size).\n"
+#~ "<b>Existing covers are not affected by the change of this setting</b></"
+#~ "small>"
+#~ msgstr ""
+#~ "<small>Copia le immagini di copertina nel manoscritto (aumenta la "
+#~ "dimensione del file).\n"
+#~ "<b>Le copertine esistenti non sono affette dal cambiamente di questa "
+#~ "impostazione</b></small>"
 
 #, fuzzy
 #~ msgid "Save document"
