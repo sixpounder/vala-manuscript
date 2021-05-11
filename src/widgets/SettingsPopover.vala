@@ -168,7 +168,11 @@ namespace Manuscript.Widgets {
             layout.attach_next_to (autosave_label, focus_mode_label, Gtk.PositionType.BOTTOM);
             layout.attach_next_to (autosave_switch, autosave_label, Gtk.PositionType.RIGHT);
             layout.attach_next_to (use_document_typography_label, autosave_label, Gtk.PositionType.BOTTOM);
-            layout.attach_next_to (use_document_typography_switch, use_document_typography_label, Gtk.PositionType.RIGHT);
+            layout.attach_next_to (
+                use_document_typography_switch,
+                use_document_typography_label,
+                Gtk.PositionType.RIGHT
+            );
             layout.show_all ();
 
             add (layout);
