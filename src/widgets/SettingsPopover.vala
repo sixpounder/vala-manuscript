@@ -42,11 +42,12 @@ namespace Manuscript.Widgets {
             settings = Services.AppSettings.get_default ();
 
             layout = new Gtk.Grid ();
-            layout.get_style_context ().add_class ("px-2");
             layout.column_spacing = 20;
             layout.row_spacing = 10;
-            layout.margin_bottom = 6;
+            layout.margin_bottom = 12;
             layout.margin_top = 12;
+            layout.margin_start = 12;
+            layout.margin_end = 12;
             layout.orientation = Gtk.Orientation.VERTICAL;
             layout.column_homogeneous = false;
 
@@ -116,6 +117,14 @@ namespace Manuscript.Widgets {
             color_button_dark_context.add_class (Granite.STYLE_CLASS_COLOR_BUTTON);
             color_button_dark_context.add_class ("color-dark");
 
+            var theme_switcher_grid = new Gtk.Grid ();
+            theme_switcher_grid.hexpand = true;
+            theme_switcher_grid.column_homogeneous = true;
+            theme_switcher_grid.column_spacing = 40;
+            theme_switcher_grid.halign = Gtk.Align.CENTER;
+            theme_switcher_grid.attach_next_to (color_button_white, null, Gtk.PositionType.LEFT);
+            theme_switcher_grid.attach_next_to (color_button_dark, color_button_white, Gtk.PositionType.RIGHT);
+
             Gtk.Label use_document_typography_label = new Gtk.Label (_("Use document typography"));
             use_document_typography_label.halign = Gtk.Align.START;
             use_document_typography_switch = new Gtk.Switch ();
@@ -160,9 +169,10 @@ namespace Manuscript.Widgets {
             var sep = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
 
             layout.attach_next_to (font_size_grid, null, Gtk.PositionType.LEFT, 2);
-            layout.attach_next_to (color_button_white, font_size_grid, Gtk.PositionType.BOTTOM);
-            layout.attach_next_to (color_button_dark, color_button_white, Gtk.PositionType.RIGHT);
-            layout.attach_next_to (sep, color_button_white, Gtk.PositionType.BOTTOM, 2);
+            //  layout.attach_next_to (color_button_white, font_size_grid, Gtk.PositionType.BOTTOM, 1);
+            //  layout.attach_next_to (color_button_dark, color_button_white, Gtk.PositionType.RIGHT, 1);
+            layout.attach_next_to (theme_switcher_grid, font_size_grid, Gtk.PositionType.BOTTOM, 2);
+            layout.attach_next_to (sep, theme_switcher_grid, Gtk.PositionType.BOTTOM, 2);
             layout.attach_next_to (focus_mode_label, sep, Gtk.PositionType.BOTTOM);
             layout.attach_next_to (focus_mode_switch, focus_mode_label, Gtk.PositionType.RIGHT);
             layout.attach_next_to (autosave_label, focus_mode_label, Gtk.PositionType.BOTTOM);
