@@ -30,7 +30,7 @@ namespace Manuscript.Services {
         public bool searchbar { get; set; }
         public bool focus_mode { get; set; }
         public bool autosave { get; set; }
-        public bool use_document_font { get; set; }
+        public bool use_document_typography { get; set; }
         public string theme { get; set; }
         public double text_scale_factor { get; set; }
         public bool prefer_dark_style {
@@ -59,7 +59,7 @@ namespace Manuscript.Services {
             settings.bind ("last-opened-document", this, "last_opened_document", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("focus-mode", this, "focus_mode", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("autosave", this, "autosave", GLib.SettingsBindFlags.DEFAULT);
-            settings.bind ("use-document-font", this, "use_document_font", GLib.SettingsBindFlags.DEFAULT);
+            settings.bind ("use-document-typography", this, "use_document_typography", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("theme", this, "theme", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("text-scale-factor", this, "text_scale_factor", GLib.SettingsBindFlags.DEFAULT);
             settings.bind ("prefer-dark-style", this, "prefer_dark_style", GLib.SettingsBindFlags.DEFAULT);

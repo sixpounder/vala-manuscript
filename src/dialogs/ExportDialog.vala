@@ -48,7 +48,9 @@ namespace Manuscript.Dialogs {
                 parent_window: parent_window,
                 transient_for: parent_window,
                 document: document,
-                modal: true
+                modal: true,
+                width_request: 500,
+                height_request: 500
             );
         }
 
@@ -66,15 +68,20 @@ namespace Manuscript.Dialogs {
             add_action_widget (export_button, Gtk.ResponseType.NONE);
 
             var layout = new Gtk.Grid ();
-            layout.row_spacing = 10;
+            layout.margin_start = layout.margin_end = 30;
+            layout.row_spacing = 15;
             layout.row_homogeneous = false;
+            layout.expand = true;
             layout.halign = Gtk.Align.CENTER;
             layout.valign = Gtk.Align.CENTER;
+            layout.width_request = 500;
+            layout.height_request = 500;
 
             format_selection_grid = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
             format_selection_grid.halign = Gtk.Align.CENTER;
             format_selection_grid.valign = Gtk.Align.CENTER;
             format_selection_grid.homogeneous = true;
+            format_selection_grid.hexpand = true;
 
             var pdf_radio = new Gtk.RadioButton (null);
             var pdf_icon = new Gtk.Image ();
@@ -134,17 +141,17 @@ namespace Manuscript.Dialogs {
             format_selection_grid.pack_start (archive_radio);
 #endif
 
-            layout.attach_next_to (format_selection_grid, null, Gtk.PositionType.LEFT, 3);
+            layout.attach_next_to (format_selection_grid, null, Gtk.PositionType.LEFT);
 
             file_name_entry = new Gtk.Entry ();
             file_name_entry.valign = Gtk.Align.START;
             adapt_filename_to_format (export_format);
-            layout.attach_next_to (file_name_entry, format_selection_grid, Gtk.PositionType.BOTTOM, 3);
+            layout.attach_next_to (file_name_entry, format_selection_grid, Gtk.PositionType.BOTTOM);
 
             folder_chooser_button = new Gtk.FileChooserButton (_("Output folder"), Gtk.FileChooserAction.SELECT_FOLDER);
             folder_chooser_button.valign = Gtk.Align.START;
             folder_chooser_button.set_current_folder (Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
-            layout.attach_next_to (folder_chooser_button, file_name_entry, Gtk.PositionType.BOTTOM, 3);
+            layout.attach_next_to (folder_chooser_button, file_name_entry, Gtk.PositionType.BOTTOM);
 
             get_content_area ().add (layout);
 

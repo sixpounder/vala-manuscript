@@ -115,10 +115,7 @@ namespace Manuscript.Widgets {
         //  }
 
         private void reflect_document_settings () {
-            editor.indent = (int) parent_window.document_manager.document.settings.paragraph_start_padding;
-            editor.pixels_below_lines = (int) parent_window.document_manager.document.settings.paragraph_spacing;
-            editor.pixels_inside_wrap = (int) parent_window.document_manager.document.settings.line_spacing;
-            editor.update_font ();
+            editor.update_text_settings ();
         }
 
         public void scroll_to_cursor () {

@@ -71,11 +71,13 @@ namespace Manuscript.Compilers {
                 Cairo.FontWeight.NORMAL
             );
 
-            var covers = document.iter_chunks_by_type (Models.ChunkType.COVER);
-            covers.foreach ((c) => {
-                render_chunk (c);
-                return true;
-            });
+            //  var covers = document.iter_chunks_by_type (Models.ChunkType.COVER);
+            //  covers.foreach ((c) => {
+            //      render_chunk (c);
+            //      return true;
+            //  });
+
+            render_default_cover ();
 
             var chapters = document.iter_chunks_by_type (Models.ChunkType.CHAPTER);
             chapters.@foreach ((c) => {
@@ -90,7 +92,6 @@ namespace Manuscript.Compilers {
                     render_chapter ((Models.ChapterChunk) chunk);
                     break;
                 case Manuscript.Models.ChunkType.COVER:
-                    render_cover ((Models.CoverChunk) chunk);
                     break;
                 case Manuscript.Models.ChunkType.NOTE:
                     break;
@@ -101,7 +102,7 @@ namespace Manuscript.Compilers {
             }
         }
 
-        private void render_cover (Models.CoverChunk chunk) {
+        private void render_default_cover () {
             new_page ();
             //  pango_context.changed ();
             var layout_width = surface_width;
@@ -111,20 +112,23 @@ namespace Manuscript.Compilers {
             layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
             layout.set_height ((int) (layout_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
             layout.set_font_description (Pango.FontDescription.from_string (
-                @"$(chunk.parent_document.settings.font_family) bold 36"
+                @"$(cached_document.settings.font_family) bold 36"
             ));
-            layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
-            layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
+            layout.set_indent ((int) cached_document.settings.paragraph_start_padding);
+            layout.set_spacing ((int) cached_document.settings.line_spacing);
             layout.set_ellipsize (Pango.EllipsizeMode.NONE);
             layout.set_wrap (Pango.WrapMode.WORD);
             layout.set_alignment (Pango.Alignment.CENTER);
 
-            layout.set_text (chunk.parent_document.title, chunk.parent_document.title.length);
+            layout.set_text (cached_document.title, cached_document.title.length);
 
             Pango.Rectangle title_ink_rect, title_logical_rect;
             layout.get_extents (out title_ink_rect, out title_logical_rect);
 
-            ctx.move_to (page_margin, page_margin + (layout_height / 2) - (title_logical_rect.height / Pango.SCALE));
+            ctx.move_to (
+                page_margin,
+                page_margin + ((layout_height / 2) - (2 * (title_logical_rect.height / Pango.SCALE)))
+            );
 
             layout.context_changed ();
             Pango.cairo_show_layout (ctx, layout);
@@ -135,23 +139,23 @@ namespace Manuscript.Compilers {
             layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
             layout.set_height ((int) (layout_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
             layout.set_font_description (Pango.FontDescription.from_string (
-                @"$(chunk.parent_document.settings.font_family) 16"
+                @"$(cached_document.settings.font_family) 16"
             ));
-            layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
-            layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
+            layout.set_indent ((int) cached_document.settings.paragraph_start_padding);
+            layout.set_spacing ((int) cached_document.settings.line_spacing);
             layout.set_ellipsize (Pango.EllipsizeMode.NONE);
             layout.set_wrap (Pango.WrapMode.WORD);
             layout.set_alignment (Pango.Alignment.CENTER);
 
             layout.set_text (
-                chunk.parent_document.settings.author_name,
-                chunk.parent_document.settings.author_name.length
+                cached_document.settings.author_name,
+                cached_document.settings.author_name.length
             );
             layout.context_changed ();
             Pango.cairo_show_layout (ctx, layout);
 
             ctx.move_to (page_margin, -page_margin + 10);
-            ctx.show_text (chunk.parent_document.settings.author_name);
+            ctx.show_text (cached_document.settings.author_name);
         }
 
         private void render_chapter (Models.ChapterChunk chunk) {
@@ -230,8 +234,8 @@ namespace Manuscript.Compilers {
             var max_lines_per_page_with_title = Math.floor (
                 (layout_height - (page_margin * 3) - (title_logical_rect.height / Pango.SCALE)) / single_line_height
             ) - 2;
-            debug (@"Max lines on title page: $max_lines_per_page_with_title");
-            debug (@"Max lines per page: $max_lines_per_page");
+            //  debug (@"Max lines on title page: $max_lines_per_page_with_title");
+            //  debug (@"Max lines per page: $max_lines_per_page");
 
             var all_text = buffer.get_text (cursor, end_iter, false);
             var max_text_length = all_text.length;
@@ -307,13 +311,11 @@ namespace Manuscript.Compilers {
             layout.set_font_description (Pango.FontDescription.from_string (
                 @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * POINT_SCALE)" // vala-lint=line-length
             ));
-            //  layout.set_indent ((int) (chunk.parent_document.settings.paragraph_start_padding * Pango.SCALE));
             layout.set_indent (-1);
             var layout_line_spacing = (int) Math.floor (
                 (chunk.parent_document.settings.line_spacing * POINT_SCALE * Pango.SCALE)
             );
             layout.set_spacing (layout_line_spacing);
-            //  debug (@"Line spacing: $(layout_line_spacing)");
             layout.set_ellipsize (Pango.EllipsizeMode.NONE);
             layout.set_wrap (Pango.WrapMode.WORD);
             layout.set_alignment (Pango.Alignment.LEFT);

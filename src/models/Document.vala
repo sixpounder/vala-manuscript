@@ -312,7 +312,7 @@ namespace Manuscript.Models {
                     critical ("Error writing '%s': %s (%d)", item.name, archive.error_string (), archive.errno ());
                     continue;
                 }
-                debug (@"Writing $(item.name): $(entry.pathname ()) - $(item.data.length)");
+                debug (@"Writing $(entry.pathname ()) - $(item.data.length) bytes");
                 size += archive.write_data (item.data);
             }
 

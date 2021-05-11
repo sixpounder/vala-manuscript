@@ -140,14 +140,14 @@ namespace Manuscript.Widgets {
             scroll_to_mark (buffer.get_insert (), 0.0, true, 0.0, 0.5);
         }
 
-        public void update_font () {
+        public void update_text_settings () {
             try {
-                var use_font = settings.use_document_font
+                var use_font = settings.use_document_typography
                     ? chunk.parent_document.settings.font_family != null
                         ? chunk.parent_document.settings.font_family
                         : Constants.DEFAULT_FONT_FAMILY
                     : Constants.DEFAULT_FONT_FAMILY;
-                var use_size = settings.use_document_font
+                var use_size = settings.use_document_typography
                     ? chunk.parent_document.settings.font_size != 0
                         ? chunk.parent_document.settings.font_size
                         : Constants.DEFAULT_FONT_SIZE
@@ -159,6 +159,19 @@ namespace Manuscript.Widgets {
                         font-size: $(use_size * settings.text_scale_factor)pt;
                     }
                 ");
+
+                indent = settings.use_document_typography
+                    ? (int) chunk.parent_document.settings.paragraph_start_padding
+                    : (int) Constants.DEFAULT_PARAGRAPH_INITIAL_PADDING;
+
+                pixels_below_lines = settings.use_document_typography
+                    ? (int) chunk.parent_document.settings.paragraph_spacing
+                    : (int) Constants.DEFAULT_PARAGRAPH_SPACING;
+
+                pixels_inside_wrap = settings.use_document_typography
+                    ? (int) chunk.parent_document.settings.line_spacing
+                    : (int) Constants.DEFAULT_LINE_SPACING;
+
             } catch (Error e) {
                 warning (e.message);
             }

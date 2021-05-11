@@ -67,7 +67,7 @@
             <summary>Autosave documents at specific checkpoints</summary>
             <description>The application will try to save opened documents at specific points in its lifecycle</description>
         </key>
-        <key name="use-document-font" type="b">
+        <key name="use-document-typography" type="b">
             <default>false</default>
             <summary>Use document defined font</summary>
             <description>Specifies wheter to use the font defined for the current document as the editor font</description>
