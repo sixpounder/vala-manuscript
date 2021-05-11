@@ -131,7 +131,9 @@ namespace Manuscript.Widgets {
             use_document_typography_switch.expand = false;
             use_document_typography_switch.halign = Gtk.Align.END;
             use_document_typography_switch.active = settings.use_document_typography;
-            use_document_typography_switch.tooltip_markup = _("When toggled on, text editors will try to use current document's typographic settings"); // vala-lint=line-length
+            use_document_typography_switch.tooltip_markup = _(
+                "When toggled on, text editors will try to use current document's typographic settings"
+            );
             use_document_typography_switch.state_set.connect (() => {
                 update_settings ();
                 return false;

@@ -117,7 +117,35 @@ namespace Manuscript.Widgets {
             notes_root.clear ();
             covers_root.clear ();
             if (doc != null) {
-                var it = doc.chunks.iterator ();
+                //  var it = doc.chunks.iterator ();
+                //  while (it.next ()) {
+                //      var item = it.@get ();
+                //      debug (@"Adding $(item.title)");
+                //      add_chunk (item, false);
+                //  }
+
+                var it = doc.iter_chunks_by_type (Models.ChunkType.COVER);
+                while (it.next ()) {
+                    var item = it.@get ();
+                    debug (@"Adding $(item.title)");
+                    add_chunk (item, false);
+                }
+
+                it = doc.iter_chunks_by_type (Models.ChunkType.CHAPTER);
+                while (it.next ()) {
+                    var item = it.@get ();
+                    debug (@"Adding $(item.title)");
+                    add_chunk (item, false);
+                }
+
+                it = doc.iter_chunks_by_type (Models.ChunkType.CHARACTER_SHEET);
+                while (it.next ()) {
+                    var item = it.@get ();
+                    debug (@"Adding $(item.title)");
+                    add_chunk (item, false);
+                }
+
+                it = doc.iter_chunks_by_type (Models.ChunkType.NOTE);
                 while (it.next ()) {
                     var item = it.@get ();
                     debug (@"Adding $(item.title)");

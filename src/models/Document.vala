@@ -536,6 +536,7 @@ namespace Manuscript.Models {
                 debug ("Moving item to the bottom");
                 chunk.index = chunks_by_type_size (chunk.kind) - 1;
             } else {
+                debug ("Moving %s before %s", chunk.title, before_this.title);
                 chunk.index = before_this.index - 1;
 
                 int idx = 0;
