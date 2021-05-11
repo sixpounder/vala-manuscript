@@ -103,9 +103,7 @@ namespace Manuscript.Compilers {
 
         private void render_cover (Models.CoverChunk chunk) {
             new_page ();
-
-            pango_context.changed ();
-
+            //  pango_context.changed ();
             var layout_width = surface_width;
             var layout_height = surface_height;
 
@@ -177,7 +175,7 @@ namespace Manuscript.Compilers {
             ctx.set_font_size (chunk.parent_document.settings.font_size * TITLE_SCALE);
             ctx.move_to (page_margin, page_margin);
 
-            Pango.Layout title_layout = Pango.cairo_create_layout (ctx);
+            Pango.Layout title_layout = new Pango.Layout (pango_context);
             title_layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
             title_layout.set_alignment (Pango.Alignment.CENTER);
             title_layout.set_justify (false);
@@ -223,7 +221,8 @@ namespace Manuscript.Compilers {
 
             Cairo.FontExtents font_extents;
             ctx.font_extents (out font_extents);
-            var single_line_height = font_extents.height;
+            var computed_line_spacing = Math.floor ((chunk.parent_document.settings.line_spacing * POINT_SCALE));
+            var single_line_height = font_extents.height + computed_line_spacing;
             var max_lines_per_page = Math.ceil ((layout_height - (page_margin * 3)) / single_line_height) - 1;
             var max_lines_per_page_with_title = Math.floor (
                 (layout_height - (page_margin * 3) - (title_logical_rect.height / Pango.SCALE)) / single_line_height
@@ -251,7 +250,6 @@ namespace Manuscript.Compilers {
                         layout.set_markup (markup_buffer.str, markup_buffer.str.length);
                     }
 
-                    //  layout.context_changed ();
                     Pango.cairo_show_layout (ctx, layout);
                     mark_page_number ();
                     new_page ();
@@ -300,16 +298,20 @@ namespace Manuscript.Compilers {
         }
 
         private Pango.Layout create_paragraph_layout (Models.DocumentChunk chunk) {
-            Pango.Layout layout = Pango.cairo_create_layout (ctx);
+            Pango.Layout layout = new Pango.Layout (pango_context);
             layout.set_width ((int) ((surface_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
             layout.set_height ((int) (surface_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
             layout.set_font_description (Pango.FontDescription.from_string (
                 @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * POINT_SCALE)" // vala-lint=line-length
             ));
-            layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
-            layout.set_spacing ((int) Math.floor ((chunk.parent_document.settings.line_spacing * POINT_SCALE)));
+            //  layout.set_indent ((int) (chunk.parent_document.settings.paragraph_start_padding * Pango.SCALE));
+            layout.set_indent (-1);
+            var layout_line_spacing = (int) Math.floor ((chunk.parent_document.settings.line_spacing * POINT_SCALE * Pango.SCALE));
+            layout.set_spacing (layout_line_spacing);
+            //  debug (@"Line spacing: $(layout_line_spacing)");
             layout.set_ellipsize (Pango.EllipsizeMode.NONE);
             layout.set_wrap (Pango.WrapMode.WORD);
+            layout.set_alignment (Pango.Alignment.LEFT);
             layout.set_justify (true);
             layout.context_changed ();
 
