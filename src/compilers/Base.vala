@@ -68,7 +68,7 @@ namespace Manuscript.Compilers {
 
         construct {
             page_size = PaperSize.A4;
-            max_words_per_line  = 25;
+            max_words_per_line = 25;
             page_margin = Models.PageMargin.MEDIUM;
         }
     }

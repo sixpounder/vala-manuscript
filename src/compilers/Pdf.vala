@@ -125,7 +125,7 @@ namespace Manuscript.Compilers {
             layout.get_extents (out title_ink_rect, out title_logical_rect);
 
             ctx.move_to (page_margin, page_margin + (layout_height / 2) - (title_logical_rect.height / Pango.SCALE));
-    
+
             layout.context_changed ();
             Pango.cairo_show_layout (ctx, layout);
 
@@ -143,7 +143,10 @@ namespace Manuscript.Compilers {
             layout.set_wrap (Pango.WrapMode.WORD);
             layout.set_alignment (Pango.Alignment.CENTER);
 
-            layout.set_text (chunk.parent_document.settings.author_name, chunk.parent_document.settings.author_name.length);
+            layout.set_text (
+                chunk.parent_document.settings.author_name,
+                chunk.parent_document.settings.author_name.length
+            );
             layout.context_changed ();
             Pango.cairo_show_layout (ctx, layout);
 
@@ -306,7 +309,9 @@ namespace Manuscript.Compilers {
             ));
             //  layout.set_indent ((int) (chunk.parent_document.settings.paragraph_start_padding * Pango.SCALE));
             layout.set_indent (-1);
-            var layout_line_spacing = (int) Math.floor ((chunk.parent_document.settings.line_spacing * POINT_SCALE * Pango.SCALE));
+            var layout_line_spacing = (int) Math.floor (
+                (chunk.parent_document.settings.line_spacing * POINT_SCALE * Pango.SCALE)
+            );
             layout.set_spacing (layout_line_spacing);
             //  debug (@"Line spacing: $(layout_line_spacing)");
             layout.set_ellipsize (Pango.EllipsizeMode.NONE);
