@@ -19,51 +19,48 @@
 
 namespace Manuscript.Compilers {
     public class PlainTextCompiler : ManuscriptCompiler {
+        const string LINE_TERMINATOR = "\n";
         private uint page_counter = 0;
         private FileOutputStream stream { get; set; }
-        private CompilerError? runtime_compile_error { get; set; }
 
-        private uint8[] new_page_marker = "\n\n ============ \n\n".data;
-        private uint max_words_per_line = 25;
+        private string new_page_marker =
+            "%s%s=====================%s%s".printf (
+                LINE_TERMINATOR, LINE_TERMINATOR, LINE_TERMINATOR, LINE_TERMINATOR
+            );
+        private string line_terminator = LINE_TERMINATOR;
 
         internal PlainTextCompiler () {}
 
         construct {
             runtime_compile_error = null;
-            try {
-                var file = File.new_for_path (filename);
-                var ios = file.create_readwrite (FileCreateFlags.REPLACE_DESTINATION);
-                stream = ios.output_stream as FileOutputStream;
-            } catch (Error e) {
-                runtime_compile_error
-                    = new CompilerError.IO ("Could not create output file: %s", runtime_compile_error.message);
-            }
-
         }
 
         public override async void compile (Manuscript.Models.Document document) throws CompilerError {
-            if (runtime_compile_error != null) {
+            FileIOStream ios;
+            try {
+                var file = File.new_for_path (filename);
+                if (file.query_exists ()) {
+                    file.delete ();
+                }
+                ios = file.create_readwrite (FileCreateFlags.REPLACE_DESTINATION);
+            } catch (Error e) {
+                runtime_compile_error
+                    = new CompilerError.IO ("Could not create output file: %s", e.message);
                 throw runtime_compile_error;
             }
 
-            var covers = document.iter_chunks_by_type (Models.ChunkType.COVER);
-            covers.foreach ((c) => {
-                try {
-                    render_chunk (c);
-                } catch (CompilerError e) {
-                    runtime_compile_error = e;
-                }
-                return runtime_compile_error != null;
-            });
+            stream = ios.output_stream as FileOutputStream;
 
-            var chapters = document.iter_chunks_by_type (Models.ChunkType.CHAPTER);
+            render_default_cover (document.title);
+
+            var chapters = document.iter_chunks_by_kind (Models.ChunkType.CHAPTER);
             chapters.@foreach ((c) => {
                 try {
                     render_chunk (c);
                 } catch (CompilerError e) {
                     runtime_compile_error = e;
                 }
-                return runtime_compile_error != null;
+                return runtime_compile_error == null;
             });
 
             try {
@@ -78,45 +75,132 @@ namespace Manuscript.Compilers {
         }
 
         private void render_chunk (Models.DocumentChunk chunk) throws CompilerError {
-            switch (chunk.kind) {
-                case Manuscript.Models.ChunkType.CHAPTER:
-                    render_chapter ((Models.ChapterChunk) chunk);
-                    break;
-                case Manuscript.Models.ChunkType.COVER:
-                    render_cover ((Models.CoverChunk) chunk);
-                    break;
-                case Manuscript.Models.ChunkType.NOTE:
-                    break;
-                case Manuscript.Models.ChunkType.CHARACTER_SHEET:
-                    break;
-                default:
-                    break;
+            if (Utils.chunk_kind_supported (chunk.kind)) {
+                switch (chunk.kind) {
+                    case Manuscript.Models.ChunkType.CHAPTER:
+                        render_chapter ((Models.ChapterChunk) chunk);
+                        break;
+                    case Manuscript.Models.ChunkType.COVER:
+                        render_cover ((Models.CoverChunk) chunk);
+                        break;
+                    case Manuscript.Models.ChunkType.NOTE:
+                        render_note ((Models.NoteChunk) chunk);
+                        break;
+                    case Manuscript.Models.ChunkType.CHARACTER_SHEET:
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
         private void render_cover (Models.CoverChunk chunk) throws CompilerError {
             try {
                 new_page ();
-                stream.write ("\n *** %s ***".printf (chunk.parent_document.title.up ()).data);
+                write ("\n *** %s ***".printf (chunk.parent_document.title.up ()));
             } catch (Error e) {
                 throw new CompilerError.IO ("Could not render cover: %s", e.message);
             }
         }
 
+        private void render_default_cover (string title) throws CompilerError {
+            try {
+                write ("\n ***");
+                write ("\n *** %s".printf (title.up ()));
+                write ("\n ***");
+                write (LINE_TERMINATOR);
+                write (LINE_TERMINATOR);
+            } catch (Error e) {
+                critical ("%s", e.message);
+                throw new CompilerError.IO ("Could not render cover: %s", e.message);
+            }
+        }
+
         private void render_chapter (Models.ChapterChunk chunk) throws CompilerError {
-            new_page ();
+            try {
+                new_page ();
+                chunk.ensure_buffer ();
+
+                write (" *** %s ***%s%s".printf (chunk.title, LINE_TERMINATOR, LINE_TERMINATOR));
+
+                var buffer = ((Models.TextChunk) chunk).buffer;
+                Gtk.TextIter cursor;
+                buffer.get_start_iter (out cursor);
+                //  buffer.get_end_iter (out end);
+                //  var text = buffer.get_text (start, end, false);
+                //  stream.write (text.data);
+                var line_word_counter = 0;
+                while (!cursor.is_end ()) {
+                    if (cursor.starts_word ()) {
+                        Gtk.TextIter step = cursor;
+                        step.forward_word_end ();
+                        string word = buffer.get_text (cursor, step, false);
+                        line_word_counter += 1;
+                        write (word);
+                        if (line_word_counter >= options.max_words_per_line) {
+                            write (line_terminator);
+                            line_word_counter = 0;
+                        }
+                        cursor.forward_word_end ();
+                    } else {
+                        write (cursor.get_char ().to_string ());
+                        cursor.forward_char ();
+                    }
+                }
+            } catch (Error e) {
+                throw new CompilerError.IO ("Could not render chapter: %s", e.message);
+            }
+        }
+
+        private void render_note (Models.NoteChunk chunk) throws CompilerError {
+            try {
+                new_page ();
+                chunk.ensure_buffer ();
+                var buffer = ((Models.TextChunk) chunk).buffer;
+                Gtk.TextIter cursor;
+                buffer.get_start_iter (out cursor);
+                //  buffer.get_end_iter (out end);
+                //  var text = buffer.get_text (start, end, false);
+                //  stream.write (text.data);
+                var line_word_counter = 0;
+                while (!cursor.is_end ()) {
+                    if (cursor.starts_word ()) {
+                        Gtk.TextIter step = cursor;
+                        step.forward_word_end ();
+                        string word = buffer.get_text (cursor, step, false);
+                        line_word_counter += 1;
+                        write (word);
+                        if (line_word_counter >= options.max_words_per_line) {
+                            write (line_terminator);
+                            line_word_counter = 0;
+                        }
+                        cursor.forward_word_end ();
+                    } else {
+                        write (cursor.get_char ().to_string ());
+                        cursor.forward_char ();
+                    }
+                }
+            } catch (Error e) {
+                throw new CompilerError.IO ("Could not render note: %s", e.message);
+            }
         }
 
         private void new_page () throws CompilerError {
             if (page_counter != 0) {
                 try {
-                    stream.write (new_page_marker);
+                    write (new_page_marker);
                 } catch (Error e) {
                     throw new CompilerError.IO ("New page marker could not be written");
                 }
             }
 
             page_counter ++;
+        }
+
+        private void write (string data) throws GLib.IOError {
+            size_t bytes_written;
+            stream.write_all (data.data, out bytes_written);
+            //  debug ("Wrote %s bytes", bytes_written.to_string ());
         }
     }
 }

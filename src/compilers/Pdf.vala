@@ -25,8 +25,6 @@ namespace Manuscript.Compilers {
     private const int DPI = 72;
 
     public class PDFCompiler : ManuscriptCompiler {
-        //  private Cairo.Context context;
-        //  private Cairo.PdfSurface surface;
         private double surface_width;
         private double surface_height;
         private double page_margin { get; set; }
@@ -71,34 +69,38 @@ namespace Manuscript.Compilers {
                 Cairo.FontWeight.NORMAL
             );
 
-            //  var covers = document.iter_chunks_by_type (Models.ChunkType.COVER);
-            //  covers.foreach ((c) => {
-            //      render_chunk (c);
-            //      return true;
-            //  });
-
             render_default_cover ();
 
-            var chapters = document.iter_chunks_by_type (Models.ChunkType.CHAPTER);
+            var chapters = document.iter_chunks_by_kind (Models.ChunkType.CHAPTER);
             chapters.@foreach ((c) => {
-                render_chunk (c);
-                return true;
+                try {
+                    render_chunk (c);
+                } catch (CompilerError e) {
+                    runtime_compile_error = e;
+                }
+                return runtime_compile_error == null;
             });
+
+            if (runtime_compile_error != null) {
+                throw runtime_compile_error;
+            }
         }
 
-        private void render_chunk (Models.DocumentChunk chunk) {
-            switch (chunk.kind) {
-                case Manuscript.Models.ChunkType.CHAPTER:
-                    render_chapter ((Models.ChapterChunk) chunk);
-                    break;
-                case Manuscript.Models.ChunkType.COVER:
-                    break;
-                case Manuscript.Models.ChunkType.NOTE:
-                    break;
-                case Manuscript.Models.ChunkType.CHARACTER_SHEET:
-                    break;
-                default:
-                    break;
+        private void render_chunk (Models.DocumentChunk chunk) throws CompilerError {
+            if (Utils.chunk_kind_supported (chunk.kind)) {
+                switch (chunk.kind) {
+                    case Manuscript.Models.ChunkType.CHAPTER:
+                        render_chapter ((Models.ChapterChunk) chunk);
+                        break;
+                    case Manuscript.Models.ChunkType.COVER:
+                        break;
+                    case Manuscript.Models.ChunkType.NOTE:
+                        break;
+                    case Manuscript.Models.ChunkType.CHARACTER_SHEET:
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 

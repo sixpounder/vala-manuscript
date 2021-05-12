@@ -489,7 +489,11 @@ namespace Manuscript.Models {
                                 return true;
                             }
                         });
-                    } else if (resource.name.has_suffix (".png")) {
+                    } else if (
+                        resource.name.has_suffix (".png") ||
+                        resource.name.has_suffix (".jpeg") ||
+                        resource.name.has_suffix (".jpg")
+                    ) {
                         // SCENARIO: this is a cover image for some cover chunk
                         var target_chunk_uuid = resource.name.substring (0, resource.name.index_of (".png"));
                         chunks.@foreach ((chunk) => {
@@ -534,13 +538,13 @@ namespace Manuscript.Models {
             if (before_this == null) {
                 // `chunk` moved to the bottom
                 debug ("Moving item to the bottom");
-                chunk.index = chunks_by_type_size (chunk.kind) - 1;
+                chunk.index = count_chunks_by_kind (chunk.kind) - 1;
             } else {
                 debug ("Moving %s before %s", chunk.title, before_this.title);
                 chunk.index = before_this.index - 1;
 
                 int idx = 0;
-                iter_chunks_by_type (chunk.kind)
+                iter_chunks_by_kind (chunk.kind)
                     .order_by ((a, b) => {
                         if (a.index < b.index) {
                             return -1;
@@ -566,10 +570,15 @@ namespace Manuscript.Models {
         public Gee.Iterator<DocumentChunk> iter_chunks_with_changes () {
             return chunks.filter ((item) => {
                 return item.has_changes;
+            }).order_by ((a, b) => {
+                return (int) (a.index - b.index);
             });
         }
 
-        public Gee.Iterator<DocumentChunk> iter_chunks_by_type (ChunkType kind) {
+        /**
+         * Iterates over chunks of a specified kind, sorting them by their index
+         */
+        public Gee.Iterator<DocumentChunk> iter_chunks_by_kind (ChunkType kind) {
             return chunks.filter ((item) => {
                 return item.kind == kind;
             }).order_by ((a, b) => {
@@ -577,7 +586,16 @@ namespace Manuscript.Models {
             });
         }
 
-        public int chunks_by_type_size (ChunkType kind) {
+        /**
+         * Iterates over all chunks, sorting them by their index
+         */
+        public Gee.Iterator<DocumentChunk> iter_chunks () {
+            return chunks.order_by ((a, b) => {
+                return (int) (a.index - b.index);
+            });
+        }
+
+        private int count_chunks_by_kind (ChunkType kind) {
             int i = 0;
             chunks.filter ((item) => {
                 return item.kind == kind;

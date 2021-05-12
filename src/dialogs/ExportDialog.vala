@@ -215,7 +215,12 @@ namespace Manuscript.Dialogs {
             SourceFunc callback = start_export.callback;
             if (Thread.supported ()) {
                 new Thread<void> ("compile-thread", () => {
-                    compile.begin (export_format, () => {
+                    compile.begin (export_format, (obj, res) => {
+                        try {
+                            compile.end (res);
+                        } catch (Compilers.CompilerError e) {
+                            critical (e.message);
+                        }
                         enable_ui ();
                         Idle.add ((owned) callback);
                     });

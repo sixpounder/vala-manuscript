@@ -22,7 +22,7 @@ add_project_arguments('-D', 'IMPORT_ENABLED', language: 'vala')
 add_project_arguments('-D', 'CHUNK_CHAPTER', language: 'vala')
 add_project_arguments('-D', 'CHUNK_CHARACTER_SHEET', language: 'vala')
 add_project_arguments('-D', 'CHUNK_NOTE', language: 'vala')
-add_project_arguments('-D', 'CHUNK_COVER', language: 'vala')
+# add_project_arguments('-D', 'CHUNK_COVER', language: 'vala')
 
 # Uncomment each export compiler the application should support
 # add_project_arguments('-D', 'EXPORT_COMPILER_ARCHIVE', language: 'vala')

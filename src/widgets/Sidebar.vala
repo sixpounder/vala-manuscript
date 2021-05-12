@@ -106,8 +106,6 @@ namespace Manuscript.Widgets {
 
             pack_start (root_list);
 
-            //  reset_tree (document);
-
             show_all ();
         }
 
@@ -117,35 +115,7 @@ namespace Manuscript.Widgets {
             notes_root.clear ();
             covers_root.clear ();
             if (doc != null) {
-                //  var it = doc.chunks.iterator ();
-                //  while (it.next ()) {
-                //      var item = it.@get ();
-                //      debug (@"Adding $(item.title)");
-                //      add_chunk (item, false);
-                //  }
-
-                var it = doc.iter_chunks_by_type (Models.ChunkType.COVER);
-                while (it.next ()) {
-                    var item = it.@get ();
-                    debug (@"Adding $(item.title)");
-                    add_chunk (item, false);
-                }
-
-                it = doc.iter_chunks_by_type (Models.ChunkType.CHAPTER);
-                while (it.next ()) {
-                    var item = it.@get ();
-                    debug (@"Adding $(item.title)");
-                    add_chunk (item, false);
-                }
-
-                it = doc.iter_chunks_by_type (Models.ChunkType.CHARACTER_SHEET);
-                while (it.next ()) {
-                    var item = it.@get ();
-                    debug (@"Adding $(item.title)");
-                    add_chunk (item, false);
-                }
-
-                it = doc.iter_chunks_by_type (Models.ChunkType.NOTE);
+                var it = doc.iter_chunks ();
                 while (it.next ()) {
                     var item = it.@get ();
                     debug (@"Adding $(item.title)");
@@ -162,17 +132,11 @@ namespace Manuscript.Widgets {
         private void on_document_set (Models.Document doc) {
             assert (doc != null);
             reset_tree (doc);
-            //  doc.add_chunk.connect (add_chunk);
-            //  doc.remove_chunk.connect (remove_chunk);
-            //  doc.active_changed.connect (select_chunk);
         }
 
         private void on_document_unload (Models.Document doc) {
             assert (doc != null);
             reset_tree (null);
-            //  doc.chunk_added.disconnect (add_chunk);
-            //  doc.chunk_removed.disconnect (remove_chunk);
-            //  doc.active_changed.disconnect (select_chunk);
         }
 
         private void on_chunk_added (Models.DocumentChunk chunk) {

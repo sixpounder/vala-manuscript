@@ -81,7 +81,7 @@ namespace Manuscript.Widgets.Settings {
             Gtk.Label paragraph_spacing_label = new Gtk.Label (_("Paragraph spacing"));
             paragraph_spacing_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
             paragraph_spacing_label.halign = Gtk.Align.END;
-            paragraph_spacing_input = new Gtk.SpinButton.with_range (0, 1000, 1);
+            paragraph_spacing_input = new Gtk.SpinButton.with_range (0, 100, 1);
             paragraph_spacing_input.value = document_manager.document.settings.paragraph_spacing;
             paragraph_spacing_input.value_changed.connect (() => {
                 if (document_manager.has_document) {
@@ -94,7 +94,7 @@ namespace Manuscript.Widgets.Settings {
             Gtk.Label paragraph_start_padding_label = new Gtk.Label (_("Paragraph initial padding"));
             paragraph_start_padding_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
             paragraph_start_padding_label.halign = Gtk.Align.END;
-            paragraph_start_padding_input = new Gtk.SpinButton.with_range (0, 1000, 1);
+            paragraph_start_padding_input = new Gtk.SpinButton.with_range (0, 100, 1);
             paragraph_start_padding_input.value = document_manager.document.settings.paragraph_start_padding;
             paragraph_start_padding_input.value_changed.connect (() => {
                 if (document_manager.has_document) {

@@ -19,6 +19,37 @@
 
 namespace Manuscript.Compilers {
     public class Utils {
+        public static bool chunk_kind_supported (Models.ChunkType kind) {
+            switch (kind) {
+                case Models.ChunkType.CHAPTER:
+#if CHUNK_CHAPTER
+                    return true;
+#else
+                    return false;
+#endif
+                case Models.ChunkType.CHARACTER_SHEET:
+#if CHUNK_CHARACTER_SHEET
+                    return true;
+#else
+                    return false;
+#endif
+                case Models.ChunkType.COVER:
+#if CHUNK_COVER
+                    return true;
+#else
+                    return false;
+#endif
+                case Models.ChunkType.NOTE:
+#if CHUNK_NOTE
+                    return true;
+#else
+                    return false;
+#endif
+                default:
+                    return false;
+            }
+        }
+
         public static string? tag_name_to_markup (string tag_name) {
             switch (tag_name) {
                 case "bold":

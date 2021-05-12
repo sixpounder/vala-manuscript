@@ -42,6 +42,7 @@ namespace Manuscript.Compilers {
     public abstract class ManuscriptCompiler : Object {
         public string filename { get; set; }
         public CompilerOptions options { get; private set; }
+        public CompilerError? runtime_compile_error { get; protected set; }
 
         construct {
             options = new CompilerOptions ();
@@ -53,6 +54,8 @@ namespace Manuscript.Compilers {
                     return new PDFCompiler ();
                 case Manuscript.Models.ExportFormat.MARKDOWN:
                     return new MarkdownCompiler ();
+                case Manuscript.Models.ExportFormat.PLAIN:
+                    return new PlainTextCompiler ();
                 default:
                     assert_not_reached ();
             }
