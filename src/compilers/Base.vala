@@ -19,7 +19,8 @@
 
 namespace Manuscript.Compilers {
     public errordomain CompilerError {
-        IO
+        IO,
+        FORMAL
     }
 
     public enum PaperSize {

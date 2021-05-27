@@ -179,7 +179,11 @@ namespace Manuscript.Dialogs {
         }
 
         private void adapt_filename_to_format (Models.ExportFormat format) {
-            var current_name = file_name_entry.text == "" ? document.title : file_name_entry.text;
+            var current_name = file_name_entry.text == ""
+                ? document.title.strip() == ""
+                    ? _("Untitled")
+                    : document.title.strip()
+                : file_name_entry.text;
             switch (format) {
                 case Models.ExportFormat.PDF:
                     file_name_entry.text = @"$(FileUtils.get_extensionless (current_name)).pdf";
@@ -199,6 +203,10 @@ namespace Manuscript.Dialogs {
         }
 
         protected async void compile (Manuscript.Models.ExportFormat output_format) throws Compilers.CompilerError {
+            if (file_name_entry.text.strip() == "") {
+                throw new Compilers.CompilerError.FORMAL ("Missing filename");
+            }
+
             Manuscript.Compilers.ManuscriptCompiler compiler
                 = Manuscript.Compilers.ManuscriptCompiler.for_format (output_format);
 
