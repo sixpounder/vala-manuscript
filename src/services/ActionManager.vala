@@ -250,19 +250,19 @@ namespace Manuscript.Services {
 
         protected void action_format_bold () {
             if (window.current_editor != null) {
-                window.current_editor.apply_format(Manuscript.Models.TAG_NAME_BOLD);
+                window.current_editor.apply_format (Manuscript.Models.TAG_NAME_BOLD);
             }
         }
 
         protected void action_format_italic () {
             if (window.current_editor != null) {
-                window.current_editor.apply_format(Manuscript.Models.TAG_NAME_ITALIC);
+                window.current_editor.apply_format (Manuscript.Models.TAG_NAME_ITALIC);
             }
         }
 
         protected void action_format_underline () {
             if (window.current_editor != null) {
-                window.current_editor.apply_format(Manuscript.Models.TAG_NAME_UNDERLINE);
+                window.current_editor.apply_format (Manuscript.Models.TAG_NAME_UNDERLINE);
             }
         }
     }
