@@ -50,7 +50,8 @@ namespace Manuscript.Dialogs {
                 document: document,
                 modal: true,
                 width_request: 500,
-                height_request: 500
+                height_request: 500,
+                title: _("Export")
             );
         }
 
@@ -145,6 +146,7 @@ namespace Manuscript.Dialogs {
 
             file_name_entry = new Gtk.Entry ();
             file_name_entry.valign = Gtk.Align.START;
+            file_name_entry.text = document.title;
             adapt_filename_to_format (export_format);
             layout.attach_next_to (file_name_entry, format_selection_grid, Gtk.PositionType.BOTTOM);
 
@@ -179,10 +181,10 @@ namespace Manuscript.Dialogs {
         }
 
         private void adapt_filename_to_format (Models.ExportFormat format) {
-            var current_name = file_name_entry.text == ""
-                ? document.title.strip() == ""
+            var current_name = file_name_entry.text.length == 0
+                ? document.title.length == 0
                     ? _("Untitled")
-                    : document.title.strip()
+                    : document.title
                 : file_name_entry.text;
             switch (format) {
                 case Models.ExportFormat.PDF:

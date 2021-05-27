@@ -126,7 +126,6 @@ namespace Manuscript.Widgets.Settings {
             int64 size = document_manager.document.settings.font_size != 0
                 ? document_manager.document.settings.font_size
                 : Constants.DEFAULT_FONT_SIZE;
-            debug (@"Font size: $size * $(Pango.SCALE)");
             font.set_size ((int) size * Pango.SCALE);
             font_button.set_font_desc (font);
 
