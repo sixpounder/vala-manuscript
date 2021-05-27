@@ -19,13 +19,25 @@
 
 namespace Manuscript.Widgets {
     public class TextEditor : Gtk.SourceView, Protocols.ChunkEditor {
+        private Gtk.SourceSearchContext search_context = null;
+        private weak Models.TextChunk _chunk;
+        private Gtk.CssProvider font_style_provider;
+        private Services.AppSettings settings = Services.AppSettings.get_default ();
+
         public signal void mark_set (Gtk.TextIter location, Gtk.TextMark mark);
 
         public bool has_changes { get; private set; }
-        public Gtk.SourceSearchContext search_context = null;
-        protected weak Models.TextChunk _chunk;
-        protected Gtk.CssProvider font_style_provider;
-        protected Services.AppSettings settings = Services.AppSettings.get_default ();
+
+        public weak Models.TextChunk chunk {
+            get {
+                return _chunk;
+            }
+            set {
+                _chunk = value;
+                debug (@"Loading buffer for $(_chunk.title)");
+                load_buffer (_chunk.buffer);
+            }
+        }
 
         public TextEditor (Models.TextChunk chunk) {
             Object (
@@ -50,17 +62,6 @@ namespace Manuscript.Widgets {
             settings.change.disconnect (on_setting_change);
             destroy.disconnect (on_destroy);
             populate_popup.disconnect (populate_context_menu);
-        }
-
-        public weak Models.TextChunk chunk {
-            get {
-                return _chunk;
-            }
-            set {
-                _chunk = value;
-                debug (@"Loading buffer for $(_chunk.title)");
-                load_buffer (_chunk.buffer);
-            }
         }
 
         private void connect_events () {
@@ -93,88 +94,6 @@ namespace Manuscript.Widgets {
             menu.prepend (italic_menu_item);
             menu.prepend (bold_menu_item);
             menu.show_all ();
-        }
-
-        public void toggle_markup_for_selection (string tag_name) {
-            Gtk.TextIter selection_start, selection_end;
-            buffer.get_selection_bounds (out selection_start, out selection_end);
-            var removed = false;
-
-            selection_start.get_tags ().@foreach ((tag) => {
-                if (tag.name == tag_name) {
-                    buffer.remove_tag_by_name (tag_name, selection_start, selection_end);
-                    removed = true;
-                }
-            });
-
-            if (tag_name != "" && !removed) {
-                buffer.apply_tag_by_name (tag_name, selection_start, selection_end);
-            }
-        }
-
-        /** Simple cubic eased scrolling for the editor view */
-        public void scroll_down () {
-            var clock = get_frame_clock ();
-            var duration = 200;
-
-            var start = vadjustment.get_value ();
-            var end = vadjustment.get_upper () - vadjustment.get_page_size ();
-            var start_time = clock.get_frame_time ();
-            var end_time = start_time + 1000 * duration;
-
-            add_tick_callback ( (widget, frame_clock) => {
-                var now = frame_clock.get_frame_time ();
-                if (now < end_time && vadjustment.get_value () != end) {
-                    double t = (now - start_time) / (end_time - start_time);
-                    t = ease_out_cubic (t);
-                    vadjustment.set_value (start + t * (end - start) );
-                    return true;
-                } else {
-                    vadjustment.set_value (end);
-                    return false;
-                }
-            } );
-        }
-
-        public void scroll_to_cursor () {
-            scroll_to_mark (buffer.get_insert (), 0.0, true, 0.0, 0.5);
-        }
-
-        public void update_text_settings () {
-            try {
-                var use_font = settings.use_document_typography
-                    ? chunk.parent_document.settings.font_family != null
-                        ? chunk.parent_document.settings.font_family
-                        : Constants.DEFAULT_FONT_FAMILY
-                    : Constants.DEFAULT_FONT_FAMILY;
-                var use_size = settings.use_document_typography
-                    ? chunk.parent_document.settings.font_size != 0
-                        ? chunk.parent_document.settings.font_size
-                        : Constants.DEFAULT_FONT_SIZE
-                    : Constants.DEFAULT_FONT_SIZE;
-                // Regenerate provider with the desired font
-                font_style_provider.load_from_data (@"
-                    .manuscript-text-editor {
-                        font-family: $(use_font);
-                        font-size: $(use_size * settings.text_scale_factor)pt;
-                    }
-                ");
-
-                indent = settings.use_document_typography
-                    ? (int) chunk.parent_document.settings.paragraph_start_padding
-                    : (int) Constants.DEFAULT_PARAGRAPH_INITIAL_PADDING;
-
-                pixels_below_lines = settings.use_document_typography
-                    ? (int) chunk.parent_document.settings.paragraph_spacing
-                    : (int) Constants.DEFAULT_PARAGRAPH_SPACING;
-
-                pixels_inside_wrap = settings.use_document_typography
-                    ? (int) chunk.parent_document.settings.line_spacing
-                    : (int) Constants.DEFAULT_LINE_SPACING;
-
-            } catch (Error e) {
-                warning (e.message);
-            }
         }
 
         protected void init_editor () throws GLib.Error {
@@ -277,6 +196,88 @@ namespace Manuscript.Widgets {
                 buffer.apply_tag (buffer.tag_table.lookup (focused_tag), sentence_start, sentence_end);
 
                 scroll_to_cursor ();
+            }
+        }
+
+        public void toggle_markup_for_selection (string tag_name) {
+            Gtk.TextIter selection_start, selection_end;
+            buffer.get_selection_bounds (out selection_start, out selection_end);
+            var removed = false;
+
+            selection_start.get_tags ().@foreach ((tag) => {
+                if (tag.name == tag_name) {
+                    buffer.remove_tag_by_name (tag_name, selection_start, selection_end);
+                    removed = true;
+                }
+            });
+
+            if (tag_name != "" && !removed) {
+                buffer.apply_tag_by_name (tag_name, selection_start, selection_end);
+            }
+        }
+
+        /** Simple cubic eased scrolling for the editor view */
+        public void scroll_down () {
+            var clock = get_frame_clock ();
+            var duration = 200;
+
+            var start = vadjustment.get_value ();
+            var end = vadjustment.get_upper () - vadjustment.get_page_size ();
+            var start_time = clock.get_frame_time ();
+            var end_time = start_time + 1000 * duration;
+
+            add_tick_callback ( (widget, frame_clock) => {
+                var now = frame_clock.get_frame_time ();
+                if (now < end_time && vadjustment.get_value () != end) {
+                    double t = (now - start_time) / (end_time - start_time);
+                    t = ease_out_cubic (t);
+                    vadjustment.set_value (start + t * (end - start) );
+                    return true;
+                } else {
+                    vadjustment.set_value (end);
+                    return false;
+                }
+            } );
+        }
+
+        public void scroll_to_cursor () {
+            scroll_to_mark (buffer.get_insert (), 0.0, true, 0.0, 0.5);
+        }
+
+        public void update_text_settings () {
+            try {
+                var use_font = settings.use_document_typography
+                    ? chunk.parent_document.settings.font_family != null
+                        ? chunk.parent_document.settings.font_family
+                        : Constants.DEFAULT_FONT_FAMILY
+                    : Constants.DEFAULT_FONT_FAMILY;
+                var use_size = settings.use_document_typography
+                    ? chunk.parent_document.settings.font_size != 0
+                        ? chunk.parent_document.settings.font_size
+                        : Constants.DEFAULT_FONT_SIZE
+                    : Constants.DEFAULT_FONT_SIZE;
+                // Regenerate provider with the desired font
+                font_style_provider.load_from_data (@"
+                    .manuscript-text-editor {
+                        font-family: $(use_font);
+                        font-size: $(use_size * settings.text_scale_factor)pt;
+                    }
+                ");
+
+                indent = settings.use_document_typography
+                    ? (int) chunk.parent_document.settings.paragraph_start_padding
+                    : (int) Constants.DEFAULT_PARAGRAPH_INITIAL_PADDING;
+
+                pixels_below_lines = settings.use_document_typography
+                    ? (int) chunk.parent_document.settings.paragraph_spacing
+                    : (int) Constants.DEFAULT_PARAGRAPH_SPACING;
+
+                pixels_inside_wrap = settings.use_document_typography
+                    ? (int) chunk.parent_document.settings.line_spacing
+                    : (int) Constants.DEFAULT_LINE_SPACING;
+
+            } catch (Error e) {
+                warning (e.message);
             }
         }
 

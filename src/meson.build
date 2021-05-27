@@ -57,6 +57,7 @@ executable(
 	'models/CharacterSheetChunk.vala',
 	'models/CoverChunk.vala',
 	'models/NoteChunk.vala',
+	'models/FootNote.vala',
 	'models/LoadState.vala',
     'models/DocumentSettings.vala',
 	'models/ExportFormat.vala',

@@ -205,7 +205,7 @@ namespace Manuscript.Dialogs {
         }
 
         protected async void compile (Manuscript.Models.ExportFormat output_format) throws Compilers.CompilerError {
-            if (file_name_entry.text.strip() == "") {
+            if (file_name_entry.text.length == 0) {
                 throw new Compilers.CompilerError.FORMAL ("Missing filename");
             }
 

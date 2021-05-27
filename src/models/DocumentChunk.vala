@@ -171,6 +171,8 @@ namespace Manuscript.Models {
 
         public virtual Models.TextBuffer? buffer { get; protected set; }
 
+        public Gee.ArrayList<Models.FootNote> foot_notes { get; set; }
+
         public uchar[] get_raw () {
             return raw_content;
         }
