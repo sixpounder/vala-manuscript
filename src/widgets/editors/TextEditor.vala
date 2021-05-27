@@ -280,6 +280,10 @@ namespace Manuscript.Widgets {
             }
         }
 
+        public override void apply_format (string tag_name) {
+            toggle_markup_for_selection (tag_name);
+        }
+
         public async bool search_for_iter (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
             end_iter = start_iter;
             try {

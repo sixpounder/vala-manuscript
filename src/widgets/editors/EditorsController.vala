@@ -36,6 +36,12 @@ namespace Manuscript.Widgets {
             }
         }
 
+        public Protocols.ChunkEditor? current_editor {
+            get {
+                return visible_child != null ? visible_child as Protocols.ChunkEditor : null;
+            }
+        }
+
         public bool on_viewport {
             get {
                 return _on_viewport;

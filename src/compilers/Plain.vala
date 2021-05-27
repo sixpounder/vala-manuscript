@@ -27,7 +27,6 @@ namespace Manuscript.Compilers {
             "%s%s=====================%s%s".printf (
                 LINE_TERMINATOR, LINE_TERMINATOR, LINE_TERMINATOR, LINE_TERMINATOR
             );
-        private string line_terminator = LINE_TERMINATOR;
 
         internal PlainTextCompiler () {}
 
@@ -44,9 +43,8 @@ namespace Manuscript.Compilers {
                 }
                 ios = file.create_readwrite (FileCreateFlags.REPLACE_DESTINATION);
             } catch (Error e) {
-                runtime_compile_error
-                    = new CompilerError.IO ("Could not create output file: %s", e.message);
-                throw runtime_compile_error;
+                set_error (new CompilerError.IO ("Could not create output file: %s", e.message));
+                throw get_error ();
             }
 
             stream = ios.output_stream as FileOutputStream;
@@ -58,19 +56,19 @@ namespace Manuscript.Compilers {
                 try {
                     render_chunk (c);
                 } catch (CompilerError e) {
-                    runtime_compile_error = e;
+                    set_error (e);
                 }
-                return runtime_compile_error == null;
+                return !has_error;
             });
 
             try {
                 stream.close ();
             } catch (Error e) {
-                runtime_compile_error = new CompilerError.IO ("Could not close output stream: %s", e.message);
+                set_error (new CompilerError.IO ("Could not close output stream: %s", e.message));
             }
 
-            if (runtime_compile_error != null) {
-                throw runtime_compile_error;
+            if (has_error) {
+                throw get_error ();
             }
         }
 
@@ -126,9 +124,6 @@ namespace Manuscript.Compilers {
                 var buffer = ((Models.TextChunk) chunk).buffer;
                 Gtk.TextIter cursor;
                 buffer.get_start_iter (out cursor);
-                //  buffer.get_end_iter (out end);
-                //  var text = buffer.get_text (start, end, false);
-                //  stream.write (text.data);
                 var line_word_counter = 0;
                 while (!cursor.is_end ()) {
                     if (cursor.starts_word ()) {
@@ -138,7 +133,7 @@ namespace Manuscript.Compilers {
                         line_word_counter += 1;
                         write (word);
                         if (line_word_counter >= options.max_words_per_line) {
-                            write (line_terminator);
+                            write (LINE_TERMINATOR);
                             line_word_counter = 0;
                         }
                         cursor.forward_word_end ();
@@ -159,9 +154,7 @@ namespace Manuscript.Compilers {
                 var buffer = ((Models.TextChunk) chunk).buffer;
                 Gtk.TextIter cursor;
                 buffer.get_start_iter (out cursor);
-                //  buffer.get_end_iter (out end);
-                //  var text = buffer.get_text (start, end, false);
-                //  stream.write (text.data);
+
                 var line_word_counter = 0;
                 while (!cursor.is_end ()) {
                     if (cursor.starts_word ()) {
@@ -171,7 +164,7 @@ namespace Manuscript.Compilers {
                         line_word_counter += 1;
                         write (word);
                         if (line_word_counter >= options.max_words_per_line) {
-                            write (line_terminator);
+                            write (LINE_TERMINATOR);
                             line_word_counter = 0;
                         }
                         cursor.forward_word_end ();

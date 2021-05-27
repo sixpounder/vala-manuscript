@@ -36,6 +36,9 @@ namespace Manuscript.Protocols {
         public virtual void lock_editor () {}
         public virtual void unlock_editor () {}
         public virtual void scroll_to_cursor () {}
+        public virtual void apply_format (string tag_name) {
+            debug (@"Should apply tag $tag_name");
+        }
 
         public virtual SearchResult? search_previous (string hint) {
             return null;

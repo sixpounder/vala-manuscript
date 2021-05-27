@@ -30,7 +30,7 @@ namespace Manuscript {
         protected Widgets.Header header;
         protected Gtk.Bin body;
         protected Gtk.Paned editor_grid;
-        protected Widgets.EditorsController tabs;
+        protected Widgets.EditorsController editors_controller;
         protected weak Models.Document selected_document = null;
         protected Gtk.InfoBar infobar;
         protected Manuscript.Widgets.QuickOpenPanel quick_open_panel;
@@ -41,6 +41,12 @@ namespace Manuscript {
         public Services.ActionManager action_manager { get; private set; }
         public string initial_document_path { get; construct; }
         public string cache_folder { get; construct; }
+
+        public Protocols.ChunkEditor? current_editor {
+            get {
+                return editors_controller.current_editor;
+            }
+        }
 
         public Models.Document ? document {
             get {
@@ -116,9 +122,9 @@ namespace Manuscript {
 
             // right panel layout (search + tabs)
             var right_panel = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
-            tabs = new Widgets.EditorsController (this);
+            editors_controller = new Widgets.EditorsController (this);
             right_panel.pack_start (search_panel, false, false, 0);
-            right_panel.pack_start (tabs);
+            right_panel.pack_start (editors_controller);
 
             // Grid
             editor_grid = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);

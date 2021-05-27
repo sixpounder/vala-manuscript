@@ -47,6 +47,10 @@ namespace Manuscript.Services {
         public const string ACTION_ZOOM_OUT_FONT = "action_zoom_out_font";
         public const string ACTION_ZOOM_DEFAULT_FONT = "action_zoom_default_font";
 
+        public const string ACTION_FORMAT_BOLD = "action_format_bold";
+        public const string ACTION_FORMAT_ITALIC = "action_format_italic";
+        public const string ACTION_FORMAT_UNDERLINE = "action_format_underline";
+
         private const ActionEntry[] ACTION_ENTRIES = {
             { ACTION_NEW_WINDOW, action_new_window },
             { ACTION_OPEN, action_open },
@@ -67,6 +71,10 @@ namespace Manuscript.Services {
             { ACTION_ADD_COVER, action_add_cover },
             { ACTION_ADD_NOTE, action_add_note },
             { ACTION_IMPORT, action_import },
+
+            { ACTION_FORMAT_BOLD, action_format_bold },
+            { ACTION_FORMAT_ITALIC, action_format_italic },
+            { ACTION_FORMAT_UNDERLINE, action_format_underline },
 
             { ACTION_ZOOM_OUT_FONT, action_zoom_out_font },
             { ACTION_ZOOM_IN_FONT, action_zoom_in_font },
@@ -103,6 +111,9 @@ namespace Manuscript.Services {
             action_accelerators.set (ACTION_ZOOM_IN_FONT, "<Control>plus");
             action_accelerators.set (ACTION_ZOOM_OUT_FONT, "<Control>minus");
             action_accelerators.set (ACTION_ZOOM_DEFAULT_FONT, "<Control>0");
+            action_accelerators.set (ACTION_FORMAT_BOLD, "<Control>b");
+            action_accelerators.set (ACTION_FORMAT_ITALIC, "<Control>i");
+            action_accelerators.set (ACTION_FORMAT_UNDERLINE, "<Control>u");
         }
 
         construct {
@@ -235,6 +246,24 @@ namespace Manuscript.Services {
 
         protected void action_zoom_default_font () {
             settings.text_scale_factor = 1.0;
+        }
+
+        protected void action_format_bold () {
+            if (window.current_editor != null) {
+                window.current_editor.apply_format(Manuscript.Models.TAG_NAME_BOLD);
+            }
+        }
+
+        protected void action_format_italic () {
+            if (window.current_editor != null) {
+                window.current_editor.apply_format(Manuscript.Models.TAG_NAME_ITALIC);
+            }
+        }
+
+        protected void action_format_underline () {
+            if (window.current_editor != null) {
+                window.current_editor.apply_format(Manuscript.Models.TAG_NAME_UNDERLINE);
+            }
         }
     }
 }

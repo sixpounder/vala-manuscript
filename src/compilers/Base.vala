@@ -48,6 +48,20 @@ namespace Manuscript.Compilers {
             options = new CompilerOptions ();
         }
 
+        public bool has_error {
+            get {
+                return runtime_compile_error != null;
+            }
+        }
+
+        public CompilerError? get_error () {
+            return runtime_compile_error;
+        }
+
+        public void set_error (CompilerError? e = null) {
+            runtime_compile_error = e;
+        }
+
         public static ManuscriptCompiler for_format (Manuscript.Models.ExportFormat format) {
             switch (format) {
                 case Manuscript.Models.ExportFormat.PDF:
