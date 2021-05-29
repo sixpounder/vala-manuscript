@@ -85,8 +85,10 @@ namespace Manuscript.Widgets {
             var divider_1 = new Gtk.Separator (Gtk.Orientation.VERTICAL);
             pack_start (divider_1);
 
+#if FEATURE_FOOTNOTES
             insert_note_button = new Gtk.ToolButton (new TextHighlightIndicator (), null);
             pack_start (insert_note_button);
+#endif
         }
     }
 }

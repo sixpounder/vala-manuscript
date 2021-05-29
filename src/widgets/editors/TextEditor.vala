@@ -89,13 +89,17 @@ namespace Manuscript.Widgets {
                 toggle_markup_for_selection (Models.TAG_NAME_UNDERLINE);
             });
 
+#if FEATURE_FOOTNOTES
             Gtk.MenuItem add_foot_note_item = new Gtk.MenuItem.with_label (_("Add footnote"));
             add_foot_note_item.activate.connect (() => {
                 add_foot_note ();
             });
+#endif
 
+#if FEATURE_FOOTNOTES
             menu.prepend (new Gtk.SeparatorMenuItem ());
             menu.prepend (add_foot_note_item);
+#endif
             menu.prepend (new Gtk.SeparatorMenuItem ());
             menu.prepend (underline_menu_item);
             menu.prepend (italic_menu_item);
@@ -160,6 +164,7 @@ namespace Manuscript.Widgets {
             if (buffer.has_selection) {}
         }
 
+#if FEATURE_FOOTNOTES
         private void add_foot_note () {
             Gtk.TextIter start, end;
 
@@ -167,6 +172,7 @@ namespace Manuscript.Widgets {
             var note = new Models.FootNote (chunk, start.get_offset (), end.get_offset ());
             chunk.add_artifact (note);
         }
+#endif
 
         /**
          * Updates text iters to highlight the current sentence and dim other parts.
