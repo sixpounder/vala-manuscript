@@ -19,13 +19,6 @@
 
 namespace Manuscript.Models {
 
-    //  public DocumentChunk from_archive_entry (Archive.Entry entry) {}
-    //  public interface Searchable : Object {
-    //      public virtual async Protocols.SearchResult[] search (string hint) {
-    //          return {};
-    //      }
-    //  }
-
     public static DocumentChunk chunk_from_json_object (Json.Object obj, Document document) {
         assert (obj != null);
         assert (document != null);
@@ -155,6 +148,53 @@ namespace Manuscript.Models {
         }
     }
 
+    public abstract class TextChunkArtifact : Object {
+        public abstract string name { get; }
+
+        // The chunk this note belongs to
+        public weak Models.TextChunk parent_chunk { get; construct; }
+
+        // The start iter in the parent chunk's buffer at which this note begins
+        public int start_iter_offset { get; construct set; }
+
+        // The start iter in the parent chunk's buffer at which this note ends. Can be null,
+        // indicating that the note belongs to a specific cursor point and not a text section
+        public int end_iter_offset { get; construct set; }
+
+        // The start iter in the parent chunk's buffer at which this note begins
+        public Gtk.TextIter? start_iter {
+            get {
+                if (parent_chunk != null) {
+                    Gtk.TextIter out_iter;
+                    parent_chunk.buffer.get_iter_at_offset (out out_iter, start_iter_offset);
+                    return out_iter;
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        // The start iter in the parent chunk's buffer at which this note ends. Can be null,
+        // indicating that the note belongs to a specific cursor point and not a text section
+        public Gtk.TextIter? end_iter {
+            get {
+                if (parent_chunk != null && end_iter_offset != -1) {
+                    Gtk.TextIter out_iter;
+                    parent_chunk.buffer.get_iter_at_offset (out out_iter, end_iter_offset);
+                    return out_iter;
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        public bool spans_text {
+            get {
+                return start_iter_offset != -1 && end_iter_offset != -1;
+            }
+        }
+    }
+
     public abstract class TextChunk : DocumentChunk, Archivable {
         protected Services.AppSettings settings = Services.AppSettings.get_default ();
         protected uint words_counter_timer = 0;
@@ -171,7 +211,11 @@ namespace Manuscript.Models {
 
         public virtual Models.TextBuffer? buffer { get; protected set; }
 
-        public Gee.ArrayList<Models.FootNote> foot_notes { get; set; }
+        public Gee.ArrayList<Models.TextChunkArtifact> artifacts { get; set; }
+
+        construct {
+            artifacts = new Gee.ArrayList<Models.TextChunkArtifact> ();
+        }
 
         public uchar[] get_raw () {
             return raw_content;
@@ -185,6 +229,24 @@ namespace Manuscript.Models {
             var node = base.to_json_object ();
             node.set_string_member ("content_ref", @"$uuid.text");
             return node;
+        }
+
+        public signal bool add_artifact (Models.TextChunkArtifact artifact) {
+            return artifacts.add (artifact);
+        }
+
+        public signal bool remove_artifact (Models.TextChunkArtifact artifact) {
+            return artifacts.remove (artifact);
+        }
+
+        public Gee.Iterator<TextChunkArtifact> iter_artifacts () {
+            return artifacts.iterator ();
+        }
+
+        public Gee.Iterator<TextChunkArtifact> iter_foot_notes () {
+            return artifacts.iterator ().filter ((a) => {
+                return a is FootNote;
+            });
         }
 
         public override Gee.Collection<ArchivableItem> to_archivable_entries () {
@@ -204,9 +266,20 @@ namespace Manuscript.Models {
             item.data = gen.to_data (null).data;
 
             var atom = buffer.get_manuscript_serialize_format ();
-            Gtk.TextIter start, end;
+            Gtk.TextIter start, end, cursor;
             buffer.get_start_iter (out start);
             buffer.get_end_iter (out end);
+            cursor = start;
+
+            while (!cursor.is_end ()) {
+                var possible_anchor = cursor.get_child_anchor ();
+                if (possible_anchor != null) {
+                    buffer.delete (ref cursor, ref cursor);
+                }
+                cursor.forward_char ();
+            }
+
+            // WTF: serialize method goes full recursion if there are child anchors in the buffer
             uint8[] serialized_data = buffer.serialize (buffer, atom, start, end);
             debug (@"$(serialized_data.length) bytes of text");
             var text_item = new ArchivableItem.with_props (@"$uuid.text", "Resource", serialized_data);

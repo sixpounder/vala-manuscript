@@ -42,6 +42,8 @@ executable(
 	'widgets/editors/CoverEditor.vala',
 	'widgets/editors/CharacterSheetEditor.vala',
 	'widgets/editors/FormatToolbar.vala',
+	'widgets/editors/artifacts/FootNoteIndicator.vala',
+	'widgets/editors/artifacts/TextHighlightIndicator.vala',
 
 	'widgets/settings/Metrics.vala',
     'widgets/settings/Typography.vala',

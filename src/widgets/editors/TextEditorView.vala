@@ -97,8 +97,9 @@ namespace Manuscript.Widgets {
             underline_activate_event = format_toolbar.format_underline.toggled.connect (() => {
                 apply_format (Models.TAG_NAME_UNDERLINE);
             });
+            format_toolbar.insert_note_button.clicked.connect (on_insert_note_clicked);
 
-            settings.change.connect (reflect_document_settings);
+            settings.change.connect (update_ui);
         }
 
         //  private void disconnect_events () {
@@ -132,6 +133,9 @@ namespace Manuscript.Widgets {
                     unlock_editor ();
                 }
             }
+
+            format_toolbar.visible = !settings.focus_mode;
+
             reflect_document_settings ();
         }
 
@@ -139,9 +143,6 @@ namespace Manuscript.Widgets {
             Gtk.TextIter start, end;
             editor.buffer.get_selection_bounds (out start, out end);
             GLib.SList<weak Gtk.TextTag> tags_at_selection_start = start.get_tags ();
-            //  GLib.SList<weak Gtk.TextTag> tags_at_selection_end = end.get_tags ();
-
-            //  disconnect_events ();
 
             format_toolbar.format_bold.active = false;
             format_toolbar.format_italic.active = false;
@@ -162,20 +163,24 @@ namespace Manuscript.Widgets {
                     break;
                 }
             });
-
-            //  connect_events ();
         }
 
         private void apply_format (string tag_name) {
             editor.toggle_markup_for_selection (tag_name);
         }
 
+        private void on_insert_note_clicked () {
+            editor.insert_empty_note_at_selection ();
+        }
+
         public void lock_editor () {
             editor.sensitive = false;
+            format_toolbar.sensitive = false;
         }
 
         public void unlock_editor () {
             editor.sensitive = true;
+            format_toolbar.sensitive = true;
         }
 
         /**

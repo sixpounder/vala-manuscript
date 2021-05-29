@@ -89,6 +89,13 @@ namespace Manuscript.Widgets {
                 toggle_markup_for_selection (Models.TAG_NAME_UNDERLINE);
             });
 
+            Gtk.MenuItem add_foot_note_item = new Gtk.MenuItem.with_label (_("Add footnote"));
+            add_foot_note_item.activate.connect (() => {
+                add_foot_note ();
+            });
+
+            menu.prepend (new Gtk.SeparatorMenuItem ());
+            menu.prepend (add_foot_note_item);
             menu.prepend (new Gtk.SeparatorMenuItem ());
             menu.prepend (underline_menu_item);
             menu.prepend (italic_menu_item);
@@ -151,6 +158,14 @@ namespace Manuscript.Widgets {
 
         protected void unselect (Gtk.TextBuffer buffer) {
             if (buffer.has_selection) {}
+        }
+
+        private void add_foot_note () {
+            Gtk.TextIter start, end;
+
+            buffer.get_selection_bounds (out start, out end);
+            var note = new Models.FootNote (chunk, start.get_offset (), end.get_offset ());
+            chunk.add_artifact (note);
         }
 
         /**
@@ -216,6 +231,23 @@ namespace Manuscript.Widgets {
             }
         }
 
+        public void insert_empty_note_at_selection () {
+            Gtk.TextIter selection_start, selection_end;
+            buffer.get_selection_bounds (out selection_start, out selection_end);
+            Gtk.TextIter target_iter;
+            if (selection_start == selection_end) {
+                target_iter = selection_start;
+            } else {
+                target_iter = selection_end;
+            }
+
+            var note = new Models.FootNote (chunk, selection_start.get_offset (), selection_end.get_offset ());
+            chunk.add_artifact (note);
+
+            Gtk.TextChildAnchor anchor = buffer.create_child_anchor (target_iter);
+            add_child_at_anchor (new FootNoteIndicator (note), anchor);
+        }
+
         /** Simple cubic eased scrolling for the editor view */
         public void scroll_down () {
             var clock = get_frame_clock ();
@@ -275,6 +307,14 @@ namespace Manuscript.Widgets {
                 pixels_inside_wrap = settings.use_document_typography
                     ? (int) chunk.parent_document.settings.line_spacing
                     : (int) Constants.DEFAULT_LINE_SPACING;
+
+                // Iterates all child widgets
+
+                this.@foreach ((child) => {
+                    if (child is FootNoteIndicator) {
+                        child.resize ((int) ((use_size * settings.text_scale_factor) / 0.75));
+                    }
+                });
 
             } catch (Error e) {
                 warning (e.message);
