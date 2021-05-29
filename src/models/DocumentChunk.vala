@@ -279,8 +279,17 @@ namespace Manuscript.Models {
                 cursor.forward_char ();
             }
 
-            // WTF: serialize method goes full recursion if there are child anchors in the buffer
+            /**
+             *   ___         ___  
+             *  (o o)       (o o) 
+             * (  V  ) WTF (  V  )
+             * --m-m---------m-m--
+             *
+             * serialize method goes full recursion if there are child anchors in the buffer
+             */
             uint8[] serialized_data = buffer.serialize (buffer, atom, start, end);
+            // ┻━┻ ︵ヽ(`Д´)ﾉ︵ ┻━┻
+
             debug (@"$(serialized_data.length) bytes of text");
             var text_item = new ArchivableItem.with_props (@"$uuid.text", "Resource", serialized_data);
 
