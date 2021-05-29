@@ -256,7 +256,11 @@ namespace Manuscript.Widgets {
 
         private bool search_for_iter_backward (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
             end_iter = start_iter;
+#if GTKSOURCEVIEW3
             bool found = search_context.backward2 (start_iter, out start_iter, out end_iter, null);
+#else
+            bool found = search_context.backward (start_iter, out start_iter, out end_iter, null);
+#endif
             if (found) {
                 text_buffer.select_range (start_iter, end_iter);
                 result (text_buffer, start_iter);
