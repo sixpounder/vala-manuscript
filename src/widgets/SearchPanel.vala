@@ -241,7 +241,11 @@ namespace Manuscript.Widgets {
 
         private bool search_for_iter (Gtk.TextIter? start_iter, out Gtk.TextIter? end_iter) {
             end_iter = start_iter;
+#if GTKSOURCEVIEW3
             bool found = search_context.forward2 (start_iter, out start_iter, out end_iter, null);
+#else
+            bool found = search_context.forward (start_iter, out start_iter, out end_iter, null);
+#endif
             if (found) {
                 text_buffer.select_range (start_iter, end_iter);
                 result (text_buffer, start_iter);
@@ -273,7 +277,11 @@ namespace Manuscript.Widgets {
             if (search_for_iter (start_iter, out end_iter)) {
                 string replace_string = replace_entry.text;
                 try {
+#if GTKSOURCEVIEW3
                     search_context.replace2 (start_iter, end_iter, replace_string, replace_string.length);
+#else
+                    search_context.replace (start_iter, end_iter, replace_string, replace_string.length);
+#endif
                     update_replace_tool_sensitivities (search_entry.text);
                     debug ("Replace \"%s\" with \"%s\"", search_entry.text, replace_entry.text);
                 } catch (Error e) {

@@ -231,11 +231,11 @@ namespace Manuscript.Models {
             return node;
         }
 
-        public signal bool add_artifact (Models.TextChunkArtifact artifact) {
+        public virtual signal bool add_artifact (Models.TextChunkArtifact artifact) {
             return artifacts.add (artifact);
         }
 
-        public signal bool remove_artifact (Models.TextChunkArtifact artifact) {
+        public virtual signal bool remove_artifact (Models.TextChunkArtifact artifact) {
             return artifacts.remove (artifact);
         }
 

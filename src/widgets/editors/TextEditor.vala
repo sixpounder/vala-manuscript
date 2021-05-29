@@ -311,8 +311,8 @@ namespace Manuscript.Widgets {
                 // Iterates all child widgets
 
                 this.@foreach ((child) => {
-                    if (child is FootNoteIndicator) {
-                        child.resize ((int) ((use_size * settings.text_scale_factor) / 0.75));
+                    if (child != null && child is FootNoteIndicator) {
+                        ((FootNoteIndicator) child).resize ((int) ((use_size * settings.text_scale_factor) / 0.75));
                     }
                 });
 
@@ -328,7 +328,12 @@ namespace Manuscript.Widgets {
         public async bool search_for_iter (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
             end_iter = start_iter;
             try {
+#if GTKSOURCEVIEW3
                 bool found = yield search_context.forward_async (start_iter, null, out start_iter, out end_iter);
+#else
+                bool found;
+                yield search_context.forward_async (start_iter, null, out start_iter, out end_iter, out found);
+#endif
                 if (found) {
                     buffer.select_range (start_iter, end_iter);
                     scroll_to_iter (start_iter, 0, false, 0, 0);
@@ -344,7 +349,12 @@ namespace Manuscript.Widgets {
         public async bool search_for_iter_backward (Gtk.TextIter ? start_iter, out Gtk.TextIter ? end_iter) {
             end_iter = start_iter;
             try {
+#if GTKSOURCEVIEW3
                 bool found = yield search_context.backward_async (start_iter, null, out start_iter, out end_iter);
+#else
+                bool found;
+                yield search_context.backward_async (start_iter, null, out start_iter, out end_iter, out found);
+#endif
                 if (found) {
                     buffer.select_range (start_iter, end_iter);
                     scroll_to_iter (start_iter, 0, false, 0, 0);

@@ -1,3 +1,8 @@
+add_project_arguments('-D', 'GTKSOURCEVIEW3', language: 'vala')
+
+# Uncomment this when switching to gtksourceview4
+# add_project_arguments('-D', 'GTKSOURCEVIEW4', language: 'vala')
+
 asresources = gnome.compile_resources(
 	'as-resources', '../data/' + meson.project_name() + '.gresource.xml',
 	source_dir: '../data',
