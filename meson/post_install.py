@@ -22,3 +22,6 @@ print('Updating mime database...')
 call(
     ['update-mime-database', path.join(datadir, 'mime')]
 )
+
+print('Updating fontconfig cache...')
+call(['fc-cache', path.join(datadir), 'fonts'])

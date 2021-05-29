@@ -77,3 +77,21 @@ css_gresource = gnome.compile_resources(
     c_name: 'css'
 )
 message('Compiled css gresource')
+
+
+message('Installing default font')
+install_data(
+    join_paths('fonts', 'iAWriterDuospace-Regular.otf'),
+    install_dir: join_paths(get_option('datadir'), 'fonts')
+)
+
+install_data(
+    join_paths('fonts', 'iAWriterDuospace-Bold.otf'),
+    install_dir: join_paths(get_option('datadir'), 'fonts')
+)
+
+install_data(
+    join_paths('fonts', 'iAWriterDuospace-RegularItalic.otf'),
+    install_dir: join_paths(get_option('datadir'), 'fonts')
+)
+message('Default font installed')
