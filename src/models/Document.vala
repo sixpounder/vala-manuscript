@@ -92,7 +92,22 @@ namespace Manuscript.Models {
         public File? file_ref { get; protected set; }
         public string version { get; set; }
         public string uuid { get; set; }
-        public string title { get; set; }
+
+        private string? _title;        
+        public string title {
+            get {
+                if (_title == null || _title.length == 0) {
+                    return _("Untitled");
+                } else {
+                    return _title;
+                }
+            }
+
+            set {
+                _title = value;
+            }
+        }
+
         public DocumentSettings settings { get; set; }
 
         private Gee.ArrayList<DocumentChunk> _chunks;
@@ -104,31 +119,6 @@ namespace Manuscript.Models {
                 _chunks = value;
             }
         }
-
-        //  public string to_json () {
-        //      var gen = new Json.Generator ();
-        //      var root = new Json.Node (Json.NodeType.OBJECT);
-        //      var object = new Json.Object ();
-        //      root.set_object (object);
-        //      gen.set_root (root);
-
-        //      object.set_string_member ("version", version);
-        //      object.set_string_member ("uuid", uuid);
-        //      object.set_string_member ("title", title);
-        //      object.set_object_member ("settings", settings.to_json_object ());
-
-        //      // Serialize chunks
-
-        //      Json.Array chunks_array = new Json.Array.sized (chunks.size);
-        //      var it = chunks.iterator ();
-        //      while (it.next ()) {
-        //          chunks_array.add_object_element (it.@get ().to_json_object ());
-        //      }
-        //      object.set_array_member ("chunks", chunks_array);
-        //      debug (@"Document.to_json -> Serializing $(chunks_array.get_length()) chunks");
-
-        //      return gen.to_data (null);
-        //  }
 
         public Gee.Collection<ArchivableItem> to_archivable_entries () {
             var gen = new Json.Generator ();
@@ -150,10 +140,6 @@ namespace Manuscript.Models {
 
             return c;
         }
-
-        //  public virtual signal void add_chunk (owned DocumentChunk chunk) {}
-        //  public virtual signal void remove_chunk (DocumentChunk chunk) {}
-        //  public virtual signal bool move_chunk (DocumentChunk chunk, DocumentChunk ? before_this) { return false; }
 
     }
 
@@ -211,7 +197,7 @@ namespace Manuscript.Models {
         public string filename {
             owned get {
                 if (temporary) {
-                    return _ ("Untitled");
+                    return _("Untitled");
                 } else {
                     return file_path != null ? GLib.Path.get_basename (file_path) : _ ("Untitled");
                 }

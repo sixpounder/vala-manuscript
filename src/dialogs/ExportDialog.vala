@@ -181,10 +181,6 @@ namespace Manuscript.Dialogs {
         }
 
         private void adapt_filename_to_format (Models.ExportFormat format) {
-            if (document.title == null) {
-                document.title = _("Untitled");
-            }
-
             var current_name = file_name_entry.text.length == 0
                 ? document.title.length == 0
                     ? _("Untitled")
