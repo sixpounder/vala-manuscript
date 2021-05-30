@@ -284,6 +284,8 @@ namespace Manuscript.Widgets {
 
         public void update_text_settings () {
             try {
+                assert (this != null);
+                assert (settings != null);
                 var use_font = settings.use_document_typography
                     ? chunk.parent_document.settings.font_family != null
                         ? chunk.parent_document.settings.font_family

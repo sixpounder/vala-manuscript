@@ -24,7 +24,10 @@ namespace Manuscript.Widgets {
         public Gtk.ToggleButton format_bold { get; protected set; }
         public Gtk.ToggleButton format_italic { get; protected set; }
         public Gtk.ToggleButton format_underline { get; protected set; }
+
+#if FEATURE_FOOTNOTES
         public Gtk.ToolButton insert_note_button { get; protected set; }
+#endif
 
         private const int ICON_SIZE = 18;
 

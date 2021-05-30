@@ -20,7 +20,7 @@
 namespace Manuscript.Compilers {
 
     private const double TITLE_SCALE = 1.2;
-    private const double PAGE_NUMBER_SCALE_FACTOR = 0.7;
+    private const double PAGE_NUMBER_SCALE_FACTOR = 0.75;
     private const double POINT_SCALE = 0.75;
     private const int DPI = 72;
 
@@ -236,8 +236,6 @@ namespace Manuscript.Compilers {
             var max_lines_per_page_with_title = Math.floor (
                 (layout_height - (page_margin * 3) - (title_logical_rect.height / Pango.SCALE)) / single_line_height
             ) - 2;
-            //  debug (@"Max lines on title page: $max_lines_per_page_with_title");
-            //  debug (@"Max lines per page: $max_lines_per_page");
 
             var all_text = buffer.get_text (cursor, end_iter, false);
             var max_text_length = all_text.length;
@@ -259,6 +257,7 @@ namespace Manuscript.Compilers {
                         layout.set_markup (markup_buffer.str, markup_buffer.str.length);
                     }
 
+                    // Show current layout and reset it
                     Pango.cairo_show_layout (ctx, layout);
                     mark_page_number ();
                     new_page ();
@@ -341,7 +340,8 @@ namespace Manuscript.Compilers {
             ctx.text_extents (page_number_text, out page_number_extent);
             ctx.move_to (
                 (surface_width / 2) - page_number_extent.width,
-                surface_height - page_number_extent.height - page_margin);
+                surface_height - page_number_extent.height - page_margin
+            );
             ctx.show_text (page_number_text);
             ctx.restore ();
         }

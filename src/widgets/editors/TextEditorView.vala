@@ -97,7 +97,10 @@ namespace Manuscript.Widgets {
             underline_activate_event = format_toolbar.format_underline.toggled.connect (() => {
                 apply_format (Models.TAG_NAME_UNDERLINE);
             });
+
+#if FEATURE_FOOTNOTES
             format_toolbar.insert_note_button.clicked.connect (on_insert_note_clicked);
+#endif
 
             settings.change.connect (update_ui);
         }
@@ -169,9 +172,11 @@ namespace Manuscript.Widgets {
             editor.toggle_markup_for_selection (tag_name);
         }
 
+#if FEATURE_FOOTNOTES
         private void on_insert_note_clicked () {
             editor.insert_empty_note_at_selection ();
         }
+#endif
 
         public void lock_editor () {
             editor.sensitive = false;
