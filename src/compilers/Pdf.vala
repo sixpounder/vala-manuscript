@@ -23,6 +23,7 @@ namespace Manuscript.Compilers {
     private const double PAGE_NUMBER_SCALE_FACTOR = 0.75;
     private const double POINT_SCALE = 0.75;
     private const int DPI = 72;
+    private const string NOTES_FIXED_TITLE = _("Notes");
 
     public class PDFCompiler : ManuscriptCompiler {
         private double surface_width;
@@ -81,6 +82,18 @@ namespace Manuscript.Compilers {
                 return runtime_compile_error == null;
             });
 
+            render_notes_cover ();
+
+            var notes = document.iter_chunks_by_kind (Models.ChunkType.NOTE);
+            notes.@foreach ((c) => {
+                try {
+                    render_chunk (c);
+                } catch (CompilerError e) {
+                    runtime_compile_error = e;
+                }
+                return runtime_compile_error == null;
+            });
+
             if (runtime_compile_error != null) {
                 throw runtime_compile_error;
             }
@@ -95,6 +108,7 @@ namespace Manuscript.Compilers {
                     case Manuscript.Models.ChunkType.COVER:
                         break;
                     case Manuscript.Models.ChunkType.NOTE:
+                        render_note ((Models.NoteChunk) chunk);
                         break;
                     case Manuscript.Models.ChunkType.CHARACTER_SHEET:
                         break;
@@ -158,9 +172,45 @@ namespace Manuscript.Compilers {
 
             ctx.move_to (page_margin, -page_margin + 10);
             ctx.show_text (cached_document.settings.author_name);
+
+            mark_page_number ();
         }
 
-        private void render_chapter (Models.ChapterChunk chunk) {
+        private void render_notes_cover () {
+            new_page ();
+            //  pango_context.changed ();
+            var layout_width = surface_width;
+            var layout_height = surface_height;
+
+            Pango.Layout layout = new Pango.Layout (pango_context);
+            layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
+            layout.set_height ((int) (layout_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
+            layout.set_font_description (Pango.FontDescription.from_string (
+                @"$(cached_document.settings.font_family) bold 36"
+            ));
+            layout.set_indent ((int) cached_document.settings.paragraph_start_padding);
+            layout.set_spacing ((int) cached_document.settings.line_spacing);
+            layout.set_ellipsize (Pango.EllipsizeMode.NONE);
+            layout.set_wrap (Pango.WrapMode.WORD);
+            layout.set_alignment (Pango.Alignment.CENTER);
+
+            layout.set_text (NOTES_FIXED_TITLE, NOTES_FIXED_TITLE.length);
+
+            Pango.Rectangle title_ink_rect, title_logical_rect;
+            layout.get_extents (out title_ink_rect, out title_logical_rect);
+
+            ctx.move_to (
+                page_margin,
+                page_margin + ((layout_height / 2) - (2 * (title_logical_rect.height / Pango.SCALE)))
+            );
+
+            layout.context_changed ();
+            Pango.cairo_show_layout (ctx, layout);
+
+            mark_page_number ();
+        }
+
+        private void render_text_chunk (Models.TextChunk chunk) {
             chunk.ensure_buffer ();
             new_page ();
             mark_page_number ();
@@ -305,17 +355,21 @@ namespace Manuscript.Compilers {
             }
         }
 
+        private void render_chapter (Models.ChapterChunk chunk) {
+            render_text_chunk (chunk);
+        }
+
         private Pango.Layout create_paragraph_layout (Models.DocumentChunk chunk) {
             Pango.Layout layout = new Pango.Layout (pango_context);
+            var layout_line_spacing = (int) Math.floor (
+                (chunk.parent_document.settings.line_spacing * POINT_SCALE * Pango.SCALE)
+            );
+
             layout.set_width ((int) ((surface_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
             layout.set_height ((int) (surface_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
             layout.set_font_description (Pango.FontDescription.from_string (
                 @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * POINT_SCALE)" // vala-lint=line-length
             ));
-            layout.set_indent (-1);
-            var layout_line_spacing = (int) Math.floor (
-                (chunk.parent_document.settings.line_spacing * POINT_SCALE * Pango.SCALE)
-            );
             layout.set_indent ((int) (chunk.parent_document.settings.paragraph_start_padding * POINT_SCALE * Pango.SCALE));
             layout.set_spacing (layout_line_spacing);
             layout.set_ellipsize (Pango.EllipsizeMode.NONE);
@@ -325,6 +379,10 @@ namespace Manuscript.Compilers {
             layout.context_changed ();
 
             return layout;
+        }
+
+        private void render_note (Models.NoteChunk chunk) {
+            render_text_chunk (chunk);
         }
 
         private void mark_page_number () {

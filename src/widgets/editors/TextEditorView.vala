@@ -91,9 +91,11 @@ namespace Manuscript.Widgets {
             bold_activate_event = format_toolbar.format_bold.toggled.connect (() => {
                 apply_format (Models.TAG_NAME_BOLD);
             });
+
             italic_activate_event = format_toolbar.format_italic.toggled.connect (() => {
                 apply_format (Models.TAG_NAME_ITALIC);
             });
+
             underline_activate_event = format_toolbar.format_underline.toggled.connect (() => {
                 apply_format (Models.TAG_NAME_UNDERLINE);
             });
@@ -104,19 +106,6 @@ namespace Manuscript.Widgets {
 
             settings.change.connect (update_ui);
         }
-
-        //  private void disconnect_events () {
-        //      chunk.notify["title"].disconnect (update_ui);
-        //      chunk.notify["locked"].disconnect (update_ui);
-        //      editor.mark_set.disconnect (update_format_toolbar);
-        //      format_toolbar.format_bold.disconnect (bold_activate_event);
-        //      format_toolbar.format_italic.disconnect (italic_activate_event);
-        //      format_toolbar.format_underline.disconnect (underline_activate_event);
-        //      settings.change.disconnect (reflect_document_settings);
-        //      if (parent_window.document_manager.has_document) {
-        //          parent_window.document_manager.document.settings.notify.disconnect (update_ui);
-        //      }
-        //  }
 
         private void reflect_document_settings () {
             editor.update_text_settings ();

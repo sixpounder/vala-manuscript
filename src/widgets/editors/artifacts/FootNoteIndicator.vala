@@ -47,18 +47,6 @@ namespace Manuscript.Widgets {
         }
 
         construct {
-            //  var note_text_entry = new Gtk.Entry ();
-            //  note_text_entry.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
-            //  note_text_entry.expand = true;
-            //  note_text_entry.halign = Gtk.Align.CENTER;
-            //  note_text_entry.valign = Gtk.Align.CENTER;
-
-            //  var remove_note_button = new Gtk.Button ();
-            //  remove_note_button.get_style_context ().add_class (Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
-
-            //  attach_next_to (note_text_entry, null, Gtk.PositionType.LEFT, 1);
-            //  attach_next_to (remove_note_button, note_text_entry, Gtk.PositionType.BOTTOM, 1);
-
             icon = new TextHighlightIndicator ();
             icon.button_press_event.connect (on_activated);
             attach_next_to (icon, null, Gtk.PositionType.LEFT, 1);
