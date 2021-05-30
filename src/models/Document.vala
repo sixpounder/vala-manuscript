@@ -54,13 +54,13 @@ namespace Manuscript.Models {
         //  public abstract Archivable from_archive_entries (Gee.Collection<ArchivableItem> entries);
     }
 
-    public interface DocumentBase : Object {
-        public abstract string version { get; set; }
-        public abstract string uuid { get; set; }
-        public abstract string title { get; set; }
-        public abstract DocumentSettings settings { get; set; }
-        public abstract Gee.ArrayList<DocumentChunk> chunks { get; set; }
-    }
+    //  public interface DocumentBase : Object {
+    //      public abstract string version { get; set; }
+    //      public abstract string uuid { get; set; }
+    //      public abstract string title { get; set; }
+    //      public abstract DocumentSettings settings { get; set; }
+    //      public abstract Gee.ArrayList<DocumentChunk> chunks { get; set; }
+    //  }
 
     public class ChunkParser : Object, Services.ThreadWorker<DocumentChunk> {
         public Json.Node serialized_chunk { get; construct; }
@@ -87,7 +87,7 @@ namespace Manuscript.Models {
         }
     }
 
-    public class DocumentData : Object, DocumentBase, Archivable {
+    public class DocumentData : Object, Archivable {
         public signal void load ();
         public File? file_ref { get; protected set; }
         public string version { get; set; }
@@ -157,7 +157,7 @@ namespace Manuscript.Models {
 
     }
 
-    public class Document : DocumentData, DocumentBase {
+    public class Document : DocumentData {
         public signal void saved (string target_path);
         public signal void read_error (GLib.Error error);
         public signal void save_error (DocumentError e);

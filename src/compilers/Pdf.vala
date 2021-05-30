@@ -219,7 +219,7 @@ namespace Manuscript.Compilers {
             ctx.set_font_size (chunk.parent_document.settings.font_size);
             ctx.rel_move_to (
                 0,
-                (title_logical_rect.height / Pango.SCALE) + chunk.parent_document.settings.paragraph_spacing
+                (title_logical_rect.height / Pango.SCALE) + chunk.parent_document.settings.paragraph_spacing.clamp (40, 140)
             );
 
             var buffer = chunk.buffer;
@@ -317,6 +317,7 @@ namespace Manuscript.Compilers {
             var layout_line_spacing = (int) Math.floor (
                 (chunk.parent_document.settings.line_spacing * POINT_SCALE * Pango.SCALE)
             );
+            layout.set_indent ((int) (chunk.parent_document.settings.paragraph_start_padding * POINT_SCALE * Pango.SCALE));
             layout.set_spacing (layout_line_spacing);
             layout.set_ellipsize (Pango.EllipsizeMode.NONE);
             layout.set_wrap (Pango.WrapMode.WORD);
