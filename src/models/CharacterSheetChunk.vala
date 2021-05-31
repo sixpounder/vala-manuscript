@@ -18,7 +18,7 @@
  */
 
 namespace Manuscript.Models {
-    public class CharacterSheetChunk : DocumentChunk {
+    public class CharacterSheetChunk : DocumentChunk, Archivable {
         public string name { get; set; }
         public string background { get; set; }
         public string traits { get; set; }
@@ -71,6 +71,22 @@ namespace Manuscript.Models {
             }
 
             return self;
+        }
+
+        public override Gee.Collection<ArchivableItem> to_archivable_entries () {
+            Json.Generator gen = new Json.Generator ();
+            var root = new Json.Node (Json.NodeType.OBJECT);
+            root.set_object (to_json_object ());
+            gen.set_root (root);
+            var c = new Gee.ArrayList<ArchivableItem> ();
+            var item = new ArchivableItem ();
+            item.name = @"$uuid.json";
+            item.group = "CharacterSheets";
+            item.data = gen.to_data (null).data;
+
+            c.add (item);
+
+            return c;
         }
     }
 }

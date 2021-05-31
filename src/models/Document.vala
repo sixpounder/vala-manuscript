@@ -25,6 +25,7 @@ namespace Manuscript.Models {
         ERR_LAST_SAVE
     }
 
+    [ CCode (cprefix="DOCUMENT_ERROR_DOMAIN_") ]
     public errordomain DocumentError {
         NOT_FOUND,
         READ,
@@ -53,14 +54,6 @@ namespace Manuscript.Models {
         public abstract Gee.Collection<ArchivableItem> to_archivable_entries ();
         //  public abstract Archivable from_archive_entries (Gee.Collection<ArchivableItem> entries);
     }
-
-    //  public interface DocumentBase : Object {
-    //      public abstract string version { get; set; }
-    //      public abstract string uuid { get; set; }
-    //      public abstract string title { get; set; }
-    //      public abstract DocumentSettings settings { get; set; }
-    //      public abstract Gee.ArrayList<DocumentChunk> chunks { get; set; }
-    //  }
 
     public class ChunkParser : Object, Services.ThreadWorker<DocumentChunk> {
         public Json.Node serialized_chunk { get; construct; }
@@ -93,7 +86,7 @@ namespace Manuscript.Models {
         public string version { get; set; }
         public string uuid { get; set; }
 
-        private string? _title;        
+        private string? _title;
         public string title {
             get {
                 if (_title == null || _title.length == 0) {
@@ -283,7 +276,9 @@ namespace Manuscript.Models {
             var it = chunks.iterator ();
             while (it.next ()) {
                 var item = it.@get ();
-                archive_items.add_all (item.to_archivable_entries ());
+                if (item is Archivable) {
+                    archive_items.add_all (item.to_archivable_entries ());
+                }
             }
 
             foreach (ArchivableItem item in archive_items) {
@@ -318,7 +313,6 @@ namespace Manuscript.Models {
                 return true;
             });
 
-            //  info (@"Document saved to $file_path ($written_bytes bytes written)");
             this.temporary = false;
             return (long) size;
         }

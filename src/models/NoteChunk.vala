@@ -26,21 +26,6 @@
             set_raw ({});
         }
 
-        //  ~ NoteChunk () {
-        //      if (buffer != null) {
-        //          buffer.changed.disconnect (on_content_changed);
-        //          buffer.undo.disconnect (on_buffer_undo);
-        //          buffer.redo.disconnect (on_buffer_redo);
-        //          buffer.insert_text.disconnect (text_inserted);
-        //          buffer.delete_range.disconnect (range_deleted);
-        //          buffer.undo_manager.can_undo_changed.disconnect (on_can_undo_changed);
-        //          buffer.undo_manager.can_redo_changed.disconnect (on_can_redo_changed);
-        //          if (buffer.ref_count > 0) {
-        //              buffer.unref ();
-        //          }
-        //      }
-        //  }
-
         public static NoteChunk from_json_object (Json.Object obj, Document document) {
             NoteChunk self = (NoteChunk) DocumentChunk.new_from_json_object (obj, document);
 

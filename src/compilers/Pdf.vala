@@ -24,6 +24,7 @@ namespace Manuscript.Compilers {
     private const double POINT_SCALE = 0.75;
     private const int DPI = 72;
     private const string NOTES_FIXED_TITLE = _("Notes");
+    private const string CHARACTER_SHEETS_FIXED_TITLE = _("Character sheets");
 
     public class PDFCompiler : ManuscriptCompiler {
         private double surface_width;
@@ -82,20 +83,42 @@ namespace Manuscript.Compilers {
                 return runtime_compile_error == null;
             });
 
-            render_notes_cover ();
-
-            var notes = document.iter_chunks_by_kind (Models.ChunkType.NOTE);
-            notes.@foreach ((c) => {
-                try {
-                    render_chunk (c);
-                } catch (CompilerError e) {
-                    runtime_compile_error = e;
-                }
-                return runtime_compile_error == null;
-            });
-
             if (runtime_compile_error != null) {
                 throw runtime_compile_error;
+            }
+
+            var notes = document.iter_chunks_by_kind (Models.ChunkType.NOTE);
+            if (notes.has_next ()) {
+                render_notes_cover ();
+                notes.@foreach ((c) => {
+                    try {
+                        render_chunk (c);
+                    } catch (CompilerError e) {
+                        runtime_compile_error = e;
+                    }
+                    return runtime_compile_error == null;
+                });
+    
+                if (runtime_compile_error != null) {
+                    throw runtime_compile_error;
+                }
+            }
+
+            var character_sheets = document.iter_chunks_by_kind (Models.ChunkType.CHARACTER_SHEET);
+            if (character_sheets.has_next ()) {
+                render_character_sheets_cover ();
+                character_sheets.@foreach ((c) => {
+                    try {
+                        render_chunk (c);
+                    } catch (CompilerError e) {
+                        runtime_compile_error = e;
+                    }
+                    return runtime_compile_error == null;
+                });
+    
+                if (runtime_compile_error != null) {
+                    throw runtime_compile_error;
+                }
             }
         }
 
@@ -111,11 +134,48 @@ namespace Manuscript.Compilers {
                         render_note ((Models.NoteChunk) chunk);
                         break;
                     case Manuscript.Models.ChunkType.CHARACTER_SHEET:
+                        render_character_sheet ((Models.CharacterSheetChunk) chunk);
                         break;
                     default:
                         break;
                 }
             }
+        }
+
+        private void render_page_centered_text (string text) {
+            ctx.save ();
+            new_page ();
+            //  pango_context.changed ();
+            var layout_width = surface_width;
+            var layout_height = surface_height;
+
+            Pango.Layout layout = new Pango.Layout (pango_context);
+            layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
+            layout.set_height ((int) (layout_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
+            layout.set_font_description (Pango.FontDescription.from_string (
+                @"$(cached_document.settings.font_family) bold 36"
+            ));
+            layout.set_indent ((int) cached_document.settings.paragraph_start_padding);
+            layout.set_spacing ((int) cached_document.settings.line_spacing);
+            layout.set_ellipsize (Pango.EllipsizeMode.NONE);
+            layout.set_wrap (Pango.WrapMode.WORD);
+            layout.set_alignment (Pango.Alignment.CENTER);
+
+            layout.set_text (text, text.length);
+
+            Pango.Rectangle title_ink_rect, title_logical_rect;
+            layout.get_extents (out title_ink_rect, out title_logical_rect);
+
+            ctx.move_to (
+                page_margin,
+                page_margin + ((layout_height / 2) - (2 * (title_logical_rect.height / Pango.SCALE)))
+            );
+
+            layout.context_changed ();
+            Pango.cairo_show_layout (ctx, layout);
+
+            mark_page_number ();
+            ctx.restore ();
         }
 
         private void render_default_cover () {
@@ -177,37 +237,11 @@ namespace Manuscript.Compilers {
         }
 
         private void render_notes_cover () {
-            new_page ();
-            //  pango_context.changed ();
-            var layout_width = surface_width;
-            var layout_height = surface_height;
+            render_page_centered_text (NOTES_FIXED_TITLE);
+        }
 
-            Pango.Layout layout = new Pango.Layout (pango_context);
-            layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
-            layout.set_height ((int) (layout_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
-            layout.set_font_description (Pango.FontDescription.from_string (
-                @"$(cached_document.settings.font_family) bold 36"
-            ));
-            layout.set_indent ((int) cached_document.settings.paragraph_start_padding);
-            layout.set_spacing ((int) cached_document.settings.line_spacing);
-            layout.set_ellipsize (Pango.EllipsizeMode.NONE);
-            layout.set_wrap (Pango.WrapMode.WORD);
-            layout.set_alignment (Pango.Alignment.CENTER);
-
-            layout.set_text (NOTES_FIXED_TITLE, NOTES_FIXED_TITLE.length);
-
-            Pango.Rectangle title_ink_rect, title_logical_rect;
-            layout.get_extents (out title_ink_rect, out title_logical_rect);
-
-            ctx.move_to (
-                page_margin,
-                page_margin + ((layout_height / 2) - (2 * (title_logical_rect.height / Pango.SCALE)))
-            );
-
-            layout.context_changed ();
-            Pango.cairo_show_layout (ctx, layout);
-
-            mark_page_number ();
+        private void render_character_sheets_cover () {
+            render_page_centered_text (CHARACTER_SHEETS_FIXED_TITLE);
         }
 
         private void render_text_chunk (Models.TextChunk chunk) {
@@ -269,7 +303,7 @@ namespace Manuscript.Compilers {
             ctx.set_font_size (chunk.parent_document.settings.font_size);
             ctx.rel_move_to (
                 0,
-                (title_logical_rect.height / Pango.SCALE) + chunk.parent_document.settings.paragraph_spacing.clamp (40, 140)
+                (title_logical_rect.height / Pango.SCALE) + chunk.parent_document.settings.paragraph_spacing.clamp (40, 140) // vala-lint=line-length
             );
 
             var buffer = chunk.buffer;
@@ -359,30 +393,90 @@ namespace Manuscript.Compilers {
             render_text_chunk (chunk);
         }
 
-        private Pango.Layout create_paragraph_layout (Models.DocumentChunk chunk) {
-            Pango.Layout layout = new Pango.Layout (pango_context);
-            var layout_line_spacing = (int) Math.floor (
-                (chunk.parent_document.settings.line_spacing * POINT_SCALE * Pango.SCALE)
-            );
-
-            layout.set_width ((int) ((surface_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
-            layout.set_height ((int) (surface_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
-            layout.set_font_description (Pango.FontDescription.from_string (
-                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * POINT_SCALE)" // vala-lint=line-length
-            ));
-            layout.set_indent ((int) (chunk.parent_document.settings.paragraph_start_padding * POINT_SCALE * Pango.SCALE));
-            layout.set_spacing (layout_line_spacing);
-            layout.set_ellipsize (Pango.EllipsizeMode.NONE);
-            layout.set_wrap (Pango.WrapMode.WORD);
-            layout.set_alignment (Pango.Alignment.LEFT);
-            layout.set_justify (true);
-            layout.context_changed ();
-
-            return layout;
-        }
-
         private void render_note (Models.NoteChunk chunk) {
             render_text_chunk (chunk);
+        }
+
+        private void render_character_sheet (Models.CharacterSheetChunk chunk) {
+            new_page ();
+            mark_page_number ();
+
+            var layout_width = surface_width;
+            var layout_height = surface_height;
+
+            ctx.set_source_rgb (1, 1, 1);
+            ctx.fill_preserve ();
+
+            //
+            // Render centered title
+            //
+            ctx.set_source_rgb (0, 0, 0);
+            ctx.select_font_face (
+                chunk.parent_document.settings.font_family,
+                Cairo.FontSlant.NORMAL,
+                Cairo.FontWeight.BOLD
+            );
+            ctx.set_font_size (chunk.parent_document.settings.font_size * TITLE_SCALE);
+            ctx.move_to (page_margin, page_margin);
+
+            Pango.Layout title_layout = new Pango.Layout (pango_context);
+            title_layout.set_width ((int) ((layout_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
+            title_layout.set_alignment (Pango.Alignment.CENTER);
+            title_layout.set_justify (false);
+            title_layout.set_font_description (Pango.FontDescription.from_string (
+                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * TITLE_SCALE)" // vala-lint=line-length
+            ));
+            title_layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
+            title_layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
+            // layout.set_line_spacing((int) chunk.parent_document.settings.line_spacing);
+            title_layout.set_ellipsize (Pango.EllipsizeMode.NONE);
+            title_layout.set_wrap (Pango.WrapMode.WORD);
+            //  title_layout.set_text (chunk.title, chunk.title.length);
+            var title_markup = @"<b>$(chunk.name)</b>";
+            title_layout.set_markup (title_markup, title_markup.length);
+            title_layout.context_changed ();
+
+            Pango.Rectangle title_ink_rect, title_logical_rect;
+            title_layout.get_extents (out title_ink_rect, out title_logical_rect);
+            Pango.cairo_show_layout (ctx, title_layout);
+
+            //
+            // Render sheet content
+            //
+            ctx.set_font_size (chunk.parent_document.settings.font_size);
+            ctx.set_source_rgb (0, 0, 0);
+
+            ctx.select_font_face (
+                chunk.parent_document.settings.font_family,
+                Cairo.FontSlant.NORMAL,
+                Cairo.FontWeight.NORMAL
+            );
+            ctx.set_font_size (chunk.parent_document.settings.font_size);
+            ctx.rel_move_to (
+                0,
+                (title_logical_rect.height / Pango.SCALE) + chunk.parent_document.settings.paragraph_spacing.clamp (40, 140) // vala-lint=line-length
+            );
+
+            var traits_markup = @"<b>$(_("Traits")):</b>\0";
+            var background_markup = @"<b>$(_("Background")):</b>\0";
+            var notes_markup = @"<b>$(_("Notes")):</b>\0";
+
+            Cairo.TextExtents title_extents;
+            ctx.text_extents (traits_markup, out title_extents);
+
+            Pango.Layout section_title_layout = Pango.cairo_create_layout (ctx);
+            section_title_layout.set_width ((int) title_extents.width * Pango.SCALE);
+            section_title_layout.set_height ((int) title_extents.height * Pango.SCALE);
+            section_title_layout.set_markup (traits_markup, -1);
+            Pango.cairo_show_layout (ctx, section_title_layout);
+
+            ctx.rel_move_to (section_title_layout.get_width (), 0);
+
+            Pango.Layout content_layout = Pango.cairo_create_layout (ctx);
+            content_layout.set_width ((int) ((surface_width * Pango.SCALE) - (title_extents.width) - (page_margin * Pango.SCALE)));
+            content_layout.set_height (-1);
+            content_layout.set_text (chunk.traits, chunk.traits.length);
+            Pango.cairo_show_layout (ctx, content_layout);
         }
 
         private void mark_page_number () {
@@ -411,6 +505,28 @@ namespace Manuscript.Compilers {
             }
 
             page_counter ++;
+        }
+
+        private Pango.Layout create_paragraph_layout (Models.DocumentChunk chunk) {
+            Pango.Layout layout = new Pango.Layout (pango_context);
+            var layout_line_spacing = (int) Math.floor (
+                (chunk.parent_document.settings.line_spacing * POINT_SCALE * Pango.SCALE)
+            );
+
+            layout.set_width ((int) ((surface_width * Pango.SCALE) - (page_margin * Pango.SCALE * 2)));
+            layout.set_height ((int) (surface_height * Pango.SCALE - (page_margin * Pango.SCALE * 2)));
+            layout.set_font_description (Pango.FontDescription.from_string (
+                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * POINT_SCALE)" // vala-lint=line-length
+            ));
+            layout.set_indent ((int) (chunk.parent_document.settings.paragraph_start_padding * POINT_SCALE * Pango.SCALE)); // vala-lint=line-length
+            layout.set_spacing (layout_line_spacing);
+            layout.set_ellipsize (Pango.EllipsizeMode.NONE);
+            layout.set_wrap (Pango.WrapMode.WORD);
+            layout.set_alignment (Pango.Alignment.LEFT);
+            layout.set_justify (true);
+            layout.context_changed ();
+
+            return layout;
         }
     }
 }
