@@ -460,22 +460,79 @@ namespace Manuscript.Compilers {
             var traits_markup = @"<b>$(_("Traits")):</b>\0";
             var background_markup = @"<b>$(_("Background")):</b>\0";
             var notes_markup = @"<b>$(_("Notes")):</b>\0";
-
+            
             Cairo.TextExtents title_extents;
             ctx.text_extents (traits_markup, out title_extents);
+            var max_section_title_width = ((int) title_extents.width * Pango.SCALE).clamp (0, 150);
 
             Pango.Layout section_title_layout = Pango.cairo_create_layout (ctx);
-            section_title_layout.set_width ((int) title_extents.width * Pango.SCALE);
+            section_title_layout.set_width (max_section_title_width);
             section_title_layout.set_height ((int) title_extents.height * Pango.SCALE);
             section_title_layout.set_markup (traits_markup, -1);
+            section_title_layout.set_wrap (Pango.WrapMode.WORD);
             Pango.cairo_show_layout (ctx, section_title_layout);
 
-            ctx.rel_move_to (section_title_layout.get_width (), 0);
+            ctx.rel_move_to (max_section_title_width, 0);
 
             Pango.Layout content_layout = Pango.cairo_create_layout (ctx);
-            content_layout.set_width ((int) ((surface_width * Pango.SCALE) - (title_extents.width) - (page_margin * Pango.SCALE)));
+            content_layout.set_width ((int) ((surface_width * Pango.SCALE) - (title_extents.width * Pango.SCALE) - (page_margin * Pango.SCALE)));
             content_layout.set_height (-1);
+            content_layout.set_wrap (Pango.WrapMode.WORD);
             content_layout.set_text (chunk.traits, chunk.traits.length);
+            Pango.cairo_show_layout (ctx, content_layout);
+
+            
+            // BACKGROUND
+            
+            Pango.Rectangle ink_rect, logical_rect;
+            content_layout.get_extents (out ink_rect, out logical_rect);
+            ctx.rel_move_to (
+                - max_section_title_width,
+                (ink_rect.height / Pango.SCALE) + 
+                    chunk.parent_document.settings.paragraph_spacing.clamp (
+                        60, chunk.parent_document.settings.paragraph_spacing
+                    )
+            );
+
+            section_title_layout = Pango.cairo_create_layout (ctx);
+            section_title_layout.set_width (max_section_title_width);
+            section_title_layout.set_height ((int) title_extents.height * Pango.SCALE);
+            section_title_layout.set_markup (background_markup, -1);
+            section_title_layout.set_wrap (Pango.WrapMode.WORD);
+            Pango.cairo_show_layout (ctx, section_title_layout);
+
+            ctx.rel_move_to (max_section_title_width, 0);
+
+            content_layout = Pango.cairo_create_layout (ctx);
+            content_layout.set_width ((int) ((surface_width * Pango.SCALE) - (title_extents.width * Pango.SCALE) - (page_margin * Pango.SCALE)));
+            content_layout.set_height (-1);
+            content_layout.set_wrap (Pango.WrapMode.WORD);
+            content_layout.set_text (chunk.background, chunk.background.length);
+            Pango.cairo_show_layout (ctx, content_layout);
+
+            // NOTES
+            content_layout.get_extents (out ink_rect, out logical_rect);
+            ctx.rel_move_to (
+                - max_section_title_width,
+                (ink_rect.height / Pango.SCALE) + 
+                    chunk.parent_document.settings.paragraph_spacing.clamp (
+                        60, chunk.parent_document.settings.paragraph_spacing
+                    )
+            );
+
+            section_title_layout = Pango.cairo_create_layout (ctx);
+            section_title_layout.set_width (max_section_title_width);
+            section_title_layout.set_height ((int) title_extents.height * Pango.SCALE);
+            section_title_layout.set_markup (notes_markup, -1);
+            section_title_layout.set_wrap (Pango.WrapMode.WORD);
+            Pango.cairo_show_layout (ctx, section_title_layout);
+
+            ctx.rel_move_to (max_section_title_width, 0);
+
+            content_layout = Pango.cairo_create_layout (ctx);
+            content_layout.set_width ((int) ((surface_width * Pango.SCALE) - (title_extents.width * Pango.SCALE) - (page_margin * Pango.SCALE)));
+            content_layout.set_height (-1);
+            content_layout.set_text (chunk.notes, chunk.notes.length);
             Pango.cairo_show_layout (ctx, content_layout);
         }
 
