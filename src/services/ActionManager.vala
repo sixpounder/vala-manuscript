@@ -200,11 +200,13 @@ namespace Manuscript.Services {
         }
 
         protected void action_close_document () {
-            try {
-                window.document_manager.close ();
-            } catch (Models.DocumentError error) {
-                critical (error.message);
-            }
+            window.document_manager.close.begin ((obj, res) => {
+                try {
+                    window.document_manager.close.end (res);
+                } catch (Models.DocumentError error) {
+                    critical (error.message);
+                }
+            });
         }
 
         protected void action_export () {

@@ -197,6 +197,18 @@ namespace Manuscript.Models {
             }
         }
 
+        public bool has_backup {
+            get {
+                var file = File.new_for_path (
+                    GLib.Path.build_filename (
+                        file_ref.get_parent ().get_path (), @"~$(file_ref.get_basename ())"
+                    )
+                );
+
+                return file.query_exists ();
+            }
+        }
+
         // A file is considered to be temporary if it is located into the user's cache folder
         public bool is_temporary () {
             return Path.get_dirname (file_path) == Path.build_path (
@@ -264,6 +276,10 @@ namespace Manuscript.Models {
                 modified_path = path;
             }
 
+            DocumentError ? encountered_error = null;
+
+            make_backup_file_with_original (file_path);
+
             ssize_t size = 0;
             Archive.Write archive = new Archive.Write ();
             archive.add_filter_gzip ();
@@ -291,6 +307,7 @@ namespace Manuscript.Models {
                 entry.set_perm (0644);
                 if (archive.write_header (entry) != Archive.Result.OK) {
                     critical ("Error writing '%s': %s (%d)", item.name, archive.error_string (), archive.errno ());
+                    encountered_error = new DocumentError.SAVE (archive.error_string ());
                     continue;
                 }
                 debug (@"Writing $(entry.pathname ()) - $(item.data.length) bytes");
@@ -299,22 +316,27 @@ namespace Manuscript.Models {
 
             if (archive.close () != Archive.Result.OK) {
                 critical ("Error closing archive: %s", archive.error_string ());
-                var err = new DocumentError.SAVE ("Could not finalize archive");
+                encountered_error = new DocumentError.SAVE ("Could not finalize archive");
                 state_flags |= DocumentStateFlags.ERR_LAST_SAVE;
-                save_error (err);
-                throw err;
             } else {
                 info (@"Document saved to $file_path ($size bytes of data)");
                 state_flags = DocumentStateFlags.OK;
             }
 
-            chunks.@foreach ((chunk) => {
-                chunk.has_changes = false;
-                return true;
-            });
-
-            this.temporary = false;
-            return (long) size;
+            if (encountered_error != null) {
+                // TODO: use the backup in some way?
+                save_error (encountered_error);
+                throw encountered_error;
+            } else {
+                remove_backup_file_with_original (file_path);
+                chunks.@foreach ((chunk) => {
+                    chunk.has_changes = false;
+                    return true;
+                });
+    
+                this.temporary = false;
+                return (long) size;
+            }
         }
 
         public Thread<long> save_async (string ? path = null) {
@@ -585,6 +607,27 @@ namespace Manuscript.Models {
             });
 
             return i;
+        }
+
+        private void make_backup_file_with_original (string original_path) {
+            FileUtils.make_backup (original_path);
+        }
+
+        private void remove_backup_file_with_original (string original_path) {
+            var original_file = File.new_for_path (original_path);
+            var backup = File.new_for_path (
+                Path.build_path (
+                    Path.DIR_SEPARATOR_S, original_file.get_path () ,"~", original_file.get_basename () 
+                )
+            );
+
+            if (backup.query_exists ()) {
+                try {
+                    backup.delete ();
+                } catch (Error e) {
+                    warning (e.message);
+                }
+            }
         }
     }
 }

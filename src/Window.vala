@@ -214,16 +214,17 @@ namespace Manuscript {
             }
 
             if (settings.autosave) {
-                try {
-                    if (document_manager.has_document) {
-                        document_manager.close ();
-                    }
-                    return false;
-                } catch (Models.DocumentError e) {
-                    critical (e.message);
-                    show_infobar (Gtk.MessageType.ERROR, @"$(_("Could not save this file")): $(e.message)");
-                    return true;
+                if (document_manager.has_document) {
+                    document_manager.close.begin ((obj, res) => {
+                        try {
+                            document_manager.close.end (res);
+                        } catch (Models.DocumentError e) {
+                            critical (e.message);
+                            show_infobar (Gtk.MessageType.ERROR, @"$(_("Could not save this file")): $(e.message)");
+                        }
+                    });
                 }
+                return false;
             } else {
                 if (quit_dialog ()) {
                     return false;
@@ -395,7 +396,7 @@ namespace Manuscript {
                 });
 
                 try {
-                    document_manager.close ();
+                    yield document_manager.close ();
                 } catch (Models.DocumentError e) {
                     critical (e.message);
                 }

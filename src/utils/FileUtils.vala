@@ -116,5 +116,20 @@ namespace Manuscript {
 
             return written;
         }
+
+        public static void make_backup (string original_path) {
+            var original_file = File.new_for_path (original_path);
+            var backup = File.new_for_path (
+                Path.build_path (
+                    Path.DIR_SEPARATOR_S, original_file.get_parent ().get_path () ,@"~$(original_file.get_basename ())" 
+                )
+            );
+
+            try {
+                    original_file.copy (backup, GLib.FileCopyFlags.OVERWRITE);
+            } catch (GLib.Error e) {
+                warning (e.message);
+            }
+        }
     }
 }

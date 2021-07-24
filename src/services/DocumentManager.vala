@@ -116,6 +116,9 @@ namespace Manuscript.Services {
         public async void load_from_path (string path) throws Models.DocumentError requires (path != null) {
             try {
                 var doc = yield new Models.Document.from_file (path);
+
+                // Make a temporary file to use as safety backup in case of saving errors
+                //  make_backup_file_with_original(path);
                 set_document (doc);
             } catch (Models.DocumentError e) {
                 warning (e.message);
@@ -215,6 +218,7 @@ namespace Manuscript.Services {
                     wrk.done.connect (() => {
                         if (wrk.save_error != null) {
                             critical (wrk.save_error.message);
+                            // TODO: restore backup?
                         }
                         Idle.add ((owned) callback);
                         doc_mutex.@unlock ();
@@ -269,11 +273,16 @@ namespace Manuscript.Services {
             });
         }
 
-        public void close () throws Models.DocumentError {
+        public async void close () throws Models.DocumentError {
             if (document != null) {
                 unload (document);
                 if (settings.autosave) {
-                    save_sync ();
+                    try {
+                        save_sync ();
+                        //  remove_backup_file_with_original (document.file_path);
+                    } catch (Models.DocumentError save_error) {
+                        critical (save_error.message);
+                    }
                 }
                 document = null;
             }
