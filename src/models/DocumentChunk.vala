@@ -411,7 +411,7 @@ namespace Manuscript.Models {
             }
 
             // Count words every 200 milliseconds to avoid thrashing the CPU
-            words_counter_timer = Timeout.add (200, () => {
+            words_counter_timer = Timeout.add (400, () => {
                 words_counter_timer = 0;
                 //  words_count = Utils.Strings.count_words (buffer.text);
                 //  estimate_reading_time = Utils.Strings.estimate_reading_time (words_count);
