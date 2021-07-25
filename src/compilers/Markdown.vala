@@ -24,7 +24,7 @@ namespace Manuscript.Compilers {
         private FileOutputStream stream { get; set; }
 
         private string new_page_marker =
-            "%s%s=====================%s%s".printf (
+            "%s%s========================================================================================================================%s%s".printf ( // vala-lint=line-length
                 LINE_TERMINATOR, LINE_TERMINATOR, LINE_TERMINATOR, LINE_TERMINATOR
             );
 
@@ -45,7 +45,7 @@ namespace Manuscript.Compilers {
 
             stream = ios.output_stream as FileOutputStream;
 
-            render_default_cover (document.title);
+            render_default_cover (document);
 
             var chapters = document.iter_chunks_by_kind (Models.ChunkType.CHAPTER);
             chapters.@foreach ((c) => {
@@ -97,11 +97,12 @@ namespace Manuscript.Compilers {
             }
         }
 
-        private void render_default_cover (string title) throws CompilerError {
+        private void render_default_cover (Models.Document document) throws CompilerError {
             try {
                 write ("\n");
-                write ("\n# %s".printf (title.up ()));
+                write ("\n# %s".printf (document.title.up ()));
                 write ("\n");
+                write ("## %s".printf (document.settings.author_name));
                 write (LINE_TERMINATOR);
                 write (LINE_TERMINATOR);
             } catch (Error e) {
@@ -115,7 +116,7 @@ namespace Manuscript.Compilers {
                 new_page ();
                 chunk.ensure_buffer ();
 
-                write ("## %s%s%s".printf (chunk.title, LINE_TERMINATOR, LINE_TERMINATOR));
+                write ("### %s%s%s".printf (chunk.title, LINE_TERMINATOR, LINE_TERMINATOR));
 
                 var buffer = ((Models.TextChunk) chunk).buffer;
                 Gtk.TextIter cursor;

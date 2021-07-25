@@ -123,8 +123,13 @@ namespace Manuscript {
             // right panel layout (search + tabs)
             var right_panel = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             editors_controller = new Widgets.EditorsController (this);
+#if GTK_4
+            right_panel.append (search_panel);
+            right_panel.append (editors_controller);
+#else
             right_panel.pack_start (search_panel, false, false, 0);
             right_panel.pack_start (editors_controller);
+#endif
 
             // Grid
             editor_grid = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
@@ -145,7 +150,11 @@ namespace Manuscript {
             // Otherwise it just contains the body
             layout = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
             layout.homogeneous = false;
+#if GTK_4
+            layout.append (body);
+#else
             layout.pack_start (body);
+#endif
 
             connect_events ();
 
@@ -473,7 +482,11 @@ namespace Manuscript {
             infobar.get_content_area ().add (label);
             infobar.show_all ();
 
+#if GTK_4
+            layout.append (infobar);
+#else
             layout.pack_start (infobar, false, true);
+#endif
             layout.reorder_child (infobar, 0);
             return infobar;
         }

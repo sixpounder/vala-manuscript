@@ -67,13 +67,18 @@ namespace Manuscript.Widgets {
             query_input.placeholder_text = _("Type to search");
             query_input.get_style_context ().add_class ("quick-open-query-entry");
 
-            box.pack_start (query_input);
-
+            
             results_grid = new Gtk.ListBox ();
             results_grid.margin_top = 10;
             results_grid.selection_mode = Gtk.SelectionMode.SINGLE;
 
+#if GTK_4
+            box.append (query_input);
+            box.append (results_grid);
+#else
+            box.pack_start (query_input);
             box.pack_start (results_grid);
+#endif
 
             connect_events ();
 

@@ -32,7 +32,11 @@ namespace Manuscript.Dialogs {
         }
 
         construct {
+#if GTK_4
+            get_content_area ().append (content_view);
+#else
             get_content_area ().pack_start (content_view);
+#endif
         }
     }
 }

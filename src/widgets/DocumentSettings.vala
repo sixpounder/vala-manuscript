@@ -69,9 +69,13 @@ namespace Manuscript.Widgets {
             view_switchers.halign = Gtk.Align.CENTER;
             view_switchers.valign = Gtk.Align.START;
             view_switchers.stack = settings_views;
-
+#if GTK_4
+            append (view_switchers);
+            append (settings_views);
+#else
             pack_start (view_switchers);
             pack_start (settings_views);
+#endif
             show_all ();
         }
     }

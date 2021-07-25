@@ -92,7 +92,11 @@ namespace Manuscript.Dialogs {
             pdf_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.PDF;
             });
+#if GTK_4
+            format_selection_grid.append (pdf_radio);
+#else
             format_selection_grid.pack_start (pdf_radio);
+#endif
 
 #if EXPORT_COMPILER_HTML
             var html_radio = new Gtk.RadioButton.from_widget (pdf_radio);
@@ -103,7 +107,11 @@ namespace Manuscript.Dialogs {
             html_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.HTML;
             });
+#if GTK_4
+            format_selection_grid.append (html_radio);
+#else
             format_selection_grid.pack_start (html_radio);
+#endif
 #endif
 
 #if EXPORT_COMPILER_MARKDOWN
@@ -127,7 +135,11 @@ namespace Manuscript.Dialogs {
             plain_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.PLAIN;
             });
+#if GTK_4
+            format_selection_grid.append (plain_radio);
+#else
             format_selection_grid.pack_start (plain_radio);
+#endif
 #endif
 
 #if EXPORT_COMPILER_ARCHIVE
@@ -139,7 +151,11 @@ namespace Manuscript.Dialogs {
             archive_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.ARCHIVE;
             });
+#if GTK_4
+            format_selection_grid.append (archive_radio);
+#else
             format_selection_grid.pack_start (archive_radio);
+#endif
 #endif
 
             layout.attach_next_to (format_selection_grid, null, Gtk.PositionType.LEFT);

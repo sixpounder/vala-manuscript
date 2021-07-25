@@ -80,13 +80,11 @@ namespace Manuscript.Widgets {
             menu_button.popover = build_main_menu_popover ();
             menu_button.popover.width_request = 350;
             menu_button.sensitive = document_manager.has_document;
-            pack_start (menu_button);
-
+            
             add_element_button = new Widgets.MenuButton.with_properties ("insert-object", "Insert");
             add_element_button.sensitive = document_manager.has_document;
             add_element_button.popover = build_add_element_menu ();
-            pack_start (add_element_button);
-
+            
             document_settings_button = new Widgets.MenuButton.with_properties (
                 "document-properties",
                 "Properties",
@@ -94,8 +92,7 @@ namespace Manuscript.Widgets {
             );
             document_settings_button.hint = MenuButtonHint.MODAL;
             document_settings_button.sensitive = document_manager.has_document;
-            pack_start (document_settings_button);
-
+            
             export_button = new Widgets.MenuButton.with_properties (
                 "document-export",
                 "Export",
@@ -103,13 +100,25 @@ namespace Manuscript.Widgets {
             );
             export_button.hint = MenuButtonHint.MODAL;
             export_button.sensitive = document_manager.has_document;
-            pack_start (export_button);
-
+            
             settings_popover = new Widgets.SettingsPopover (parent_window.application);
             settings_button = new Widgets.MenuButton.with_properties ("open-menu", _("Settings"));
             settings_button.tooltip_text = _ ("Application settings");
             settings_button.popover = settings_popover;
+
+#if GTK_4
+            append (menu_button);
+            append (add_element_button);
+            append (document_settings_button);
+            append (export_button);
+            append (settings_button);
+#else
+            pack_start (menu_button);
+            pack_start (add_element_button);
+            pack_start (document_settings_button);
+            pack_start (export_button);
             pack_end (settings_button);
+#endif
 
             settings.change.connect (update_ui);
             document_manager.load.connect_after (update_ui);

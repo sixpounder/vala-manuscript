@@ -44,19 +44,27 @@ namespace Manuscript.Widgets {
             get_style_context ().add_class ("status-bar");
 
             words_label = new Gtk.Label ("0 " + _("words"));
-            pack_start (words_label);
 
             scroll_progress_indicator = new Widgets.ScrollProgress (null);
             set_center_widget (scroll_progress_indicator);
 
             reading_time_label = new Gtk.Label ("");
             reading_time_label.tooltip_text = _("Estimated reading time");
-            pack_end (reading_time_label);
 
+            
             reading_time_icon = new Gtk.Image ();
             reading_time_icon.gicon = new ThemedIcon ("preferences-system-time-symbolic");
             reading_time_icon.pixel_size = 16;
+            
+#if GTK_4
+            append (words_label);
+            append (reading_time_label);
+            append (reading_time_icon);
+#else
+            pack_start (words_label);
+            pack_end (reading_time_label);
             pack_end (reading_time_icon);
+#endif
 
             init ();
         }

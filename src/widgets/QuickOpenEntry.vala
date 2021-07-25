@@ -62,14 +62,19 @@ namespace Manuscript.Widgets {
             title_label.max_width_chars = 20;
             title_label.xalign = 0f;
             title_label.get_style_context ().add_class (Granite.STYLE_CLASS_H3_LABEL);
-            grid.pack_start (title_label);
-
+            
             var kind_label = new Gtk.Label (chunk.kind.to_string ());
             kind_label.justify = Gtk.Justification.RIGHT;
             kind_label.xalign = 1f;
             kind_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
             kind_label.get_style_context ().add_class (Gtk.STYLE_CLASS_DIM_LABEL);
+#if GTK_4
+            grid.append (title_label);
+            grid.append (kind_label);
+#else
+            grid.pack_start (title_label);
             grid.pack_end (kind_label);
+#endif
 
             add (grid);
         }

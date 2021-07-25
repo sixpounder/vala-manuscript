@@ -42,10 +42,15 @@ namespace Manuscript.Widgets {
             action_button = new Gtk.Button.with_label (_("Add a new chapter"));
             action_button.get_style_context ().add_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
             action_button.clicked.connect (on_suggested_action);
-
+#if GTK_4
+            append (header_label);
+            append (or_label);
+            append (action_button);
+#else
             pack_start (header_label);
             pack_start (or_label);
             pack_start (action_button);
+#endif
         }
 
         ~ EditorCourtesyView () {

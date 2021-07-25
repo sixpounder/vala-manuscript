@@ -104,7 +104,11 @@ namespace Manuscript.Widgets {
 #endif
             root_list.item_selected.connect (on_item_selected);
 
+#if GTK_4
+            append (root_list);
+#else
             pack_start (root_list);
+#endif
 
             show_all ();
         }

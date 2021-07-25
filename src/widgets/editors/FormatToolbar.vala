@@ -59,7 +59,11 @@ namespace Manuscript.Widgets {
             bold_icon.gicon = new ThemedIcon ("format-text-bold-symbolic");
             bold_icon.pixel_size = ICON_SIZE;
             format_bold.image = bold_icon;
+#if GTK_4
+            append (format_bold);
+#else
             pack_start (format_bold);
+#endif
 
             format_italic = new Gtk.ToggleButton ();
             format_italic.can_focus = false;
@@ -71,7 +75,11 @@ namespace Manuscript.Widgets {
             italic_icon.gicon = new ThemedIcon ("format-text-italic-symbolic");
             italic_icon.pixel_size = ICON_SIZE;
             format_italic.image = italic_icon;
+#if GTK_4
+            append (format_italic);
+#else
             pack_start (format_italic);
+#endif
 
             format_underline = new Gtk.ToggleButton ();
             format_underline.can_focus = false;
@@ -83,14 +91,26 @@ namespace Manuscript.Widgets {
             underline_icon.gicon = new ThemedIcon ("format-text-underline-symbolic");
             underline_icon.pixel_size = ICON_SIZE;
             format_underline.image = underline_icon;
+#if GTK_4
+            append (format_underline);
+#else
             pack_start (format_underline);
+#endif
 
             var divider_1 = new Gtk.Separator (Gtk.Orientation.VERTICAL);
+#if GTK_4
+            append (divider_1);
+#else
             pack_start (divider_1);
+#endif
 
 #if FEATURE_FOOTNOTES
             insert_note_button = new Gtk.ToolButton (new TextHighlightIndicator (), null);
+#if GTK_4
+            append (insert_note_button);
+#else
             pack_start (insert_note_button);
+#endif
 #endif
         }
     }

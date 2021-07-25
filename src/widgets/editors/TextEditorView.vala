@@ -72,10 +72,15 @@ namespace Manuscript.Widgets {
             status_bar = new Widgets.StatusBar (parent_window, chunk as Models.TextChunk);
             status_bar.height_request = 50;
             scrolled_container.add (editor);
-
+#if GTK_4
+            append (format_toolbar);
+            append (scrolled_container);
+            append (status_bar);
+#else
             pack_start (format_toolbar, false, true, 0);
             pack_start (scrolled_container);
             pack_start (status_bar, false, true, 0);
+#endif
 
             connect_events ();
             update_ui ();
