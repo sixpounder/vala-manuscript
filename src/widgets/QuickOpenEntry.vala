@@ -37,6 +37,7 @@ namespace Manuscript.Widgets {
 
             var grid = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
             grid.homogeneous = true;
+            grid.halign = Gtk.Align.FILL;
             grid.get_style_context ().add_class ("quick-open-entry");
 
             string title = chunk.title;
@@ -73,7 +74,7 @@ namespace Manuscript.Widgets {
             grid.append (kind_label);
 #else
             grid.pack_start (title_label);
-            grid.pack_end (kind_label);
+            grid.pack_start (kind_label);
 #endif
 
             add (grid);

@@ -36,7 +36,6 @@ executable(
 	'widgets/Sidebar.vala',
 	'widgets/SettingsPopover.vala',
 	'widgets/ExportPopover.vala',
-	# 'widgets/ThemeButton.vala',
 	'widgets/FileNotFound.vala',
     'widgets/ScrollProgress.vala',
 	'widgets/DocumentSourceList.vala',

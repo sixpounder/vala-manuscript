@@ -163,6 +163,7 @@ namespace Manuscript.Dialogs {
             file_name_entry = new Gtk.Entry ();
             file_name_entry.valign = Gtk.Align.START;
             file_name_entry.text = document.title;
+            file_name_entry.placeholder_text = _("Type a name for the exported file");
             adapt_filename_to_format (export_format);
             layout.attach_next_to (file_name_entry, format_selection_grid, Gtk.PositionType.BOTTOM);
 

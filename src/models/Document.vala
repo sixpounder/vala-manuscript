@@ -620,7 +620,9 @@ namespace Manuscript.Models {
         }
 
         private void make_backup_file_with_original (string original_path) {
-            FileUtils.make_backup (original_path);
+            if (original_path.substring (0, 1) != "~") {
+                FileUtils.make_backup (original_path);
+            }
         }
 
         private void remove_backup_file_with_original (string original_path) {

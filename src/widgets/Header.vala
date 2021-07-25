@@ -106,19 +106,11 @@ namespace Manuscript.Widgets {
             settings_button.tooltip_text = _ ("Application settings");
             settings_button.popover = settings_popover;
 
-#if GTK_4
-            append (menu_button);
-            append (add_element_button);
-            append (document_settings_button);
-            append (export_button);
-            append (settings_button);
-#else
             pack_start (menu_button);
             pack_start (add_element_button);
             pack_start (document_settings_button);
-            pack_start (export_button);
             pack_end (settings_button);
-#endif
+            pack_end (export_button);
 
             settings.change.connect (update_ui);
             document_manager.load.connect_after (update_ui);
