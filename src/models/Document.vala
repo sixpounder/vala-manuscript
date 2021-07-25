@@ -324,7 +324,7 @@ namespace Manuscript.Models {
             }
 
             if (encountered_error != null) {
-                // TODO: use the backup in some way?
+                
                 save_error (encountered_error);
                 throw encountered_error;
             } else {
@@ -607,6 +607,16 @@ namespace Manuscript.Models {
             });
 
             return i;
+        }
+
+        public void restore_current_backup () throws Error {
+            var expected_backup_path = Path.build_path (
+                Path.DIR_SEPARATOR_S, file_ref.get_parent ().get_path () ,@"~$(file_ref.get_basename ())" 
+            );
+            var backup_file = File.new_for_path (expected_backup_path);
+            if (backup_file.query_exists ()) {
+                backup_file.copy (file_ref, GLib.FileCopyFlags.OVERWRITE);
+            }
         }
 
         private void make_backup_file_with_original (string original_path) {
