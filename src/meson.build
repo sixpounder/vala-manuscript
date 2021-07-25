@@ -9,6 +9,13 @@ asresources = gnome.compile_resources(
 	c_name: 'as'
 )
 
+gtk = dependency('gtk+-3.0')
+if meson.get_compiler('c').find_library('gtk4', required: false).found()
+	# GTK4 can be used
+	gtk = dependency('gtk4')
+	add_project_arguments('-D', 'GTK_4', language: 'vala')
+endif
+
 executable(
 	meson.project_name(),
 	'main.vala',
@@ -96,7 +103,7 @@ executable(
 	asresources,
 	dependencies: [
         dependency('glib-2.0'),
-		dependency('gtk+-3.0'),
+		gtk,
         meson.get_compiler('c').find_library('m', required: false),
 		dependency('gio-2.0', version: '>= 2.56.0'),
 		dependency('granite', version : '>= 5.3.0'),
