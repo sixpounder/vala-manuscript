@@ -207,6 +207,7 @@ namespace Manuscript.Services {
         }
 
         public async void save (bool ignore_temporary = false) {
+            var search_status = settings.searchbar;
             settings.searchbar = false;
             if (document.is_temporary () && !ignore_temporary) {
                 // Ask where to save this
@@ -222,6 +223,7 @@ namespace Manuscript.Services {
                             critical (wrk.save_error.message);
                             // TODO: restore backup?
                         }
+                        settings.searchbar = search_status;
                         Idle.add ((owned) callback);
                         doc_mutex.@unlock ();
                     });
@@ -232,6 +234,8 @@ namespace Manuscript.Services {
                         document.save ();
                     } catch (Models.DocumentError e) {
                         save_error (e);
+                    } finally {
+                        settings.searchbar = search_status;
                     }
                 }
             }
@@ -252,10 +256,14 @@ namespace Manuscript.Services {
                 if (ops_pool != null) {
                     ops_pool.add (new SaveWorker (document, filename));
                 } else {
+                    var search_status = settings.searchbar;
+                    settings.searchbar = false;
                     try {
                         document.save (filename);
                     } catch (Models.DocumentError e) {
                         save_error (e);
+                    } finally {
+                        settings.searchbar = search_status;
                     }
                 }
             }
