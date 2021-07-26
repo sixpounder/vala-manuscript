@@ -62,14 +62,29 @@ namespace Manuscript.Models {
              * --m-m---------m-m--
              *
              * - serialize method goes full recursion if there are child anchors in the buffer
-             * - if the user has searched anything, an anonymous Gtk.TextTag is applied to search results,
+             * - if the user has searched anything, an __anonymous__ Gtk.TextTag is applied to search results,
              *   it gets serialized and fucks shit up when the buffer is loaded again
              */
             return serialize (this, atom, start, end);
         }
 
-        public bool deserialize_manuscript (uint8[] raw_content, Gtk.TextIter at_iter) throws Error {
-            return deserialize (this, this.get_manuscript_deserialize_format (), at_iter, raw_content);
+        public bool deserialize_manuscript (uint8[] raw_content) throws Error {
+            Gtk.TextIter start;
+            get_start_iter (out start);
+            return deserialize (this, this.get_manuscript_deserialize_format (), start, raw_content);
         }
+
+        //  public new void insert_with_tags (ref Gtk.TextIter iter, string text, int len, ...) {
+        //      var args = va_list ();
+        //      var original = va_list.copy (args);
+
+        //      Gtk.TextTag? arg = null;
+        //      while ((arg = args.arg()) != null) {
+        //          if (arg.name == null || arg.name == "") {
+                    
+        //          }
+        //      }
+        //      base.insert_with_tags (ref iter, text, len, args);
+        //  }
     }
 }

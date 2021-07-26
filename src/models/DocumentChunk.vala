@@ -299,9 +299,7 @@ namespace Manuscript.Models {
                 }
                 if (raw_content.length != 0) {
                     buffer.begin_not_undoable_action ();
-                    Gtk.TextIter start;
-                    buffer.get_start_iter (out start);
-                    buffer.deserialize_manuscript (raw_content, start);
+                    buffer.deserialize_manuscript (raw_content);
                     buffer.end_not_undoable_action ();
                 }
             } catch (Error e) {

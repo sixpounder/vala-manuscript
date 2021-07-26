@@ -198,6 +198,7 @@ namespace Manuscript.Services {
 
         public void save_sync () throws Models.DocumentError {
             try {
+                settings.searchbar = false;
                 document.save ();
             } catch (Models.DocumentError e) {
                 save_error (e);
@@ -206,6 +207,7 @@ namespace Manuscript.Services {
         }
 
         public async void save (bool ignore_temporary = false) {
+            settings.searchbar = false;
             if (document.is_temporary () && !ignore_temporary) {
                 // Ask where to save this
                 save_as ();
