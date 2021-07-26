@@ -21,9 +21,9 @@ namespace Manuscript.Models {
     public class TextBuffer : Gtk.SourceBuffer {
         private Gdk.Atom serialize_atom;
         private Gdk.Atom deserialize_atom;
-        public TextBuffer (Models.DocumentTagTable? tag_table) {
+        public TextBuffer () {
             Object (
-                tag_table: tag_table
+                tag_table: new XManuscriptTagTable ()
             );
         }
 
@@ -38,6 +38,38 @@ namespace Manuscript.Models {
 
         public Gdk.Atom get_manuscript_deserialize_format () {
             return deserialize_atom;
+        }
+
+        public uint8[] serialize_manuscript () {
+            var atom = get_manuscript_serialize_format ();
+            Gtk.TextIter start, end, cursor;
+            get_start_iter (out start);
+            get_end_iter (out end);
+            cursor = start;
+
+            while (!cursor.is_end ()) {
+                var possible_anchor = cursor.get_child_anchor ();
+                if (possible_anchor != null) {
+                    this.delete (ref cursor, ref cursor);
+                }
+                cursor.forward_char ();
+            }
+
+            /**
+             *   ___         ___  
+             *  (o o)       (o o) 
+             * (  V  ) WTF (  V  )
+             * --m-m---------m-m--
+             *
+             * - serialize method goes full recursion if there are child anchors in the buffer
+             * - if the user has searched anything, an anonymous Gtk.TextTag is applied to search results,
+             *   it gets serialized and fucks shit up when the buffer is loaded again
+             */
+            return serialize (this, atom, start, end);
+        }
+
+        public bool deserialize_manuscript (uint8[] raw_content, Gtk.TextIter at_iter) throws Error {
+            return deserialize (this, this.get_manuscript_deserialize_format (), at_iter, raw_content);
         }
     }
 }

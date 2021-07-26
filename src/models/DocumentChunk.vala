@@ -265,29 +265,7 @@ namespace Manuscript.Models {
             item.group = kind.to_string ();
             item.data = gen.to_data (null).data;
 
-            var atom = buffer.get_manuscript_serialize_format ();
-            Gtk.TextIter start, end, cursor;
-            buffer.get_start_iter (out start);
-            buffer.get_end_iter (out end);
-            cursor = start;
-
-            while (!cursor.is_end ()) {
-                var possible_anchor = cursor.get_child_anchor ();
-                if (possible_anchor != null) {
-                    buffer.delete (ref cursor, ref cursor);
-                }
-                cursor.forward_char ();
-            }
-
-            /**
-             *   ___         ___  
-             *  (o o)       (o o) 
-             * (  V  ) WTF (  V  )
-             * --m-m---------m-m--
-             *
-             * serialize method goes full recursion if there are child anchors in the buffer
-             */
-            uint8[] serialized_data = buffer.serialize (buffer, atom, start, end);
+            uint8[] serialized_data = buffer.serialize_manuscript ();
             // ┻━┻ ︵ヽ(`Д´)ﾉ︵ ┻━┻
 
             debug (@"$(serialized_data.length) bytes of text");
@@ -310,7 +288,7 @@ namespace Manuscript.Models {
          * Stores data and creates a buffer from it
          */
         public virtual void create_buffer (uint8[]? data = null) {
-            buffer = new Models.TextBuffer (new DocumentTagTable ());
+            buffer = new Models.TextBuffer ();
             buffer.highlight_matching_brackets = false;
             buffer.max_undo_levels = -1;
             buffer.highlight_syntax = false;
@@ -323,7 +301,7 @@ namespace Manuscript.Models {
                     buffer.begin_not_undoable_action ();
                     Gtk.TextIter start;
                     buffer.get_start_iter (out start);
-                    buffer.deserialize (buffer, buffer.get_manuscript_deserialize_format (), start, raw_content);
+                    buffer.deserialize_manuscript (raw_content, start);
                     buffer.end_not_undoable_action ();
                 }
             } catch (Error e) {

@@ -22,7 +22,7 @@ namespace Manuscript.Models {
     public const string TAG_NAME_ITALIC = "italic";
     public const string TAG_NAME_UNDERLINE = "underline";
 
-    public class DocumentTagTable : Gtk.TextTagTable {
+    public class XManuscriptTagTable : Gtk.TextTagTable {
 
         public Gtk.TextTag light_dimmed;
         public Gtk.TextTag light_focused;
@@ -35,6 +35,7 @@ namespace Manuscript.Models {
         public Gtk.TextTag justify_center;
         public Gtk.TextTag justify_right;
         public Gtk.TextTag justify_fill;
+        public Gtk.TextTag search_match;
 
         construct {
             light_dimmed = new Gtk.TextTag ("light-dimmed");
@@ -69,6 +70,8 @@ namespace Manuscript.Models {
 
             justify_fill = new Gtk.TextTag ("justify-fill");
             justify_fill.justification = Gtk.Justification.FILL;
+
+            search_match = new Gtk.TextTag("search-match");
 
             add (light_dimmed);
             add (light_focused);
