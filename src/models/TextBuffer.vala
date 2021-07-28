@@ -41,7 +41,7 @@ namespace Manuscript.Models {
         }
 
         public uint8[] serialize_manuscript () {
-            var atom = get_manuscript_serialize_format ();
+            //  var atom = get_manuscript_serialize_format ();
             Gtk.TextIter start, end, cursor;
             get_start_iter (out start);
             get_end_iter (out end);
@@ -64,27 +64,101 @@ namespace Manuscript.Models {
              * - serialize method goes full recursion if there are child anchors in the buffer
              * - if the user has searched anything, an __anonymous__ Gtk.TextTag is applied to search results,
              *   it gets serialized and fucks shit up when the buffer is loaded again
+             * - AND THIS THING IS REMOVE FROM GTK4. FU**.
              */
-            return serialize (this, atom, start, end);
+            //  return serialize (this, atom, start, end);
+
+            return serialize_x_manuscript (start, end);
         }
 
         public bool deserialize_manuscript (uint8[] raw_content) throws Error {
-            Gtk.TextIter start;
-            get_start_iter (out start);
-            return deserialize (this, this.get_manuscript_deserialize_format (), start, raw_content);
+            Gtk.TextIter cursor;
+            get_start_iter (out cursor);
+            StringBuilder buffer = new StringBuilder.sized (raw_content.length);
+            buffer.append ((string) raw_content);
+            string content = buffer.str;
+
+            Gee.ArrayList<Gtk.TextTag> tag_stack = new Gee.ArrayList<Gtk.TextTag> ();
+            var i = 0;
+
+            while (i < raw_content.length) {
+                this.insert (ref cursor, content.substring (i, 1), 1);
+                i ++;
+            }
+
+            return true;
         }
 
-        //  public new void insert_with_tags (ref Gtk.TextIter iter, string text, int len, ...) {
-        //      var args = va_list ();
-        //      var original = va_list.copy (args);
+        private uint8[] serialize_x_manuscript (Gtk.TextIter start, Gtk.TextIter end) {
+            StringBuilder buffer = new StringBuilder ();
+            Gee.ArrayList<Gtk.TextTag> tag_stack = new Gee.ArrayList<Gtk.TextTag> ();
 
-        //      Gtk.TextTag? arg = null;
-        //      while ((arg = args.arg()) != null) {
-        //          if (arg.name == null || arg.name == "") {
-                    
+            Gtk.TextIter cursor;
+            get_start_iter (out cursor);
+
+            while (!cursor.is_end ()) {
+                if (cursor.starts_tag (null)) {
+                    cursor.get_toggled_tags (true).@foreach (i => {
+                        // Only serialize non-anonymous tags, and only tags that can be found in this
+                        // buffer's tag table
+                        if (i.name != null && tag_table.lookup (i.name) != null) {
+                            tag_stack.add (i);
+                            buffer.append (open_tag_str (i));
+                        }
+                    });
+                }
+                
+                if (cursor.ends_tag (null)) {
+                    //  debug ("%i %s", tag_stack.size, tag_stack.last ().name);
+                    var closed_tags = cursor.get_toggled_tags (false);
+                    debug ("Number of closed tags at this iter: %u", closed_tags.length ());
+                    while (
+                        closed_tags.length () != 0
+                    ) {
+                        var len = closed_tags.length ();
+                        var closed_tag = closed_tags.nth_data (len - 1);
+
+                        buffer.append (close_tag_str (tag_stack.remove_at (tag_stack.size - 1)));
+                        closed_tags.remove (closed_tag);
+                    }
+                }
+                // Append the character verbatim
+                buffer.append_unichar (cursor.get_char ());
+                cursor.forward_char ();
+            }
+            
+            return buffer.data;
+        }
+
+        //  public void scan_debug () {
+        //      var i = 0;
+        //      Gtk.TextIter cursor;
+        //      get_start_iter (out cursor);
+        //      while (!cursor.is_end ()) {
+        //          debug ("Iter: %i", i);
+        //          debug (@"Char: $(cursor.get_char ())");
+        //          if (cursor.starts_tag (null)) {
+        //              cursor.get_toggled_tags (true).@foreach (i => {
+        //                  debug ("Open tag %s", i.name);
+        //              });
+        //              //  debug (@"Start tag: $(debug_slist (cursor.get_toggled_tags (true)))");
+        //          } else if (cursor.ends_tag (null)) {
+        //              cursor.get_toggled_tags (false).@foreach (i => {
+        //                  debug ("Close tag %s", i.name);
+        //              });
+        //              //  debug (@"Start tag: $(debug_slist (cursor.get_toggled_tags (false)))");
         //          }
+        //          cursor.forward_char ();
+        //          i += 1;
         //      }
-        //      base.insert_with_tags (ref iter, text, len, args);
         //  }
+    }
+
+    private string open_tag_str (Gtk.TextTag tag) {
+        return @"<Tag name=\"$(tag.name)\">";
+    }
+
+    private string close_tag_str (Gtk.TextTag tag) {
+        return @"</Tag>";
     }
 }

@@ -104,6 +104,15 @@ namespace Manuscript.Widgets {
             }
         }
 
+        /** Removes all children from this container, except the courtesy view */
+        private void remove_all_editors () {
+            this.@foreach ((child) => {
+                if (! (child is EditorCourtesyView)) {
+                    remove (child);
+                }
+            });
+        }
+
         private void on_document_set (Models.Document doc) {
             assert (doc != null);
         }
@@ -113,6 +122,7 @@ namespace Manuscript.Widgets {
             doc.chunk_added.disconnect (add_chunk);
             doc.chunk_removed.disconnect (remove_chunk);
             editors_cache.clear ();
+            this.remove_all_editors ();
         }
 
         private void on_start_chunk_editing (Models.DocumentChunk chunk) {
