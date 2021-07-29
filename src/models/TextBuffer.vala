@@ -18,6 +18,18 @@
  */
 
 namespace Manuscript.Models {
+    struct TextTag {
+        string name;
+        long start;
+        long end;
+    }
+
+    struct TextBufferPrelude {
+        uint8 major_version;
+        uint8 minor_version;
+        uint64 size_of_tag_map;
+    }
+
     public class TextBuffer : Gtk.SourceBuffer {
         private Gdk.Atom serialize_atom;
         private Gdk.Atom deserialize_atom;
@@ -71,30 +83,73 @@ namespace Manuscript.Models {
             return serialize_x_manuscript (start, end);
         }
 
-        public bool deserialize_manuscript (uint8[] raw_content) throws Error {
-            Gtk.TextIter cursor;
-            get_start_iter (out cursor);
-            StringBuilder buffer = new StringBuilder.sized (raw_content.length);
-            buffer.append ((string) raw_content);
-            string content = buffer.str;
+        public void deserialize_manuscript (uint8[] raw_content) throws Error {
+            size_t prelude_size = sizeof (TextBufferPrelude);
+            size_t text_tag_size = sizeof (TextTag);
 
-            Gee.ArrayList<Gtk.TextTag> tag_stack = new Gee.ArrayList<Gtk.TextTag> ();
-            var i = 0;
+            InputStream @is = new MemoryInputStream.from_data (raw_content);
+            DataInputStream dis = new DataInputStream (@is);
+            TextBufferPrelude prelude = TextBufferPrelude () {
+                major_version = dis.read_byte (),
+                minor_version = dis.read_byte (),
+                size_of_tag_map = (uint64) dis.read_uint64 ()
+            };
 
-            while (i < raw_content.length) {
-                this.insert (ref cursor, content.substring (i, 1), 1);
-                i ++;
+            // A raw_content to be deserialized must be at least the size of its prelude
+            assert (raw_content.length >= prelude_size);
+
+            MemoryOutputStream content_buffer = new MemoryOutputStream.resizable ();
+            //  SList<TextTag?> tag_list = new SList<TextTag> ();
+            uint8 buffer[1];
+            while (true) {
+                dis.read (buffer);
+                if (buffer[0] == '\0') {
+                    break;
+                } else {
+                    content_buffer.write (buffer);
+                }
             }
 
-            return true;
+            content_buffer.close ();
+            var data = content_buffer.steal_data ();
+            data.length = (int) content_buffer.get_data_size ();
+            set_text ((string) data);
+
+            dis.close ();
+
+            //  if (prelude.size_of_tag_map > 0) {
+            //      TextTag* tag_definition_ptr = (TextTag *)raw_content[prelude_size];
+            //      ulong tag_map_b_counter = 0;
+            //      while (tag_map_b_counter < prelude.size_of_tag_map) {
+            //          tag_list.append (*tag_definition_ptr);
+            //          tag_map_b_counter += text_tag_size;
+            //          tag_definition_ptr += text_tag_size;
+            //      }
+            //  }
+
+            //  if (prelude.size_of_content > 0) {
+            //      unichar* char_ptr = (unichar*) raw_content[prelude_size + prelude.size_of_tag_map];
+            //      ulong content_byte_counter = 0;
+            //      while (content_byte_counter < prelude.size_of_content) {
+            //          content_buffer.append_unichar (*char_ptr);
+            //          char_ptr += sizeof (unichar);
+            //          content_byte_counter += 1;
+            //      }
+
+            //      set_text (content_buffer.str);
+            //  }
+
+            // TODO: apply tags
         }
 
-        private uint8[] serialize_x_manuscript (Gtk.TextIter start, Gtk.TextIter end) {
+        private uint8[] serialize_x_manuscript (Gtk.TextIter start, Gtk.TextIter end) throws Error {
             StringBuilder buffer = new StringBuilder ();
-            Gee.ArrayList<Gtk.TextTag> tag_stack = new Gee.ArrayList<Gtk.TextTag> ();
+            SList<TextTag?> tag_map = new SList<TextTag> ();
+            Gee.ArrayList<TextTag?> tag_stack = new Gee.ArrayList<TextTag?> ();
 
             Gtk.TextIter cursor;
             get_start_iter (out cursor);
+            long counter = 0;
 
             while (!cursor.is_end ()) {
                 if (cursor.starts_tag (null)) {
@@ -102,63 +157,75 @@ namespace Manuscript.Models {
                         // Only serialize non-anonymous tags, and only tags that can be found in this
                         // buffer's tag table
                         if (i.name != null && tag_table.lookup (i.name) != null) {
-                            tag_stack.add (i);
-                            buffer.append (open_tag_str (i));
+                            var the_tag = TextTag () {
+                                name = i.name,
+                                start = counter,
+                                end = counter
+                            };
+                            tag_stack.add (the_tag);
+                            //  buffer.append (open_tag_str (i));
                         }
                     });
                 }
                 
                 if (cursor.ends_tag (null)) {
-                    //  debug ("%i %s", tag_stack.size, tag_stack.last ().name);
                     var closed_tags = cursor.get_toggled_tags (false);
-                    debug ("Number of closed tags at this iter: %u", closed_tags.length ());
                     while (
                         closed_tags.length () != 0
                     ) {
+                        // Get the current closing tag from the list, remove it from the list...
                         var len = closed_tags.length ();
                         var closed_tag = closed_tags.nth_data (len - 1);
-
-                        buffer.append (close_tag_str (tag_stack.remove_at (tag_stack.size - 1)));
                         closed_tags.remove (closed_tag);
+
+                        // ... and pop it from the stack
+                        TextTag tag_to_close = tag_stack.remove_at (tag_stack.size - 1);
+                        tag_to_close.end = counter;
+
+                        // Add the tag to the map that will be saved along with the text buffer
+                        tag_map.append (tag_to_close);
                     }
                 }
                 // Append the character verbatim
                 buffer.append_unichar (cursor.get_char ());
                 cursor.forward_char ();
+                counter ++;
             }
-            
-            return buffer.data;
+
+            uint8[] tag_map_buffer = new uint8[sizeof (TextTag) * tag_map.length ()];
+            uint8* ptr = tag_map_buffer;
+
+            tag_map.@foreach (tag => {
+                *ptr = (uint8[]) tag;
+                ptr += sizeof (TextTag);
+            });
+
+            // Write table of contents
+            TextBufferPrelude prelude = TextBufferPrelude () {
+                major_version = 1,
+                minor_version = 0,
+                size_of_tag_map = tag_map.length () * sizeof (TextTag)
+            };
+
+            MemoryOutputStream os = new MemoryOutputStream (null, GLib.realloc, GLib.free);
+            DataOutputStream dos = new DataOutputStream (os);
+            size_t bytes_written;
+            //  dos.write_all ((uint8[]) prelude, out bytes_written);
+            dos.put_byte (prelude.major_version);
+            dos.put_byte (prelude.minor_version);
+            dos.put_uint64 (prelude.size_of_tag_map);
+
+            if (tag_map_buffer.length > 0) {
+                dos.write_all (tag_map_buffer, out bytes_written);
+            }
+            if (buffer.len > 0) {
+                dos.write_all (buffer.data, out bytes_written);
+            }
+            dos.put_byte ('\0');
+            dos.close ();
+            uint8[] data = os.steal_data ();
+            data.length = (int) os.get_data_size ();
+            return data;
         }
-
-        //  public void scan_debug () {
-        //      var i = 0;
-        //      Gtk.TextIter cursor;
-        //      get_start_iter (out cursor);
-        //      while (!cursor.is_end ()) {
-        //          debug ("Iter: %i", i);
-        //          debug (@"Char: $(cursor.get_char ())");
-        //          if (cursor.starts_tag (null)) {
-        //              cursor.get_toggled_tags (true).@foreach (i => {
-        //                  debug ("Open tag %s", i.name);
-        //              });
-        //              //  debug (@"Start tag: $(debug_slist (cursor.get_toggled_tags (true)))");
-        //          } else if (cursor.ends_tag (null)) {
-        //              cursor.get_toggled_tags (false).@foreach (i => {
-        //                  debug ("Close tag %s", i.name);
-        //              });
-        //              //  debug (@"Start tag: $(debug_slist (cursor.get_toggled_tags (false)))");
-        //          }
-        //          cursor.forward_char ();
-        //          i += 1;
-        //      }
-        //  }
-    }
-
-    private string open_tag_str (Gtk.TextTag tag) {
-        return @"<Tag name=\"$(tag.name)\">";
-    }
-
-    private string close_tag_str (Gtk.TextTag tag) {
-        return @"</Tag>";
     }
 }
