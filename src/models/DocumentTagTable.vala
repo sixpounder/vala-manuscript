@@ -19,7 +19,7 @@
 
 namespace Manuscript.Models {
     public const string TAG_NAME_BOLD = "b";
-    public const string TAG_NAME_ITALIC = "em";
+    public const string TAG_NAME_ITALIC = "i";
     public const string TAG_NAME_UNDERLINE = "u";
 
     public class XManuscriptTagTable : Gtk.TextTagTable {
