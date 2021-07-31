@@ -80,11 +80,11 @@ namespace Manuscript.Widgets {
             menu_button.popover = build_main_menu_popover ();
             menu_button.popover.width_request = 350;
             menu_button.sensitive = document_manager.has_document;
-            
+
             add_element_button = new Widgets.MenuButton.with_properties ("insert-object", "Insert");
             add_element_button.sensitive = document_manager.has_document;
             add_element_button.popover = build_add_element_menu ();
-            
+
             document_settings_button = new Widgets.MenuButton.with_properties (
                 "document-properties",
                 "Properties",
@@ -92,7 +92,7 @@ namespace Manuscript.Widgets {
             );
             document_settings_button.hint = MenuButtonHint.MODAL;
             document_settings_button.sensitive = document_manager.has_document;
-            
+
             export_button = new Widgets.MenuButton.with_properties (
                 "document-export",
                 "Export",
@@ -100,7 +100,7 @@ namespace Manuscript.Widgets {
             );
             export_button.hint = MenuButtonHint.MODAL;
             export_button.sensitive = document_manager.has_document;
-            
+
             settings_popover = new Widgets.SettingsPopover (parent_window.application);
             settings_button = new Widgets.MenuButton.with_properties ("open-menu", _("Settings"));
             settings_button.tooltip_text = _ ("Application settings");

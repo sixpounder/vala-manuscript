@@ -108,6 +108,7 @@ namespace Manuscript.Widgets {
         private void remove_all_editors () {
             this.@foreach ((child) => {
                 if (! (child is EditorCourtesyView)) {
+                    child.unref ();
                     remove (child);
                 }
             });

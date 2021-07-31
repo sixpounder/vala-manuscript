@@ -478,9 +478,9 @@ namespace Manuscript.Compilers {
                 section_title_layout.set_markup (traits_markup, -1);
                 section_title_layout.set_wrap (Pango.WrapMode.WORD);
                 Pango.cairo_show_layout (ctx, section_title_layout);
-    
+
                 ctx.rel_move_to (max_section_title_width, 0);
-    
+
                 content_layout = Pango.cairo_create_layout (ctx);
                 content_layout.set_width (
                     (int) ((surface_width * Pango.SCALE)
@@ -511,9 +511,9 @@ namespace Manuscript.Compilers {
                 section_title_layout.set_markup (background_markup, -1);
                 section_title_layout.set_wrap (Pango.WrapMode.WORD);
                 Pango.cairo_show_layout (ctx, section_title_layout);
-    
+
                 ctx.rel_move_to (max_section_title_width, 0);
-    
+
                 content_layout = Pango.cairo_create_layout (ctx);
                 content_layout.set_width (
                     (int) ((surface_width * Pango.SCALE)
@@ -544,9 +544,9 @@ namespace Manuscript.Compilers {
                 section_title_layout.set_markup (notes_markup, -1);
                 section_title_layout.set_wrap (Pango.WrapMode.WORD);
                 Pango.cairo_show_layout (ctx, section_title_layout);
-    
+
                 ctx.rel_move_to (max_section_title_width, 0);
-    
+
                 content_layout = Pango.cairo_create_layout (ctx);
                 content_layout.set_width ((int) (
                     (surface_width * Pango.SCALE)

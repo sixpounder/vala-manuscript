@@ -71,8 +71,6 @@ namespace Manuscript.Models {
             justify_fill = new Gtk.TextTag ("justify-fill");
             justify_fill.justification = Gtk.Justification.FILL;
 
-            search_match = new Gtk.TextTag("search-match");
-
             add (light_dimmed);
             add (light_focused);
             add (dark_dimmed);

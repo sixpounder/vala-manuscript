@@ -324,7 +324,6 @@ namespace Manuscript.Models {
             }
 
             if (encountered_error != null) {
-                
                 save_error (encountered_error);
                 throw encountered_error;
             } else {
@@ -333,7 +332,7 @@ namespace Manuscript.Models {
                     chunk.has_changes = false;
                     return true;
                 });
-    
+
                 this.temporary = false;
                 return (long) size;
             }
@@ -611,7 +610,7 @@ namespace Manuscript.Models {
 
         public void restore_current_backup () throws Error {
             var expected_backup_path = Path.build_path (
-                Path.DIR_SEPARATOR_S, file_ref.get_parent ().get_path () ,@"~$(file_ref.get_basename ())" 
+                Path.DIR_SEPARATOR_S, file_ref.get_parent ().get_path (), @"~$(file_ref.get_basename ())"
             );
             var backup_file = File.new_for_path (expected_backup_path);
             if (backup_file.query_exists ()) {
@@ -629,7 +628,7 @@ namespace Manuscript.Models {
             var original_file = File.new_for_path (original_path);
             var backup = File.new_for_path (
                 Path.build_path (
-                    Path.DIR_SEPARATOR_S, original_file.get_path () ,"~", original_file.get_basename () 
+                    Path.DIR_SEPARATOR_S, original_file.get_path (), "~", original_file.get_basename ()
                 )
             );
 

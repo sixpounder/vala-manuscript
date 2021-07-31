@@ -121,7 +121,7 @@ namespace Manuscript {
             var original_file = File.new_for_path (original_path);
             var backup = File.new_for_path (
                 Path.build_path (
-                    Path.DIR_SEPARATOR_S, original_file.get_parent ().get_path () ,@"~$(original_file.get_basename ())" 
+                    Path.DIR_SEPARATOR_S, original_file.get_parent ().get_path (), @"~$(original_file.get_basename ())"
                 )
             );
 

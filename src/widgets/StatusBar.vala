@@ -51,11 +51,10 @@ namespace Manuscript.Widgets {
             reading_time_label = new Gtk.Label ("");
             reading_time_label.tooltip_text = _("Estimated reading time");
 
-            
             reading_time_icon = new Gtk.Image ();
             reading_time_icon.gicon = new ThemedIcon ("preferences-system-time-symbolic");
             reading_time_icon.pixel_size = 16;
-            
+
 #if GTK_4
             append (words_label);
             append (reading_time_label);

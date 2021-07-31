@@ -18,16 +18,84 @@
  */
 
 namespace Manuscript.Models {
-    struct TextTag {
-        string name;
-        long start;
-        long end;
+    internal class SerializableTextTag {
+        //  uint64 length_header;
+        public string name;
+        public uint64 start;
+        public uint64 end;
+        public int priority;
+
+        public SerializableTextTag (string name = "", uint64 start = 0, uint64 end = 0, int priority = 0) {
+            this.name = name;
+            this.start = start;
+            this.end = end;
+            this.priority = priority;
+        }
+
+        public size_t get_bytes_length () {
+            return (sizeof (uint64) * 3) + (name.length * sizeof (uint8)) + sizeof (int32);
+            //     ^ header, start, end     ^ length of the name string     ^ priority
+        }
+
+        public uint8[] serialize () throws IOError {
+            MemoryOutputStream stream = new MemoryOutputStream (null);
+            DataOutputStream os = new DataOutputStream (stream);
+
+            os.put_uint64 (name.length);
+            os.put_string (name);
+            os.put_uint64 (start);
+            os.put_uint64 (end);
+
+            stream.close ();
+            uint8[] data = stream.steal_data ();
+            data.length = (int) stream.get_data_size ();
+
+            return data;
+        }
+
+        public static SerializableTextTag from_reader (InputStream stream) throws Error {
+            assert (!stream.is_closed ());
+            DataInputStream dis = new DataInputStream (stream);
+            size_t bytes_read;
+            var obj = new SerializableTextTag ();
+            var expected_name_length = dis.read_uint64 ();
+            uint8[] name_buffer = new uint8[expected_name_length];
+            dis.read_all (name_buffer, out bytes_read);
+            obj.name = (string)name_buffer;
+            assert (obj.name.length == expected_name_length);
+            obj.start = dis.read_uint64 ();
+            obj.end = dis.read_uint64 ();
+            obj.priority = dis.read_int32 ();
+
+            return obj;
+        }
     }
 
     struct TextBufferPrelude {
         uint8 major_version;
         uint8 minor_version;
         uint64 size_of_tag_map;
+    }
+
+    const uint8 NULL_TERMINATOR = '\0';
+
+    private uint8[] read_until (InputStream stream, uint8 marker = NULL_TERMINATOR) throws Error {
+        MemoryOutputStream content_buffer = new MemoryOutputStream.resizable ();
+        uint8 buffer[1];
+        while (true) {
+            stream.read (buffer);
+            if (buffer[0] == '\0') {
+                break;
+            } else {
+                content_buffer.write (buffer);
+            }
+        }
+
+        content_buffer.close ();
+        var data = content_buffer.steal_data ();
+        data.length = (int) content_buffer.get_data_size ();
+
+        return data;
     }
 
     public class TextBuffer : Gtk.SourceBuffer {
@@ -85,7 +153,6 @@ namespace Manuscript.Models {
 
         public void deserialize_manuscript (uint8[] raw_content) throws Error {
             size_t prelude_size = sizeof (TextBufferPrelude);
-            size_t text_tag_size = sizeof (TextTag);
 
             InputStream @is = new MemoryInputStream.from_data (raw_content);
             DataInputStream dis = new DataInputStream (@is);
@@ -98,113 +165,75 @@ namespace Manuscript.Models {
             // A raw_content to be deserialized must be at least the size of its prelude
             assert (raw_content.length >= prelude_size);
 
-            MemoryOutputStream content_buffer = new MemoryOutputStream.resizable ();
-            //  SList<TextTag?> tag_list = new SList<TextTag> ();
-            uint8 buffer[1];
-            while (true) {
-                dis.read (buffer);
-                if (buffer[0] == '\0') {
-                    break;
-                } else {
-                    content_buffer.write (buffer);
+            if (prelude.size_of_tag_map > 0) {
+                Gee.ArrayList<SerializableTextTag> tag_list = new Gee.ArrayList<SerializableTextTag> ();
+                ulong tag_map_b_counter = 0;
+                while (tag_map_b_counter < prelude.size_of_tag_map) {
+                    var tag = SerializableTextTag.from_reader (dis);
+                    tag_list.add (tag);
+                    tag_map_b_counter += tag.get_bytes_length ();
                 }
             }
 
-            content_buffer.close ();
-            var data = content_buffer.steal_data ();
-            data.length = (int) content_buffer.get_data_size ();
-            set_text ((string) data);
-
+            var data = read_until (dis);
             dis.close ();
 
-            //  if (prelude.size_of_tag_map > 0) {
-            //      TextTag* tag_definition_ptr = (TextTag *)raw_content[prelude_size];
-            //      ulong tag_map_b_counter = 0;
-            //      while (tag_map_b_counter < prelude.size_of_tag_map) {
-            //          tag_list.append (*tag_definition_ptr);
-            //          tag_map_b_counter += text_tag_size;
-            //          tag_definition_ptr += text_tag_size;
-            //      }
-            //  }
-
-            //  if (prelude.size_of_content > 0) {
-            //      unichar* char_ptr = (unichar*) raw_content[prelude_size + prelude.size_of_tag_map];
-            //      ulong content_byte_counter = 0;
-            //      while (content_byte_counter < prelude.size_of_content) {
-            //          content_buffer.append_unichar (*char_ptr);
-            //          char_ptr += sizeof (unichar);
-            //          content_byte_counter += 1;
-            //      }
-
-            //      set_text (content_buffer.str);
-            //  }
+            set_text ((string) data);
 
             // TODO: apply tags
         }
 
-        private uint8[] serialize_x_manuscript (Gtk.TextIter start, Gtk.TextIter end) throws Error {
+        private uint8[] serialize_x_manuscript (Gtk.TextIter start, Gtk.TextIter end) throws IOError {
             StringBuilder buffer = new StringBuilder ();
-            SList<TextTag?> tag_map = new SList<TextTag> ();
-            Gee.ArrayList<TextTag?> tag_stack = new Gee.ArrayList<TextTag?> ();
+            SList<SerializableTextTag> tag_map = new SList<SerializableTextTag> ();
+            Gee.ArrayList<SerializableTextTag> tag_stack = new Gee.ArrayList<SerializableTextTag> ();
 
             Gtk.TextIter cursor;
             get_start_iter (out cursor);
             long counter = 0;
 
+            // Scan the buffer and build tags lists and plain text buffer
             while (!cursor.is_end ()) {
                 if (cursor.starts_tag (null)) {
                     cursor.get_toggled_tags (true).@foreach (i => {
                         // Only serialize non-anonymous tags, and only tags that can be found in this
                         // buffer's tag table
                         if (i.name != null && tag_table.lookup (i.name) != null) {
-                            var the_tag = TextTag () {
-                                name = i.name,
-                                start = counter,
-                                end = counter
-                            };
+                            var the_tag = new SerializableTextTag (i.name, counter, counter, tag_stack.size);
                             tag_stack.add (the_tag);
-                            //  buffer.append (open_tag_str (i));
                         }
                     });
                 }
-                
-                if (cursor.ends_tag (null)) {
-                    var closed_tags = cursor.get_toggled_tags (false);
-                    while (
-                        closed_tags.length () != 0
-                    ) {
-                        // Get the current closing tag from the list, remove it from the list...
-                        var len = closed_tags.length ();
-                        var closed_tag = closed_tags.nth_data (len - 1);
-                        closed_tags.remove (closed_tag);
 
-                        // ... and pop it from the stack
-                        TextTag tag_to_close = tag_stack.remove_at (tag_stack.size - 1);
-                        tag_to_close.end = counter;
+                serialize_check_closing_tags (counter, cursor, tag_stack, tag_map);
 
-                        // Add the tag to the map that will be saved along with the text buffer
-                        tag_map.append (tag_to_close);
-                    }
-                }
                 // Append the character verbatim
                 buffer.append_unichar (cursor.get_char ());
                 cursor.forward_char ();
                 counter ++;
             }
 
-            uint8[] tag_map_buffer = new uint8[sizeof (TextTag) * tag_map.length ()];
-            uint8* ptr = tag_map_buffer;
+            // Check if the last iter closes some tags
+            serialize_check_closing_tags (counter, cursor, tag_stack, tag_map);
+
+            // Serialize the tags into a byte buffer
+            MemoryOutputStream tag_map_stream = new MemoryOutputStream (null, GLib.realloc, GLib.free);
+            size_t tag_bytes_written = 0;
+            size_t tag_total_bytes = 0;
 
             tag_map.@foreach (tag => {
-                *ptr = (uint8[]) tag;
-                ptr += sizeof (TextTag);
+                tag_map_stream.write_all (tag.serialize (), out tag_bytes_written);
+                tag_total_bytes += tag_bytes_written;
             });
+            tag_map_stream.close ();
+            var tags_data = tag_map_stream.steal_data ();
+            tags_data.length = (int) tag_map_stream.get_data_size ();
 
             // Write table of contents
             TextBufferPrelude prelude = TextBufferPrelude () {
                 major_version = 1,
                 minor_version = 0,
-                size_of_tag_map = tag_map.length () * sizeof (TextTag)
+                size_of_tag_map = tag_total_bytes
             };
 
             MemoryOutputStream os = new MemoryOutputStream (null, GLib.realloc, GLib.free);
@@ -215,17 +244,44 @@ namespace Manuscript.Models {
             dos.put_byte (prelude.minor_version);
             dos.put_uint64 (prelude.size_of_tag_map);
 
-            if (tag_map_buffer.length > 0) {
-                dos.write_all (tag_map_buffer, out bytes_written);
+            if (tags_data.length > 0) {
+                dos.write_all (tags_data, out bytes_written);
             }
+
             if (buffer.len > 0) {
                 dos.write_all (buffer.data, out bytes_written);
             }
-            dos.put_byte ('\0');
+            dos.put_byte (NULL_TERMINATOR);
             dos.close ();
             uint8[] data = os.steal_data ();
             data.length = (int) os.get_data_size ();
             return data;
+        }
+
+        private void serialize_check_closing_tags (
+            long counter,
+            Gtk.TextIter cursor,
+            Gee.ArrayList<SerializableTextTag> tag_stack,
+            SList<SerializableTextTag> tag_map
+        ) {
+            if (cursor.ends_tag (null)) {
+                var closed_tags = cursor.get_toggled_tags (false);
+                while (
+                    closed_tags.length () != 0
+                ) {
+                    // Get the current closing tag from the list, remove it from the list...
+                    var len = closed_tags.length ();
+                    var closed_tag = closed_tags.nth_data (len - 1);
+                    closed_tags.remove (closed_tag);
+
+                    // ... and pop it from the stack
+                    SerializableTextTag tag_to_close = tag_stack.remove_at (tag_stack.size - 1);
+                    tag_to_close.end = counter;
+
+                    // Add the tag to the map that will be saved along with the text buffer
+                    tag_map.append (tag_to_close);
+                }
+            }
         }
     }
 }

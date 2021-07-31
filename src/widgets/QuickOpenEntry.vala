@@ -63,7 +63,7 @@ namespace Manuscript.Widgets {
             title_label.max_width_chars = 20;
             title_label.xalign = 0f;
             title_label.get_style_context ().add_class (Granite.STYLE_CLASS_H3_LABEL);
-            
+
             var kind_label = new Gtk.Label (chunk.kind.to_string ());
             kind_label.justify = Gtk.Justification.RIGHT;
             kind_label.xalign = 1f;
