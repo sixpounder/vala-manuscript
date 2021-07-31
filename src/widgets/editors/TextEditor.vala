@@ -147,8 +147,8 @@ namespace Manuscript.Widgets {
                         focused_tag = "dark-focused";
                         dimmed_tag = "dark-dimmed";
                     } else {
-                        focused_tag = "light-focused";
-                        dimmed_tag = "light-dimmed";
+                        focused_tag = "theme-light-focused";
+                        dimmed_tag = "theme-light-dimmed";
                     }
                     buffer.get_bounds (out start, out end);
                     buffer.remove_tag (buffer.tag_table.lookup (focused_tag), start, end);
@@ -208,8 +208,8 @@ namespace Manuscript.Widgets {
                     focused_tag = "dark-focused";
                     dimmed_tag = "dark-dimmed";
                 } else {
-                    focused_tag = "light-focused";
-                    dimmed_tag = "light-dimmed";
+                    focused_tag = "theme-light-focused";
+                    dimmed_tag = "theme-light-dimmed";
                 }
 
                 buffer.remove_tag (buffer.tag_table.lookup (focused_tag), start, end);

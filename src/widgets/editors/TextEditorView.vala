@@ -147,15 +147,15 @@ namespace Manuscript.Widgets {
 
             tags_at_selection_start.@foreach ((tag) => {
                 switch (tag.name) {
-                    case "bold":
+                    case Manuscript.Models.TAG_NAME_BOLD:
                         format_toolbar.format_bold.active = true;
                     break;
 
-                    case "italic":
+                    case Manuscript.Models.TAG_NAME_ITALIC:
                         format_toolbar.format_italic.active = true;
                     break;
 
-                    case "underline":
+                    case Manuscript.Models.TAG_NAME_UNDERLINE:
                         format_toolbar.format_underline.active = true;
                     break;
                 }

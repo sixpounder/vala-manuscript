@@ -18,9 +18,9 @@
  */
 
 namespace Manuscript.Models {
-    public const string TAG_NAME_BOLD = "bold";
-    public const string TAG_NAME_ITALIC = "italic";
-    public const string TAG_NAME_UNDERLINE = "underline";
+    public const string TAG_NAME_BOLD = "b";
+    public const string TAG_NAME_ITALIC = "em";
+    public const string TAG_NAME_UNDERLINE = "u";
 
     public class XManuscriptTagTable : Gtk.TextTagTable {
 
@@ -38,10 +38,10 @@ namespace Manuscript.Models {
         public Gtk.TextTag search_match;
 
         construct {
-            light_dimmed = new Gtk.TextTag ("light-dimmed");
+            light_dimmed = new Gtk.TextTag ("theme-light-dimmed");
             light_dimmed.foreground = "#ccc";
 
-            light_focused = new Gtk.TextTag ("light-focused");
+            light_focused = new Gtk.TextTag ("theme-light-focused");
             light_focused.foreground = "#333";
 
             dark_dimmed = new Gtk.TextTag ("dark-dimmed");

@@ -77,6 +77,8 @@ executable(
     'models/Utils.vala',
 	'models/AnalyzeTask.vala',
 
+	# 'models/lib/MarkupParser.vala',
+
 	'compilers/Base.vala',
 	'compilers/Html.vala',
 	'compilers/Pdf.vala',
