@@ -132,7 +132,7 @@ namespace Manuscript.Models {
             return node;
         }
 
-        public virtual Gee.Collection<ArchivableItem> to_archivable_entries () {
+        public virtual Gee.Collection<ArchivableItem> to_archivable_entries () throws DocumentError {
             Json.Generator gen = new Json.Generator ();
             var root = new Json.Node (Json.NodeType.OBJECT);
             root.set_object (to_json_object ());
@@ -249,7 +249,7 @@ namespace Manuscript.Models {
             });
         }
 
-        public override Gee.Collection<ArchivableItem> to_archivable_entries () {
+        public override Gee.Collection<ArchivableItem> to_archivable_entries () throws DocumentError {
 
             // Ensure buffer is something before exporting for save
             ensure_buffer ();
@@ -265,16 +265,19 @@ namespace Manuscript.Models {
             item.group = kind.to_string ();
             item.data = gen.to_data (null).data;
 
-            uint8[] serialized_data = buffer.serialize_manuscript ();
-            // ┻━┻ ︵ヽ(`Д´)ﾉ︵ ┻━┻
+            try {
+                uint8[] serialized_data = buffer.serialize ();
+                debug (@"$(serialized_data.length) bytes of text");
+                var text_item = new ArchivableItem.with_props (@"$uuid.text", "Resource", serialized_data);
 
-            debug (@"$(serialized_data.length) bytes of text");
-            var text_item = new ArchivableItem.with_props (@"$uuid.text", "Resource", serialized_data);
+                c.add (item);
+                c.add (text_item);
 
-            c.add (item);
-            c.add (text_item);
-
-            return c;
+                return c;
+            } catch (IOError err) {
+                // ┻━┻ ︵ヽ(`Д´)ﾉ︵ ┻━┻
+                throw new DocumentError.SERIALIZE (err.message);
+            }
         }
 
         /**

@@ -30,7 +30,8 @@ namespace Manuscript.Models {
         NOT_FOUND,
         READ,
         PARSE,
-        SAVE
+        SAVE,
+        SERIALIZE
     }
 
     public class ArchivableItem : Object {
@@ -51,8 +52,7 @@ namespace Manuscript.Models {
     }
 
     public interface Archivable : Object {
-        public abstract Gee.Collection<ArchivableItem> to_archivable_entries ();
-        //  public abstract Archivable from_archive_entries (Gee.Collection<ArchivableItem> entries);
+        public abstract Gee.Collection<ArchivableItem> to_archivable_entries () throws DocumentError;
     }
 
     public class ChunkParser : Object, Services.ThreadWorker<DocumentChunk> {
@@ -113,7 +113,7 @@ namespace Manuscript.Models {
             }
         }
 
-        public Gee.Collection<ArchivableItem> to_archivable_entries () {
+        public Gee.Collection<ArchivableItem> to_archivable_entries () throws DocumentError {
             var gen = new Json.Generator ();
             var root = new Json.Node (Json.NodeType.OBJECT);
             var object = new Json.Object ();

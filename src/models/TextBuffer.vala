@@ -133,21 +133,7 @@ namespace Manuscript.Models {
             return deserialize_atom;
         }
 
-        public uint8[] serialize_manuscript () {
-            //  var atom = get_manuscript_serialize_format ();
-            Gtk.TextIter start, end, cursor;
-            get_start_iter (out start);
-            get_end_iter (out end);
-            cursor = start;
-
-            while (!cursor.is_end ()) {
-                var possible_anchor = cursor.get_child_anchor ();
-                if (possible_anchor != null) {
-                    this.delete (ref cursor, ref cursor);
-                }
-                cursor.forward_char ();
-            }
-
+        public new uint8[] serialize () throws IOError {
             /**
              *   ___         ___  
              *  (o o)       (o o) 
@@ -160,6 +146,10 @@ namespace Manuscript.Models {
              * - AND THIS THING IS REMOVE FROM GTK4. FU**.
              */
             //  return serialize (this, atom, start, end);
+
+            Gtk.TextIter start, end;
+            get_start_iter (out start);
+            get_end_iter (out end);
 
             return serialize_x_manuscript (start, end);
         }
@@ -231,7 +221,11 @@ namespace Manuscript.Models {
             size_t tag_total_bytes = 0;
 
             tag_map.@foreach (tag => {
-                tag_map_stream.write_all (tag.serialize (), out tag_bytes_written);
+                try {
+                    tag_map_stream.write_all (tag.serialize (), out tag_bytes_written);
+                } catch (IOError err) {
+                    critical (err.message);
+                }
                 tag_total_bytes += tag_bytes_written;
             });
             tag_map_stream.close ();

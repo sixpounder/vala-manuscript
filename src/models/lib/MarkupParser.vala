@@ -1,81 +1,129 @@
-//  /*
-//   * Copyright 2021 Andrea Coronese <sixpounder@protonmail.com>
-//   *
-//   * This program is free software: you can redistribute it and/or modify
-//   * it under the terms of the GNU General Public License as published by
-//   * the Free Software Foundation, either version 3 of the License, or
-//   * (at your option) any later version.
-//   *
-//   * This program is distributed in the hope that it will be useful,
-//   * but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//   * GNU General Public License for more details.
-//   *
-//   * You should have received a copy of the GNU General Public License
-//   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//   *
-//   * SPDX-License-Identifier: GPL-3.0-or-later
-//   */
+/*
+ * Copyright 2021 Andrea Coronese <sixpounder@protonmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 
-//  namespace Manuscript.Models.Lib {
-//      public class MarkupParser {
-//          private const GLib.MarkupParser parser = {
-//              visit_start,
-//              visit_end,
-//              visit_text,
-//              visit_passthrough,
-//              error
-//          };
+namespace Manuscript.Models.Lib {
 
-//          private unowned TextBuffer buffer;
-//          private Gtk.TextIter cursor;
-//          private MarkupParseContext context;
-//          private int depth;
+    const unichar OPEN_TAG_TOKEN = '<';
+    const unichar CLOSE_TAG_TOKEN = '>';
 
-//          public MarkupParser (TextBuffer buffer) {
-//              this.context = new MarkupParseContext (parser, 0, this, null);
-//              this.buffer = buffer;
-//          }
+    public class MarkupParser {
+        private SList<unichar> parse_tokens;
+        private SList<Gtk.TextTag> tag_stack;
+        private TextBuffer buffer;
+        private string text;
+        private long text_index;
+        private int buf_index;
 
-//          private void visit_start (
-//              MarkupParseContext context,
-//              string name,
-//              string[] attr_names,
-//              string[] attr_values
-//          ) throws MarkupError {
-//              if (name == "Tag") {
-//                  unowned string tag_name = null;
+        public MarkupParser (TextBuffer buffer) {
+            this.buffer = buffer;
+        }
 
-//                  for (int i = 0; i < attr_names.length; i++) {
-//                      if (attr_names[i] == "name") {
-//                          tag_name = attr_values[i];
-//                          var tag = buffer.tag_table.lookup (tag_name);
-//                          if (tag != null) {
-                            
-//                          }
-//                      }
-//                  }
-//              }        
-//          }
+        construct {
+            text_index = -1;
+            buf_index = 0;
+            parse_tokens = new SList<unichar> ();
+            tag_stack = new SList<Gtk.TextTag> ();
+        }
 
-//          private void visit_end (MarkupParseContext context, string name) throws MarkupError {
-            
-//          }
+        public void parse (string text, bool reset = true) {
+            if (reset) {
+                buffer.set_text ("");
+            }
 
-//          private void visit_text (MarkupParseContext context, string text, size_t text_len) throws MarkupError {
-//              buffer.insert_text (ref cursor, text, (int) text_len);
-//          }
+            while (!is_end ()) {
+                unichar ch = next ();
+                token (ch);
+            }
+        }
 
-//          private void visit_passthrough (MarkupParseContext context, string text, size_t text_len) throws MarkupError {
-//              buffer.insert_text (ref cursor, text, (int) text_len);
-//          }
+        private void token (unichar ch) {
+            if (ch == OPEN_TAG_TOKEN) {
+                flush_tokens ();
+                bool is_tag_end = peek () == '/';
+                if (is_tag_end) {
+                    // This is a </tag>
+                    var last = tag_stack.nth_data (tag_stack.length () - 1);
+                    tag_stack.remove (last);
+                } else {
+                    // This is a <tag>
+                    var peek_tokens = new SList<unichar> ();
+                    unichar peek_char = next (); 
+                    while (peek_char != CLOSE_TAG_TOKEN) {
+                        peek_tokens.append (peek_char);
+                        peek_char = next ();
+                    }
+                    var tag = buffer.tag_table.lookup (list_to_str (ref peek_tokens));
+                    if (tag != null) {
+                        tag_stack.append (tag);
+                    }
+                }
+            } else {
+                parse_tokens.append (ch);
+                buf_index ++;
+            }
+        }
 
-//          public bool parse (string markup) throws MarkupError {
-//              depth = 0;
-//              return context.parse (markup, -1);
-//          }
+        private uint depth {
+            get {
+                return tag_stack.length ();
+            }
+        }
 
-//          private void error (MarkupParseContext context, Error error) {
-//          }
-//      }
-//  }
+        /** Peeks at the next token, without advancing any counter */
+        private unichar? peek () {
+            if (text_index < text.length - 2) {
+                return text[text_index + 1];
+            } else {
+                return null;
+            }
+        }
+
+        private bool is_end () {
+            return text_index == text.length - 1;
+        }
+
+        /** Moves the parser to the next token in the text to parse */
+        private unichar next () {
+            text_index++;
+            return text.get_char (text_index);
+        }
+
+        /** Flushes parsed tokens to the TextBuffer */
+        private void flush_tokens () {
+            Gtk.TextIter cursor;
+            buffer.get_iter_at_offset (out cursor, buf_index);
+            string tokens = list_to_str (ref parse_tokens);
+            buffer.insert (ref cursor, tokens, tokens.length);
+        }
+
+        /**
+         * Consumes `list` and creates a plain string from it
+         */
+        private string list_to_str (ref SList<unichar> list) {
+            StringBuilder acc = new StringBuilder.sized (list.length ());
+            list.@foreach (c => {
+                acc.append_unichar (c);
+            });
+
+            list = new SList ();
+
+            return acc.str;
+        }
+    }
+}

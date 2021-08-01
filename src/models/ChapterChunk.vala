@@ -54,7 +54,7 @@ namespace Manuscript.Models {
             return self;
         }
 
-        public override Gee.Collection<ArchivableItem> to_archivable_entries () {
+        public override Gee.Collection<ArchivableItem> to_archivable_entries () throws DocumentError {
             return base.to_archivable_entries ();
         }
 
