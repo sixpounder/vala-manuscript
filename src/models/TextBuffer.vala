@@ -175,7 +175,10 @@ namespace Manuscript.Models {
             set_text ("");
             Gtk.TextIter start;
             get_start_iter (out start);
-            insert_markup (ref start, (string) data, data.length);
+
+            Lib.MarkupParser parser = new Lib.MarkupParser (this);
+            parser.parse ((string) data);
+            //  insert_markup (ref start, (string) data, data.length);
 
             // TODO: apply tags
         }
