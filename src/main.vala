@@ -107,6 +107,7 @@ namespace Manuscript {
         }
 
         public static int main (string[] args) {
+            Intl.setlocale ();
             var app = new Manuscript.Application ();
             Environment.set_application_name (Constants.APP_NAME);
             Environment.set_prgname (Constants.APP_NAME);

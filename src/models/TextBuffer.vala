@@ -50,21 +50,21 @@ namespace Manuscript.Models {
         //      //     ^ header, start, end     ^ length of the name string     ^ priority
         //  }
 
-        public uint8[] serialize () throws IOError {
-            MemoryOutputStream stream = new MemoryOutputStream (null);
-            DataOutputStream os = new DataOutputStream (stream);
+        //  public uint8[] serialize () throws IOError {
+        //      MemoryOutputStream stream = new MemoryOutputStream (null);
+        //      DataOutputStream os = new DataOutputStream (stream);
 
-            os.put_uint64 (name.length);
-            os.put_string (name);
-            os.put_uint64 (start);
-            os.put_uint64 (end);
+        //      os.put_uint64 (name.length);
+        //      os.put_string (name);
+        //      os.put_uint64 (start);
+        //      os.put_uint64 (end);
 
-            stream.close ();
-            uint8[] data = stream.steal_data ();
-            data.length = (int) stream.get_data_size ();
+        //      stream.close ();
+        //      uint8[] data = stream.steal_data ();
+        //      data.length = (int) stream.get_data_size ();
 
-            return data;
-        }
+        //      return data;
+        //  }
 
         //  public static SerializableTextTag from_reader (InputStream stream) throws Error {
         //      assert (!stream.is_closed ());
@@ -172,20 +172,12 @@ namespace Manuscript.Models {
             var data = read_until (dis);
             dis.close ();
 
-            set_text ("");
-            Gtk.TextIter start;
-            get_start_iter (out start);
-
             Lib.MarkupParser parser = new Lib.MarkupParser (this);
             parser.parse ((string) data);
-            //  insert_markup (ref start, (string) data, data.length);
-
-            // TODO: apply tags
         }
 
         private uint8[] serialize_x_manuscript (Gtk.TextIter start, Gtk.TextIter end) throws IOError {
             StringBuilder buffer = new StringBuilder ();
-            SList<SerializableTextTag> tag_map = new SList<SerializableTextTag> ();
             Gee.ArrayList<SerializableTextTag> tag_stack = new Gee.ArrayList<SerializableTextTag> ();
 
             Gtk.TextIter cursor;
@@ -214,26 +206,6 @@ namespace Manuscript.Models {
                 cursor.forward_char ();
                 counter ++;
             }
-
-            // Check if the last iter closes some tags
-            //  serialize_check_closing_tags (counter, buffer, cursor, tag_stack);
-
-            // Serialize the tags into a byte buffer
-            MemoryOutputStream tag_map_stream = new MemoryOutputStream (null, GLib.realloc, GLib.free);
-            size_t tag_bytes_written = 0;
-            size_t tag_total_bytes = 0;
-
-            tag_map.@foreach (tag => {
-                try {
-                    tag_map_stream.write_all (tag.serialize (), out tag_bytes_written);
-                } catch (IOError err) {
-                    critical (err.message);
-                }
-                tag_total_bytes += tag_bytes_written;
-            });
-            tag_map_stream.close ();
-            var tags_data = tag_map_stream.steal_data ();
-            tags_data.length = (int) tag_map_stream.get_data_size ();
 
             // Write table of contents
             TextBufferPrelude prelude = TextBufferPrelude () {
