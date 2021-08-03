@@ -172,12 +172,13 @@ namespace Manuscript.Models {
             var data = read_until (dis);
             dis.close ();
 
-            Lib.MarkupParser parser = new Lib.MarkupParser (this);
+            Lib.RichTextParser parser = new Lib.RichTextParser (this);
             parser.parse ((string) data);
         }
 
         private uint8[] serialize_x_manuscript (Gtk.TextIter start, Gtk.TextIter end) throws IOError {
             StringBuilder buffer = new StringBuilder ();
+
             Gee.ArrayList<SerializableTextTag> tag_stack = new Gee.ArrayList<SerializableTextTag> ();
 
             Gtk.TextIter cursor;

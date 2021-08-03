@@ -23,12 +23,12 @@ namespace Manuscript.Models.Lib {
     const unichar CLOSE_TAG_TOKEN = '>';
     const unichar TAG_ESCAPE_TOKEN = '&';
 
-    public class MarkupParser : Object {
+    public class RichTextParser : Object {
         public virtual signal void parse_end (ulong millis) {
             debug ("Parsing done in %s milliseconds", millis.to_string ());
         }
         private Timer bench_timer;
-        private SList<unichar> parse_tokens;
+        private StringBuilder parse_tokens;
         private SList<Gtk.TextTag> tag_stack;
         private TextBuffer buffer;
         private Gee.HashMap<string, Gtk.TextMark> appended_marks;
@@ -37,17 +37,17 @@ namespace Manuscript.Models.Lib {
         private int text_index;
         private int buf_index;
 
-        public MarkupParser (TextBuffer buffer) {
+        public RichTextParser (TextBuffer buffer) {
             this.buffer = buffer;
         }
 
         construct {
             this.bench_timer = new Timer ();
-            this.text_index = -1;
+            this.text_index = 0;
             this.buf_index = 0;
             this.appended_marks = new Gee.HashMap<string, Gtk.TextMark> ();
             this.closing_marks = new Gee.HashMap<string, Gtk.TextMark> ();
-            this.parse_tokens = new SList<unichar> ();
+            this.parse_tokens = new StringBuilder.sized (100);
             this.tag_stack = new SList<Gtk.TextTag> ();
         }
 
@@ -102,14 +102,14 @@ namespace Manuscript.Models.Lib {
                     mark_at_buffer_position (last.name, false);
                 } else {
                     // This is a <tag>
-                    var tag = buffer.tag_table.lookup (consume_token_list (ref peek_tokens));
+                    var tag = buffer.tag_table.lookup (peek_tokens);
                     if (tag != null) {
                         tag_stack.append (tag);
                         mark_at_buffer_position (tag.name, true);
                     }
                 }
             } else {
-                parse_tokens.append (ch);
+                parse_tokens.append_c ((char) ch);
                 buf_index ++;
             }
         }
@@ -139,58 +139,49 @@ namespace Manuscript.Models.Lib {
         }
 
         private bool is_end () {
-            return text_index >= text.length - 1;
+            return text_index > text.length - 1;
         }
 
         /** Moves the parser to the next token in the text to parse */
         private unichar next () {
-            text_index ++;
+            //  text_index ++;
             unichar c;
             text.get_next_char (ref text_index, out c);
             return c;
         }
 
-        private SList<unichar> forward_until (unichar stop_mark) {
-            var peek_tokens = new SList<unichar> ();
+        private string forward_until (unichar stop_mark) {
+            var peek_tokens = new StringBuilder ();
             unichar peek_char = next (); 
             while (peek_char != CLOSE_TAG_TOKEN) {
-                peek_tokens.append (peek_char);
+                peek_tokens.insert_unichar (peek_tokens.len, peek_char);
                 peek_char = next ();
             }
 
-            return peek_tokens;
+            return peek_tokens.str;
         }
 
         /** Flushes parsed tokens to the TextBuffer */
         private void flush_tokens () {
             Gtk.TextIter cursor;
-            buffer.get_iter_at_offset (out cursor, buf_index);
-            string tokens = consume_token_list (ref parse_tokens);
+            buffer.get_end_iter (out cursor);
+            string tokens = parse_tokens.str;
             buffer.insert (ref cursor, tokens, tokens.length);
+            parse_tokens.erase ();
         }
 
         /**
          * Consumes `list` and creates a plain string from it
          */
-        private string consume_token_list (ref SList<unichar> list) {
-            StringBuilder acc = new StringBuilder.sized (list.length ());
-            list.@foreach (c => {
-                acc.append_unichar (c);
-            });
-
-            list = new SList<unichar> ();
-
-            string utf8s = (string) acc.str.to_utf8 ();
-            if (!utf8s.validate ()) {
-                warning ("String does not validate as utf8");
-            }
-
-            return utf8s;
+        private string consume_token_list (StringBuilder list) {
+            string value = list.str;
+            list.erase ();
+            return value;
         }
 
         private Gtk.TextIter iter_at_buffer_position () {
             Gtk.TextIter cursor;
-            buffer.get_iter_at_offset (out cursor, buf_index);
+            buffer.get_end_iter (out cursor);
             return cursor;
         }
 
