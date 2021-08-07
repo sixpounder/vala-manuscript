@@ -71,12 +71,14 @@ namespace Manuscript.Models.Lib {
 
             appended_marks.keys.foreach (key => {
                 var mark_open = appended_marks.get (key);
-                var mark_close = closing_marks.get (key);
+                var mark_close = closing_marks.get (key + "-c");
 
                 if (mark_open != null && mark_close != null) {
                     Gtk.TextIter open_iter, close_iter;
-                    buffer.get_iter_at_mark (out open_iter, mark_open);
-                    buffer.get_iter_at_mark (out close_iter, mark_close);
+                    int pos_open = mark_open.get_data ("offset");
+                    int pos_close = mark_close.get_data ("offset");
+                    buffer.get_iter_at_offset (out open_iter, pos_open);
+                    buffer.get_iter_at_offset (out close_iter, pos_close);
                     string tag_name = mark_open.get_data ("name");
                     buffer.apply_tag_by_name (tag_name, open_iter, close_iter);
                 }
@@ -91,27 +93,40 @@ namespace Manuscript.Models.Lib {
         }
 
         private void token (unichar ch) {
-            if (ch == OPEN_TAG_TOKEN && peek_behind () != TAG_ESCAPE_TOKEN) {
+            if (
+                ch == OPEN_TAG_TOKEN &&
+                peek_behind () != null &&
+                peek_behind () != TAG_ESCAPE_TOKEN
+            ) {
                 flush_tokens ();
                 bool is_tag_end = peek () == '/';
-                var peek_tokens = forward_until (CLOSE_TAG_TOKEN);
                 if (is_tag_end) {
                     // This is a </tag>
-                    var last = tag_stack.nth_data (tag_stack.length () - 1);
-                    tag_stack.remove (last);
-                    mark_at_buffer_position (last.name, false);
+                    tag_end ();
                 } else {
                     // This is a <tag>
-                    var tag = buffer.tag_table.lookup (peek_tokens);
-                    if (tag != null) {
-                        tag_stack.append (tag);
-                        mark_at_buffer_position (tag.name, true);
-                    }
+                    tag_start ();
                 }
             } else {
                 parse_tokens.append_c ((char) ch);
                 buf_index ++;
             }
+        }
+
+        private void tag_start () {
+            var peek_tokens = forward_until (CLOSE_TAG_TOKEN);
+            var tag = buffer.tag_table.lookup (peek_tokens);
+            if (tag != null) {
+                tag_stack.append (tag);
+                mark_tag_begin (tag);
+            }
+        }
+
+        private void tag_end () {
+            forward_until (CLOSE_TAG_TOKEN);
+            Gtk.TextTag tag = tag_stack.nth_data (tag_stack.length () - 1);
+            tag_stack.remove (tag);
+            mark_tag_end (tag);
         }
 
         private uint depth {
@@ -122,8 +137,8 @@ namespace Manuscript.Models.Lib {
 
         /** Peeks at the next token, without advancing any counter */
         private unichar? peek () {
-            if (text_index < text.length - 2) {
-                return text[text_index + 1];
+            if (text_index <= text.length - 1) {
+                return text[text_index]; // text_index always points the the NEXT char, so no need to decrement
             } else {
                 return null;
             }
@@ -152,7 +167,7 @@ namespace Manuscript.Models.Lib {
 
         private string forward_until (unichar stop_mark) {
             var peek_tokens = new StringBuilder ();
-            unichar peek_char = next (); 
+            unichar peek_char = next ();
             while (peek_char != CLOSE_TAG_TOKEN) {
                 peek_tokens.insert_unichar (peek_tokens.len, peek_char);
                 peek_char = next ();
@@ -170,33 +185,34 @@ namespace Manuscript.Models.Lib {
             parse_tokens.erase ();
         }
 
-        /**
-         * Consumes `list` and creates a plain string from it
-         */
-        private string consume_token_list (StringBuilder list) {
-            string value = list.str;
-            list.erase ();
-            return value;
-        }
-
-        private Gtk.TextIter iter_at_buffer_position () {
+        private Gtk.TextIter iter_at_buffer_position (int position) {
             Gtk.TextIter cursor;
-            buffer.get_end_iter (out cursor);
+            buffer.get_iter_at_offset (out cursor, position);
             return cursor;
         }
 
-        private void mark_at_buffer_position (string? name, bool open = true) {
-            var iter = iter_at_buffer_position ();
-            var key = @"$(name)-$(depth)-$(open == true ? "open" : "close")";
-            var mark = buffer.create_mark (key, iter, open);
-            mark.set_data ("name", name);
-            mark.set_data ("open", open);
-            mark.set_data ("close", !open);
-            if (open) {
-                appended_marks.set (key, mark);
-            } else {
-                closing_marks.set (key, mark);
-            }
+        private void mark_tag_begin (Gtk.TextTag tag) {
+            var iter = iter_at_buffer_position (buf_index);
+            var key = @"$(tag.name)-$(depth)-$(appended_marks.size)";
+            var mark = buffer.create_mark (key, iter, true);
+            mark.set_data ("name", tag.name);
+            mark.set_data ("depth", depth);
+            mark.set_data ("open", true);
+            mark.set_data ("close", false);
+            mark.set_data ("offset", buf_index);
+            appended_marks.set (key, mark);
+        }
+
+        private void mark_tag_end (Gtk.TextTag tag) {
+            var iter = iter_at_buffer_position (buf_index);
+            var key = @"$(tag.name)-$(depth + 1)-$(closing_marks.size)-c";
+            var mark = buffer.create_mark (key, iter, false);
+            mark.set_data ("name", tag.name);
+            mark.set_data ("depth", depth);
+            mark.set_data ("open", false);
+            mark.set_data ("close", true);
+            mark.set_data ("offset", buf_index);
+            closing_marks.set (key, mark);
         }
     }
 }
