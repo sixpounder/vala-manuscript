@@ -90,18 +90,18 @@ namespace Manuscript.Widgets {
         private void connect_events () {
             chunk.notify["title"].connect (update_ui);
             chunk.notify["locked"].connect (update_ui);
-            editor.mark_set.connect (update_format_toolbar);
+            //  editor.mark_set.connect (update_format_toolbar);
             parent_window.document_manager.document.settings.notify.connect (update_ui);
 
-            bold_activate_event = format_toolbar.format_bold.toggled.connect (() => {
+            bold_activate_event = format_toolbar.format_bold.clicked.connect (() => {
                 apply_format (Models.TAG_NAME_BOLD);
             });
 
-            italic_activate_event = format_toolbar.format_italic.toggled.connect (() => {
+            italic_activate_event = format_toolbar.format_italic.clicked.connect (() => {
                 apply_format (Models.TAG_NAME_ITALIC);
             });
 
-            underline_activate_event = format_toolbar.format_underline.toggled.connect (() => {
+            underline_activate_event = format_toolbar.format_underline.clicked.connect (() => {
                 apply_format (Models.TAG_NAME_UNDERLINE);
             });
 

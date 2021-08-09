@@ -114,6 +114,9 @@ namespace Manuscript.Models {
     public class TextBuffer : Gtk.SourceBuffer {
         private Gdk.Atom serialize_atom;
         private Gdk.Atom deserialize_atom;
+        private bool dirty = false;
+        private uint8[] raw_content;
+
         public TextBuffer () {
             Object (
                 tag_table: new XManuscriptTagTable ()
@@ -123,6 +126,20 @@ namespace Manuscript.Models {
         construct {
             serialize_atom = register_serialize_tagset ("x-manuscript");
             deserialize_atom = register_deserialize_tagset ("x-manuscript");
+
+            connect_events ();
+        }
+
+        private void connect_events () {
+            changed.connect (on_buffer_changed);
+            apply_tag.connect (on_buffer_changed);
+            remove_tag.connect (on_buffer_changed);
+        }
+
+        private void diconnect_events () {
+            changed.disconnect (on_buffer_changed);
+            apply_tag.disconnect (on_buffer_changed);
+            remove_tag.disconnect (on_buffer_changed);
         }
 
         public Gdk.Atom get_manuscript_serialize_format () {
@@ -131,6 +148,10 @@ namespace Manuscript.Models {
 
         public Gdk.Atom get_manuscript_deserialize_format () {
             return deserialize_atom;
+        }
+
+        private void on_buffer_changed () {
+            dirty = true;
         }
 
         public new uint8[] serialize () throws IOError {
@@ -147,14 +168,23 @@ namespace Manuscript.Models {
              */
             //  return serialize (this, atom, start, end);
 
-            Gtk.TextIter start, end;
-            get_start_iter (out start);
-            get_end_iter (out end);
+            // Serialize only if needed
+            if (dirty) {
+                Gtk.TextIter start, end;
+                get_start_iter (out start);
+                get_end_iter (out end);
+                raw_content = serialize_x_manuscript (start, end);
+                dirty = false;
+            }
 
-            return serialize_x_manuscript (start, end);
+            return raw_content;
         }
 
         public void deserialize_manuscript (uint8[] raw_content) throws Error {
+            this.raw_content = raw_content;
+
+            diconnect_events ();
+
             size_t prelude_size = sizeof (TextBufferPrelude);
 
             InputStream @is = new MemoryInputStream.from_data (raw_content);
@@ -174,6 +204,10 @@ namespace Manuscript.Models {
 
             Lib.RichTextParser parser = new Lib.RichTextParser (this);
             parser.parse ((string) data);
+
+            dirty = false;
+
+            connect_events ();
         }
 
         private uint8[] serialize_x_manuscript (Gtk.TextIter start, Gtk.TextIter end) throws IOError {
@@ -198,15 +232,17 @@ namespace Manuscript.Models {
                         }
                     });
                 }
+                serialize_check_closing_tags (counter, buffer, cursor, tag_stack);
 
                 // Append the character verbatim
                 buffer.append_unichar (cursor.get_char ());
 
-                serialize_check_closing_tags (counter, buffer, cursor, tag_stack);
 
                 cursor.forward_char ();
                 counter ++;
             }
+
+            serialize_check_closing_tags (counter, buffer, cursor, tag_stack);
 
             // Write table of contents
             TextBufferPrelude prelude = TextBufferPrelude () {

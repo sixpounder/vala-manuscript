@@ -31,8 +31,6 @@ namespace Manuscript.Models.Lib {
         private StringBuilder parse_tokens;
         private SList<Gtk.TextTag> tag_stack;
         private TextBuffer buffer;
-        private Gee.HashMap<string, Gtk.TextMark> appended_marks;
-        private Gee.HashMap<string, Gtk.TextMark> closing_marks;
         private string? text;
         private int text_index;
         private int buf_index;
@@ -45,8 +43,6 @@ namespace Manuscript.Models.Lib {
             this.bench_timer = new Timer ();
             this.text_index = 0;
             this.buf_index = 0;
-            this.appended_marks = new Gee.HashMap<string, Gtk.TextMark> ();
-            this.closing_marks = new Gee.HashMap<string, Gtk.TextMark> ();
             this.parse_tokens = new StringBuilder.sized (100);
             this.tag_stack = new SList<Gtk.TextTag> ();
         }
@@ -66,25 +62,6 @@ namespace Manuscript.Models.Lib {
 
             // Flush any remaining tokens
             flush_tokens ();
-
-            // Apply tags to buffer
-
-            appended_marks.keys.foreach (key => {
-                var mark_open = appended_marks.get (key);
-                var mark_close = closing_marks.get (key + "-c");
-
-                if (mark_open != null && mark_close != null) {
-                    Gtk.TextIter open_iter, close_iter;
-                    int pos_open = mark_open.get_data ("offset");
-                    int pos_close = mark_close.get_data ("offset");
-                    buffer.get_iter_at_offset (out open_iter, pos_open);
-                    buffer.get_iter_at_offset (out close_iter, pos_close);
-                    string tag_name = mark_open.get_data ("name");
-                    buffer.apply_tag_by_name (tag_name, open_iter, close_iter);
-                }
-
-                return true;
-            });
 
             this.bench_timer.stop ();
             ulong micros;
@@ -109,7 +86,6 @@ namespace Manuscript.Models.Lib {
                 }
             } else {
                 parse_tokens.append_c ((char) ch);
-                buf_index ++;
             }
         }
 
@@ -118,7 +94,7 @@ namespace Manuscript.Models.Lib {
             var tag = buffer.tag_table.lookup (peek_tokens);
             if (tag != null) {
                 tag_stack.append (tag);
-                mark_tag_begin (tag);
+                //  mark_tag_begin (tag);
             }
         }
 
@@ -126,7 +102,7 @@ namespace Manuscript.Models.Lib {
             forward_until (CLOSE_TAG_TOKEN);
             Gtk.TextTag tag = tag_stack.nth_data (tag_stack.length () - 1);
             tag_stack.remove (tag);
-            mark_tag_end (tag);
+            //  mark_tag_end (tag);
         }
 
         private uint depth {
@@ -178,41 +154,25 @@ namespace Manuscript.Models.Lib {
 
         /** Flushes parsed tokens to the TextBuffer */
         private void flush_tokens () {
+            string tokens = parse_tokens.str;
+            int start_offset = buf_index;
+            int end_offset = buf_index + tokens.length;
+
             Gtk.TextIter cursor;
             buffer.get_end_iter (out cursor);
-            string tokens = parse_tokens.str;
+
             buffer.insert (ref cursor, tokens, tokens.length);
+            buf_index += tokens.length;
+
+            Gtk.TextIter tag_apply_start, tag_apply_end;
+            buffer.get_iter_at_offset (out tag_apply_start, start_offset);
+            buffer.get_iter_at_offset (out tag_apply_end, end_offset);
+
+            tag_stack.@foreach(tag => {
+                buffer.apply_tag (tag, tag_apply_start, tag_apply_end);
+            });
+
             parse_tokens.erase ();
-        }
-
-        private Gtk.TextIter iter_at_buffer_position (int position) {
-            Gtk.TextIter cursor;
-            buffer.get_iter_at_offset (out cursor, position);
-            return cursor;
-        }
-
-        private void mark_tag_begin (Gtk.TextTag tag) {
-            var iter = iter_at_buffer_position (buf_index);
-            var key = @"$(tag.name)-$(depth)-$(appended_marks.size)";
-            var mark = buffer.create_mark (key, iter, true);
-            mark.set_data ("name", tag.name);
-            mark.set_data ("depth", depth);
-            mark.set_data ("open", true);
-            mark.set_data ("close", false);
-            mark.set_data ("offset", buf_index);
-            appended_marks.set (key, mark);
-        }
-
-        private void mark_tag_end (Gtk.TextTag tag) {
-            var iter = iter_at_buffer_position (buf_index);
-            var key = @"$(tag.name)-$(depth + 1)-$(closing_marks.size)-c";
-            var mark = buffer.create_mark (key, iter, false);
-            mark.set_data ("name", tag.name);
-            mark.set_data ("depth", depth);
-            mark.set_data ("open", false);
-            mark.set_data ("close", true);
-            mark.set_data ("offset", buf_index);
-            closing_marks.set (key, mark);
         }
     }
 }
