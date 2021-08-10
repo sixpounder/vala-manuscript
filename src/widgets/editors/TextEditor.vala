@@ -19,6 +19,7 @@
 
 namespace Manuscript.Widgets {
     public class TextEditor : Gtk.SourceView, Protocols.ChunkEditor {
+        public signal void selection_changed (Gtk.TextIter start, Gtk.TextIter end, bool collapsed);
         private Gtk.SourceSearchContext search_context = null;
         private weak Models.TextChunk _chunk;
         private Gtk.CssProvider font_style_provider;
@@ -68,11 +69,14 @@ namespace Manuscript.Widgets {
             settings.change.connect (on_setting_change);
             destroy.connect (on_destroy);
             populate_popup.connect (populate_context_menu);
-            buffer.mark_set.connect (on_mark_set);
+            //  buffer.mark_set.connect (on_mark_set);
         }
 
-        private void on_mark_set (Gtk.TextIter location, Gtk.TextMark mark) {
-            mark_set (location, mark);
+        private void on_selection_changed () {
+            Gtk.TextIter start, end;
+            buffer.get_selection_bounds (out start, out end);
+            bool collapsed = start == end;
+            selection_changed (start, end, collapsed);
         }
 
         private void populate_context_menu (Gtk.Menu menu) {
@@ -138,7 +142,7 @@ namespace Manuscript.Widgets {
             if (buffer != null) {
                 if (settings.focus_mode) {
                     focus_mode_update_highlight ();
-                    buffer.notify["cursor-position"].connect (focus_mode_update_highlight);
+                    buffer.notify["cursor-position"].connect (on_cursor_position_change);
                 } else {
                     Gtk.TextIter start, end;
                     string focused_tag;
@@ -153,7 +157,7 @@ namespace Manuscript.Widgets {
                     buffer.get_bounds (out start, out end);
                     buffer.remove_tag (buffer.tag_table.lookup (focused_tag), start, end);
                     buffer.remove_tag (buffer.tag_table.lookup (dimmed_tag), start, end);
-                    buffer.notify["cursor-position"].disconnect (focus_mode_update_highlight);
+                    buffer.notify["cursor-position"].disconnect (on_cursor_position_change);
                 }
             } else {
                 warning ("Settings not updated, current buffer is null");
@@ -161,7 +165,7 @@ namespace Manuscript.Widgets {
         }
 
         protected void unselect (Gtk.TextBuffer buffer) {
-            if (buffer.has_selection) {}
+            on_selection_changed ();
         }
 
 #if FEATURE_FOOTNOTES
@@ -173,6 +177,11 @@ namespace Manuscript.Widgets {
             chunk.add_artifact (note);
         }
 #endif
+
+        private void on_cursor_position_change () {
+            focus_mode_update_highlight ();
+            on_selection_changed ();
+        }
 
         /**
          * Updates text iters to highlight the current sentence and dim other parts.

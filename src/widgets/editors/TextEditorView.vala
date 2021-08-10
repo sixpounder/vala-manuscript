@@ -90,7 +90,7 @@ namespace Manuscript.Widgets {
         private void connect_events () {
             chunk.notify["title"].connect (update_ui);
             chunk.notify["locked"].connect (update_ui);
-            //  editor.mark_set.connect (update_format_toolbar);
+            editor.selection_changed.connect (update_format_toolbar);
             parent_window.document_manager.document.settings.notify.connect (update_ui);
 
             bold_activate_event = format_toolbar.format_bold.clicked.connect (() => {
@@ -136,10 +136,8 @@ namespace Manuscript.Widgets {
             reflect_document_settings ();
         }
 
-        private void update_format_toolbar (Gtk.TextIter location, Gtk.TextMark mark) {
-            Gtk.TextIter start, end;
-            editor.buffer.get_selection_bounds (out start, out end);
-            GLib.SList<weak Gtk.TextTag> tags_at_selection_start = start.get_tags ();
+        private void update_format_toolbar (Gtk.TextIter selection_start, Gtk.TextIter selection_end) {
+            GLib.SList<weak Gtk.TextTag> tags_at_selection_start = selection_start.get_tags ();
 
             format_toolbar.format_bold.active = false;
             format_toolbar.format_italic.active = false;
