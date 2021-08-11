@@ -50,7 +50,8 @@ namespace Manuscript.Widgets {
                 chunk: chunk,
                 editable: !chunk.locked,
                 selectable: true,
-                name: chunk.title
+                name: chunk.title,
+                markup: null
             );
         }
 
@@ -146,11 +147,11 @@ namespace Manuscript.Widgets {
             if (chunk.excluded) {
                 exclude_menu_entry.hide ();
                 include_menu_entry.show ();
-                markup = @"<s>$(chunk.title.escape (null))</s>";
+                markup = @"<s>$(GLib.Markup.escape_text (chunk.title))</s>";
             } else {
                 exclude_menu_entry.show ();
                 include_menu_entry.hide ();
-                markup = null;
+                markup = GLib.Markup.escape_text (chunk.title);
             }
             editable = !chunk.locked;
         }
