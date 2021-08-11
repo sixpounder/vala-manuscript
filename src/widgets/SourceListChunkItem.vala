@@ -35,7 +35,11 @@ namespace Manuscript.Widgets {
         protected Gtk.Menu? item_menu;
         protected Gtk.MenuItem lock_menu_entry;
         protected Gtk.MenuItem unlock_menu_entry;
+        protected Gtk.MenuItem include_menu_entry;
+        protected Gtk.MenuItem exclude_menu_entry;
+        protected Gtk.MenuItem delete_menu_entry;
         protected Gtk.Image lock_icon;
+        protected Gtk.Image excluded_icon;
 
         public SourceListChunkItem.with_chunk (Models.DocumentChunk chunk) {
             this (chunk);
@@ -52,6 +56,8 @@ namespace Manuscript.Widgets {
 
         construct {
             item_menu = new Gtk.Menu ();
+
+            // Lock / Unlock entry
             lock_menu_entry = new Gtk.MenuItem.with_label (_("Lock"));
             lock_menu_entry.activate.connect (() => {
                 chunk.locked = true;
@@ -64,19 +70,39 @@ namespace Manuscript.Widgets {
             });
             unlock_menu_entry.no_show_all = true;
 
-            var delete_menu_entry = new Gtk.MenuItem.with_label (_("Remove"));
+            // Include / Exclude from export
+            include_menu_entry = new Gtk.MenuItem.with_label (_("Include in export"));
+            include_menu_entry.activate.connect (() => {
+                chunk.excluded = false;
+            });
+            include_menu_entry.no_show_all = true;
+
+            exclude_menu_entry = new Gtk.MenuItem.with_label (_("Exclude from export"));
+            exclude_menu_entry.activate.connect (() => {
+                chunk.excluded = true;
+            });
+            exclude_menu_entry.no_show_all = true;
+
+            delete_menu_entry = new Gtk.MenuItem.with_label (_("Remove"));
             delete_menu_entry.activate.connect (() => {
                 item_should_be_deleted (this);
             });
+            delete_menu_entry.get_style_context ().add_class (Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
 
             item_menu.append (lock_menu_entry);
             item_menu.append (unlock_menu_entry);
+            item_menu.append (include_menu_entry);
+            item_menu.append (exclude_menu_entry);
             item_menu.append (delete_menu_entry);
             item_menu.show_all ();
 
             lock_icon = new Gtk.Image ();
             lock_icon.gicon = new ThemedIcon ("changes-prevent");
             lock_icon.pixel_size = Gtk.IconSize.LARGE_TOOLBAR;
+
+            excluded_icon = new Gtk.Image ();
+            excluded_icon.gicon = new ThemedIcon ("view-private");
+            excluded_icon.pixel_size = Gtk.IconSize.LARGE_TOOLBAR;
 
             edited.connect (on_edited);
             chunk.notify.connect (on_chunk_changed);
@@ -99,6 +125,7 @@ namespace Manuscript.Widgets {
 
         private void on_edited (string new_name) {
             chunk.title = new_name;
+            update_ui ();
         }
 
         private void on_chunk_changed () {
@@ -114,6 +141,16 @@ namespace Manuscript.Widgets {
                 lock_menu_entry.show ();
                 unlock_menu_entry.hide ();
                 icon = null;
+            }
+
+            if (chunk.excluded) {
+                exclude_menu_entry.hide ();
+                include_menu_entry.show ();
+                markup = @"<s>$(chunk.title.escape (null))</s>";
+            } else {
+                exclude_menu_entry.show ();
+                include_menu_entry.hide ();
+                markup = null;
             }
             editable = !chunk.locked;
         }

@@ -49,8 +49,18 @@ namespace Manuscript.Models {
         public virtual ChunkType kind { get; protected set; }
         public virtual string title { get; set; }
         public virtual string uuid { get; set; }
+        public virtual bool excluded { get; set; }
         public virtual bool locked { get; set; }
         public virtual bool has_changes { get; internal set; }
+
+        public bool included {
+            get {
+                return !excluded;
+            }
+            set {
+                excluded = !value;
+            }
+        }
 
         public static DocumentChunk new_for_document (Document document, ChunkType kind) {
             DocumentChunk new_chunk;
@@ -92,6 +102,12 @@ namespace Manuscript.Models {
                 chunk.locked = false;
             }
 
+            if (obj.has_member ("exclude")) {
+                chunk.excluded = obj.get_boolean_member ("exclude");
+            } else {
+                chunk.excluded = false;
+            }
+
             if (obj.has_member ("title")) {
                 chunk.title = obj.get_string_member ("title");
             } else {
@@ -128,6 +144,7 @@ namespace Manuscript.Models {
             node.set_int_member ("chunk_type", (int64) kind);
             node.set_string_member ("title", title);
             node.set_boolean_member ("locked", locked);
+            node.set_boolean_member ("exclude", excluded);
 
             return node;
         }

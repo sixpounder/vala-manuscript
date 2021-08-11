@@ -235,7 +235,7 @@ namespace Manuscript {
                 }
                 return false;
             } else {
-                if (quit_dialog ()) {
+                if (document_manager.document.has_changes && quit_dialog ()) {
                     return false;
                 } else {
                     return true;

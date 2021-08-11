@@ -50,7 +50,9 @@ namespace Manuscript.Compilers {
             var chapters = document.iter_chunks_by_kind (Models.ChunkType.CHAPTER);
             chapters.@foreach ((c) => {
                 try {
-                    render_chunk (c);
+                    if (c.included) {
+                        render_chunk (c);
+                    }
                 } catch (CompilerError e) {
                     set_error (e);
                 }

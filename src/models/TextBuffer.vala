@@ -44,44 +44,6 @@ namespace Manuscript.Models {
         public string tag_close () {
             return @"</$name>";
         }
-
-        //  public size_t get_bytes_length () {
-        //      return (sizeof (uint64) * 3) + (name.length * sizeof (uint8)) + sizeof (int32);
-        //      //     ^ header, start, end     ^ length of the name string     ^ priority
-        //  }
-
-        //  public uint8[] serialize () throws IOError {
-        //      MemoryOutputStream stream = new MemoryOutputStream (null);
-        //      DataOutputStream os = new DataOutputStream (stream);
-
-        //      os.put_uint64 (name.length);
-        //      os.put_string (name);
-        //      os.put_uint64 (start);
-        //      os.put_uint64 (end);
-
-        //      stream.close ();
-        //      uint8[] data = stream.steal_data ();
-        //      data.length = (int) stream.get_data_size ();
-
-        //      return data;
-        //  }
-
-        //  public static SerializableTextTag from_reader (InputStream stream) throws Error {
-        //      assert (!stream.is_closed ());
-        //      DataInputStream dis = new DataInputStream (stream);
-        //      size_t bytes_read;
-        //      var obj = new SerializableTextTag ();
-        //      var expected_name_length = dis.read_uint64 ();
-        //      uint8[] name_buffer = new uint8[expected_name_length];
-        //      dis.read_all (name_buffer, out bytes_read);
-        //      obj.name = (string)name_buffer;
-        //      assert (obj.name.length == expected_name_length);
-        //      obj.start = dis.read_uint64 ();
-        //      obj.end = dis.read_uint64 ();
-        //      obj.priority = dis.read_int32 ();
-
-        //      return obj;
-        //  }
     }
 
     struct TextBufferPrelude {

@@ -76,7 +76,9 @@ namespace Manuscript.Compilers {
             var chapters = document.iter_chunks_by_kind (Models.ChunkType.CHAPTER);
             chapters.@foreach ((c) => {
                 try {
-                    render_chunk (c);
+                    if (c.included) {
+                        render_chunk (c);
+                    }
                 } catch (CompilerError e) {
                     runtime_compile_error = e;
                 }
@@ -92,7 +94,9 @@ namespace Manuscript.Compilers {
                 render_notes_cover ();
                 notes.@foreach ((c) => {
                     try {
-                        render_chunk (c);
+                        if (c.included) {
+                            render_chunk (c);
+                        }
                     } catch (CompilerError e) {
                         runtime_compile_error = e;
                     }
@@ -109,7 +113,9 @@ namespace Manuscript.Compilers {
                 render_character_sheets_cover ();
                 character_sheets.@foreach ((c) => {
                     try {
-                        render_chunk (c);
+                        if (c.included) {
+                            render_chunk (c);
+                        }
                     } catch (CompilerError e) {
                         runtime_compile_error = e;
                     }
@@ -252,6 +258,9 @@ namespace Manuscript.Compilers {
             bool on_title_page = true;
             var layout_width = surface_width;
             var layout_height = surface_height;
+            //  int paragraph_spacing = (int) Math.floor (
+            //      (chunk.parent_document.settings.paragraph_spacing * POINT_SCALE)
+            //  );
 
             ctx.set_source_rgb (1, 1, 1);
             ctx.fill_preserve ();
@@ -277,11 +286,10 @@ namespace Manuscript.Compilers {
             ));
             title_layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
             title_layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
-            // layout.set_line_spacing((int) chunk.parent_document.settings.line_spacing);
             title_layout.set_ellipsize (Pango.EllipsizeMode.NONE);
             title_layout.set_wrap (Pango.WrapMode.WORD);
-            //  title_layout.set_text (chunk.title, chunk.title.length);
-            var title_markup = @"<b>$(chunk.title)</b>";
+
+            string title_markup = @"<b>$(chunk.title)</b>";
             title_layout.set_markup (title_markup, title_markup.length);
             title_layout.context_changed ();
 
@@ -326,11 +334,14 @@ namespace Manuscript.Compilers {
             uint line_counter = 0;
 
             StringBuilder markup_buffer = new StringBuilder.sized (max_text_length);
-            var layout = create_paragraph_layout (chunk);
+            var layout = create_page_layout (chunk);
 
             while (!cursor.is_end ()) {
                 var line_count_limit = on_title_page ? max_lines_per_page_with_title : max_lines_per_page;
                 if (line_counter > line_count_limit) {
+
+                    // If page must end, but cursor is inside a word, go back until word begin
+                    // so we can 'move' it to the next page
                     if (cursor.inside_word () || cursor.ends_word ()) {
                         uint undo_chars = 0;
                         while (!cursor.starts_word ()) {
@@ -341,14 +352,14 @@ namespace Manuscript.Compilers {
                         layout.set_markup (markup_buffer.str, markup_buffer.str.length);
                     }
 
-                    // Show current layout and reset it
+                    // Show current layout and reset it, moving to new page
                     Pango.cairo_show_layout (ctx, layout);
                     mark_page_number ();
                     new_page ();
                     markup_buffer = new StringBuilder.sized (max_text_length);
                     on_title_page = false;
                     line_counter = 0;
-                    layout = create_paragraph_layout (chunk);
+                    layout = create_page_layout (chunk);
                 }
 
                 if (cursor.starts_tag (null)) {
@@ -365,7 +376,11 @@ namespace Manuscript.Compilers {
                             cursor = step;
                         }
                     });
-                } else if (cursor.starts_word ()) {
+                }
+
+                // If cursor is at a natural word start, read the whole word.
+                // If not, append a single char to the buffer
+                if (cursor.starts_word ()) {
                     Gtk.TextIter word_start, word_end;
                     word_start = cursor;
                     word_end = word_start;
@@ -377,12 +392,16 @@ namespace Manuscript.Compilers {
                     unichar ch = cursor.get_char ();
                     markup_buffer.append_unichar (ch);
                     cursor.forward_char ();
+                    //  if (ch == '\n') {
+                    //      ctx.rel_move_to (0, paragraph_spacing);
+                    //  }
                 }
 
                 layout.set_markup (markup_buffer.str, markup_buffer.str.length);
                 line_counter = layout.get_line_count ();
             }
 
+            // Flush any remaining characters in the buffer
             if (markup_buffer.data.length != 0) {
                 Pango.cairo_show_layout (ctx, layout);
                 mark_page_number ();
@@ -587,9 +606,9 @@ namespace Manuscript.Compilers {
             page_counter ++;
         }
 
-        private Pango.Layout create_paragraph_layout (Models.DocumentChunk chunk) {
+        private Pango.Layout create_page_layout (Models.DocumentChunk chunk) {
             Pango.Layout layout = new Pango.Layout (pango_context);
-            var layout_line_spacing = (int) Math.floor (
+            int layout_line_spacing = (int) Math.floor (
                 (chunk.parent_document.settings.line_spacing * POINT_SCALE * Pango.SCALE)
             );
 

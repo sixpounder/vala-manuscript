@@ -34,6 +34,8 @@ namespace Manuscript.Widgets {
         private ulong italic_activate_event;
         private ulong underline_activate_event;
 
+        private bool enable_format_toolbar = false;
+
         public TextEditorView (Manuscript.Window parent_window, Models.DocumentChunk chunk) {
             Object (
                 orientation: Gtk.Orientation.VERTICAL,
@@ -73,11 +75,15 @@ namespace Manuscript.Widgets {
             status_bar.height_request = 50;
             scrolled_container.add (editor);
 #if GTK_4
-            append (format_toolbar);
+            if (enable_format_toolbar) {
+                append (format_toolbar);
+            }
             append (scrolled_container);
             append (status_bar);
 #else
-            pack_start (format_toolbar, false, true, 0);
+            if (enable_format_toolbar) {
+                pack_start (format_toolbar, false, true, 0);
+            }
             pack_start (scrolled_container);
             pack_start (status_bar, false, true, 0);
 #endif
@@ -90,20 +96,23 @@ namespace Manuscript.Widgets {
         private void connect_events () {
             chunk.notify["title"].connect (update_ui);
             chunk.notify["locked"].connect (update_ui);
-            editor.selection_changed.connect (update_format_toolbar);
             parent_window.document_manager.document.settings.notify.connect (update_ui);
 
-            bold_activate_event = format_toolbar.format_bold.clicked.connect (() => {
-                apply_format (Models.TAG_NAME_BOLD);
-            });
+            if (enable_format_toolbar) {
+                editor.selection_changed.connect (update_format_toolbar);
 
-            italic_activate_event = format_toolbar.format_italic.clicked.connect (() => {
-                apply_format (Models.TAG_NAME_ITALIC);
-            });
+                bold_activate_event = format_toolbar.format_bold.clicked.connect (() => {
+                    apply_format (Models.TAG_NAME_BOLD);
+                });
 
-            underline_activate_event = format_toolbar.format_underline.clicked.connect (() => {
-                apply_format (Models.TAG_NAME_UNDERLINE);
-            });
+                italic_activate_event = format_toolbar.format_italic.clicked.connect (() => {
+                    apply_format (Models.TAG_NAME_ITALIC);
+                });
+
+                underline_activate_event = format_toolbar.format_underline.clicked.connect (() => {
+                    apply_format (Models.TAG_NAME_UNDERLINE);
+                });
+            }
 
 #if FEATURE_FOOTNOTES
             format_toolbar.insert_note_button.clicked.connect (on_insert_note_clicked);

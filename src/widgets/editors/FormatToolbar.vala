@@ -35,12 +35,15 @@ namespace Manuscript.Widgets {
             Object (
                 orientation: Gtk.Orientation.HORIZONTAL,
                 homogeneous: false,
-                hexpand: true,
-                vexpand: false,
                 halign: Gtk.Align.START,
                 valign: Gtk.Align.CENTER,
+                hexpand: true,
+                vexpand: false,
+                border_width: 0,
                 spacing: 10,
                 height_request: 50,
+                margin_top: 10,
+                margin_bottom: 10,
                 buffer: buffer
             );
         }
