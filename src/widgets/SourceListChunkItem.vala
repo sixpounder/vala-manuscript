@@ -39,7 +39,6 @@ namespace Manuscript.Widgets {
         protected Gtk.MenuItem exclude_menu_entry;
         protected Gtk.MenuItem delete_menu_entry;
         protected Gtk.Image lock_icon;
-        protected Gtk.Image excluded_icon;
 
         public SourceListChunkItem.with_chunk (Models.DocumentChunk chunk) {
             this (chunk);
@@ -49,13 +48,13 @@ namespace Manuscript.Widgets {
             Object (
                 chunk: chunk,
                 editable: !chunk.locked,
-                selectable: true,
-                name: chunk.title,
-                markup: null
+                selectable: true
             );
         }
 
         construct {
+            update_title_and_tooltip ();
+
             item_menu = new Gtk.Menu ();
 
             // Lock / Unlock entry
@@ -101,10 +100,6 @@ namespace Manuscript.Widgets {
             lock_icon.gicon = new ThemedIcon ("changes-prevent");
             lock_icon.pixel_size = Gtk.IconSize.LARGE_TOOLBAR;
 
-            excluded_icon = new Gtk.Image ();
-            excluded_icon.gicon = new ThemedIcon ("view-private");
-            excluded_icon.pixel_size = Gtk.IconSize.LARGE_TOOLBAR;
-
             edited.connect (on_edited);
             chunk.notify.connect (on_chunk_changed);
 
@@ -133,26 +128,54 @@ namespace Manuscript.Widgets {
             update_ui ();
         }
 
+        private void update_title_and_tooltip () {
+            name = chunk.title;
+            markup = chunk.excluded ? @"<s>$(GLib.Markup.escape_text (chunk.title))</s>" : GLib.Markup.escape_text (chunk.title);
+
+            string tooltip_content = GLib.Markup.escape_text (chunk.title);
+            if (chunk.locked || chunk.excluded) {
+                tooltip_content += "\n\n<i>";
+                if (chunk.locked) {
+                    tooltip_content += _("Locked");
+                }
+                if (chunk.excluded) {
+                    if (chunk.locked) {
+                        tooltip_content += ", ";
+                    }
+                    tooltip_content += _("Exluded from export");
+                }
+
+                tooltip_content += "</i>";
+            }
+
+            tooltip = tooltip_content;
+        }
+
         private void update_ui () {
+            update_title_and_tooltip ();
+
             if (chunk.locked) {
                 lock_menu_entry.hide ();
                 unlock_menu_entry.show ();
-                icon = lock_icon.gicon;
             } else {
                 lock_menu_entry.show ();
                 unlock_menu_entry.hide ();
-                icon = null;
             }
 
             if (chunk.excluded) {
                 exclude_menu_entry.hide ();
                 include_menu_entry.show ();
-                markup = @"<s>$(GLib.Markup.escape_text (chunk.title))</s>";
             } else {
                 exclude_menu_entry.show ();
                 include_menu_entry.hide ();
-                markup = GLib.Markup.escape_text (chunk.title);
             }
+
+            if (chunk.locked) {
+                icon = lock_icon.gicon;
+            } else {
+                icon = null;
+            }
+
             editable = !chunk.locked;
         }
 
