@@ -363,17 +363,21 @@ namespace Manuscript.Compilers {
                 }
 
                 if (cursor.starts_tag (null)) {
-                    var tags = cursor.get_tags ();
+                    var tags = cursor.get_toggled_tags (true);
                     tags.foreach ((tag) => {
                         string tag_text = Compilers.Utils.tag_name_to_markup (tag.name);
                         if (tag_text != null) {
                             markup_buffer.append (@"<$(tag_text)>");
-                            Gtk.TextIter step = cursor;
-                            step.forward_to_tag_toggle (tag);
-                            string tagged_text = buffer.get_text (cursor, step, false);
-                            markup_buffer.append (tagged_text);
+                        }
+                    });
+                }
+
+                if (cursor.ends_tag (null)) {
+                    var tags = cursor.get_toggled_tags (false);
+                    tags.foreach ((tag) => {
+                        string tag_text = Compilers.Utils.tag_name_to_markup (tag.name);
+                        if (tag_text != null) {
                             markup_buffer.append (@"</$(tag_text)>");
-                            cursor = step;
                         }
                     });
                 }
@@ -392,9 +396,9 @@ namespace Manuscript.Compilers {
                     unichar ch = cursor.get_char ();
                     markup_buffer.append_unichar (ch);
                     cursor.forward_char ();
-                    //  if (ch == '\n') {
-                    //      ctx.rel_move_to (0, paragraph_spacing);
-                    //  }
+                    if (ch == '\n') {
+                        markup_buffer.append_c ('\n');
+                    }
                 }
 
                 layout.set_markup (markup_buffer.str, markup_buffer.str.length);

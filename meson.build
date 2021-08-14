@@ -25,9 +25,10 @@ add_project_arguments('-D', 'CHUNK_NOTE', language: 'vala')
 # add_project_arguments('-D', 'CHUNK_COVER', language: 'vala')
 
 # Uncomment each export compiler the application should support
+add_project_arguments('-D', 'EXPORT_COMPILER_PDF', language: 'vala')
 add_project_arguments('-D', 'EXPORT_COMPILER_MARKDOWN', language: 'vala')
 add_project_arguments('-D', 'EXPORT_COMPILER_PLAIN', language: 'vala')
-add_project_arguments('-D', 'EXPORT_COMPILER_HTML', language: 'vala')
+# add_project_arguments('-D', 'EXPORT_COMPILER_HTML', language: 'vala')
 
 # To be re-enabled if we find a workaround for what looks like a bug in gtk.texbuffer.serialize
 # when child anchors are present

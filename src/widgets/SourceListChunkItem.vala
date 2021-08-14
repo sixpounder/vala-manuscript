@@ -130,7 +130,9 @@ namespace Manuscript.Widgets {
 
         private void update_title_and_tooltip () {
             name = chunk.title;
-            markup = chunk.excluded ? @"<s>$(GLib.Markup.escape_text (chunk.title))</s>" : GLib.Markup.escape_text (chunk.title);
+            markup = chunk.excluded
+                ? @"<s>$(GLib.Markup.escape_text (chunk.title))</s>"
+                : GLib.Markup.escape_text (chunk.title);
 
             string tooltip_content = GLib.Markup.escape_text (chunk.title);
             if (chunk.locked || chunk.excluded) {
@@ -157,9 +159,11 @@ namespace Manuscript.Widgets {
             if (chunk.locked) {
                 lock_menu_entry.hide ();
                 unlock_menu_entry.show ();
+                icon = lock_icon.gicon;
             } else {
                 lock_menu_entry.show ();
                 unlock_menu_entry.hide ();
+                icon = null;
             }
 
             if (chunk.excluded) {
@@ -168,12 +172,6 @@ namespace Manuscript.Widgets {
             } else {
                 exclude_menu_entry.show ();
                 include_menu_entry.hide ();
-            }
-
-            if (chunk.locked) {
-                icon = lock_icon.gicon;
-            } else {
-                icon = null;
             }
 
             editable = !chunk.locked;

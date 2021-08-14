@@ -125,6 +125,19 @@ namespace Manuscript.Compilers {
                 buffer.get_start_iter (out cursor);
                 var line_word_counter = 0;
                 while (!cursor.is_end ()) {
+                    if (cursor.starts_tag (null)) {
+                        var started_tags = cursor.get_toggled_tags (true);
+                        started_tags.@foreach ((tag) => {
+                            process_tag_toggle (tag);
+                        });
+                    }
+                    
+                    if (cursor.ends_tag (null)) {
+                        var started_tags = cursor.get_toggled_tags (false);
+                        started_tags.@foreach ((tag) => {
+                            process_tag_toggle (tag);
+                        });
+                    }
                     if (cursor.starts_word ()) {
                         Gtk.TextIter step = cursor;
                         step.forward_word_end ();
@@ -193,6 +206,28 @@ namespace Manuscript.Compilers {
             size_t bytes_written;
             stream.write_all (data.data, out bytes_written);
             //  debug ("Wrote %s bytes", bytes_written.to_string ());
+        }
+
+        private void process_tag_toggle (Gtk.TextTag tag) {
+            try {
+                switch (tag.name) {
+                    case Models.TAG_NAME_BOLD:
+                        write ("**");
+                        break;
+                    case Models.TAG_NAME_ITALIC:
+                        write ("*");
+                        break;
+                    case Models.TAG_NAME_UNDERLINE:
+                        write ("__");
+                        break;
+                    case Models.TAG_NAME_STRIKETHROUGH:
+                        write ("~~");
+                        break;
+                    default: break;
+                }
+            } catch (Error err) {
+                warning (err.message);
+            }
         }
     }
 }
