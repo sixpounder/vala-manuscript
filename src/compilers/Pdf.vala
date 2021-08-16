@@ -390,7 +390,7 @@ namespace Manuscript.Compilers {
                     word_end = word_start;
                     word_end.forward_word_end ();
                     string text = buffer.get_text (word_start, word_end, false);
-                    markup_buffer.append (text);
+                    markup_buffer.append (GLib.Markup.escape_text (text));
                     cursor = word_end;
                 } else {
                     unichar ch = cursor.get_char ();

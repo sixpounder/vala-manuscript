@@ -52,12 +52,14 @@ namespace Manuscript.Compilers {
 
         public static string? tag_name_to_markup (string tag_name) {
             switch (tag_name) {
-                case "bold":
+                case Models.TAG_NAME_BOLD:
                     return "b";
-                case "italic":
+                case Models.TAG_NAME_ITALIC:
                     return "i";
-                case "underline":
+                case Models.TAG_NAME_UNDERLINE:
                     return "u";
+                case Models.TAG_NAME_STRIKETHROUGH:
+                    return "s";
                 default:
                     return null;
             }
