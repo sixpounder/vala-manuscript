@@ -54,7 +54,7 @@ namespace Manuscript.Dialogs {
 
         dialog.select_multiple = false;
         dialog.do_overwrite_confirmation = true;
-        dialog.set_current_name (document.filename);
+        dialog.set_current_name (document.title + Constants.DEFAULT_FILE_EXT);
 
         return dialog;
     }

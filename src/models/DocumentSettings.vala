@@ -68,7 +68,6 @@ namespace Manuscript.Models {
 
         public DocumentSettings.from_data (uint8[] data) throws DocumentError {
             var parser = new Json.Parser ();
-            //  SourceFunc callback = from_json.callback;
             try {
                 parser.load_from_stream (new MemoryInputStream.from_data (data), null);
             } catch (Error error) {
@@ -135,6 +134,7 @@ namespace Manuscript.Models {
             paragraph_start_padding = 10;
             font_family = Constants.DEFAULT_FONT_FAMILY;
             font_size = Constants.DEFAULT_FONT_SIZE;
+            page_margin = PageMargin.MEDIUM;
         }
 
         public Json.Object to_json_object () {

@@ -27,10 +27,10 @@ namespace Manuscript.Compilers {
     private const string CHARACTER_SHEETS_FIXED_TITLE = _("Character sheets");
 
     public class PDFCompiler : ManuscriptCompiler {
+        private uint page_counter = 0;
         private double surface_width;
         private double surface_height;
         private double page_margin { get; set; }
-        private uint page_counter = 0;
         private weak Models.Document cached_document { get; set; }
         private Cairo.Context? ctx { get; set; }
         private Cairo.PdfSurface? surface { get; set; }
@@ -53,9 +53,9 @@ namespace Manuscript.Compilers {
                 surface_height
             );
 
-            //  surface.set_metadata (Cairo.PdfMetadata.TITLE, document.title);
-            //  surface.set_metadata (Cairo.PdfMetadata.CREATE_DATE, new DateTime.now ().to_string ());
-            //  surface.set_metadata (Cairo.PdfMetadata.AUTHOR, document.settings.author_name);
+            surface.set_metadata (Cairo.PdfMetadata.TITLE, document.title);
+            surface.set_metadata (Cairo.PdfMetadata.CREATE_DATE, new DateTime.now ().to_string ());
+            surface.set_metadata (Cairo.PdfMetadata.AUTHOR, document.settings.author_name);
 
             double x_scale, y_scale;
             surface.get_device_scale (out x_scale, out y_scale);
