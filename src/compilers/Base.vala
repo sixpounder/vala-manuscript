@@ -40,6 +40,8 @@ namespace Manuscript.Compilers {
         }
     }
 
+    protected delegate void PangoContextCreateDelegate (Pango.Layout layout);
+
     public abstract class ManuscriptCompiler : Object {
         public string filename { get; set; }
         public CompilerOptions options { get; private set; }
@@ -77,6 +79,23 @@ namespace Manuscript.Compilers {
         }
 
         public abstract async void compile (Manuscript.Models.Document document) throws CompilerError;
+
+        protected Pango.Layout create_pango_layout (Pango.Context ctx, Models.DocumentChunk chunk, PangoContextCreateDelegate? f = null) {
+            Pango.Layout layout = new Pango.Layout (ctx);
+            layout.set_alignment (Pango.Alignment.LEFT);
+            layout.set_justify (true);
+            layout.set_font_description (Pango.FontDescription.from_string (
+                @"$(chunk.parent_document.settings.font_family) $(chunk.parent_document.settings.font_size * POINT_SCALE)" // vala-lint=line-length
+            ));
+            layout.set_indent ((int) chunk.parent_document.settings.paragraph_start_padding);
+            layout.set_spacing ((int) chunk.parent_document.settings.line_spacing);
+            layout.set_ellipsize (Pango.EllipsizeMode.NONE);
+            layout.set_wrap (Pango.WrapMode.WORD);
+
+            f (layout);
+
+            return layout;
+        }
     }
 
     public class CompilerOptions : Object {

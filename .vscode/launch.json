@@ -11,7 +11,8 @@
             "program": "${workspaceFolder}/build/src/com.github.sixpounder.manuscript",
             "args": [],
             "env": {
-                "G_MESSAGES_DEBUG": "all"
+                "G_MESSAGES_DEBUG": "all",
+                "GTK_DEBUG": "interactive"
             },
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "Build"

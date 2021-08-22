@@ -51,7 +51,9 @@ namespace Manuscript.Services {
         public const string ACTION_FORMAT_ITALIC = "action_format_italic";
         public const string ACTION_FORMAT_UNDERLINE = "action_format_underline";
 
-        private const ActionEntry[] ACTION_ENTRIES = {
+        public const string ACTION_OPEN_EXPORT_FOLDER = "action_open_export_folder";
+
+        private const ActionEntry[] WIN_ACTION_ENTRIES = {
             { ACTION_NEW_WINDOW, action_new_window },
             { ACTION_OPEN, action_open },
             { ACTION_SAVE, action_save },
@@ -78,13 +80,13 @@ namespace Manuscript.Services {
 
             { ACTION_ZOOM_OUT_FONT, action_zoom_out_font },
             { ACTION_ZOOM_IN_FONT, action_zoom_in_font },
-            { ACTION_ZOOM_DEFAULT_FONT, action_zoom_default_font }
+            { ACTION_ZOOM_DEFAULT_FONT, action_zoom_default_font },
         };
 
         public weak Manuscript.Application application { get; construct; }
         public weak Manuscript.Window window { get; construct; }
         public weak Manuscript.Services.AppSettings settings { get; private set; }
-        public SimpleActionGroup actions { get; construct; }
+        public SimpleActionGroup window_actions { get; construct; }
 
         public ActionManager (Manuscript.Application app, Manuscript.Window window) {
             Object (
@@ -118,9 +120,9 @@ namespace Manuscript.Services {
 
         construct {
             settings = Services.AppSettings.get_default ();
-            actions = new SimpleActionGroup ();
-            actions.add_action_entries (ACTION_ENTRIES, this);
-            window.insert_action_group ("win", actions);
+            window_actions = new SimpleActionGroup ();
+            window_actions.add_action_entries (WIN_ACTION_ENTRIES, this);
+            window.insert_action_group ("win", window_actions);
 
             foreach (var action in action_accelerators.get_keys ()) {
                 application.set_accels_for_action (ACTION_PREFIX + action, action_accelerators[action].to_array ());
@@ -220,10 +222,16 @@ namespace Manuscript.Services {
                             try {
                                 dialog.start_export.end (res);
                                 dialog.destroy ();
-                                Manuscript.Services.Notification.show (
-                                    _("Export succeeded"),
-                                    _("Your manuscript has been successfully exported")
-                                );
+                                if (!application.has_focus) {
+                                    Manuscript.Services.Notification.show (
+                                        GLib.NotificationPriority.NORMAL,
+                                        _("Export succeeded"),
+                                        _("Your manuscript has been successfully exported"),
+                                        new Variant.string (""),
+                                        _("View file"),
+                                        @"app.$ACTION_OPEN_EXPORT_FOLDER"
+                                    );
+                                }
                             } catch (Compilers.CompilerError e) {
                                 critical (e.message);
                             }
@@ -266,6 +274,10 @@ namespace Manuscript.Services {
             if (window.current_editor != null) {
                 window.current_editor.apply_format (Manuscript.Models.TAG_NAME_UNDERLINE);
             }
+        }
+
+        protected void action_open_export_folder () {
+
         }
     }
 }

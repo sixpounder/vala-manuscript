@@ -221,7 +221,7 @@ namespace Manuscript.Dialogs {
             }
         }
 
-        protected async void compile (Manuscript.Models.ExportFormat output_format) throws Compilers.CompilerError {
+        protected async string compile (Manuscript.Models.ExportFormat output_format) throws Compilers.CompilerError {
             if (file_name_entry.text.length == 0) {
                 throw new Compilers.CompilerError.FORMAL ("Missing filename");
             }
@@ -235,16 +235,18 @@ namespace Manuscript.Dialogs {
             );
 
             yield compiler.compile (document);
+            return compiler.filename;
         }
 
         public async void start_export () throws Compilers.CompilerError {
             disable_ui ();
             SourceFunc callback = start_export.callback;
+            string? target_file = null;
             if (Thread.supported ()) {
                 new Thread<void> ("compile-thread", () => {
                     compile.begin (export_format, (obj, res) => {
                         try {
-                            compile.end (res);
+                            target_file = compile.end (res);
                         } catch (Compilers.CompilerError e) {
                             critical (e.message);
                         }
@@ -255,7 +257,7 @@ namespace Manuscript.Dialogs {
                 yield;
             } else {
                 try {
-                    yield compile (export_format);
+                    target_file = yield compile (export_format);
                 } catch (Compilers.CompilerError e) {
                     throw e;
                 }

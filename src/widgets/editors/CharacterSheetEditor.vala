@@ -23,8 +23,8 @@ namespace Manuscript.Widgets {
         public weak Manuscript.Window parent_window { get; construct; }
 
         protected Gtk.Entry name_entry { get; set; }
-        protected Gtk.TextView background_entry { get; set; }
         protected Gtk.Entry traits_entry { get; set; }
+        protected Gtk.TextView background_entry { get; set; }
         protected Gtk.TextView notes_entry { get; set; }
 
         public CharacterSheetEditor (Manuscript.Window parent_window, Models.CharacterSheetChunk chunk) {
@@ -57,7 +57,7 @@ namespace Manuscript.Widgets {
             layout.row_homogeneous = false;
 
             Gtk.Label name_label = make_entry_label (_("Character name"));
-            name_entry = make_entry ();
+            name_entry = make_entry (_("Type the name of the character you are describing"));
             name_entry.text = chunk.name;
 
             Gtk.Label background_label = make_entry_label (_("Background"));
@@ -66,7 +66,7 @@ namespace Manuscript.Widgets {
             background_entry.height_request = 300;
 
             Gtk.Label traits_label = make_entry_label (_("Traits"));
-            traits_entry = make_entry ();
+            traits_entry = make_entry (_("Type the main physical and/or behavioural traits defining the character"));
             traits_entry.text = chunk.traits;
 
             Gtk.Label notes_label = make_entry_label (_("Notes"));
@@ -82,7 +82,6 @@ namespace Manuscript.Widgets {
 
             layout.attach_next_to (background_label, traits_label, Gtk.PositionType.BOTTOM, 1);
             layout.attach_next_to (background_entry, background_label, Gtk.PositionType.RIGHT, 2);
-
 
             layout.attach_next_to (notes_label, background_label, Gtk.PositionType.BOTTOM, 1);
             layout.attach_next_to (notes_entry, notes_label, Gtk.PositionType.RIGHT, 2);
@@ -116,21 +115,27 @@ namespace Manuscript.Widgets {
             return label;
         }
 
-        private Gtk.Entry make_entry (string placeholder = "") {
+        private Gtk.Entry make_entry (string? placeholder = null) {
             Gtk.Entry entry = new Gtk.Entry ();
             entry.expand = true;
-            entry.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
-            if (placeholder != "") {
+            //  entry.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
+            if (placeholder != null) {
                 entry.placeholder_text = placeholder;
             }
 
             return entry;
         }
 
-        private Gtk.TextView make_textbox () {
+        private Gtk.TextView make_textbox (string? placeholder = null) {
             Gtk.TextView entry = new Gtk.TextView.with_buffer (new Gtk.TextBuffer (null));
+            
+            entry.expand = true;
+            //  if (placeholder != null) {
+            //      entry.placeholder_text = placeholder;
+            //  }
+            //  entry.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
+            //  entry.get_style_context ().add_class ("character-sheet-textbox");
             entry.wrap_mode = Gtk.WrapMode.WORD;
-            entry.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
 
             return entry;
         }

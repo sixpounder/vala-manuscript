@@ -25,12 +25,33 @@ namespace Manuscript.Services {
             application = app;
         }
 
-        public static void show (string title, string? body) {
+        public static void show (
+            GLib.NotificationPriority? priority,
+            string title,
+            string? body,
+            Variant? target,
+            ...
+        ) {
 #if NOTIFICATIONS
             var notification = new GLib.Notification (title);
+            notification.set_priority (priority);
+
             if (body != null) {
                 notification.set_body (body);
             }
+
+            var actions = va_list ();
+
+            while (true) {
+                string? action_label = actions.arg ();
+                if (action_label == null) {
+                    break;
+                } else {
+                    string action_name = actions.arg ();
+                    notification.add_button_with_target_value (action_label, action_name, target);
+                }
+            }
+            
             application.send_notification (Manuscript.Constants.APP_ID, notification);
 #endif
         }

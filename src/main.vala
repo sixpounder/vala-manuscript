@@ -19,6 +19,8 @@
 
 namespace Manuscript {
     public class Application : Gtk.Application {
+        private SimpleAction action_open_export_folder { get; set; }
+        private Gdk.Window? current_window = null;
         protected Services.AppSettings settings { get; set; }
 
         public static bool ensure_directory_exists (File dir) {
@@ -34,6 +36,12 @@ namespace Manuscript {
             return false;
         }
 
+        public bool has_focus {
+            get {
+                return current_window != null;
+            }
+        }
+
         construct {
             application_id = Constants.APP_ID;
             flags |= ApplicationFlags.HANDLES_OPEN;
@@ -47,6 +55,15 @@ namespace Manuscript {
             Application.ensure_directory_exists (
                 File.new_for_path (cache_path)
             );
+
+            action_open_export_folder = new SimpleAction (
+                Services.ActionManager.ACTION_OPEN_EXPORT_FOLDER, VariantType.STRING
+            );
+            action_open_export_folder.activate.connect ((target) => {
+                size_t target_len;
+                debug ("Should show: %s", target.get_string (out target_len));
+            });
+            add_action (action_open_export_folder);
         }
 
         protected override void activate () {
@@ -102,6 +119,15 @@ namespace Manuscript {
             window.title = Constants.APP_NAME;
 
             window.show_all ();
+
+            window.focus_in_event.connect ((ev) => {
+                current_window = ev.window;
+                return false;
+            });
+            window.focus_out_event.connect (() => {
+                current_window = null;
+                return false;
+            });
 
             return window;
         }
