@@ -131,7 +131,7 @@ namespace Manuscript.Compilers {
                             process_tag_toggle (tag);
                         });
                     }
-                    
+
                     if (cursor.ends_tag (null)) {
                         var started_tags = cursor.get_toggled_tags (false);
                         started_tags.@foreach ((tag) => {

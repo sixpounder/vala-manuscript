@@ -80,7 +80,11 @@ namespace Manuscript.Compilers {
 
         public abstract async void compile (Manuscript.Models.Document document) throws CompilerError;
 
-        protected Pango.Layout create_pango_layout (Pango.Context ctx, Models.DocumentChunk chunk, PangoContextCreateDelegate? f = null) {
+        protected Pango.Layout create_pango_layout (
+            Pango.Context ctx,
+            Models.DocumentChunk chunk,
+            PangoContextCreateDelegate? f = null
+        ) {
             Pango.Layout layout = new Pango.Layout (ctx);
             layout.set_alignment (Pango.Alignment.LEFT);
             layout.set_justify (true);

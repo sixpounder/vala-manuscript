@@ -51,7 +51,7 @@ namespace Manuscript.Services {
                     notification.add_button_with_target_value (action_label, action_name, target);
                 }
             }
-            
+
             application.send_notification (Manuscript.Constants.APP_ID, notification);
 #endif
         }

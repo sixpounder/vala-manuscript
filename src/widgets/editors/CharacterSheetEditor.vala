@@ -128,7 +128,7 @@ namespace Manuscript.Widgets {
 
         private Gtk.TextView make_textbox (string? placeholder = null) {
             Gtk.TextView entry = new Gtk.TextView.with_buffer (new Gtk.TextBuffer (null));
-            
+
             entry.expand = true;
             //  if (placeholder != null) {
             //      entry.placeholder_text = placeholder;

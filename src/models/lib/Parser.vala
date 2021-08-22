@@ -168,7 +168,7 @@ namespace Manuscript.Models.Lib {
             buffer.get_iter_at_offset (out tag_apply_start, start_offset);
             buffer.get_iter_at_offset (out tag_apply_end, end_offset);
 
-            tag_stack.@foreach(tag => {
+            tag_stack.@foreach (tag => {
                 buffer.apply_tag (tag, tag_apply_start, tag_apply_end);
             });
 
