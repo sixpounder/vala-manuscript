@@ -4,6 +4,9 @@
 # Manuscript
 Manuscript is a free, open source environment for writers
 
+## Warning
+This app is still in development and not yet production ready
+
 # Build
 
 You will need these dependencies installed
