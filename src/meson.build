@@ -97,6 +97,7 @@ executable(
 
     'dialogs/GenericDialog.vala',
 	'dialogs/ExportDialog.vala',
+	'dialogs/ImportDialog.vala',
 	'dialogs/ExportMetrics.vala',
 	'dialogs/QuitDialog.vala',
 	'dialogs/FileSaveDialog.vala',

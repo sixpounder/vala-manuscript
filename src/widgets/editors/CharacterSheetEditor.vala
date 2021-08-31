@@ -88,12 +88,7 @@ namespace Manuscript.Widgets {
 
             add (layout);
 
-            name_entry.changed.connect (update_model);
-            background_entry.buffer.changed.connect (update_model);
-            traits_entry.changed.connect (update_model);
-            notes_entry.buffer.changed.connect (update_model);
-
-            chunk.notify["locked"].connect (reflect_lock_status);
+            connect_events ();
 
             reflect_lock_status ();
 
@@ -101,10 +96,20 @@ namespace Manuscript.Widgets {
         }
 
         ~ CharacterSheetEditor () {
+            chunk.parent_document.saved.disconnect (on_document_saved);
             name_entry.changed.disconnect (update_model);
             background_entry.buffer.changed.disconnect (update_model);
             traits_entry.changed.disconnect (update_model);
             notes_entry.buffer.changed.disconnect (update_model);
+        }
+
+        private void connect_events () {
+            chunk.parent_document.saved.connect (on_document_saved);
+            name_entry.changed.connect (update_model);
+            background_entry.buffer.changed.connect (update_model);
+            traits_entry.changed.connect (update_model);
+            notes_entry.buffer.changed.connect (update_model);
+            chunk.notify["locked"].connect (reflect_lock_status);
         }
 
         private Gtk.Label make_entry_label (string text) {
@@ -128,15 +133,8 @@ namespace Manuscript.Widgets {
 
         private Gtk.TextView make_textbox (string? placeholder = null) {
             Gtk.TextView entry = new Gtk.TextView.with_buffer (new Gtk.TextBuffer (null));
-
             entry.expand = true;
-            //  if (placeholder != null) {
-            //      entry.placeholder_text = placeholder;
-            //  }
-            //  entry.get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
-            //  entry.get_style_context ().add_class ("character-sheet-textbox");
             entry.wrap_mode = Gtk.WrapMode.WORD;
-
             return entry;
         }
 
@@ -146,6 +144,10 @@ namespace Manuscript.Widgets {
             } else {
                 unlock_editor ();
             }
+        }
+
+        private void on_document_saved () {
+            chunk.has_changes = false;
         }
 
         public void focus_editor () {
@@ -165,6 +167,7 @@ namespace Manuscript.Widgets {
             chunk.background = background_entry.buffer.text;
             chunk.traits = traits_entry.text;
             chunk.notes = notes_entry.buffer.text;
+            chunk.has_changes = true;
         }
     }
 }

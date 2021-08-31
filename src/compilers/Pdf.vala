@@ -427,13 +427,13 @@ namespace Manuscript.Compilers {
             cairo_context.fill_preserve ();
 
             var layout_width = surface_width;
-            var layout_height = surface_height;
+            //  var layout_height = surface_height;
             Cairo.FontExtents font_extents;
             cairo_context.font_extents (out font_extents);
-            var computed_line_spacing = Math.floor ((chunk.parent_document.settings.line_spacing * POINT_SCALE));
-            var single_line_height = font_extents.height + computed_line_spacing;
-            var max_lines_per_page = Math.ceil ((layout_height - (page_margin * 3)) / single_line_height) - 1;
-            uint line_counter = 0;
+            //  var computed_line_spacing = Math.floor ((chunk.parent_document.settings.line_spacing * POINT_SCALE));
+            //  var single_line_height = font_extents.height + computed_line_spacing;
+            //  var max_lines_per_page = Math.ceil ((layout_height - (page_margin * 3)) / single_line_height) - 1;
+            //  uint line_counter = 0;
 
             //
             // Render centered title

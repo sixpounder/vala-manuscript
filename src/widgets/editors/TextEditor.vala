@@ -27,8 +27,6 @@ namespace Manuscript.Widgets {
 
         public signal void mark_set (Gtk.TextIter location, Gtk.TextMark mark);
 
-        public bool has_changes { get; private set; }
-
         public weak Models.TextChunk chunk {
             get {
                 return _chunk;
@@ -60,12 +58,18 @@ namespace Manuscript.Widgets {
         }
 
         ~ TextEditor () {
+            chunk.parent_document.saved.disconnect (on_document_saved);
+            buffer.changed.disconnect (on_document_change);
+            buffer.apply_tag.disconnect (on_document_change);
             settings.change.disconnect (on_setting_change);
             destroy.disconnect (on_destroy);
             populate_popup.disconnect (populate_context_menu);
         }
 
         private void connect_events () {
+            chunk.parent_document.saved.connect (on_document_saved);
+            buffer.changed.connect (on_document_change);
+            buffer.apply_tag.connect (on_document_change);
             settings.change.connect (on_setting_change);
             destroy.connect (on_destroy);
             populate_popup.connect (populate_context_menu);
@@ -389,11 +393,11 @@ namespace Manuscript.Widgets {
         }
 
         protected void on_document_change () {
-            has_changes = true;
+            chunk.has_changes = true;
         }
 
         protected void on_document_saved (string to_path) {
-            has_changes = false;
+            chunk.has_changes = false;
         }
 
         protected void on_destroy () {

@@ -242,7 +242,16 @@ namespace Manuscript.Services {
             }
         }
 
-        protected void action_import () {}
+        protected void action_import () {
+            var dialog = new Dialogs.ImportDialog (window, window.document_manager.document);
+            switch (dialog.run ()) {
+                case Gtk.ResponseType.ACCEPT:
+                    debug ("Importing manuscript");
+                break;
+                default:
+                break;
+            }
+        }
 
         protected void action_zoom_in_font () {
             settings.text_scale_factor = (settings.text_scale_factor + 0.1)

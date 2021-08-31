@@ -235,10 +235,10 @@ namespace Manuscript {
                 }
                 return false;
             } else {
-                if (document_manager.document.has_changes && quit_dialog ()) {
-                    return false;
+                if (document_manager.document.has_changes) {
+                    return !quit_dialog ();
                 } else {
-                    return true;
+                    return false;
                 }
             }
         }

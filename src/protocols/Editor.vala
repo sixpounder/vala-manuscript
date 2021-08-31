@@ -26,9 +26,9 @@ namespace Manuscript.Protocols {
     }
 
     public interface ChunkEditor : Object {
-        public virtual signal void model_change () {}
+        public signal void model_change ();
 
-        public virtual bool has_changes () {
+        public virtual bool get_has_changes () {
             return false;
         }
 

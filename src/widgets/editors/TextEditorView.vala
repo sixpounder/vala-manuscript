@@ -200,7 +200,7 @@ namespace Manuscript.Widgets {
             editor.grab_focus ();
         }
 
-        public bool has_changes () {
+        public bool get_has_changes () {
             return chunk != null && chunk.has_changes;
         }
 
