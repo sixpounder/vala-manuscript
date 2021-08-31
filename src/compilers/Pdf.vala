@@ -201,7 +201,6 @@ namespace Manuscript.Compilers {
             layout.set_ellipsize (Pango.EllipsizeMode.NONE);
             layout.set_wrap (Pango.WrapMode.WORD);
             layout.set_alignment (Pango.Alignment.CENTER);
-
             layout.set_text (cached_document.title, cached_document.title.length);
 
             Pango.Rectangle title_ink_rect, title_logical_rect;
