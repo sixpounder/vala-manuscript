@@ -21,20 +21,19 @@ namespace Manuscript {
     public class Window : Gtk.ApplicationWindow {
         public signal void search_result (Gtk.TextBuffer buffer, Gtk.TextIter result_start);
 
-        protected uint configure_id = 0;
-        protected Services.AppSettings settings;
-        protected Gtk.Overlay container;
-        protected Widgets.Sidebar sidebar;
-        protected Gtk.Box layout;
-        protected Widgets.WelcomeView welcome_view;
-        protected Widgets.Header header;
-        protected Gtk.Bin body;
-        protected Gtk.Paned editor_grid;
-        protected Widgets.EditorsController editors_controller;
-        protected weak Models.Document selected_document = null;
-        protected Gtk.InfoBar infobar;
-        protected Manuscript.Widgets.QuickOpenPanel quick_open_panel;
-        protected int last_editor_grid_panel_position = 0;
+        private uint configure_id = 0;
+        private Services.AppSettings settings;
+        private Gtk.Overlay container;
+        private Widgets.Sidebar sidebar;
+        private Gtk.Box layout;
+        private Widgets.WelcomeView welcome_view;
+        private Widgets.Header header;
+        private Gtk.Bin body;
+        private Gtk.Paned editor_grid;
+        private Gtk.InfoBar infobar;
+        private Manuscript.Widgets.QuickOpenPanel quick_open_panel;
+        private int last_editor_grid_panel_position = 0;
+        private Widgets.EditorsController editors_controller;
         public Widgets.SearchPanel search_panel { get; private set; }
 
         public Services.DocumentManager document_manager;
@@ -235,7 +234,7 @@ namespace Manuscript {
                 }
                 return false;
             } else {
-                if (document_manager.document.has_changes) {
+                if (document_manager.has_document && document_manager.document.has_changes) {
                     return !quit_dialog ();
                 } else {
                     return false;

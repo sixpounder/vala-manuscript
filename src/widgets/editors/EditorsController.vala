@@ -92,24 +92,23 @@ namespace Manuscript.Widgets {
             show_all ();
         }
 
-        ~ EditorsController () {
-            document_manager.load.disconnect (on_document_set);
-            document_manager.unload.disconnect (on_document_unload);
-            document_manager.unloaded.disconnect (update_ui);
-            document_manager.open_chunk.disconnect (on_start_chunk_editing);
-            document_manager.stop_editing.disconnect (on_stop_chunk_editing);
+        //  ~ EditorsController () {
+        //      document_manager.load.disconnect (on_document_set);
+        //      document_manager.unload.disconnect (on_document_unload);
+        //      document_manager.unloaded.disconnect (update_ui);
+        //      document_manager.open_chunk.disconnect (on_start_chunk_editing);
+        //      document_manager.stop_editing.disconnect (on_stop_chunk_editing);
 
-            if (document_manager.document != null) {
-                on_document_unload (document_manager.document);
-            }
-        }
+        //      //  if (document_manager.document != null) {
+        //      //      on_document_unload (document_manager.document);
+        //      //  }
+        //  }
 
         /** Removes all children from this container, except the courtesy view */
         private void remove_all_editors () {
             this.@foreach ((child) => {
-                if (! (child is EditorCourtesyView)) {
-                    child.unref ();
-                    remove (child);
+                if (child != null && ! (child is EditorCourtesyView)) {
+                    child.destroy ();
                 }
             });
         }
@@ -123,7 +122,7 @@ namespace Manuscript.Widgets {
             doc.chunk_added.disconnect (add_chunk);
             doc.chunk_removed.disconnect (remove_chunk);
             editors_cache.clear ();
-            this.remove_all_editors ();
+            remove_all_editors ();
         }
 
         private void on_start_chunk_editing (Models.DocumentChunk chunk) {

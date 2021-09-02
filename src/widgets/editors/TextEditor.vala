@@ -57,14 +57,14 @@ namespace Manuscript.Widgets {
             }
         }
 
-        ~ TextEditor () {
-            chunk.parent_document.saved.disconnect (on_document_saved);
-            buffer.changed.disconnect (on_document_change);
-            buffer.apply_tag.disconnect (on_document_change);
-            settings.change.disconnect (on_setting_change);
-            destroy.disconnect (on_destroy);
-            populate_popup.disconnect (populate_context_menu);
-        }
+        //  ~ TextEditor () {
+        //      chunk.parent_document.saved.disconnect (on_document_saved);
+        //      buffer.changed.disconnect (on_document_change);
+        //      buffer.apply_tag.disconnect (on_document_change);
+        //      settings.change.disconnect (on_setting_change);
+        //      destroy.disconnect (on_destroy);
+        //      populate_popup.disconnect (populate_context_menu);
+        //  }
 
         private void connect_events () {
             chunk.parent_document.saved.connect (on_document_saved);
@@ -100,7 +100,7 @@ namespace Manuscript.Widgets {
 #if FEATURE_FOOTNOTES
             Gtk.MenuItem add_foot_note_item = new Gtk.MenuItem.with_label (_("Add footnote"));
             add_foot_note_item.activate.connect (() => {
-                add_foot_note ();
+                insert_empty_note_at_selection ();
             });
 #endif
 
@@ -172,15 +172,15 @@ namespace Manuscript.Widgets {
             on_selection_changed ();
         }
 
-#if FEATURE_FOOTNOTES
-        private void add_foot_note () {
-            Gtk.TextIter start, end;
+//  #if FEATURE_FOOTNOTES
+//          private void add_foot_note () {
+//              Gtk.TextIter start, end;
 
-            buffer.get_selection_bounds (out start, out end);
-            var note = new Models.FootNote (chunk, start.get_offset (), end.get_offset ());
-            chunk.add_artifact (note);
-        }
-#endif
+//              buffer.get_selection_bounds (out start, out end);
+//              var note = new Models.FootNote (chunk, start.get_offset (), end.get_offset ());
+//              chunk.add_artifact (note);
+//          }
+//  #endif
 
         private void on_cursor_position_change () {
             focus_mode_update_highlight ();
