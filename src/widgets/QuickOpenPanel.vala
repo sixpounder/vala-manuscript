@@ -149,7 +149,8 @@ namespace Manuscript.Widgets {
 
         protected void reset_results_interface () {
             results_grid.@foreach ((child) => {
-                results_grid.remove (child);
+                //  results_grid.remove (child);
+                child.destroy ();
             });
 
             debug ("Quick open list cleared");

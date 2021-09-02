@@ -216,7 +216,8 @@ namespace Manuscript.Widgets {
             var view = get_editor_view_for_chunk (chunk);
             var k = build_view_id (chunk);
             if (view != null) {
-                remove (view as Gtk.Widget);
+                //  remove (view as Gtk.Widget);
+                ((Gtk.Widget) view).destroy ();
             }
 
             if (editors_cache.has_key (k)) {
