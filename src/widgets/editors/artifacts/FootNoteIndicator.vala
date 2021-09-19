@@ -18,8 +18,12 @@
  */
 
 namespace Manuscript.Widgets {
-    public class FootNoteIndicator : Gtk.Grid {
+    public class FootNoteIndicator : Gtk.Grid, Protocols.TextChunkArtifactWrapper {
         public weak Models.FootNote? note { get; construct; }
+
+        public unowned Models.TextChunkArtifact? get_artifact () {
+            return this.note;
+        }
 
         private bool _expanded;
         public bool expanded {
@@ -62,8 +66,10 @@ namespace Manuscript.Widgets {
         private void update_ui () {
             if (_expanded) {
                 // Show popover
+                debug ("Show note");
             } else {
                 // Hide popover
+                debug ("Hide note");
             }
         }
 

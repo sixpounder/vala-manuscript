@@ -238,6 +238,7 @@ namespace Manuscript.Widgets {
             buffer.get_selection_bounds (out selection_start, out selection_end);
             var removed = false;
 
+            buffer.begin_user_action ();
             selection_start.get_tags ().@foreach ((tag) => {
                 if (tag.name == tag_name) {
                     buffer.remove_tag_by_name (tag_name, selection_start, selection_end);
@@ -248,6 +249,7 @@ namespace Manuscript.Widgets {
             if (tag_name != "" && !removed) {
                 buffer.apply_tag_by_name (tag_name, selection_start, selection_end);
             }
+            buffer.end_user_action ();
         }
 
         public void insert_empty_note_at_selection () {

@@ -49,29 +49,11 @@ namespace Manuscript.Models {
     struct TextBufferPrelude {
         uint8 major_version;
         uint8 minor_version;
-        //  uint64 size_of_tag_map;
+        int64 size_of_text_buffer;
+        int64 size_of_artifacts_buffer;
     }
 
     const uint8 NULL_TERMINATOR = '\0';
-
-    private uint8[] read_until (InputStream stream, uint8 marker = NULL_TERMINATOR) throws Error {
-        MemoryOutputStream content_buffer = new MemoryOutputStream.resizable ();
-        uint8 buffer[1];
-        while (true) {
-            stream.read (buffer);
-            if (buffer[0] == '\0') {
-                break;
-            } else {
-                content_buffer.write (buffer);
-            }
-        }
-
-        content_buffer.close ();
-        var data = content_buffer.steal_data ();
-        data.length = (int) content_buffer.get_data_size ();
-
-        return data;
-    }
 
     public class TextBuffer : Gtk.SourceBuffer {
         private Gdk.Atom serialize_atom;
@@ -126,16 +108,14 @@ namespace Manuscript.Models {
              * - serialize method goes full recursion if there are child anchors in the buffer
              * - if the user has searched anything, an __anonymous__ Gtk.TextTag is applied to search results,
              *   it gets serialized and fucks shit up when the buffer is loaded again
-             * - AND THIS THING IS REMOVE FROM GTK4. FU**.
+             * - AND THIS THING IS REMOVED FROM GTK4. FU**.
+             *
+             * After carefully thinking about it (aka lot of prophanities and alcohol) I decided
+             * to implement a custom serializer / deserializer because we can't have nice things.
              */
-            //  return serialize (this, atom, start, end);
 
-            // Serialize only if needed
-            if (dirty) {
-                Gtk.TextIter start, end;
-                get_start_iter (out start);
-                get_end_iter (out end);
-                raw_content = serialize_x_manuscript (start, end);
+            if (dirty) { // Serialize only if needed
+                raw_content = new Lib.TextBufferSerializer ().serialize (this);
                 dirty = false;
             }
 
@@ -153,15 +133,19 @@ namespace Manuscript.Models {
             DataInputStream dis = new DataInputStream (@is);
             TextBufferPrelude prelude = TextBufferPrelude () {
                 major_version = dis.read_byte (),
-                minor_version = dis.read_byte ()
+                minor_version = dis.read_byte (),
+                size_of_text_buffer = dis.read_int64 (),
+                size_of_artifacts_buffer = dis.read_int64 ()
             };
 
             debug ("Buffer version: %i.%i", prelude.major_version, prelude.minor_version);
+            debug ("Declared size of text buffer: %l bytes", prelude.size_of_text_buffer);
+            debug ("Declared size of artifacts buffer: %l bytes", prelude.size_of_artifacts_buffer);
 
             // A raw_content to be deserialized must be at least the size of its prelude
             assert (raw_content.length >= prelude_size);
 
-            var data = read_until (dis);
+            var data = Manuscript.Utils.Streams.read_until (dis, NULL_TERMINATOR);
             dis.close ();
 
             Lib.RichTextParser parser = new Lib.RichTextParser (this);
@@ -170,106 +154,6 @@ namespace Manuscript.Models {
             dirty = false;
 
             connect_events ();
-        }
-
-        private uint8[] serialize_x_manuscript (Gtk.TextIter start, Gtk.TextIter end) throws IOError {
-            StringBuilder buffer = new StringBuilder ();
-
-            Gee.ArrayList<SerializableTextTag> tag_stack = new Gee.ArrayList<SerializableTextTag> ();
-
-            Gtk.TextIter cursor;
-            get_start_iter (out cursor);
-            long counter = 0;
-
-            // Scan the buffer and build tags lists and plain text buffer
-            while (!cursor.is_end ()) {
-                if (cursor.starts_tag (null)) {
-                    cursor.get_toggled_tags (true).@foreach (i => {
-                        // Only serialize non-anonymous tags, and only tags that can be found in this
-                        // buffer's tag table
-                        if (i.name != null && tag_table.lookup (i.name) != null) {
-                            var the_tag = new SerializableTextTag (i.name, counter, counter, tag_stack.size);
-                            tag_stack.add (the_tag);
-                            buffer.append (the_tag.tag_open ());
-                        }
-                    });
-                }
-                serialize_check_closing_tags (counter, buffer, cursor, tag_stack);
-
-                // Append the character verbatim
-                buffer.append_unichar (cursor.get_char ());
-
-
-                cursor.forward_char ();
-                counter ++;
-            }
-
-            serialize_check_closing_tags (counter, buffer, cursor, tag_stack);
-
-            // Write table of contents
-            TextBufferPrelude prelude = TextBufferPrelude () {
-                major_version = 1,
-                minor_version = 0
-                //  size_of_tag_map = tag_total_bytes
-            };
-
-            MemoryOutputStream os = new MemoryOutputStream (null, GLib.realloc, GLib.free);
-            DataOutputStream dos = new DataOutputStream (os);
-            size_t bytes_written;
-
-            dos.put_byte (prelude.major_version);
-            dos.put_byte (prelude.minor_version);
-
-            //  if (tags_data.length > 0) {
-            //      dos.write_all (tags_data, out bytes_written);
-            //  }
-
-            // Write the actual content of the buffer
-            if (buffer.len > 0) {
-                dos.write_all (buffer.data, out bytes_written);
-            }
-
-            dos.put_byte (NULL_TERMINATOR);
-            dos.close ();
-
-            uint8[] data = os.steal_data ();
-            data.length = (int) os.get_data_size ();
-            return data;
-        }
-
-        private void serialize_check_closing_tags (
-            long counter,
-            StringBuilder buffer,
-            Gtk.TextIter cursor,
-            Gee.ArrayList<SerializableTextTag> tag_stack
-        ) {
-            if (cursor.ends_tag (null)) {
-                var closed_tags = cursor.get_toggled_tags (false);
-                while (
-                    closed_tags.length () != 0
-                ) {
-                    // Get the current closing tag from the list, remove it from the list...
-                    var len = closed_tags.length ();
-                    var closed_tag = closed_tags.nth_data (len - 1);
-                    closed_tags.remove (closed_tag);
-
-                    if (tag_stack != null && !tag_stack.is_empty) {
-                        // ... and pop it from the stack
-                        SerializableTextTag tag_to_close = tag_stack.remove_at (tag_stack.size - 1);
-
-                        if (tag_to_close != null) {
-                            tag_to_close.end = counter;
-                            buffer.append (tag_to_close.tag_close ());
-                        } else {
-                            warning ("Could not pop tag to close from the stack");
-                        }
-                    } else {
-                        warning ("Be aware that the tag stack is null or zero sized when trying to pop an item.
-                        This is probably an error because this is called when an iter is closing some tag that
-                        should be present on the stack.");
-                    }
-                }
-            }
         }
     }
 }

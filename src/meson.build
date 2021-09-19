@@ -77,7 +77,9 @@ executable(
     'models/Utils.vala',
 	'models/AnalyzeTask.vala',
 
-	'models/lib/Parser.vala',
+	'models/lib/TextBufferSerializer.vala',
+	'models/lib/NotesParser.vala',
+	'models/lib/RichTextParser.vala',
 
 	'compilers/Base.vala',
 	'compilers/Html.vala',
@@ -87,6 +89,7 @@ executable(
 	'compilers/Utils.vala',
 
     'protocols/Editor.vala',
+	'protocols/Artifacts.vala',
 
 	'utils/StringUtils.vala',
 	'utils/Easing.vala',
@@ -94,6 +97,7 @@ executable(
 	'utils/Math.vala',
 	'utils/FileUtils.vala',
 	'utils/Threads.vala',
+	'utils/Streams.vala',
 
     'dialogs/GenericDialog.vala',
 	'dialogs/ExportDialog.vala',

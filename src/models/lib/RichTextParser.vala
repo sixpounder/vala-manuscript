@@ -71,9 +71,9 @@ namespace Manuscript.Models.Lib {
 
         private void token (unichar ch) {
             if (
-                ch == OPEN_TAG_TOKEN &&
-                peek_behind () != null &&
-                peek_behind () != TAG_ESCAPE_TOKEN
+                ch == OPEN_TAG_TOKEN
+                //  peek_behind () != null &&
+                //  peek_behind () != TAG_ESCAPE_TOKEN
             ) {
                 flush_tokens ();
                 bool is_tag_end = peek () == '/';
@@ -94,7 +94,6 @@ namespace Manuscript.Models.Lib {
             var tag = buffer.tag_table.lookup (peek_tokens);
             if (tag != null) {
                 tag_stack.append (tag);
-                //  mark_tag_begin (tag);
             }
         }
 
@@ -102,7 +101,6 @@ namespace Manuscript.Models.Lib {
             forward_until (CLOSE_TAG_TOKEN);
             Gtk.TextTag tag = tag_stack.nth_data (tag_stack.length () - 1);
             tag_stack.remove (tag);
-            //  mark_tag_end (tag);
         }
 
         private uint depth {

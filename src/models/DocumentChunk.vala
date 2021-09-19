@@ -210,6 +210,10 @@ namespace Manuscript.Models {
                 return start_iter_offset != -1 && end_iter_offset != -1;
             }
         }
+
+        public uint8[] serialize () {
+            return {};
+        }
     }
 
     public abstract class TextChunk : DocumentChunk, Archivable {

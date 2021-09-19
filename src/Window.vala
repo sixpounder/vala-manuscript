@@ -66,6 +66,7 @@ namespace Manuscript {
                 )
             );
 
+            set_events (Gdk.EventMask.BUTTON_PRESS_MASK);
             settings = Services.AppSettings.get_default ();
             action_manager = new Services.ActionManager ((Manuscript.Application)application, this);
             document_manager = new Services.DocumentManager ((Manuscript.Application)application, this);
