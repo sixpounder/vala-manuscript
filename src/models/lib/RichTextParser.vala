@@ -71,9 +71,9 @@ namespace Manuscript.Models.Lib {
 
         private void token (unichar ch) {
             if (
-                ch == OPEN_TAG_TOKEN
-                //  peek_behind () != null &&
-                //  peek_behind () != TAG_ESCAPE_TOKEN
+                ch == OPEN_TAG_TOKEN &&
+                peek_behind () != null &&
+                peek_behind () != TAG_ESCAPE_TOKEN
             ) {
                 flush_tokens ();
                 bool is_tag_end = peek () == '/';

@@ -24,7 +24,7 @@ namespace Manuscript.Models.Lib {
         public uint8[] serialize (Models.TextBuffer buffer) throws IOError {
             StringBuilder serialized_buffer = new StringBuilder ();
             Gee.ArrayList<Gee.ArrayList<uint8>> serialized_artifacts = new Gee.ArrayList<Gee.ArrayList<uint8>> ();
-            int64 artifacts_buffer_size = 0;
+            uint64 artifacts_buffer_size = 0;
             Gee.ArrayList<Models.SerializableTextTag> tag_stack = new Gee.ArrayList<Models.SerializableTextTag> ();
 
             Gtk.TextIter cursor;
@@ -71,17 +71,15 @@ namespace Manuscript.Models.Lib {
             size_t bytes_written;
 
             // Write table of contents
-            Models.TextBufferPrelude prelude = Models.TextBufferPrelude () {
+            Models.TextBufferPrelude ? prelude = Models.TextBufferPrelude () {
                 major_version = 1,
                 minor_version = 0,
-                size_of_text_buffer = (int64) serialized_buffer.str.length,
+                size_of_text_buffer = (uint64) serialized_buffer.str.length,
                 size_of_artifacts_buffer = artifacts_buffer_size
             };
 
-            dos.put_byte (prelude.major_version);
-            dos.put_byte (prelude.minor_version);
-            dos.put_int64 (prelude.size_of_text_buffer);
-            dos.put_int64 (prelude.size_of_artifacts_buffer);
+            var expected_length = sizeof(uint8) * 2 + sizeof(uint64) * 2;
+            bytes_written = Utils.Streams.write_struct (os, prelude, expected_length);
 
             // Write the actual content of the buffer
             if (serialized_buffer.len > 0) {

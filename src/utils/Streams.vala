@@ -63,4 +63,23 @@ namespace Manuscript.Utils.Streams {
 
         return data;
     }
+
+    public size_t write_struct <T>(OutputStream os, T data, size_t len) throws IOError {
+        size_t bytes_written;
+        uint8* ptr = data;
+        uint8[] bytes = new uint8[len];
+        for (ulong i = 0; i < len; i++) {
+            bytes[i] = *ptr;
+            ptr ++;
+        }
+        os.write_all(bytes, out bytes_written);
+        return bytes_written;
+    }
+
+    public void write_prelude (DataOutputStream os, Models.TextBufferPrelude prelude) throws IOError {
+        os.put_byte (prelude.major_version);
+        os.put_byte (prelude.minor_version);
+        os.put_uint64 (prelude.size_of_text_buffer);
+        os.put_uint64 (prelude.size_of_artifacts_buffer);
+    }
 }

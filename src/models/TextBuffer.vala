@@ -46,11 +46,11 @@ namespace Manuscript.Models {
         }
     }
 
-    struct TextBufferPrelude {
+    public struct TextBufferPrelude {
         uint8 major_version;
         uint8 minor_version;
-        int64 size_of_text_buffer;
-        int64 size_of_artifacts_buffer;
+        uint64 size_of_text_buffer;
+        uint64 size_of_artifacts_buffer;
     }
 
     const uint8 NULL_TERMINATOR = '\0';
@@ -145,11 +145,19 @@ namespace Manuscript.Models {
             // A raw_content to be deserialized must be at least the size of its prelude
             assert (raw_content.length >= prelude_size);
 
-            var data = Manuscript.Utils.Streams.read_until (dis, NULL_TERMINATOR);
+            //  var data = Manuscript.Utils.Streams.read_until (dis, NULL_TERMINATOR);
+            var data = dis.read_bytes ((size_t) prelude.size_of_text_buffer);
+
+            // One null terminators after text buffer
+            dis.read_bytes (1);
+
+            // Additional stuff...
+
+            // Close the stream
             dis.close ();
 
             Lib.RichTextParser parser = new Lib.RichTextParser (this);
-            parser.parse ((string) data);
+            parser.parse ((string) data.get_data ());
 
             dirty = false;
 
