@@ -78,7 +78,7 @@ namespace Manuscript.Models.Lib {
                 size_of_artifacts_buffer = artifacts_buffer_size
             };
 
-            var expected_length = sizeof(uint8) * 2 + sizeof(uint64) * 2;
+            var expected_length = sizeof (uint8) * 2 + sizeof (uint64) * 2;
             bytes_written = Utils.Streams.write_struct (os, prelude, expected_length);
 
             // Write the actual content of the buffer
@@ -90,7 +90,7 @@ namespace Manuscript.Models.Lib {
 
             // Write artifacts
             for (var i = 0; i < serialized_artifacts.size; i++) {
-                var item = serialized_artifacts.@get(i);
+                var item = serialized_artifacts.@get (i);
                 dos.write_all (item.to_array (), out bytes_written);
                 dos.put_byte (NULL_TERMINATOR);
             }

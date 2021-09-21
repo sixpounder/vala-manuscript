@@ -17,15 +17,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
- namespace Manuscript.Models.Lib {
-     public class NotesParser : Object {
-        private TextBuffer buffer;
+namespace Manuscript.Models.Lib {
+    public class NotesParser : Object {
+    private TextBuffer buffer;
 
-        public NotesParser (TextBuffer buffer) {
-            this.buffer = buffer;
-        }
+    public NotesParser (TextBuffer buffer) {
+        this.buffer = buffer;
+    }
 
-        public void parse (string raw_buffer) {}
-     }
- }
- 
+    public void parse (string raw_buffer) {}
+    }
+}

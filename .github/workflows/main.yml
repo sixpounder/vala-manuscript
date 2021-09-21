@@ -12,7 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: elementary/docker:unstable
+      image: ghcr.io/elementary/flatpak-platform/runtime:6
+      options: --privileged
 
     steps:
     - uses: actions/checkout@v2
@@ -33,11 +34,11 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: bilelmoussaoui/flatpak-github-actions:gnome-3.38
+      image: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v3
       options: --privileged
     steps:
     - uses: actions/checkout@v2
     - uses: bilelmoussaoui/flatpak-github-actions@v2
       with:
-        bundle: "manuscript.flatpak"
+        bundle: "Manuscript.flatpak"
         manifest-path: "flatpak/com.github.sixpounder.manuscript.yml"

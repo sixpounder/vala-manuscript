@@ -64,7 +64,7 @@ namespace Manuscript.Utils.Streams {
         return data;
     }
 
-    public size_t write_struct <T>(OutputStream os, T data, size_t len) throws IOError {
+    public size_t write_struct<T> (OutputStream os, T data, size_t len) throws IOError {
         size_t bytes_written;
         uint8* ptr = data;
         uint8[] bytes = new uint8[len];
@@ -72,7 +72,7 @@ namespace Manuscript.Utils.Streams {
             bytes[i] = *ptr;
             ptr ++;
         }
-        os.write_all(bytes, out bytes_written);
+        os.write_all (bytes, out bytes_written);
         return bytes_written;
     }
 
