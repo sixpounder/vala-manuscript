@@ -122,8 +122,8 @@ namespace Manuscript.Services {
             action_accelerators.set (ACTION_FORMAT_BOLD, "<Control>b");
             action_accelerators.set (ACTION_FORMAT_ITALIC, "<Control>i");
             action_accelerators.set (ACTION_FORMAT_UNDERLINE, "<Control>u");
-            action_accelerators.set (ACTION_QUOTE_OPEN, "<Control><Shift><");
-            action_accelerators.set (ACTION_QUOTE_CLOSE, "<Control><");
+            action_accelerators.set (ACTION_QUOTE_OPEN, "<Control><Shift>" + Gdk.keyval_name (Gdk.Key.greater));
+            action_accelerators.set (ACTION_QUOTE_CLOSE, "<Control>" + Gdk.keyval_name (Gdk.Key.less));
         }
 
         construct {

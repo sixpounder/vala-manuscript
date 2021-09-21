@@ -119,6 +119,7 @@
 #endif
 
             quote_open = new Gtk.Button.with_label (_("«"));
+            quote_open.width_request = 40;
             quote_open.can_focus = false;
             quote_open.halign = Gtk.Align.START;
             quote_open.valign = Gtk.Align.FILL;
@@ -133,6 +134,7 @@
 #endif
 
             quote_close = new Gtk.Button.with_label (_("»"));
+            quote_close.width_request = 40;
             quote_close.can_focus = false;
             quote_close.halign = Gtk.Align.START;
             quote_close.valign = Gtk.Align.FILL;

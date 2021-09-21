@@ -136,7 +136,6 @@ namespace Manuscript.Models.Lib {
             //  text_index ++;
             unichar c;
             text.get_next_char (ref text_index, out c);
-            debug ("unichar: %u, string: %s", c, (string) c.to_string ());
             return c;
         }
 

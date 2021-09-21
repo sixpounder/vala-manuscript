@@ -139,11 +139,17 @@ namespace Manuscript.Models {
             };
 
             debug ("Buffer version: %i.%i", prelude.major_version, prelude.minor_version);
-            debug ("Declared size of text buffer: %l bytes", prelude.size_of_text_buffer);
-            debug ("Declared size of artifacts buffer: %l bytes", prelude.size_of_artifacts_buffer);
+            debug ("Declared size of text buffer: %s bytes", prelude.size_of_text_buffer.to_string ());
+            debug ("Declared size of artifacts buffer: %s bytes", prelude.size_of_artifacts_buffer.to_string ());
 
             // A raw_content to be deserialized must be at least the size of its prelude
-            // assert (raw_content.length >= prelude_size);
+            if (raw_content.length < prelude_size) {
+                warning (
+                    "Raw content length (%i) is less than prelude size (%l). This might indicate a malformed chunk",
+                    raw_content.length,
+                    prelude_size
+                );
+            }
 
             //  var data = Manuscript.Utils.Streams.read_until (dis, NULL_TERMINATOR);
             var data = dis.read_bytes ((size_t) prelude.size_of_text_buffer);
