@@ -24,7 +24,7 @@ namespace Manuscript.Widgets {
     public class TextEditorView: Gtk.Box, Protocols.ChunkEditor {
         public weak Manuscript.Services.AppSettings settings { get; private set; }
         public weak Manuscript.Window parent_window { get; construct; }
-        public Widgets.FormatToolbar format_toolbar { get; construct; }
+        public Widgets.EditorToolbar editor_toolbar { get; construct; }
         public Widgets.StatusBar status_bar { get; set; }
         public TextEditor editor { get; private set; }
         public string label { get; set; }
@@ -34,7 +34,7 @@ namespace Manuscript.Widgets {
         private ulong italic_activate_event;
         private ulong underline_activate_event;
 
-        private bool enable_format_toolbar = false;
+        private bool enable_format_toolbar = true;
 
         public TextEditorView (Manuscript.Window parent_window, Models.DocumentChunk chunk) {
             Object (
@@ -69,7 +69,7 @@ namespace Manuscript.Widgets {
             });
             editor = new TextEditor (chunk as Models.TextChunk);
 
-            format_toolbar = new Widgets.FormatToolbar (((Models.TextChunk) chunk).buffer);
+            editor_toolbar = new Widgets.EditorToolbar (((Models.TextChunk) chunk).buffer);
 
             status_bar = new Widgets.StatusBar (parent_window, chunk as Models.TextChunk);
             status_bar.height_request = 50;
@@ -82,7 +82,7 @@ namespace Manuscript.Widgets {
             append (status_bar);
 #else
             if (enable_format_toolbar) {
-                pack_start (format_toolbar, false, true, 0);
+                pack_start (editor_toolbar, false, true, 0);
             }
             pack_start (scrolled_container);
             pack_start (status_bar, false, true, 0);
@@ -101,21 +101,21 @@ namespace Manuscript.Widgets {
             if (enable_format_toolbar) {
                 editor.selection_changed.connect (update_format_toolbar);
 
-                bold_activate_event = format_toolbar.format_bold.clicked.connect (() => {
+                bold_activate_event = editor_toolbar.format_bold.clicked.connect (() => {
                     apply_format (Models.TAG_NAME_BOLD);
                 });
 
-                italic_activate_event = format_toolbar.format_italic.clicked.connect (() => {
+                italic_activate_event = editor_toolbar.format_italic.clicked.connect (() => {
                     apply_format (Models.TAG_NAME_ITALIC);
                 });
 
-                underline_activate_event = format_toolbar.format_underline.clicked.connect (() => {
+                underline_activate_event = editor_toolbar.format_underline.clicked.connect (() => {
                     apply_format (Models.TAG_NAME_UNDERLINE);
                 });
             }
 
 #if FEATURE_FOOTNOTES
-            format_toolbar.insert_note_button.clicked.connect (on_insert_note_clicked);
+            editor_toolbar.insert_note_button.clicked.connect (on_insert_note_clicked);
 #endif
 
             settings.change.connect (update_ui);
@@ -140,7 +140,7 @@ namespace Manuscript.Widgets {
                 }
             }
 
-            format_toolbar.visible = !settings.focus_mode;
+            editor_toolbar.visible = !settings.focus_mode;
 
             reflect_document_settings ();
         }
@@ -148,22 +148,22 @@ namespace Manuscript.Widgets {
         private void update_format_toolbar (Gtk.TextIter selection_start, Gtk.TextIter selection_end) {
             GLib.SList<weak Gtk.TextTag> tags_at_selection_start = selection_start.get_tags ();
 
-            format_toolbar.format_bold.active = false;
-            format_toolbar.format_italic.active = false;
-            format_toolbar.format_underline.active = false;
+            editor_toolbar.format_bold.active = false;
+            editor_toolbar.format_italic.active = false;
+            editor_toolbar.format_underline.active = false;
 
             tags_at_selection_start.@foreach ((tag) => {
                 switch (tag.name) {
                     case Manuscript.Models.TAG_NAME_BOLD:
-                        format_toolbar.format_bold.active = true;
+                        editor_toolbar.format_bold.active = true;
                     break;
 
                     case Manuscript.Models.TAG_NAME_ITALIC:
-                        format_toolbar.format_italic.active = true;
+                        editor_toolbar.format_italic.active = true;
                     break;
 
                     case Manuscript.Models.TAG_NAME_UNDERLINE:
-                        format_toolbar.format_underline.active = true;
+                        editor_toolbar.format_underline.active = true;
                     break;
                 }
             });
@@ -181,12 +181,12 @@ namespace Manuscript.Widgets {
 
         public void lock_editor () {
             editor.sensitive = false;
-            format_toolbar.sensitive = false;
+            editor_toolbar.sensitive = false;
         }
 
         public void unlock_editor () {
             editor.sensitive = true;
-            format_toolbar.sensitive = true;
+            editor_toolbar.sensitive = true;
         }
 
         /**
@@ -196,6 +196,13 @@ namespace Manuscript.Widgets {
         *
         * --------------------------------------------------------------------------------------------
         */
+        public override void insert_open_quote () {
+            get_buffer ().insert_at_cursor ("«", -1);
+        }
+        public override void insert_close_quote () {
+            get_buffer ().insert_at_cursor ("»", -1);
+        }
+
         public void focus_editor () {
             editor.grab_focus ();
         }

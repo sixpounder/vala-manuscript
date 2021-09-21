@@ -51,6 +51,9 @@ namespace Manuscript.Services {
         public const string ACTION_FORMAT_ITALIC = "action_format_italic";
         public const string ACTION_FORMAT_UNDERLINE = "action_format_underline";
 
+        public const string ACTION_QUOTE_OPEN = "action_quote_open";
+        public const string ACTION_QUOTE_CLOSE = "action_quote_close";
+
         public const string ACTION_OPEN_EXPORT_FOLDER = "action_open_export_folder";
 
         private const ActionEntry[] WIN_ACTION_ENTRIES = {
@@ -77,6 +80,9 @@ namespace Manuscript.Services {
             { ACTION_FORMAT_BOLD, action_format_bold },
             { ACTION_FORMAT_ITALIC, action_format_italic },
             { ACTION_FORMAT_UNDERLINE, action_format_underline },
+
+            { ACTION_QUOTE_OPEN, action_quote_open },
+            { ACTION_QUOTE_CLOSE, action_quote_close },
 
             { ACTION_ZOOM_OUT_FONT, action_zoom_out_font },
             { ACTION_ZOOM_IN_FONT, action_zoom_in_font },
@@ -116,6 +122,8 @@ namespace Manuscript.Services {
             action_accelerators.set (ACTION_FORMAT_BOLD, "<Control>b");
             action_accelerators.set (ACTION_FORMAT_ITALIC, "<Control>i");
             action_accelerators.set (ACTION_FORMAT_UNDERLINE, "<Control>u");
+            action_accelerators.set (ACTION_QUOTE_OPEN, "<Control><Shift><");
+            action_accelerators.set (ACTION_QUOTE_CLOSE, "<Control><");
         }
 
         construct {
@@ -282,6 +290,18 @@ namespace Manuscript.Services {
         protected void action_format_underline () {
             if (window.current_editor != null) {
                 window.current_editor.apply_format (Manuscript.Models.TAG_NAME_UNDERLINE);
+            }
+        }
+
+        protected void action_quote_open () {
+            if (window.current_editor != null) {
+                window.current_editor.insert_open_quote ();
+            }
+        }
+
+        protected void action_quote_close () {
+            if (window.current_editor != null) {
+                window.current_editor.insert_close_quote ();
             }
         }
 

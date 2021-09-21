@@ -12,7 +12,8 @@
             "args": [],
             "env": {
                 "G_MESSAGES_DEBUG": "all",
-                "GTK_DEBUG": "interactive"
+                "GTK_DEBUG": "interactive",
+                "G_DEBUG": "fatal-warnings"
             },
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "Build"

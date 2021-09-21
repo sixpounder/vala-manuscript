@@ -47,5 +47,8 @@ namespace Manuscript.Protocols {
         public virtual SearchResult? search_next (string hint) {
             return null;
         }
+
+        public virtual void insert_open_quote () {}
+        public virtual void insert_close_quote () {}
     }
 }

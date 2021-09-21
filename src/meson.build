@@ -53,6 +53,7 @@ executable(
 	'widgets/editors/CoverEditor.vala',
 	'widgets/editors/CharacterSheetEditor.vala',
 	'widgets/editors/FormatToolbar.vala',
+    'widgets/editors/EditorToolbar.vala',
 	'widgets/editors/artifacts/FootNoteIndicator.vala',
 	'widgets/editors/artifacts/TextHighlightIndicator.vala',
 

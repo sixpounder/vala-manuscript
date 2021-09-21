@@ -143,7 +143,7 @@ namespace Manuscript.Models {
             debug ("Declared size of artifacts buffer: %l bytes", prelude.size_of_artifacts_buffer);
 
             // A raw_content to be deserialized must be at least the size of its prelude
-            assert (raw_content.length >= prelude_size);
+            // assert (raw_content.length >= prelude_size);
 
             //  var data = Manuscript.Utils.Streams.read_until (dis, NULL_TERMINATOR);
             var data = dis.read_bytes ((size_t) prelude.size_of_text_buffer);
