@@ -106,7 +106,9 @@ executable(
 	'dialogs/ExportMetrics.vala',
 	'dialogs/QuitDialog.vala',
 	'dialogs/FileSaveDialog.vala',
+    'dialogs/HintsDialog.vala',
 	'dialogs/InfoBar.vala',
+
 	asresources,
 	dependencies: [
         dependency('glib-2.0'),

@@ -31,6 +31,7 @@ namespace Manuscript {
         private Gtk.Bin body;
         private Gtk.Paned editor_grid;
         private Gtk.InfoBar infobar;
+        private Dialogs.HintsDialog? hints_dialog;
         private Manuscript.Widgets.QuickOpenPanel quick_open_panel;
         private int last_editor_grid_panel_position = 0;
         private Widgets.EditorsController editors_controller;
@@ -418,6 +419,14 @@ namespace Manuscript {
             } else {
                 quick_open_panel.show ();
             }
+        }
+
+        public void show_hints_dialog () {
+            hints_dialog = new Dialogs.HintsDialog (this);
+            hints_dialog.response.connect (() => {
+                hints_dialog.destroy ();
+            });
+            hints_dialog.run ();
         }
 
         public void show_document_settings () {

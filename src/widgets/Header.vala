@@ -164,6 +164,12 @@ namespace Manuscript.Widgets {
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_CLOSE_DOCUMENT)"
             );
 
+            var hints_button = create_model_button (
+                _("Hints & shortcuts"),
+                "help-contents-symbolic",
+                @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_HINTS)"
+            );
+
             var quit_button = create_model_button (
                 _("Quit"),
                 "application-exit-symbolic",
@@ -178,6 +184,7 @@ namespace Manuscript.Widgets {
             grid.add (document_settings_button);
             grid.add (document_close_button);
             grid.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
+            grid.add (hints_button);
             grid.add (quit_button);
             grid.show_all ();
 

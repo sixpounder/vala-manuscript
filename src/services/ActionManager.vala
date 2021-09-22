@@ -30,10 +30,11 @@ namespace Manuscript.Services {
         public const string ACTION_EXPORT = "action_export";
         public const string ACTION_DOCUMENT_SETTINGS = "action_document_settings";
         public const string ACTION_CLOSE_DOCUMENT = "action_close_document";
+        public const string ACTION_HINTS = "action_hints";
         public const string ACTION_QUIT = "action_quit";
 
         public const string ACTION_FOCUS_MODE = "action_focus_mode";
-        public const string ACTION_QUICK_OPEN = "action_quick_open";
+        public const string ACTION_JUMP_TO = "action_jump_to";
         public const string ACTION_FIND = "action_find";
         public const string ACTION_ESC = "action_esc";
 
@@ -64,10 +65,11 @@ namespace Manuscript.Services {
             { ACTION_EXPORT, action_export },
             { ACTION_DOCUMENT_SETTINGS, action_document_settings },
             { ACTION_CLOSE_DOCUMENT, action_close_document },
+            { ACTION_HINTS, action_hints },
             { ACTION_QUIT, action_quit },
 
             { ACTION_FOCUS_MODE, action_focus_mode },
-            { ACTION_QUICK_OPEN, action_quick_open },
+            { ACTION_JUMP_TO, action_jump_to },
             { ACTION_FIND, action_find },
             { ACTION_ESC, action_esc },
 
@@ -108,9 +110,11 @@ namespace Manuscript.Services {
             action_accelerators.set (ACTION_SAVE_AS, "<Control><Shift>s");
             action_accelerators.set (ACTION_DOCUMENT_SETTINGS, "<Control>comma");
             action_accelerators.set (ACTION_CLOSE_DOCUMENT, "<Control><alt>c");
+            action_accelerators.set (ACTION_EXPORT, "<Control>e");
             action_accelerators.set (ACTION_FOCUS_MODE, "<Control><Shift>p");
-            action_accelerators.set (ACTION_QUICK_OPEN, "<Control>p");
+            action_accelerators.set (ACTION_JUMP_TO, "<Control>p");
             action_accelerators.set (ACTION_FIND, "<Control>f");
+            action_accelerators.set (ACTION_HINTS, Gdk.keyval_name (Gdk.Key.F1));
             action_accelerators.set (ACTION_QUIT, "<Control>q");
             action_accelerators.set (ACTION_ADD_CHAPTER, "<Alt>1");
             action_accelerators.set (ACTION_ADD_CHARACTER_SHEET, "<Alt>2");
@@ -153,6 +157,12 @@ namespace Manuscript.Services {
             window.document_manager.save_as ();
         }
 
+        protected void action_hints () {
+            if (window != null) {
+                window.show_hints_dialog ();
+            }
+        }
+
         protected void action_quit () {
             if (window != null) {
                 window.close ();
@@ -163,7 +173,7 @@ namespace Manuscript.Services {
             settings.focus_mode = !settings.focus_mode;
         }
 
-        protected void action_quick_open () {
+        protected void action_jump_to () {
             assert (window != null);
             window.show_quick_open_panel ();
         }
