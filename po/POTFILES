@@ -1,5 +1,6 @@
 src/Window.vala
 src/dialogs/QuitDialog.vala
+src/dialogs/HintsDialog.vala
 src/dialogs/ExportDialog.vala
 src/dialogs/ExportMetrics.vala
 src/dialogs/FileSaveDialog.vala
