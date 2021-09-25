@@ -43,26 +43,91 @@ namespace Manuscript.Dialogs {
             layout.expand = true;
 
             var editor_section_layout = create_section_layout (_("Editor"));
-            add_item_to_section (_("Find"), Services.ActionManager.ACTION_FIND, editor_section_layout);
-            add_item_to_section (_("Font zoom in"), Services.ActionManager.ACTION_ZOOM_IN_FONT, editor_section_layout);
-            add_item_to_section (_("Font zoom out"), Services.ActionManager.ACTION_ZOOM_OUT_FONT, editor_section_layout);
-            add_item_to_section (_("Insert open quote"), Services.ActionManager.ACTION_QUOTE_OPEN, editor_section_layout);
-            add_item_to_section (_("Insert close quote"), Services.ActionManager.ACTION_QUOTE_CLOSE, editor_section_layout);
-            add_item_to_section (_("Text bold"), Services.ActionManager.ACTION_FORMAT_BOLD, editor_section_layout);
-            add_item_to_section (_("Text italic"), Services.ActionManager.ACTION_FORMAT_ITALIC, editor_section_layout);
-            add_item_to_section (_("Text underline"), Services.ActionManager.ACTION_FORMAT_UNDERLINE, editor_section_layout);
-            
+            add_item_to_section (
+                _("Find"),
+                Services.ActionManager.ACTION_FIND,
+                editor_section_layout
+            );
+            add_item_to_section (
+                _("Font zoom default"),
+                Services.ActionManager.ACTION_ZOOM_DEFAULT_FONT,
+                editor_section_layout
+            );
+            add_item_to_section (
+                _("Font zoom in"),
+                Services.ActionManager.ACTION_ZOOM_IN_FONT,
+                editor_section_layout
+            );
+            add_item_to_section (
+                _("Font zoom out"),
+                Services.ActionManager.ACTION_ZOOM_OUT_FONT,
+                editor_section_layout
+            );
+            add_item_to_section (
+                _("Open double angle quotation mark"),
+                Services.ActionManager.ACTION_QUOTE_OPEN,
+                editor_section_layout
+            );
+            add_item_to_section (
+                _("Close double angle quotation mark"),
+                Services.ActionManager.ACTION_QUOTE_CLOSE,
+                editor_section_layout
+            );
+            add_item_to_section (
+                _("Text bold"),
+                Services.ActionManager.ACTION_FORMAT_BOLD,
+                editor_section_layout
+            );
+            add_item_to_section (
+                _("Text italic"),
+                Services.ActionManager.ACTION_FORMAT_ITALIC,
+                editor_section_layout
+            );
+            add_item_to_section (
+                _("Text underline"),
+                Services.ActionManager.ACTION_FORMAT_UNDERLINE,
+                editor_section_layout
+            );
+
             layout.attach_next_to (editor_section_layout, null, Gtk.PositionType.BOTTOM, 1, 1);
 
             var document_section_layout = create_section_layout (_("Document"));
-            add_item_to_section (_("Add chapter"), Services.ActionManager.ACTION_ADD_CHAPTER, document_section_layout);
-            add_item_to_section (_("Add character sheet"), Services.ActionManager.ACTION_ADD_CHARACTER_SHEET, document_section_layout);
-            add_item_to_section (_("Add note"), Services.ActionManager.ACTION_ADD_NOTE, document_section_layout);
-            add_item_to_section (_("Document settings"), Services.ActionManager.ACTION_DOCUMENT_SETTINGS, document_section_layout);
-            add_item_to_section (_("Export"), Services.ActionManager.ACTION_EXPORT, document_section_layout);
-            add_item_to_section (_("Jump to"), Services.ActionManager.ACTION_JUMP_TO, document_section_layout);
-            add_item_to_section (_("Toggle focus mode"), Services.ActionManager.ACTION_FOCUS_MODE, document_section_layout);
-            
+            add_item_to_section (
+                _("Add chapter"),
+                Services.ActionManager.ACTION_ADD_CHAPTER,
+                document_section_layout
+            );
+            add_item_to_section (
+                _("Add character sheet"),
+                Services.ActionManager.ACTION_ADD_CHARACTER_SHEET,
+                document_section_layout
+            );
+            add_item_to_section (
+                _("Add note"),
+                Services.ActionManager.ACTION_ADD_NOTE,
+                document_section_layout
+            );
+            add_item_to_section (
+                _("Document settings"),
+                Services.ActionManager.ACTION_DOCUMENT_SETTINGS,
+                document_section_layout
+            );
+            add_item_to_section (
+                _("Export"),
+                Services.ActionManager.ACTION_EXPORT,
+                document_section_layout
+            );
+            add_item_to_section (
+                _("Jump to"),
+                Services.ActionManager.ACTION_JUMP_TO,
+                document_section_layout
+            );
+            add_item_to_section (
+                _("Toggle focus mode"),
+                Services.ActionManager.ACTION_FOCUS_MODE,
+                document_section_layout
+            );
+
             layout.attach_next_to (document_section_layout, editor_section_layout, Gtk.PositionType.RIGHT, 1, 1);
 
             // Add layout to the content view

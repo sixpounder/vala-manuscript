@@ -152,9 +152,9 @@ namespace Manuscript.Models.Lib {
 
         /** Flushes parsed tokens to the TextBuffer */
         private void flush_tokens () {
-            string tokens = parse_tokens.str;
+            string tokens = (string) parse_tokens.data;
             int start_offset = buf_index;
-            int end_offset = buf_index + tokens.length;
+            int end_offset = buf_index + tokens.char_count (tokens.length);
 
             Gtk.TextIter cursor;
             buffer.get_end_iter (out cursor);
