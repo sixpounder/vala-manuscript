@@ -30,16 +30,22 @@ namespace Manuscript.Models.Lib {
         private Timer bench_timer;
         private StringBuilder parse_tokens;
         private SList<Gtk.TextTag> tag_stack;
-        private TextBuffer buffer;
+        public TextBuffer buffer { get; construct; }
         private string? text;
         private int text_index;
         private int buf_index;
 
         public RichTextParser (TextBuffer buffer) {
-            this.buffer = buffer;
+            Object (
+                buffer: buffer
+            );
         }
 
         construct {
+            reset ();
+        }
+
+        private void reset () {
             this.bench_timer = new Timer ();
             this.text_index = 0;
             this.buf_index = 0;
@@ -150,25 +156,29 @@ namespace Manuscript.Models.Lib {
             return peek_tokens.str;
         }
 
-        /** Flushes parsed tokens to the TextBuffer */
+        /** Flushes parsed tokens and append them to the end of `buffer` */
         private void flush_tokens () {
+            // Remember that tokens are bytes composing the string, NOT the actual chars (utf8 stuff)
             string tokens = (string) parse_tokens.data;
+            int char_count = tokens.char_count (tokens.length);
             int start_offset = buf_index;
-            int end_offset = buf_index + tokens.char_count (tokens.length);
+            int end_offset = buf_index + char_count;
 
             Gtk.TextIter cursor;
             buffer.get_end_iter (out cursor);
 
             buffer.insert (ref cursor, tokens, tokens.length);
-            buf_index += tokens.length;
+            buf_index += char_count;
 
-            Gtk.TextIter tag_apply_start, tag_apply_end;
-            buffer.get_iter_at_offset (out tag_apply_start, start_offset);
-            buffer.get_iter_at_offset (out tag_apply_end, end_offset);
-
-            tag_stack.@foreach (tag => {
-                buffer.apply_tag (tag, tag_apply_start, tag_apply_end);
-            });
+            if (tag_stack.length () > 0) {
+                Gtk.TextIter tag_apply_start, tag_apply_end;
+                buffer.get_iter_at_offset (out tag_apply_start, start_offset);
+                buffer.get_iter_at_offset (out tag_apply_end, end_offset);
+    
+                tag_stack.@foreach (tag => {
+                    buffer.apply_tag (tag, tag_apply_start, tag_apply_end);
+                });
+            }
 
             parse_tokens.erase ();
         }
