@@ -337,6 +337,8 @@ namespace Manuscript.Compilers {
 
             while (!cursor.is_end ()) {
                 var line_count_limit = on_title_page ? max_lines_per_page_with_title : max_lines_per_page;
+
+                // If the line counter hits the line count limit for the page, begin a new one
                 if (line_counter > line_count_limit) {
 
                     // If page must end, but cursor is inside a word, go back until word begin
@@ -350,6 +352,7 @@ namespace Manuscript.Compilers {
                         markup_buffer.erase (markup_buffer.len - 1 - undo_chars);
                         layout.set_markup (markup_buffer.str, markup_buffer.str.length);
                     }
+                    // ----
 
                     // Show current layout and reset it, moving to new page
                     Pango.cairo_show_layout (cairo_context, layout);
@@ -359,6 +362,7 @@ namespace Manuscript.Compilers {
                     on_title_page = false;
                     line_counter = 0;
                     layout = create_page_layout (chunk);
+                    // ----
                 }
 
                 if (cursor.starts_tag (null)) {
@@ -381,9 +385,8 @@ namespace Manuscript.Compilers {
                     });
                 }
 
-                // If cursor is at a natural word start, read the whole word.
-                // If not, append a single char to the buffer
                 if (cursor.starts_word ()) {
+                    // If cursor is at a natural word start, read the whole word.
                     Gtk.TextIter word_start, word_end;
                     word_start = cursor;
                     word_end = word_start;
@@ -392,6 +395,7 @@ namespace Manuscript.Compilers {
                     markup_buffer.append (GLib.Markup.escape_text (text));
                     cursor = word_end;
                 } else {
+                    // If not, append a single char to the buffer
                     unichar ch = cursor.get_char ();
                     markup_buffer.append_unichar (ch);
                     cursor.forward_char ();
@@ -515,7 +519,7 @@ namespace Manuscript.Compilers {
                 content_layout.set_width (
                     (int) (
                         (surface_width * Pango.SCALE)
-                        - (title_extents.width * Pango.SCALE)
+                        - (section_title_layout.get_width () * Pango.SCALE)
                         - ((page_margin * Pango.SCALE) * 2)
                     )
                 );
@@ -556,7 +560,7 @@ namespace Manuscript.Compilers {
                 content_layout.set_width (
                     (int) (
                         (surface_width * Pango.SCALE)
-                        - (title_extents.width * Pango.SCALE)
+                        - (section_title_layout.get_width () * Pango.SCALE)
                         - ((page_margin * Pango.SCALE) * 2)
                     )
                 );
@@ -597,7 +601,7 @@ namespace Manuscript.Compilers {
                 content_layout.set_width (
                     (int) (
                         (surface_width * Pango.SCALE)
-                        - (title_extents.width * Pango.SCALE)
+                        - (section_title_layout.get_width () * Pango.SCALE)
                         - ((page_margin * Pango.SCALE) * 2)
                     )
                 );

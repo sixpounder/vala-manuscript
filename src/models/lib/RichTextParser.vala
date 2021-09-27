@@ -161,8 +161,6 @@ namespace Manuscript.Models.Lib {
             // Remember that tokens are bytes composing the string, NOT the actual chars (utf8 stuff)
             string tokens = (string) parse_tokens.data;
             int char_count = tokens.char_count (tokens.length);
-            int start_offset = buf_index;
-            int end_offset = buf_index + char_count;
 
             Gtk.TextIter cursor;
             buffer.get_end_iter (out cursor);
@@ -171,10 +169,11 @@ namespace Manuscript.Models.Lib {
             buf_index += char_count;
 
             if (tag_stack.length () > 0) {
+                int start_offset = buf_index;
+                int end_offset = buf_index + char_count;
                 Gtk.TextIter tag_apply_start, tag_apply_end;
                 buffer.get_iter_at_offset (out tag_apply_start, start_offset);
                 buffer.get_iter_at_offset (out tag_apply_end, end_offset);
-    
                 tag_stack.@foreach (tag => {
                     buffer.apply_tag (tag, tag_apply_start, tag_apply_end);
                 });
