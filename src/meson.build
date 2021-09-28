@@ -47,6 +47,9 @@ executable(
 	'widgets/QuickOpenEntry.vala',
 	'widgets/EditorCourtesyView.vala',
 
+    'widgets/document-explorer/DocumentExplorer.vala',
+    'widgets/document-explorer/DocumentExplorerItem.vala',
+
 	'widgets/editors/EditorsController.vala',
 	'widgets/editors/TextEditorView.vala',
 	'widgets/editors/TextEditor.vala',
