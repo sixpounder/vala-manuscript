@@ -39,6 +39,9 @@ namespace Manuscript.Dialogs {
         protected Gtk.Box format_selection_grid;
         protected Gtk.Spinner progress_indicator;
         protected Gtk.Widget export_button_label;
+        protected Gtk.CheckButton export_character_sheets_check;
+        protected Gtk.CheckButton export_notes_check;
+        protected Gtk.CheckButton export_footnotes_check;
 
         protected Gtk.Entry file_name_entry;
         protected Gtk.FileChooserButton folder_chooser_button;
@@ -50,7 +53,7 @@ namespace Manuscript.Dialogs {
                 document: document,
                 modal: true,
                 width_request: 500,
-                height_request: 500,
+                height_request: 250,
                 title: _("Export")
             );
         }
@@ -70,13 +73,13 @@ namespace Manuscript.Dialogs {
 
             var layout = new Gtk.Grid ();
             layout.margin_start = layout.margin_end = 30;
-            layout.row_spacing = 15;
+            layout.row_spacing = 40;
             layout.row_homogeneous = false;
             layout.expand = true;
             layout.halign = Gtk.Align.CENTER;
             layout.valign = Gtk.Align.CENTER;
             layout.width_request = 500;
-            layout.height_request = 500;
+            layout.height_request = 250;
 
             format_selection_grid = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10);
             format_selection_grid.halign = Gtk.Align.CENTER;
@@ -84,11 +87,7 @@ namespace Manuscript.Dialogs {
             format_selection_grid.homogeneous = true;
             format_selection_grid.hexpand = true;
 
-            var pdf_radio = new Gtk.RadioButton (null);
-            var pdf_icon = new Gtk.Image ();
-            pdf_icon.gicon = new ThemedIcon ("application-pdf");
-            pdf_icon.pixel_size = ICON_SIZE;
-            pdf_radio.image = pdf_icon;
+            var pdf_radio = build_radio ("PDF", "application-pdf", null);
             pdf_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.PDF;
             });
@@ -99,11 +98,7 @@ namespace Manuscript.Dialogs {
 #endif
 
 #if EXPORT_COMPILER_HTML
-            var html_radio = new Gtk.RadioButton.from_widget (pdf_radio);
-            var html_icon = new Gtk.Image ();
-            html_icon.gicon = new ThemedIcon ("text-html");
-            html_icon.pixel_size = ICON_SIZE;
-            html_radio.image = html_icon;
+            var pdf_radio = build_radio ("HTML", "text-html", pdf_radio);
             html_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.HTML;
             });
@@ -115,11 +110,7 @@ namespace Manuscript.Dialogs {
 #endif
 
 #if EXPORT_COMPILER_MARKDOWN
-            var markdown_radio = new Gtk.RadioButton.from_widget (pdf_radio);
-            var markdown_icon = new Gtk.Image ();
-            markdown_icon.gicon = new ThemedIcon ("text-markdown");
-            markdown_icon.pixel_size = ICON_SIZE;
-            markdown_radio.image = markdown_icon;
+            var markdown_radio = build_radio ("Markdown", "text-markdown", pdf_radio);
             markdown_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.MARKDOWN;
             });
@@ -127,11 +118,7 @@ namespace Manuscript.Dialogs {
 #endif
 
 #if EXPORT_COMPILER_PLAIN
-            var plain_radio = new Gtk.RadioButton.from_widget (pdf_radio);
-            var plain_icon = new Gtk.Image ();
-            plain_icon.gicon = new ThemedIcon ("text-x-generic");
-            plain_icon.pixel_size = ICON_SIZE;
-            plain_radio.image = plain_icon;
+            var plain_radio = build_radio ("Plain text", "text-plain", pdf_radio);
             plain_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.PLAIN;
             });
@@ -143,11 +130,7 @@ namespace Manuscript.Dialogs {
 #endif
 
 #if EXPORT_COMPILER_ARCHIVE
-            var archive_radio = new Gtk.RadioButton.from_widget (pdf_radio);
-            var archive_icon = new Gtk.Image ();
-            archive_icon.gicon = new ThemedIcon ("package-x-generic");
-            archive_icon.pixel_size = 64;
-            archive_radio.image = archive_icon;
+            var archive_radio = build_radio ("Archive", "package-x-generic", pdf_radio);
             archive_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.ARCHIVE;
             });
@@ -160,21 +143,81 @@ namespace Manuscript.Dialogs {
 
             layout.attach_next_to (format_selection_grid, null, Gtk.PositionType.LEFT);
 
+            var file_box = new Gtk.Grid ();
+            file_box.row_spacing = 15;
+
             file_name_entry = new Gtk.Entry ();
             file_name_entry.valign = Gtk.Align.START;
+            file_name_entry.hexpand = true;
             file_name_entry.text = document.title;
             file_name_entry.placeholder_text = _("Type a name for the exported file");
             adapt_filename_to_format (export_format);
-            layout.attach_next_to (file_name_entry, format_selection_grid, Gtk.PositionType.BOTTOM);
+            file_box.attach_next_to (file_name_entry, null, Gtk.PositionType.BOTTOM);
 
             folder_chooser_button = new Gtk.FileChooserButton (_("Output folder"), Gtk.FileChooserAction.SELECT_FOLDER);
             folder_chooser_button.valign = Gtk.Align.START;
+            folder_chooser_button.hexpand = true;
             folder_chooser_button.set_current_folder (Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
-            layout.attach_next_to (folder_chooser_button, file_name_entry, Gtk.PositionType.BOTTOM);
+            file_box.attach_next_to (folder_chooser_button, file_name_entry, Gtk.PositionType.BOTTOM);
+
+            layout.attach_next_to (file_box, format_selection_grid, Gtk.PositionType.BOTTOM);
+
+            var options_box = new Gtk.Grid ();
+            export_character_sheets_check = new Gtk.CheckButton ();
+            export_character_sheets_check.active = true;
+            export_character_sheets_check.label = _("Render character sheets");
+            options_box.attach_next_to (export_character_sheets_check, null, Gtk.PositionType.BOTTOM);
+
+            export_notes_check = new Gtk.CheckButton ();
+            export_notes_check.active = true;
+            export_notes_check.label = _("Render notes");
+            options_box.attach_next_to (export_notes_check, export_character_sheets_check, Gtk.PositionType.BOTTOM);
+
+            //  layout.attach_next_to (options_box, file_box, Gtk.PositionType.BOTTOM);
 
             get_content_area ().add (layout);
 
             show_all ();
+        }
+
+        private Gtk.RadioButton build_radio (string label, string icon_name, Gtk.RadioButton? group = null) {
+            var pdf_icon = new Gtk.Image ();
+            pdf_icon.gicon = new ThemedIcon (icon_name);
+            pdf_icon.pixel_size = ICON_SIZE;
+
+            //  var card = new Gtk.Grid () {
+            //      row_spacing = 6,
+            //      margin_start = 12
+            //  };
+            //  card.get_style_context ().add_class (Granite.STYLE_CLASS_CARD);
+            //  card.get_style_context ().add_class (Granite.STYLE_CLASS_ROUNDED);
+
+            //  card.add (pdf_icon);
+            var card = pdf_icon;
+
+            var radio_grid = new Gtk.Grid () {
+                row_spacing = 6
+            };
+
+            radio_grid.attach (card, 0, 0);
+            radio_grid.attach (new Gtk.Label (label), 0, 1);
+
+            Gtk.RadioButton radio;
+
+            if (group != null) {
+                radio = new Gtk.RadioButton.from_widget (group) {
+                    halign = Gtk.Align.START
+                };
+            } else {
+                radio = new Gtk.RadioButton (null) {
+                    halign = Gtk.Align.START
+                };
+            }
+
+            radio.get_style_context ().add_class ("image-button");
+            radio.add (radio_grid);
+
+            return radio;
         }
 
         protected void disable_ui () {
