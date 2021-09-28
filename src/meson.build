@@ -99,6 +99,7 @@ executable(
 	'utils/FileUtils.vala',
 	'utils/Threads.vala',
 	'utils/Streams.vala',
+    'utils/Builders.vala',
 
     'dialogs/GenericDialog.vala',
 	'dialogs/ExportDialog.vala',

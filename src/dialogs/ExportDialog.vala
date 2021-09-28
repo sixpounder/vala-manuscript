@@ -87,7 +87,7 @@ namespace Manuscript.Dialogs {
             format_selection_grid.homogeneous = true;
             format_selection_grid.hexpand = true;
 
-            var pdf_radio = build_radio ("PDF", "application-pdf", null);
+            var pdf_radio = Utils.Builders.build_card_radio ("PDF", "application-pdf");
             pdf_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.PDF;
             });
@@ -98,7 +98,7 @@ namespace Manuscript.Dialogs {
 #endif
 
 #if EXPORT_COMPILER_HTML
-            var pdf_radio = build_radio ("HTML", "text-html", pdf_radio);
+            var pdf_radio = Utils.Builders.build_radio ("HTML", "text-html", ICON_SIZE, pdf_radio);
             html_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.HTML;
             });
@@ -110,7 +110,7 @@ namespace Manuscript.Dialogs {
 #endif
 
 #if EXPORT_COMPILER_MARKDOWN
-            var markdown_radio = build_radio ("Markdown", "text-markdown", pdf_radio);
+            var markdown_radio = Utils.Builders.build_card_radio ("Markdown", "text-markdown", ICON_SIZE, pdf_radio);
             markdown_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.MARKDOWN;
             });
@@ -118,7 +118,7 @@ namespace Manuscript.Dialogs {
 #endif
 
 #if EXPORT_COMPILER_PLAIN
-            var plain_radio = build_radio ("Plain text", "text-plain", pdf_radio);
+            var plain_radio = Utils.Builders.build_card_radio ("Plain text", "text-plain", ICON_SIZE, pdf_radio);
             plain_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.PLAIN;
             });
@@ -130,7 +130,7 @@ namespace Manuscript.Dialogs {
 #endif
 
 #if EXPORT_COMPILER_ARCHIVE
-            var archive_radio = build_radio ("Archive", "package-x-generic", pdf_radio);
+            var archive_radio = Utils.Builders.build_radio ("Archive", "package-x-generic", ICON_SIZE, pdf_radio);
             archive_radio.toggled.connect (() => {
                 export_format = Manuscript.Models.ExportFormat.ARCHIVE;
             });
@@ -178,46 +178,6 @@ namespace Manuscript.Dialogs {
             get_content_area ().add (layout);
 
             show_all ();
-        }
-
-        private Gtk.RadioButton build_radio (string label, string icon_name, Gtk.RadioButton? group = null) {
-            var pdf_icon = new Gtk.Image ();
-            pdf_icon.gicon = new ThemedIcon (icon_name);
-            pdf_icon.pixel_size = ICON_SIZE;
-
-            //  var card = new Gtk.Grid () {
-            //      row_spacing = 6,
-            //      margin_start = 12
-            //  };
-            //  card.get_style_context ().add_class (Granite.STYLE_CLASS_CARD);
-            //  card.get_style_context ().add_class (Granite.STYLE_CLASS_ROUNDED);
-
-            //  card.add (pdf_icon);
-            var card = pdf_icon;
-
-            var radio_grid = new Gtk.Grid () {
-                row_spacing = 6
-            };
-
-            radio_grid.attach (card, 0, 0);
-            radio_grid.attach (new Gtk.Label (label), 0, 1);
-
-            Gtk.RadioButton radio;
-
-            if (group != null) {
-                radio = new Gtk.RadioButton.from_widget (group) {
-                    halign = Gtk.Align.START
-                };
-            } else {
-                radio = new Gtk.RadioButton (null) {
-                    halign = Gtk.Align.START
-                };
-            }
-
-            radio.get_style_context ().add_class ("image-button");
-            radio.add (radio_grid);
-
-            return radio;
         }
 
         protected void disable_ui () {
