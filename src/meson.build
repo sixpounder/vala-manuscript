@@ -28,6 +28,7 @@ executable(
 	'services/ActionManager.vala',
 	'services/Notification.vala',
 	'services/ThreadPool.vala',
+    'services/I18n.vala',
 
 	'widgets/WelcomeView.vala',
 	'widgets/Header.vala',

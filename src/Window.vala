@@ -230,7 +230,7 @@ namespace Manuscript {
                             document_manager.close.end (res);
                         } catch (Models.DocumentError e) {
                             critical (e.message);
-                            show_infobar (Gtk.MessageType.ERROR, @"$(_("Could not save this file")): $(e.message)");
+                            show_infobar (Gtk.MessageType.ERROR, @"$(Services.I18n.FILE_SAVE_ERROR): $(e.message)");
                         }
                     });
                 }
@@ -431,7 +431,7 @@ namespace Manuscript {
 
         public void show_document_settings () {
             var document_settings_dialog = new Dialogs.GenericDialog (this, new Widgets.DocumentSettings (this));
-            document_settings_dialog.title = _("Document properties");
+            document_settings_dialog.title = Services.I18n.DOCUMENT_PROPERTIES;
             document_settings_dialog.destroy_with_parent = true;
             document_settings_dialog.modal = false;
             document_settings_dialog.close.connect (() => {

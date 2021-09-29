@@ -29,3 +29,4 @@ src/models/CharacterSheetChunk.vala
 src/models/NoteChunk.vala
 src/models/CoverChunk.vala
 src/services/ActionManager.vala
+src/services/I18n.vala

@@ -18,37 +18,14 @@
  */
 
 namespace Manuscript.Dialogs {
-    //  public class FileSaveDialog : Gtk.FileChooserDialog {
-
-    //      public unowned Models.Document document { get; construct; }
-
-    //      public FileSaveDialog (Gtk.ApplicationWindow parent, Models.Document document) {
-    //          Object (
-    //              transient_for: parent,
-    //              modal: true,
-    //              do_overwrite_confirmation: true,
-    //              create_folders: true,
-    //              action: Gtk.FileChooserAction.SAVE,
-    //              document: document
-    //          );
-
-    //      }
-
-    //      construct {
-    //          set_current_name (document.filename);
-    //          add_button (_("Save document"), Gtk.ResponseType.ACCEPT);
-    //          add_button (_("Cancel"), Gtk.ResponseType.CANCEL);
-    //      }
-    //  }
-
     public Gtk.FileChooserDialog file_save_dialog (Gtk.ApplicationWindow parent, Models.Document document) {
         Gtk.FileChooserDialog dialog = new Gtk.FileChooserDialog (
-            _ ("Save manuscript"),
+            Services.I18n.SAVE_MANUSCRIPT,
             parent,
             Gtk.FileChooserAction.SAVE,
-            _ ("Cancel"),
+            Services.I18n.CANCEL,
             Gtk.ResponseType.CANCEL,
-            _ ("Save"),
+            Services.I18n.SAVE,
             Gtk.ResponseType.ACCEPT
         );
 

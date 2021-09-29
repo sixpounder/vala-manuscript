@@ -41,7 +41,7 @@ namespace Manuscript.Widgets {
         public QuickOpenPanel (Manuscript.Services.DocumentManager document_manager) {
             Object (
                 document_manager: document_manager,
-                label: _("Quick open"),
+                label: Services.I18n.QUICK_OPEN,
                 width_request: 550,
                 expand: false,
                 halign: Gtk.Align.CENTER,
@@ -96,22 +96,22 @@ namespace Manuscript.Widgets {
         protected bool on_key_pressed (Gdk.EventKey event) {
             if (event.keyval == Gdk.Key.Escape) {
                 action (null);
-                return true;
+                return Gdk.EVENT_STOP;
             } else if (event.keyval == Gdk.Key.Return) {
                 if (selected != null) {
                     action (selected.chunk);
                 } else {
                     action (null);
                 }
-                return true;
+                return Gdk.EVENT_STOP;
             } else if (event.keyval == Gdk.Key.Down) {
                 select_next_result ();
-                return true;
+                return Gdk.EVENT_STOP;
             } else if (event.keyval == Gdk.Key.Up) {
                 select_previous_result ();
-                return true;
+                return Gdk.EVENT_STOP;
             } else {
-                return false;
+                return Gdk.EVENT_PROPAGATE;
             }
         }
 
@@ -136,7 +136,7 @@ namespace Manuscript.Widgets {
                 word = word.down ();
                 var chunks = document_manager.document.chunks;
                 if (chunks != null) {
-                    debug (@"Searching for $(word)");
+                    //  debug (@"Searching for $(word)");
                     var results_buffer = chunks.filter ((item) => {
                         return item.title.down ().contains (word);
                     });
@@ -153,7 +153,7 @@ namespace Manuscript.Widgets {
                 child.destroy ();
             });
 
-            debug ("Quick open list cleared");
+            //  debug ("Quick open list cleared");
         }
 
         protected void build_results_interface_from_iterator (
@@ -181,7 +181,7 @@ namespace Manuscript.Widgets {
             );
             results_grid.show_all ();
 
-            debug (@"$(i) results shown");
+            //  debug (@"$(i) results shown");
         }
 
         public void select_next_result () {

@@ -122,11 +122,11 @@ namespace Manuscript {
 
             window.focus_in_event.connect ((ev) => {
                 current_window = ev.window;
-                return false;
+                return Gdk.EVENT_PROPAGATE;
             });
             window.focus_out_event.connect (() => {
                 current_window = null;
-                return false;
+                return Gdk.EVENT_PROPAGATE;
             });
 
             return window;

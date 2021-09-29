@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: com.github.sixpounder.manuscript\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-24 01:01+0200\n"
+"POT-Creation-Date: 2021-09-29 15:14+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,8 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/Window.vala:282 src/dialogs/FileSaveDialog.vala:51
-#: src/widgets/Header.vala:144
+#: src/Window.vala:282 src/widgets/Header.vala:144 src/services/I18n.vala:9
 msgid "Save"
 msgstr ""
 
@@ -30,8 +29,8 @@ msgstr ""
 msgid "Open document"
 msgstr ""
 
-#: src/Window.vala:315 src/dialogs/ExportDialog.vala:63
-#: src/dialogs/FileSaveDialog.vala:49 src/widgets/editors/CoverEditor.vala:106
+#: src/Window.vala:315 src/widgets/editors/CoverEditor.vala:106
+#: src/services/I18n.vala:11
 msgid "Cancel"
 msgstr ""
 
@@ -80,10 +79,6 @@ msgstr ""
 msgid "Some strange error happened while trying to open file at %s"
 msgstr ""
 
-#: src/Window.vala:434
-msgid "Document properties"
-msgstr ""
-
 #: src/dialogs/QuitDialog.vala:34
 msgid "Document has unsaved changes"
 msgstr ""
@@ -110,105 +105,84 @@ msgstr ""
 msgid "Editor"
 msgstr ""
 
-#: src/dialogs/HintsDialog.vala:46
+#: src/dialogs/HintsDialog.vala:47
 msgid "Find"
 msgstr ""
 
-#: src/dialogs/HintsDialog.vala:47
-msgid "Font zoom in"
-msgstr ""
-
-#: src/dialogs/HintsDialog.vala:48
-msgid "Font zoom out"
-msgstr ""
-
-#: src/dialogs/HintsDialog.vala:49
-msgid "Insert open quote"
-msgstr ""
-
-#: src/dialogs/HintsDialog.vala:50
-msgid "Insert close quote"
-msgstr ""
-
-#: src/dialogs/HintsDialog.vala:51
-msgid "Text bold"
-msgstr ""
-
 #: src/dialogs/HintsDialog.vala:52
-msgid "Text italic"
-msgstr ""
-
-#: src/dialogs/HintsDialog.vala:53
-msgid "Text underline"
+msgid "Font zoom default"
 msgstr ""
 
 #: src/dialogs/HintsDialog.vala:57
-msgid "Document"
+msgid "Font zoom in"
 msgstr ""
 
-#: src/dialogs/HintsDialog.vala:58
-msgid "Add chapter"
+#: src/dialogs/HintsDialog.vala:62
+msgid "Font zoom out"
 msgstr ""
 
-#: src/dialogs/HintsDialog.vala:59
-msgid "Add character sheet"
-msgstr ""
-
-#: src/dialogs/HintsDialog.vala:60
-msgid "Add note"
-msgstr ""
-
-#: src/dialogs/HintsDialog.vala:61 src/widgets/Header.vala:156
-msgid "Document settings"
-msgstr ""
-
-#: src/dialogs/HintsDialog.vala:62 src/dialogs/ExportDialog.vala:54
-#: src/dialogs/ExportDialog.vala:59
-msgid "Export"
-msgstr ""
-
-#: src/dialogs/HintsDialog.vala:63
-msgid "Jump to"
-msgstr ""
-
-#: src/dialogs/HintsDialog.vala:64
-msgid "Toggle focus mode"
+#: src/dialogs/HintsDialog.vala:67
+msgid "Open double angle quotation mark"
 msgstr ""
 
 #: src/dialogs/HintsDialog.vala:72
+msgid "Close double angle quotation mark"
+msgstr ""
+
+#: src/dialogs/HintsDialog.vala:77
+msgid "Text bold"
+msgstr ""
+
+#: src/dialogs/HintsDialog.vala:82
+msgid "Text italic"
+msgstr ""
+
+#: src/dialogs/HintsDialog.vala:87
+msgid "Text underline"
+msgstr ""
+
+#: src/dialogs/HintsDialog.vala:94
+msgid "Document"
+msgstr ""
+
+#: src/dialogs/HintsDialog.vala:96
+msgid "Add chapter"
+msgstr ""
+
+#: src/dialogs/HintsDialog.vala:101
+msgid "Add character sheet"
+msgstr ""
+
+#: src/dialogs/HintsDialog.vala:106
+msgid "Add note"
+msgstr ""
+
+#: src/dialogs/HintsDialog.vala:111 src/widgets/Header.vala:156
+msgid "Document settings"
+msgstr ""
+
+#: src/dialogs/HintsDialog.vala:116 src/services/I18n.vala:12
+msgid "Export"
+msgstr ""
+
+#: src/dialogs/HintsDialog.vala:121
+msgid "Jump to"
+msgstr ""
+
+#: src/dialogs/HintsDialog.vala:126
+msgid "Toggle focus mode"
+msgstr ""
+
+#: src/dialogs/HintsDialog.vala:137
 msgid "Close"
 msgstr ""
 
-#: src/dialogs/ExportDialog.vala:166
-msgid "Type a name for the exported file"
+#: src/dialogs/ExportDialog.vala:171
+msgid "Render character sheets"
 msgstr ""
 
-#: src/dialogs/ExportDialog.vala:170
-msgid "Output folder"
-msgstr ""
-
-#: src/dialogs/ExportDialog.vala:203 src/models/DocumentChunk.vala:114
-msgid "Untitled"
-msgstr ""
-
-#: src/dialogs/ExportMetrics.vala:59 src/widgets/settings/Typography.vala:43
-msgid "Font"
-msgstr ""
-
-#: src/dialogs/ExportMetrics.vala:74 src/widgets/settings/Typography.vala:68
-msgid "Line spacing"
-msgstr ""
-
-#: src/dialogs/ExportMetrics.vala:85 src/widgets/settings/Typography.vala:81
-msgid "Paragraph spacing"
-msgstr ""
-
-#: src/dialogs/ExportMetrics.vala:96 src/widgets/settings/Typography.vala:94
-msgid "Paragraph initial padding"
-msgstr ""
-
-#: src/dialogs/FileSaveDialog.vala:46
-msgid "Save manuscript"
+#: src/dialogs/ExportDialog.vala:176
+msgid "Render notes"
 msgstr ""
 
 #: src/widgets/WelcomeView.vala:28
@@ -359,10 +333,6 @@ msgstr ""
 msgid "Search next"
 msgstr ""
 
-#: src/widgets/QuickOpenPanel.vala:44
-msgid "Quick open"
-msgstr ""
-
 #: src/widgets/QuickOpenPanel.vala:67
 msgid "Type to search"
 msgstr ""
@@ -429,11 +399,12 @@ msgstr ""
 msgid "Covers"
 msgstr ""
 
-#: src/widgets/Sidebar.vala:74
+#: src/widgets/Sidebar.vala:74 src/services/I18n.vala:15
 msgid "Chapters"
 msgstr ""
 
 #: src/widgets/Sidebar.vala:82 src/widgets/editors/CharacterSheetEditor.vala:72
+#: src/services/I18n.vala:16
 msgid "Notes"
 msgstr ""
 
@@ -465,6 +436,34 @@ msgstr ""
 msgid "Page margin"
 msgstr ""
 
+#: src/widgets/settings/Metrics.vala:41
+msgid "Small"
+msgstr ""
+
+#: src/widgets/settings/Metrics.vala:47
+msgid "Medium"
+msgstr ""
+
+#: src/widgets/settings/Metrics.vala:61
+msgid "Large"
+msgstr ""
+
+#: src/widgets/settings/Typography.vala:43 src/services/I18n.vala:26
+msgid "Font"
+msgstr ""
+
+#: src/widgets/settings/Typography.vala:68 src/services/I18n.vala:27
+msgid "Line spacing"
+msgstr ""
+
+#: src/widgets/settings/Typography.vala:81 src/services/I18n.vala:28
+msgid "Paragraph spacing"
+msgstr ""
+
+#: src/widgets/settings/Typography.vala:94 src/services/I18n.vala:29
+msgid "Paragraph initial padding"
+msgstr ""
+
 #: src/widgets/editors/CoverEditor.vala:72
 msgid "Select cover"
 msgstr ""
@@ -493,11 +492,11 @@ msgstr ""
 msgid "Type the name of the character you are describing"
 msgstr ""
 
-#: src/widgets/editors/CharacterSheetEditor.vala:63
+#: src/widgets/editors/CharacterSheetEditor.vala:63 src/services/I18n.vala:19
 msgid "Background"
 msgstr ""
 
-#: src/widgets/editors/CharacterSheetEditor.vala:68
+#: src/widgets/editors/CharacterSheetEditor.vala:68 src/services/I18n.vala:18
 msgid "Traits"
 msgstr ""
 
@@ -522,6 +521,10 @@ msgstr ""
 
 #: src/widgets/editors/TextEditor.vala:101
 msgid "Add footnote"
+msgstr ""
+
+#: src/models/DocumentChunk.vala:114 src/services/I18n.vala:3
+msgid "Untitled"
 msgstr ""
 
 #: src/models/ChapterChunk.vala:30
@@ -550,4 +553,32 @@ msgstr ""
 
 #: src/services/ActionManager.vala:249
 msgid "View file"
+msgstr ""
+
+#: src/services/I18n.vala:4
+msgid "Quick open"
+msgstr ""
+
+#: src/services/I18n.vala:5
+msgid "Could not save this file"
+msgstr ""
+
+#: src/services/I18n.vala:6
+msgid "Document properties"
+msgstr ""
+
+#: src/services/I18n.vala:10
+msgid "Save manuscript"
+msgstr ""
+
+#: src/services/I18n.vala:17
+msgid "Character sheets"
+msgstr ""
+
+#: src/services/I18n.vala:22
+msgid "Type a name for the exported file"
+msgstr ""
+
+#: src/services/I18n.vala:23
+msgid "Output folder"
 msgstr ""

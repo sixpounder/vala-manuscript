@@ -54,16 +54,16 @@ namespace Manuscript.Dialogs {
                 modal: true,
                 width_request: 500,
                 height_request: 250,
-                title: _("Export")
+                title: Services.I18n.EXPORT
             );
         }
 
         construct {
-            export_button = new Gtk.Button.with_label (_("Export"));
+            export_button = new Gtk.Button.with_label (Services.I18n.EXPORT);
             export_button.get_style_context ().add_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
             export_button_label = export_button.get_child ();
 
-            close_button = new Gtk.Button.with_label (_("Cancel"));
+            close_button = new Gtk.Button.with_label (Services.I18n.CANCEL);
 
             progress_indicator = new Gtk.Spinner ();
             progress_indicator.no_show_all = true;
@@ -150,11 +150,14 @@ namespace Manuscript.Dialogs {
             file_name_entry.valign = Gtk.Align.START;
             file_name_entry.hexpand = true;
             file_name_entry.text = document.title;
-            file_name_entry.placeholder_text = _("Type a name for the exported file");
+            file_name_entry.placeholder_text = Services.I18n.EXPORT_FILENAME_PLACEHOLDER;
             adapt_filename_to_format (export_format);
             file_box.attach_next_to (file_name_entry, null, Gtk.PositionType.BOTTOM);
 
-            folder_chooser_button = new Gtk.FileChooserButton (_("Output folder"), Gtk.FileChooserAction.SELECT_FOLDER);
+            folder_chooser_button = new Gtk.FileChooserButton (
+                Services.I18n.EXPORT_OUTPUT_FOLDER,
+                Gtk.FileChooserAction.SELECT_FOLDER
+            );
             folder_chooser_button.valign = Gtk.Align.START;
             folder_chooser_button.hexpand = true;
             folder_chooser_button.set_current_folder (Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
@@ -203,7 +206,7 @@ namespace Manuscript.Dialogs {
         private void adapt_filename_to_format (Models.ExportFormat format) {
             var current_name = file_name_entry.text.length == 0
                 ? document.title.length == 0
-                    ? _("Untitled")
+                    ? Services.I18n.UNTITLED
                     : document.title
                 : file_name_entry.text;
             switch (format) {

@@ -56,7 +56,7 @@ namespace Manuscript.Dialogs {
         }
 
         construct {
-            Gtk.Label font_label = new Gtk.Label (_("Font"));
+            Gtk.Label font_label = new Gtk.Label (Services.I18n.FONT);
             font_label.halign = Gtk.Align.END;
             font_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
 
@@ -71,7 +71,7 @@ namespace Manuscript.Dialogs {
             attach (font_label, 0, 0, 1, 1);
             attach (font_button, 1, 0, 1, 1);
 
-            Gtk.Label line_spacing_label = new Gtk.Label (_("Line spacing"));
+            Gtk.Label line_spacing_label = new Gtk.Label (Services.I18n.LINE_SPACING);
             line_spacing_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
             line_spacing_label.halign = Gtk.Align.END;
             line_spacing_input = new Gtk.SpinButton.with_range (0, 1000, 1);
@@ -82,7 +82,7 @@ namespace Manuscript.Dialogs {
             attach (line_spacing_label, 0, 1, 1, 1);
             attach (line_spacing_input, 1, 1, 1, 1);
 
-            Gtk.Label paragraph_spacing_label = new Gtk.Label (_("Paragraph spacing"));
+            Gtk.Label paragraph_spacing_label = new Gtk.Label (Services.I18n.PARAGRAPH_SPACING);
             paragraph_spacing_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
             paragraph_spacing_label.halign = Gtk.Align.END;
             paragraph_spacing_input = new Gtk.SpinButton.with_range (0, 1000, 1);
@@ -93,7 +93,7 @@ namespace Manuscript.Dialogs {
             attach (paragraph_spacing_label, 0, 2, 1, 1);
             attach (paragraph_spacing_input, 1, 2, 1, 1);
 
-            Gtk.Label paragraph_start_padding_label = new Gtk.Label (_("Paragraph initial padding"));
+            Gtk.Label paragraph_start_padding_label = new Gtk.Label (Services.I18n.PARAGRAPH_INITIAL_PADDING);
             paragraph_start_padding_label.get_style_context ().add_class (Granite.STYLE_CLASS_H4_LABEL);
             paragraph_start_padding_label.halign = Gtk.Align.END;
             paragraph_start_padding_input = new Gtk.SpinButton.with_range (0, 1000, 1);

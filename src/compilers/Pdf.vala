@@ -23,8 +23,8 @@ namespace Manuscript.Compilers {
     private const double PAGE_NUMBER_SCALE_FACTOR = 0.75;
     private const double POINT_SCALE = 0.75;
     private const int DPI = 72;
-    private const string NOTES_FIXED_TITLE = _("Notes");
-    private const string CHARACTER_SHEETS_FIXED_TITLE = _("Character sheets");
+    private const string NOTES_FIXED_TITLE = Manuscript.Services.I18n.NOTES;
+    private const string CHARACTER_SHEETS_FIXED_TITLE = Manuscript.Services.I18n.CHARACTER_SHEETS;
 
     public class PDFCompiler : ManuscriptCompiler {
         private weak Models.Document cached_document { get; set; }
@@ -485,9 +485,9 @@ namespace Manuscript.Compilers {
                 (title_logical_rect.height / Pango.SCALE) + chunk.parent_document.settings.paragraph_spacing.clamp (40, 140) // vala-lint=line-length
             );
 
-            var traits_title_markup = @"<b>$(_("Traits")):</b>\0";
-            var background_title_markup = @"<b>$(_("Background")):</b>\0";
-            var notes_title_markup = @"<b>$(_("Notes")):</b>\0";
+            var traits_title_markup = @"<b>$(Services.I18n.TRAITS):</b>\0";
+            var background_title_markup = @"<b>$(Services.I18n.BACKGROUND):</b>\0";
+            var notes_title_markup = @"<b>$(Services.I18n.NOTES):</b>\0";
             Pango.Layout section_title_layout;
             Pango.Layout content_layout;
             Cairo.TextExtents title_extents;
