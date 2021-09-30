@@ -55,7 +55,7 @@
             get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
 
             format_bold = new Gtk.ToggleButton ();
-            format_bold.can_focus = true;
+            format_bold.can_focus = false;
             format_bold.halign = Gtk.Align.START;
             format_bold.valign = Gtk.Align.FILL;
             format_bold.tooltip_text = _("Bold");
@@ -71,7 +71,7 @@
 #endif
 
             format_italic = new Gtk.ToggleButton ();
-            format_italic.can_focus = true;
+            format_italic.can_focus = false;
             format_italic.halign = Gtk.Align.START;
             format_italic.valign = Gtk.Align.FILL;
             format_italic.tooltip_text = _("Italic");
@@ -87,7 +87,7 @@
 #endif
 
             format_underline = new Gtk.ToggleButton ();
-            format_underline.can_focus = true;
+            format_underline.can_focus = false;
             format_underline.halign = Gtk.Align.START;
             format_underline.valign = Gtk.Align.FILL;
             format_underline.tooltip_text = _("Underline");
@@ -110,8 +110,12 @@
 #endif
 
 #if FEATURE_FOOTNOTES
-            insert_note_button = new Gtk.ToolButton (new TextHighlightIndicator (), null);
-            insert_note_button.can_focus = true;
+            var insert_note_image = new Gtk.Image ();
+            insert_note_image.gicon = new ThemedIcon ("format-text-highlight");
+            insert_note_image.pixel_size = ICON_SIZE;
+
+            insert_note_button = new Gtk.ToolButton (insert_note_image, null);
+            insert_note_button.can_focus = false;
 #if GTK_4
             append (insert_note_button);
 #else
@@ -121,7 +125,7 @@
 
             quote_open = new Gtk.Button.with_label (_("«"));
             quote_open.width_request = 40;
-            quote_open.can_focus = true;
+            quote_open.can_focus = false;
             quote_open.halign = Gtk.Align.START;
             quote_open.valign = Gtk.Align.FILL;
             quote_open.tooltip_text = _("Open double angle quotes");

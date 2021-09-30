@@ -315,10 +315,11 @@ namespace Manuscript.Models {
             }
 
             if (archive.close () != Archive.Result.OK) {
-                critical ("Error closing archive: %s", archive.error_string ());
+                critical ("Error saving archive: %s", archive.error_string ());
                 encountered_error = new DocumentError.SAVE ("Could not finalize archive");
                 state_flags |= DocumentStateFlags.ERR_LAST_SAVE;
             } else {
+                debug ("Archive finalized");
                 info (@"Document saved to $file_path ($size bytes of data)");
                 state_flags = DocumentStateFlags.OK;
             }
