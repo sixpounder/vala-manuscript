@@ -160,6 +160,8 @@ namespace Manuscript.Models.Lib {
         private void flush_tokens () {
             // Remember that tokens are bytes composing the string, NOT the actual chars (utf8 stuff)
             string tokens = (string) parse_tokens.data;
+            int start_offset = buf_index;
+            int end_offset = buf_index + tokens.char_count (tokens.length);
             int char_count = tokens.char_count (tokens.length);
 
             Gtk.TextIter cursor;
@@ -169,8 +171,6 @@ namespace Manuscript.Models.Lib {
             buf_index += char_count;
 
             if (tag_stack.length () > 0) {
-                int start_offset = buf_index;
-                int end_offset = buf_index + char_count;
                 Gtk.TextIter tag_apply_start, tag_apply_end;
                 buffer.get_iter_at_offset (out tag_apply_start, start_offset);
                 buffer.get_iter_at_offset (out tag_apply_end, end_offset);
@@ -180,6 +180,25 @@ namespace Manuscript.Models.Lib {
             }
 
             parse_tokens.erase ();
+            //  string tokens = (string) parse_tokens.data;
+            //  int start_offset = buf_index;
+            //  int end_offset = buf_index + tokens.char_count (tokens.length);
+
+            //  Gtk.TextIter cursor;
+            //  buffer.get_end_iter (out cursor);
+
+            //  buffer.insert (ref cursor, tokens, tokens.length);
+            //  buf_index += tokens.length;
+
+            //  Gtk.TextIter tag_apply_start, tag_apply_end;
+            //  buffer.get_iter_at_offset (out tag_apply_start, start_offset);
+            //  buffer.get_iter_at_offset (out tag_apply_end, end_offset);
+
+            //  tag_stack.@foreach (tag => {
+            //      buffer.apply_tag (tag, tag_apply_start, tag_apply_end);
+            //  });
+
+            //  parse_tokens.erase ();
         }
     }
 }
