@@ -63,7 +63,7 @@
             <description>Determines if focus mode is activated or not</description>
         </key>
         <key name="autosave" type="b">
-            <default>false</default>
+            <default>true</default>
             <summary>Autosave documents at specific checkpoints</summary>
             <description>The application will try to save opened documents at specific points in its lifecycle</description>
         </key>
