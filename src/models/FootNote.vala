@@ -26,12 +26,18 @@ namespace Manuscript.Models {
             }
         }
 
+        public Gtk.TextBuffer content_buffer;
+
         public FootNote (Models.TextChunk parent_chunk, int start_offset, int end_offset = -1) {
             Object (
                 parent_chunk: parent_chunk,
                 start_iter_offset: start_offset,
                 end_iter_offset: end_offset
             );
+        }
+
+        construct {
+            content_buffer = new Gtk.TextBuffer (new Manuscript.Models.XManuscriptTagTable ());
         }
     }
 }

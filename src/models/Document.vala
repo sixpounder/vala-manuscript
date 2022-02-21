@@ -27,6 +27,7 @@ namespace Manuscript.Models {
 
     [ CCode (cprefix="DOCUMENT_ERROR_DOMAIN_") ]
     public errordomain DocumentError {
+        CREATE,
         NOT_FOUND,
         READ,
         PARSE,
@@ -149,6 +150,7 @@ namespace Manuscript.Models {
         public DocumentStateFlags state_flags { get; protected set construct; }
         private string original_path;
         private string modified_path;
+        private bool saving = false;
         private uint _load_state = DocumentLoadState.EMPTY;
 
         public DocumentChunk active_chunk { get; private set; }
@@ -272,70 +274,78 @@ namespace Manuscript.Models {
         }
 
         public long save (string ? path = null) throws DocumentError {
-            if (path != null) {
-                modified_path = path;
-            }
-
-            DocumentError ? encountered_error = null;
-
-            make_backup_file_with_original (file_path);
-
-            ssize_t size = 0;
-            Archive.Write archive = new Archive.Write ();
-            archive.add_filter_gzip ();
-            archive.set_format_pax_restricted ();
-            archive.open_filename (file_path);
-
-            Gee.ArrayList<ArchivableItem> archive_items = new Gee.ArrayList<ArchivableItem> ();
-            archive_items.add_all (to_archivable_entries ());
-            archive_items.add_all (settings.to_archivable_entries ());
-            var it = chunks.iterator ();
-            while (it.next ()) {
-                var item = it.@get ();
-                if (item is Archivable) {
-                    archive_items.add_all (item.to_archivable_entries ());
+            if (!this.saving) {
+                this.saving = true;
+    
+                if (path != null) {
+                    modified_path = path;
                 }
-            }
-
-            foreach (ArchivableItem item in archive_items) {
-                Archive.Entry entry = new Archive.Entry ();
-                entry.set_pathname (
-                    item.group != "" ? GLib.Path.build_filename (item.group, item.name) : item.name
-                );
-                entry.set_size (item.data.length);
-                entry.set_filetype (Archive.FileType.IFREG);
-                entry.set_perm (0644);
-                if (archive.write_header (entry) != Archive.Result.OK) {
-                    critical ("Error writing '%s': %s (%d)", item.name, archive.error_string (), archive.errno ());
-                    encountered_error = new DocumentError.SAVE (archive.error_string ());
-                    continue;
+    
+                DocumentError ? encountered_error = null;
+    
+                make_backup_file_with_original (file_path);
+    
+                ssize_t size = 0;
+                Archive.Write archive = new Archive.Write ();
+                archive.add_filter_gzip ();
+                archive.set_format_pax_restricted ();
+                archive.open_filename (file_path);
+    
+                Gee.ArrayList<ArchivableItem> archive_items = new Gee.ArrayList<ArchivableItem> ();
+                archive_items.add_all (to_archivable_entries ());
+                archive_items.add_all (settings.to_archivable_entries ());
+                var it = chunks.iterator ();
+                while (it.next ()) {
+                    var item = it.@get ();
+                    if (item is Archivable) {
+                        archive_items.add_all (item.to_archivable_entries ());
+                    }
                 }
-                debug (@"Writing $(entry.pathname ()) - $(item.data.length) bytes");
-                size += archive.write_data (item.data);
-            }
-
-            if (archive.close () != Archive.Result.OK) {
-                critical ("Error saving archive: %s", archive.error_string ());
-                encountered_error = new DocumentError.SAVE ("Could not finalize archive");
-                state_flags |= DocumentStateFlags.ERR_LAST_SAVE;
+    
+                foreach (ArchivableItem item in archive_items) {
+                    Archive.Entry entry = new Archive.Entry ();
+                    entry.set_pathname (
+                        item.group != "" ? GLib.Path.build_filename (item.group, item.name) : item.name
+                    );
+                    entry.set_size (item.data.length);
+                    entry.set_filetype (Archive.FileType.IFREG);
+                    entry.set_perm (0644);
+                    if (archive.write_header (entry) != Archive.Result.OK) {
+                        critical ("Error writing '%s': %s (%d)", item.name, archive.error_string (), archive.errno ());
+                        encountered_error = new DocumentError.SAVE (archive.error_string ());
+                        continue;
+                    }
+                    debug (@"Writing $(entry.pathname ()) - $(item.data.length) bytes");
+                    size += archive.write_data (item.data);
+                }
+    
+                if (archive.close () != Archive.Result.OK) {
+                    critical ("Error saving archive: %s", archive.error_string ());
+                    encountered_error = new DocumentError.SAVE ("Could not finalize archive");
+                    state_flags |= DocumentStateFlags.ERR_LAST_SAVE;
+                } else {
+                    debug ("Archive finalized");
+                    info (@"Document saved to $file_path ($size bytes of data)");
+                    state_flags = DocumentStateFlags.OK;
+                }
+    
+                this.saving = false;
+    
+                if (encountered_error != null) {
+                    save_error (encountered_error);
+                    throw encountered_error;
+                } else {
+                    remove_backup_file_with_original (file_path);
+                    chunks.@foreach ((chunk) => {
+                        chunk.has_changes = false;
+                        return true;
+                    });
+    
+                    this.temporary = false;
+                    return (long) size;
+                }
             } else {
-                debug ("Archive finalized");
-                info (@"Document saved to $file_path ($size bytes of data)");
-                state_flags = DocumentStateFlags.OK;
-            }
-
-            if (encountered_error != null) {
-                save_error (encountered_error);
-                throw encountered_error;
-            } else {
-                remove_backup_file_with_original (file_path);
-                chunks.@foreach ((chunk) => {
-                    chunk.has_changes = false;
-                    return true;
-                });
-
-                this.temporary = false;
-                return (long) size;
+                return 0;
             }
         }
 

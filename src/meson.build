@@ -57,6 +57,7 @@ executable(
     'widgets/editors/EditorToolbar.vala',
 	'widgets/editors/artifacts/FootNoteIndicator.vala',
 	'widgets/editors/artifacts/TextHighlightIndicator.vala',
+    'widgets/editors/FontStyleProvider.vala',
 
 	'widgets/settings/Metrics.vala',
     'widgets/settings/Typography.vala',
@@ -79,6 +80,7 @@ executable(
     'models/Utils.vala',
 	'models/AnalyzeTask.vala',
 
+    'models/lib/DocumentBackend.vala',
 	'models/lib/TextBufferSerializer.vala',
 	'models/lib/NotesParser.vala',
 	'models/lib/RichTextParser.vala',

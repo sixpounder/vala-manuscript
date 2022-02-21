@@ -21,7 +21,9 @@ namespace Manuscript {
     public class Application : Gtk.Application {
         private SimpleAction action_open_export_folder { get; set; }
         private Gdk.Window? current_window = null;
+        private Granite.Settings granite_settings = Granite.Settings.get_default ();
         protected Services.AppSettings settings { get; set; }
+        protected Widgets.FontStyleProvider font_style_provider;
 
         public static bool ensure_directory_exists (File dir) {
 
@@ -52,6 +54,7 @@ namespace Manuscript {
                 @"Cache folder: $(cache_path)"
             );
             Manuscript.Services.Notification.init (this);
+ 
             Application.ensure_directory_exists (
                 File.new_for_path (cache_path)
             );
@@ -59,10 +62,12 @@ namespace Manuscript {
             action_open_export_folder = new SimpleAction (
                 Services.ActionManager.ACTION_OPEN_EXPORT_FOLDER, VariantType.STRING
             );
+
             action_open_export_folder.activate.connect ((target) => {
                 size_t target_len;
                 debug ("Should show: %s", target.get_string (out target_len));
             });
+
             add_action (action_open_export_folder);
         }
 
@@ -76,6 +81,8 @@ namespace Manuscript {
 
         protected void init (File[] ? files = null, string ? hint = "") {
             settings = Services.AppSettings.get_default ();
+
+            font_style_provider = Widgets.FontStyleProvider.get_default (settings);
 
             weak Gtk.IconTheme default_theme = Gtk.IconTheme.get_default ();
             default_theme.add_resource_path ("/com/github/sixpounder/manuscript/icons");
@@ -101,6 +108,10 @@ namespace Manuscript {
                     main_window = this.new_window ();
                 }
             }
+
+            granite_settings.notify["prefers-color-scheme"].connect (() => {
+                settings.prefer_dark_style = granite_settings.prefers_color_scheme == Granite.Settings.ColorScheme.DARK;
+            });
 
             Globals.application = this;
         }

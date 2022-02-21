@@ -20,6 +20,7 @@
 namespace Manuscript.Widgets {
     public class FootNoteIndicator : Gtk.Grid, Protocols.TextChunkArtifactWrapper {
         public weak Models.FootNote? note { get; construct; }
+        public Gtk.Popover popover { get; private set; }
 
         public unowned Models.TextChunkArtifact? get_artifact () {
             return this.note;
@@ -55,6 +56,24 @@ namespace Manuscript.Widgets {
             icon.button_press_event.connect (on_activated);
             attach_next_to (icon, null, Gtk.PositionType.LEFT, 1);
 
+            popover = new Gtk.Popover(icon);
+            var entry = new Gtk.TextView.with_buffer (note.content_buffer);
+            entry.get_style_context ().add_provider (
+                FontStyleProvider.get_default (),
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            );
+            entry.expand = true;
+            entry.margin = 10;
+            entry.wrap_mode = Gtk.WrapMode.WORD;
+            popover.add (entry);
+            popover.delete_event.connect ((event) => {
+                return Gdk.EVENT_STOP;
+            });
+            popover.modal = false;
+            popover.width_request = 400;
+            popover.height_request = 200;
+            popover.show_all ();
+
             show_all ();
         }
 
@@ -66,15 +85,24 @@ namespace Manuscript.Widgets {
         private void update_ui () {
             if (_expanded) {
                 // Show popover
-                debug ("Show note");
+                popover.popup ();
+                popover.focus (Gtk.DirectionType.DOWN);
             } else {
                 // Hide popover
-                debug ("Hide note");
+                popover.popdown ();
             }
         }
 
         public void resize (int size) {
             icon.resize (size);
+        }
+
+        public void popup () {
+            expanded = true;
+        }
+
+        public void popdown () {
+            expanded = false;
         }
     }
 }

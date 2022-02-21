@@ -266,7 +266,10 @@ namespace Manuscript.Widgets {
             chunk.add_artifact (note);
 
             Gtk.TextChildAnchor anchor = buffer.create_child_anchor (target_iter);
-            add_child_at_anchor (new FootNoteIndicator (note), anchor);
+
+            var footnote_indicator = new FootNoteIndicator (note);
+            add_child_at_anchor (footnote_indicator, anchor);
+            footnote_indicator.popup ();
         }
 
         /** Simple cubic eased scrolling for the editor view */
