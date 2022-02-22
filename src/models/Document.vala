@@ -277,25 +277,25 @@ namespace Manuscript.Models {
             if (!this.saving) {
                 try {
                     this.saving = true;
-        
+
                     if (path != null) {
                         modified_path = path;
                     }
                     //  DocumentError ? encountered_error = null;
-        
+
                     make_backup_file_with_original (file_path);
-    
+
                     Manuscript.Models.Backend.BinaryFileBackend be = new Manuscript.Models.Backend.BinaryFileBackend ();
-                    
+
                     File file_for_path = File.new_for_path (file_path);
                     if (file_for_path.query_exists ()) {
                         file_for_path.delete ();
                     }
-    
+
                     FileOutputStream @out = file_for_path.create_readwrite (
                         FileCreateFlags.REPLACE_DESTINATION | FileCreateFlags.PRIVATE, null
                     ).output_stream as FileOutputStream;
-    
+
                     ulong size = be.save (this, @out);
 
                     @out.close (null);
@@ -303,7 +303,7 @@ namespace Manuscript.Models {
                     if (size != 0) {
                         remove_backup_file_with_original (file_path);
                     }
-    
+
                     return size;
                 } catch (Error e) {
                     critical (e.message);

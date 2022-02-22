@@ -54,7 +54,7 @@ namespace Manuscript {
                 @"Cache folder: $(cache_path)"
             );
             Manuscript.Services.Notification.init (this);
- 
+
             Application.ensure_directory_exists (
                 File.new_for_path (cache_path)
             );

@@ -56,7 +56,7 @@ namespace Manuscript.Widgets {
             icon.button_press_event.connect (on_activated);
             attach_next_to (icon, null, Gtk.PositionType.LEFT, 1);
 
-            popover = new Gtk.Popover(icon);
+            popover = new Gtk.Popover (icon);
             var entry = new Gtk.TextView.with_buffer (note.content_buffer);
             entry.get_style_context ().add_provider (
                 FontStyleProvider.get_default (),

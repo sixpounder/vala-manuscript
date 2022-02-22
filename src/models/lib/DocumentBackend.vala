@@ -206,14 +206,14 @@ namespace Manuscript.Models.Backend {
                 var title = document.title;
                 var chunks = document.chunks;
                 var settings = document.settings;
-    
+
                 Prelude prelude = Prelude () {
                     manifest_ln = version.data.length + uuid.data.length + title.data.length + 3,
                     chunks_n = chunks.size
                 };
 
                 debug ("Prelude size: %lu", sizeof (Prelude));
-    
+
                 size_t bytes_written;
                 size_t bytes_written_all = 0;
                 size_t chunks_bytes_written = 0;
@@ -241,13 +241,13 @@ namespace Manuscript.Models.Backend {
                 var settings_data = settings.to_archivable_entries ().to_array ()[0];
                 @out.write_ulong (settings_data.data.length, out bytes_written);
                 bytes_written_all += bytes_written;
-    
+
                 @out.write_all (settings_data.data, out bytes_written, null);
                 bytes_written_all += bytes_written;
 
                 @out.write_all ({ '\0' }, out bytes_written);
                 bytes_written_all += bytes_written;
-    
+
                 foreach (var chunk in chunks) {
 
                     // Each chunk may yield multiple archivable entities
@@ -259,17 +259,17 @@ namespace Manuscript.Models.Backend {
                     // Write them one by one
                     foreach (var entry in entries) {
                         size_t entry_bytes_written;
-    
+
                         @out.write_ulong (entry.data.length, out entry_bytes_written);
                         chunks_bytes_written += entry_bytes_written;
                         bytes_written_all += entry_bytes_written;
-    
+
                         @out.write_all (entry.data, out entry_bytes_written, null);
                         chunks_bytes_written += entry_bytes_written;
                         bytes_written_all += entry_bytes_written;
                     }
                 }
-    
+
                 @out.flush (null);
                 return bytes_written_all;
             } catch (Error e) {
@@ -285,9 +285,9 @@ namespace Manuscript.Models.Backend {
                 debug ("Prelude says manifest is %lu bytes long", prelude.manifest_ln);
                 debug ("Prelude says %lu chunks are expected", prelude.chunks_n);
 
-                uint8[] version = @in.read_until('\0');
-                uint8[] uuid = @in.read_until('\0');
-                uint8[] title = @in.read_until('\0');
+                uint8[] version = @in.read_until ('\0');
+                uint8[] uuid = @in.read_until ('\0');
+                uint8[] title = @in.read_until ('\0');
 
                 document.title = (string) title;
                 document.version = (string) version;
@@ -332,7 +332,7 @@ namespace Manuscript.Models.Backend {
                 }
 
                 return document;
-                
+
             } catch (Error e) {
                 throw new DocumentError.READ (e.message);
             }
@@ -387,7 +387,11 @@ namespace Manuscript.Models.Backend {
             return inner.write (buffer, cancellable);
         }
 
-        public size_t write_ulong (ulong value, out size_t bytes_written, GLib.Cancellable? cancellable = null) throws Error {
+        public size_t write_ulong (
+            ulong value,
+            out size_t bytes_written,
+            GLib.Cancellable? cancellable = null
+        ) throws Error {
             uint8[] value_pointer = (uint8[]) value;
             value_pointer.length = (int) sizeof (ulong);
             inner.write_all (value_pointer, out bytes_written, cancellable);
@@ -395,7 +399,12 @@ namespace Manuscript.Models.Backend {
             return bytes_written;
         }
 
-        public size_t write_ptr (void* buffer, int size, out size_t bytes_written, GLib.Cancellable? cancellable = null) throws Error {
+        public size_t write_ptr (
+            void* buffer,
+            int size,
+            out size_t bytes_written,
+            GLib.Cancellable? cancellable = null
+        ) throws Error {
             uint8[] buffer_data = (uint8[]) buffer;
             buffer_data.length = size;
             inner.write_all (buffer_data, out bytes_written, cancellable);
