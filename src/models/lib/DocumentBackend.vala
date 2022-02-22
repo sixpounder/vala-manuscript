@@ -388,7 +388,8 @@ namespace Manuscript.Models.Backend {
         }
 
         public size_t write_ulong (ulong value, out size_t bytes_written, GLib.Cancellable? cancellable = null) throws Error {
-            uint8[sizeof (ulong)] value_pointer = (uint8[]) value;
+            uint8[] value_pointer = (uint8[]) value;
+            value_pointer.length = (int) sizeof (ulong);
             inner.write_all (value_pointer, out bytes_written, cancellable);
 
             return bytes_written;
