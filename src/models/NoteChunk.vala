@@ -46,5 +46,17 @@
 
             return node;
         }
+
+        //  public new NoteChunk clone () {
+        //      var clone = new NoteChunk () {
+        //          uuid = this.uuid,
+        //          title = this.title,
+        //          kind = this.kind
+        //      };
+
+        //      clone.buffer = this.buffer;
+
+        //      return clone;
+        //  }
     }
 }

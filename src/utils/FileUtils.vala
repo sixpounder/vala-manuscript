@@ -48,74 +48,74 @@ namespace Manuscript {
             }
         }
 
-        public static string? read (string path) throws Models.DocumentError {
-            File file = File.new_for_path (path);
-            if (file.query_exists ()) {
-                try {
-                    uint8[] contents;
-                    string etag_out;
+        //  public static string? read (string path) throws Models.DocumentError {
+        //      File file = File.new_for_path (path);
+        //      if (file.query_exists ()) {
+        //          try {
+        //              uint8[] contents;
+        //              string etag_out;
 
-                    file.load_contents (null, out contents, out etag_out);
+        //              file.load_contents (null, out contents, out etag_out);
 
-                    return (string) contents;
-                } catch (Error e) {
-                    throw new Models.DocumentError.READ (e.message);
-                }
-            } else {
-                throw new Models.DocumentError.NOT_FOUND ("File not found");
-            }
-        }
+        //              return (string) contents;
+        //          } catch (Error e) {
+        //              throw new Models.DocumentError.READ (e.message);
+        //          }
+        //      } else {
+        //          throw new Models.DocumentError.NOT_FOUND ("File not found");
+        //      }
+        //  }
 
-        public static string? read_file (File file) throws Models.DocumentError {
-            return FileUtils.read (file.get_path ());
-        }
+        //  public static string? read_file (File file) throws Models.DocumentError {
+        //      return FileUtils.read (file.get_path ());
+        //  }
 
-        public static async string? read_async (File file) throws GLib.Error {
-            var text = new StringBuilder ();
-            if (!file.query_exists ()) {
-                throw new FileError.ACCES ("E_NOT_FOUND");
-            } else {
-                try {
-                  var dis = new DataInputStream (file.read ());
-                  string line = null;
-                  while ((line = yield dis.read_line_async (Priority.DEFAULT)) != null) {
-                    if (text.len != 0) {
-                        text.append_c ('\n');
-                    }
-                    text.append (line);
-                  }
-                  return text.str;
-                } catch (Error e) {
-                    warning ("Cannot read \"%s\": %s", file.get_basename (), e.message);
-                    throw e;
-                }
-            }
-        }
+        //  public static async string? read_async (File file) throws GLib.Error {
+        //      var text = new StringBuilder ();
+        //      if (!file.query_exists ()) {
+        //          throw new FileError.ACCES ("E_NOT_FOUND");
+        //      } else {
+        //          try {
+        //            var dis = new DataInputStream (file.read ());
+        //            string line = null;
+        //            while ((line = yield dis.read_line_async (Priority.DEFAULT)) != null) {
+        //              if (text.len != 0) {
+        //                  text.append_c ('\n');
+        //              }
+        //              text.append (line);
+        //            }
+        //            return text.str;
+        //          } catch (Error e) {
+        //              warning ("Cannot read \"%s\": %s", file.get_basename (), e.message);
+        //              throw e;
+        //          }
+        //      }
+        //  }
 
-        public static void save_buffer (Gtk.TextBuffer buffer, string path) throws Error {
-            FileUtils.save (buffer.text, path);
-        }
+        //  public static void save_buffer (Gtk.TextBuffer buffer, string path) throws Error {
+        //      FileUtils.save (buffer.text, path);
+        //  }
 
-        public static long save (string text, string path) throws Error {
-            File file = File.new_for_path (path);
+        //  public static long save (string text, string path) throws Error {
+        //      File file = File.new_for_path (path);
 
-            FileOutputStream @os = file.query_exists ()
-                ? file.replace (null, false, FileCreateFlags.REPLACE_DESTINATION, null)
-                : file.create (FileCreateFlags.NONE);
+        //      FileOutputStream @os = file.query_exists ()
+        //          ? file.replace (null, false, FileCreateFlags.REPLACE_DESTINATION, null)
+        //          : file.create (FileCreateFlags.NONE);
 
-            var dos = new DataOutputStream (
-                new BufferedOutputStream.sized (@os, text.length)
-            );
+        //      var dos = new DataOutputStream (
+        //          new BufferedOutputStream.sized (@os, text.length)
+        //      );
 
-            uint8[] data = text.data;
-            long written = 0;
-            while (written < data.length) {
-                // sum of the bytes of 'text' that already have been written to the stream
-                written += dos.write (data[written:data.length]);
-            }
+        //      uint8[] data = text.data;
+        //      long written = 0;
+        //      while (written < data.length) {
+        //          // sum of the bytes of 'text' that already have been written to the stream
+        //          written += dos.write (data[written:data.length]);
+        //      }
 
-            return written;
-        }
+        //      return written;
+        //  }
 
         public static void make_backup (string original_path) {
             var original_file = File.new_for_path (original_path);
@@ -126,7 +126,9 @@ namespace Manuscript {
             );
 
             try {
+                if (original_file.query_exists (null)) {
                     original_file.copy (backup, GLib.FileCopyFlags.OVERWRITE);
+                }
             } catch (GLib.Error e) {
                 warning (e.message);
             }

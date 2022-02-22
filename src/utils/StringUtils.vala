@@ -91,4 +91,14 @@ namespace Manuscript.Utils.Strings {
 
         return o;
     }
+
+    public static uint8[] from_pointer (uint8* ptr, size_t len) {
+        uint8[] o = new uint8[len];
+        for (var i = 0; i < len; i++) {
+            o[i] = *ptr;
+            ptr += sizeof (uint8);
+        }
+
+        return o;
+    }
 }

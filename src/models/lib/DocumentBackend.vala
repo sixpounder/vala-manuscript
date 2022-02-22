@@ -1,18 +1,18 @@
 namespace Manuscript.Models.Backend {
     public interface Backend {
-        public abstract async ulong save (Document document, OutputStream @out) throws DocumentError;
-        public abstract async Document read (InputStream @in) throws DocumentError;
+        public abstract ulong save (Document document, OutputStream @out) throws DocumentError;
+        public abstract Document read (Document document, InputStream @in) throws DocumentError;
     }
 
     public class ArchiveBackend : Object, Backend {
-        public async ulong save (Document document, OutputStream @out) throws DocumentError {
+        public ulong save (Document document, OutputStream @out) throws DocumentError {
             return 0;
         }
-        public async Document read (InputStream @in) throws DocumentError {
+        public Document read (Document document, InputStream @in) throws DocumentError {
             uint8[] archive_buffer = {};
             size_t bytes_read;
             try {
-                yield @in.read_all_async (archive_buffer, Priority.DEFAULT, null, out bytes_read);
+                @in.read_all (archive_buffer, out bytes_read);
             } catch (Error e) {
                 throw new DocumentError.READ ("E_STREAM");
             }
@@ -29,18 +29,10 @@ namespace Manuscript.Models.Backend {
                 throw new DocumentError.READ (archive.error_string ());
             }
 
-            return yield this.read_archive (archive);
+            return this.read_archive (document, archive);
         }
 
-        private async Document read_archive (Archive.Read archive) throws DocumentError {
-            Document document;
-
-            try {
-                document = new Document.empty ();
-            } catch (Error e) {
-                throw new DocumentError.CREATE ("Cannot create empty document");
-            }
-
+        private Document read_archive (Document document, Archive.Read archive) throws DocumentError {
             var entries_cache = new Gee.ArrayList<ArchivableItem> ();
 
             Archive.ExtractFlags flags;
@@ -89,7 +81,7 @@ namespace Manuscript.Models.Backend {
                     if (entry.filetype () == Archive.FileType.IFREG) {
                         switch (entry_name) {
                             case "manifest.json":
-                                yield manifest_from_json (document, data_copy);
+                                manifest_from_json (document, data_copy);
                             break;
                             case "settings.json":
                                 document.settings = new DocumentSettings.from_data (data_copy);
@@ -128,7 +120,7 @@ namespace Manuscript.Models.Backend {
                     chunks_iter.next ();
                     ArchivableItem item = chunks_iter.@get ();
 
-                    DocumentChunk chunk = yield DocumentChunk.new_from_data (item.data, document);
+                    DocumentChunk chunk = DocumentChunk.new_from_data (item.data, document);
                     document.chunks.add (chunk);
                 }
 
@@ -172,9 +164,8 @@ namespace Manuscript.Models.Backend {
             return document;
         }
 
-        public async void manifest_from_json (Document parent_document, uint8[] data) throws DocumentError {
+        public void manifest_from_json (Document parent_document, uint8[] data) throws DocumentError {
             var parser = new Json.Parser ();
-            //  SourceFunc callback = from_json.callback;
             try {
                 parser.load_from_stream (new MemoryInputStream.from_data (data, null), null);
             } catch (Error error) {
@@ -202,72 +193,212 @@ namespace Manuscript.Models.Backend {
 
     struct Prelude {
         public size_t manifest_ln;
-    }
-
-    struct Manifest {
-        string version;
-        string uuid;
-        string title;
-
-        public size_t size () {
-            return version.data.length + uuid.data.length + title.data.length;
-        }
-    }
-
-    struct ChunkHeader {
-        size_t chunk_size;
+        public int chunks_n;
     }
 
     public class BinaryFileBackend : Object, Backend {
-        public async ulong save (Document document, OutputStream @out) throws DocumentError {
-            var version = document.version;
-            var uuid = document.uuid;
-            var title = document.title;
-            var chunks = document.chunks;
+        public ulong save (Document document, OutputStream output_stream) throws DocumentError {
+            try {
+                DocumentOutputStream @out = new DocumentOutputStream (output_stream);
 
-            Manifest manifest = Manifest () {
-                version = version,
-                uuid = uuid,
-                title = title
-            };
+                var version = document.version;
+                var uuid = document.uuid;
+                var title = document.title;
+                var chunks = document.chunks;
+                var settings = document.settings;
+    
+                Prelude prelude = Prelude () {
+                    manifest_ln = version.data.length + uuid.data.length + title.data.length + 3,
+                    chunks_n = chunks.size
+                };
 
-            Prelude prelude = Prelude () {
-                manifest_ln = manifest.size (),
-            };
+                debug ("Prelude size: %lu", sizeof (Prelude));
+    
+                size_t bytes_written;
+                size_t bytes_written_all = 0;
+                size_t chunks_bytes_written = 0;
 
-            size_t bytes_written;
-            size_t bytes_written_all = 0;
-            size_t chunks_bytes_written = 0;
-            yield @out.write_all_async ((uint8[]) prelude, Priority.DEFAULT, null, out bytes_written);
-            bytes_written_all += bytes_written;
-            yield @out.write_all_async ((uint8[]) manifest, Priority.DEFAULT, null, out bytes_written);
-            bytes_written_all += bytes_written;
+                uint8[] prelude_buffer = (uint8[]) prelude;
+                prelude_buffer.length = (int) sizeof (Prelude);
+                @out.write_all (prelude_buffer, out bytes_written);
+                bytes_written_all += bytes_written;
 
-            chunks.foreach (chunk => {
-                var entries = chunk.to_archivable_entries ();
-                entries.foreach (entry => {
-                    size_t entry_bytes_written;
+                @out.write_all (version.data, out bytes_written);
+                bytes_written_all += bytes_written;
+                @out.write_all ({ '\0' }, out bytes_written);
+                bytes_written_all += bytes_written;
 
-                    ChunkHeader head = ChunkHeader () {
-                        chunk_size = entry.data.length
-                    };
+                @out.write_all (uuid.data, out bytes_written);
+                bytes_written_all += bytes_written;
+                @out.write_all ({ '\0' }, out bytes_written);
+                bytes_written_all += bytes_written;
 
-                    @out.write_all ((uint8[]) head, out entry_bytes_written, null);
-                    chunks_bytes_written += entry_bytes_written;
-                    bytes_written_all += entry_bytes_written;
+                @out.write_all (title.data, out bytes_written);
+                bytes_written_all += bytes_written;
+                @out.write_all ({ '\0' }, out bytes_written);
+                bytes_written_all += bytes_written;
 
-                    @out.write_all (entry.data, out entry_bytes_written, null);
-                    chunks_bytes_written += entry_bytes_written;
-                    bytes_written_all += entry_bytes_written;
-                    return true;
-                });
-                return true;
-            });
+                var settings_data = settings.to_archivable_entries ().to_array ()[0];
+                @out.write_ulong (settings_data.data.length, out bytes_written);
+                bytes_written_all += bytes_written;
+    
+                @out.write_all (settings_data.data, out bytes_written, null);
+                bytes_written_all += bytes_written;
 
-            return bytes_written_all;
+                @out.write_all ({ '\0' }, out bytes_written);
+                bytes_written_all += bytes_written;
+    
+                foreach (var chunk in chunks) {
+
+                    // Each chunk may yield multiple archivable entities
+                    var entries = chunk.to_archivable_entries ();
+
+                    @out.write_ulong (entries.size, out bytes_written);
+                    bytes_written_all += bytes_written;
+
+                    // Write them one by one
+                    foreach (var entry in entries) {
+                        size_t entry_bytes_written;
+    
+                        @out.write_ulong (entry.data.length, out entry_bytes_written);
+                        chunks_bytes_written += entry_bytes_written;
+                        bytes_written_all += entry_bytes_written;
+    
+                        @out.write_all (entry.data, out entry_bytes_written, null);
+                        chunks_bytes_written += entry_bytes_written;
+                        bytes_written_all += entry_bytes_written;
+                    }
+                }
+    
+                @out.flush (null);
+                return bytes_written_all;
+            } catch (Error e) {
+                throw new DocumentError.SAVE (e.message);
+            }
         }
-        public async Document read (InputStream @in) throws DocumentError {
-            return new Document.empty ();
+        public Document read (Document document, InputStream input_stream) throws DocumentError {
+            try {
+                DocumentInputStream @in = new DocumentInputStream (input_stream);
+                Bytes prelude_bytes = @in.read_bytes (sizeof (Prelude), null);
+                Prelude* prelude = prelude_bytes.get_data ();
+
+                debug ("Prelude says manifest is %lu bytes long", prelude.manifest_ln);
+                debug ("Prelude says %lu chunks are expected", prelude.chunks_n);
+
+                uint8[] version = @in.read_until('\0');
+                uint8[] uuid = @in.read_until('\0');
+                uint8[] title = @in.read_until('\0');
+
+                document.title = (string) title;
+                document.version = (string) version;
+                document.uuid = (string) uuid;
+
+                ulong settings_size = @in.read_ulong ();
+                uint8[] settings_data = @in.read_bytes (settings_size).get_data ();
+                document.settings = new DocumentSettings.from_data (settings_data);
+
+                // Skip delimiter between heading and chunks sections
+                @in.skip (sizeof (uint8));
+
+                int chunks_counter = prelude.chunks_n;
+
+                while (chunks_counter > 0) {
+                    var next_chunk_entries_count = @in.read_ulong ();
+
+                    // First entry is always the chunk itself
+                    var next_entry_size = @in.read_ulong ();
+                    uint8[] chunk_data = @in.read_bytes (next_entry_size).get_data ();
+                    var chunk = DocumentChunk.new_from_data (chunk_data, document);
+
+                    // For certain kind of chunks there are additional entries that must be processed
+                    if (next_chunk_entries_count > 1) {
+                        var next_subentry_size = @in.read_ulong ();
+
+                        uint8[] subentry_buffer = new uint8[next_subentry_size];
+                        size_t bytes_read;
+                        @in.read_all (subentry_buffer, out bytes_read);
+
+                        if (chunk.kind == ChunkType.CHAPTER || chunk.kind == ChunkType.NOTE) {
+                            // For these kind of chunks this entry is the text buffer
+                            if (subentry_buffer != null) {
+                                ((TextChunk) chunk).set_raw (subentry_buffer);
+                            } else {
+                                warning ("Tried to set text chunk raw buffer but had null value");
+                            }
+                        }
+                    }
+                    document.add_chunk (chunk);
+                    chunks_counter --;
+                }
+
+                return document;
+                
+            } catch (Error e) {
+                throw new DocumentError.READ (e.message);
+            }
+        }
+    }
+
+    public class DocumentInputStream : InputStream {
+        public InputStream inner { get; construct; }
+
+        public DocumentInputStream (InputStream inner) {
+            Object (
+                inner: inner
+            );
+        }
+
+        public override ssize_t read (uint8[] buffer, GLib.Cancellable? cancellable) throws IOError {
+            return inner.read (buffer, cancellable);
+        }
+
+        public override bool close (GLib.Cancellable? cancellable) throws IOError {
+            return inner.close (cancellable);
+        }
+
+        public ulong read_ulong () throws Error {
+            uint8* long_bytes = inner.read_bytes (sizeof (ulong)).get_data ();
+            return (ulong) *long_bytes;
+        }
+
+        public uint8[] read_until (char marker) throws Error {
+            return Utils.Streams.read_until (inner, marker);
+        }
+
+        public uint8[] read_until_sequence (uint8[] marker) throws Error {
+            return Utils.Streams.read_until_sequence (inner, marker);
+        }
+    }
+
+    public class DocumentOutputStream : OutputStream {
+        public OutputStream inner { get; construct; }
+
+        public DocumentOutputStream (OutputStream inner) {
+            Object (
+                inner: inner
+            );
+        }
+
+        public override bool close (GLib.Cancellable? cancellable) throws IOError {
+            return inner.close (cancellable);
+        }
+
+        public override ssize_t write (uint8[] buffer, GLib.Cancellable? cancellable) throws IOError {
+            return inner.write (buffer, cancellable);
+        }
+
+        public size_t write_ulong (ulong value, out size_t bytes_written, GLib.Cancellable? cancellable = null) throws Error {
+            uint8[sizeof (ulong)] value_pointer = (uint8[]) value;
+            inner.write_all (value_pointer, out bytes_written, cancellable);
+
+            return bytes_written;
+        }
+
+        public size_t write_ptr (void* buffer, int size, out size_t bytes_written, GLib.Cancellable? cancellable = null) throws Error {
+            uint8[] buffer_data = (uint8[]) buffer;
+            buffer_data.length = size;
+            inner.write_all (buffer_data, out bytes_written, cancellable);
+            return bytes_written;
         }
     }
 }

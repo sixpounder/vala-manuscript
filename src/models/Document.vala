@@ -220,7 +220,7 @@ namespace Manuscript.Models {
 
         public async Document.from_file (string path, bool temporary = false) throws DocumentError {
             this (path, temporary);
-            yield load_from_archive_file (path);
+            yield load_from_file (path);
         }
 
         public Document.empty () throws GLib.Error {
@@ -273,84 +273,111 @@ namespace Manuscript.Models {
             title = root_object.get_string_member ("title");
         }
 
-        public long save (string ? path = null) throws DocumentError {
+        public ulong save (string ? path = null) throws DocumentError {
             if (!this.saving) {
-                this.saving = true;
-    
-                if (path != null) {
-                    modified_path = path;
-                }
-    
-                DocumentError ? encountered_error = null;
-    
-                make_backup_file_with_original (file_path);
-    
-                ssize_t size = 0;
-                Archive.Write archive = new Archive.Write ();
-                archive.add_filter_gzip ();
-                archive.set_format_pax_restricted ();
-                archive.open_filename (file_path);
-    
-                Gee.ArrayList<ArchivableItem> archive_items = new Gee.ArrayList<ArchivableItem> ();
-                archive_items.add_all (to_archivable_entries ());
-                archive_items.add_all (settings.to_archivable_entries ());
-                var it = chunks.iterator ();
-                while (it.next ()) {
-                    var item = it.@get ();
-                    if (item is Archivable) {
-                        archive_items.add_all (item.to_archivable_entries ());
+                try {
+                    this.saving = true;
+        
+                    if (path != null) {
+                        modified_path = path;
                     }
-                }
+                    //  DocumentError ? encountered_error = null;
+        
+                    make_backup_file_with_original (file_path);
     
-                foreach (ArchivableItem item in archive_items) {
-                    Archive.Entry entry = new Archive.Entry ();
-                    entry.set_pathname (
-                        item.group != "" ? GLib.Path.build_filename (item.group, item.name) : item.name
-                    );
-                    entry.set_size (item.data.length);
-                    entry.set_filetype (Archive.FileType.IFREG);
-                    entry.set_perm (0644);
-                    if (archive.write_header (entry) != Archive.Result.OK) {
-                        critical ("Error writing '%s': %s (%d)", item.name, archive.error_string (), archive.errno ());
-                        encountered_error = new DocumentError.SAVE (archive.error_string ());
-                        continue;
+                    Manuscript.Models.Backend.BinaryFileBackend be = new Manuscript.Models.Backend.BinaryFileBackend ();
+                    
+                    File file_for_path = File.new_for_path (file_path);
+                    if (file_for_path.query_exists ()) {
+                        file_for_path.delete ();
                     }
-                    debug (@"Writing $(entry.pathname ()) - $(item.data.length) bytes");
-                    size += archive.write_data (item.data);
+    
+                    FileOutputStream @out = file_for_path.create_readwrite (
+                        FileCreateFlags.REPLACE_DESTINATION | FileCreateFlags.PRIVATE, null
+                    ).output_stream as FileOutputStream;
+    
+                    ulong size = be.save (this, @out);
+
+                    @out.close (null);
+
+                    if (size != 0) {
+                        remove_backup_file_with_original (file_path);
+                    }
+    
+                    return size;
+                } catch (Error e) {
+                    critical (e.message);
+                    return 0;
+                } finally {
+                    this.saving = false;
                 }
     
-                if (archive.close () != Archive.Result.OK) {
-                    critical ("Error saving archive: %s", archive.error_string ());
-                    encountered_error = new DocumentError.SAVE ("Could not finalize archive");
-                    state_flags |= DocumentStateFlags.ERR_LAST_SAVE;
-                } else {
-                    debug ("Archive finalized");
-                    info (@"Document saved to $file_path ($size bytes of data)");
-                    state_flags = DocumentStateFlags.OK;
-                }
+                //  ssize_t size = 0;
+                //  Archive.Write archive = new Archive.Write ();
+                //  archive.add_filter_gzip ();
+                //  archive.set_format_pax_restricted ();
+                //  archive.open_filename (file_path);
     
-                this.saving = false;
+                //  Gee.ArrayList<ArchivableItem> archive_items = new Gee.ArrayList<ArchivableItem> ();
+                //  archive_items.add_all (to_archivable_entries ());
+                //  archive_items.add_all (settings.to_archivable_entries ());
+                //  var it = chunks.iterator ();
+                //  while (it.next ()) {
+                //      var item = it.@get ();
+                //      if (item is Archivable) {
+                //          archive_items.add_all (item.to_archivable_entries ());
+                //      }
+                //  }
     
-                if (encountered_error != null) {
-                    save_error (encountered_error);
-                    throw encountered_error;
-                } else {
-                    remove_backup_file_with_original (file_path);
-                    chunks.@foreach ((chunk) => {
-                        chunk.has_changes = false;
-                        return true;
-                    });
+                //  foreach (ArchivableItem item in archive_items) {
+                //      Archive.Entry entry = new Archive.Entry ();
+                //      entry.set_pathname (
+                //          item.group != "" ? GLib.Path.build_filename (item.group, item.name) : item.name
+                //      );
+                //      entry.set_size (item.data.length);
+                //      entry.set_filetype (Archive.FileType.IFREG);
+                //      entry.set_perm (0644);
+                //      if (archive.write_header (entry) != Archive.Result.OK) {
+                //          critical ("Error writing '%s': %s (%d)", item.name, archive.error_string (), archive.errno ());
+                //          encountered_error = new DocumentError.SAVE (archive.error_string ());
+                //          continue;
+                //      }
+                //      debug (@"Writing $(entry.pathname ()) - $(item.data.length) bytes");
+                //      size += archive.write_data (item.data);
+                //  }
     
-                    this.temporary = false;
-                    return (long) size;
-                }
+                //  if (archive.close () != Archive.Result.OK) {
+                //      critical ("Error saving archive: %s", archive.error_string ());
+                //      encountered_error = new DocumentError.SAVE ("Could not finalize archive");
+                //      state_flags |= DocumentStateFlags.ERR_LAST_SAVE;
+                //  } else {
+                //      debug ("Archive finalized");
+                //      info (@"Document saved to $file_path ($size bytes of data)");
+                //      state_flags = DocumentStateFlags.OK;
+                //  }
+    
+                //  this.saving = false;
+    
+                //  if (encountered_error != null) {
+                //      save_error (encountered_error);
+                //      throw encountered_error;
+                //  } else {
+                //      remove_backup_file_with_original (file_path);
+                //      chunks.@foreach ((chunk) => {
+                //          chunk.has_changes = false;
+                //          return true;
+                //      });
+    
+                //      this.temporary = false;
+                //      return (long) size;
+                //  }
             } else {
                 return 0;
             }
         }
 
-        public Thread<long> save_async (string ? path = null) {
-            return new GLib.Thread<long> ("save_thread", () => {
+        public Thread<ulong> save_async (string ? path = null) {
+            return new GLib.Thread<ulong> ("save_thread", () => {
                 try {
                     return this.save (path);
                 } catch (DocumentError e) {
@@ -360,7 +387,7 @@ namespace Manuscript.Models {
             });
         }
 
-        private async void load_from_archive_file (string file_path) throws DocumentError {
+        private async void load_from_file (string file_path) throws DocumentError {
             try {
                 chunks.clear ();
 
@@ -368,162 +395,189 @@ namespace Manuscript.Models {
 
                 if (file_for_path.query_exists ()) {
                     load_state = DocumentLoadState.LOADING;
-                    Archive.Read archive = new Archive.Read ();
-                    archive.support_format_all ();
-                    archive.support_filter_gzip ();
 
-                    if (archive.open_filename (file_for_path.get_path (), 10240) != Archive.Result.OK) {
-                        critical (
-                            "Error opening %s: %s (%d)",
-                            file_for_path.get_path (),
-                            archive.error_string (),
-                            archive.errno ()
-                        );
-                        load_state = DocumentLoadState.ERROR;
-                        throw new DocumentError.READ (archive.error_string ());
-                    }
+                    FileIOStream ios = file_for_path.open_readwrite ();
+                    var @in = ios.input_stream as FileInputStream;
 
-                    file_ref = file_for_path;
-                    yield read_archive (archive);
-                    load ();
-                } else {
+                    Manuscript.Models.Backend.BinaryFileBackend be = new Manuscript.Models.Backend.BinaryFileBackend ();
+                    be.read (this, @in);
+                }
+                else {
                     throw new DocumentError.NOT_FOUND ("File does not exist");
                 }
             } catch (DocumentError e) {
                 state_flags = DocumentStateFlags.BROKEN;
                 throw e;
+            } catch (Error e) {
+                state_flags = DocumentStateFlags.BROKEN;
+                throw new DocumentError.READ (e.message);
             }
         }
 
-        private async void read_archive (Archive.Read archive) throws DocumentError {
-            var entries_cache = new Gee.ArrayList<ArchivableItem> ();
+        //  private async void load_from_archive_file (string file_path) throws DocumentError {
+        //      try {
+        //          chunks.clear ();
 
-            Archive.ExtractFlags flags;
-            flags = Archive.ExtractFlags.TIME;
-            flags |= Archive.ExtractFlags.PERM;
-            flags |= Archive.ExtractFlags.ACL;
-            flags |= Archive.ExtractFlags.FFLAGS;
+        //          File file_for_path = File.new_for_path (file_path);
 
-            unowned Archive.Entry entry;
-            Archive.Result last_read_result;
+        //          if (file_for_path.query_exists ()) {
+        //              load_state = DocumentLoadState.LOADING;
+        //              Archive.Read archive = new Archive.Read ();
+        //              archive.support_format_all ();
+        //              archive.support_filter_gzip ();
 
-            while ((last_read_result = archive.next_header (out entry)) == Archive.Result.OK) {
-                if (entry.pathname () != "" && entry.size () != 0) {
-                    debug ("Reading archive entry %s", entry.pathname ());
-                    MemoryOutputStream os = new MemoryOutputStream (null);
-                    uint8[] buffer = null;
-                    Posix.off_t offset;
+        //              if (archive.open_filename (file_for_path.get_path (), 10240) != Archive.Result.OK) {
+        //                  critical (
+        //                      "Error opening %s: %s (%d)",
+        //                      file_for_path.get_path (),
+        //                      archive.error_string (),
+        //                      archive.errno ()
+        //                  );
+        //                  load_state = DocumentLoadState.ERROR;
+        //                  throw new DocumentError.READ (archive.error_string ());
+        //              }
 
-                    while (
-                        (last_read_result = archive.read_data_block (out buffer, out offset)) == Archive.Result.OK
-                    ) {
-                        try {
-                            size_t bytes_written;
-                            os.write_all (buffer, out bytes_written);
-                            if (os.size >= entry.size ()) {
-                                os.close ();
-                                break;
-                            }
-                        } catch (IOError e) {
-                            critical (e.message);
-                            try {
-                                os.close ();
-                            } catch (IOError skip) {
-                                warning (skip.message);
-                            }
-                            throw new DocumentError.READ (e.message);
-                        }
-                    }
+        //              file_ref = file_for_path;
+        //              yield read_archive (archive);
+        //              load ();
+        //          } else {
+        //              throw new DocumentError.NOT_FOUND ("File does not exist");
+        //          }
+        //      } catch (DocumentError e) {
+        //          state_flags = DocumentStateFlags.BROKEN;
+        //          throw e;
+        //      }
+        //  }
 
-                    uint8[] data_copy = os.steal_data ();
-                    data_copy.length = (int) os.get_data_size ();
+        //  private async void read_archive (Archive.Read archive) throws DocumentError {
+        //      var entries_cache = new Gee.ArrayList<ArchivableItem> ();
 
-                    string entry_path = entry.pathname ();
-                    string entry_name = GLib.Path.get_basename (entry_path);
-                    string group_name = GLib.Path.get_dirname (entry_path);
-                    if (entry.filetype () == Archive.FileType.IFREG) {
-                        switch (entry_name) {
-                            case "manifest.json":
-                                from_json (data_copy);
-                            break;
-                            case "settings.json":
-                                settings = new DocumentSettings.from_data (data_copy);
-                            break;
-                            default:
-                                // Everything else cached for later parsing
-                                entries_cache.add (
-                                    new ArchivableItem.with_props (entry_name, group_name, data_copy)
-                                );
-                            break;
-                        }
-                    }
-                } else {
-                    warning ("Archive entry %s ignored due to null size", entry.gname ());
-                }
-            }
+        //      Archive.ExtractFlags flags;
+        //      flags = Archive.ExtractFlags.TIME;
+        //      flags |= Archive.ExtractFlags.PERM;
+        //      flags |= Archive.ExtractFlags.ACL;
+        //      flags |= Archive.ExtractFlags.FFLAGS;
 
-            if (last_read_result != Archive.Result.EOF) {
-                warning ("Error: %s (%d)", archive.error_string (), archive.errno ());
-                throw new DocumentError.READ (archive.error_string ());
-            } else {
-                if (archive.close () != Archive.Result.OK) {
-                    warning ("Error: %s (%d)", archive.error_string (), archive.errno ());
-                    throw new DocumentError.READ (archive.error_string ());
-                }
+        //      unowned Archive.Entry entry;
+        //      Archive.Result last_read_result;
 
-                var chunks_iter = entries_cache.filter ((e) => {
-                    return e.group != "Resource";
-                });
+        //      while ((last_read_result = archive.next_header (out entry)) == Archive.Result.OK) {
+        //          if (entry.pathname () != "" && entry.size () != 0) {
+        //              debug ("Reading archive entry %s", entry.pathname ());
+        //              MemoryOutputStream os = new MemoryOutputStream (null);
+        //              uint8[] buffer = null;
+        //              Posix.off_t offset;
 
-                var resources_iter = entries_cache.filter ((e) => {
-                    return e.group == "Resource";
-                });
+        //              while (
+        //                  (last_read_result = archive.read_data_block (out buffer, out offset)) == Archive.Result.OK
+        //              ) {
+        //                  try {
+        //                      size_t bytes_written;
+        //                      os.write_all (buffer, out bytes_written);
+        //                      if (os.size >= entry.size ()) {
+        //                          os.close ();
+        //                          break;
+        //                      }
+        //                  } catch (IOError e) {
+        //                      critical (e.message);
+        //                      try {
+        //                          os.close ();
+        //                      } catch (IOError skip) {
+        //                          warning (skip.message);
+        //                      }
+        //                      throw new DocumentError.READ (e.message);
+        //                  }
+        //              }
 
-                while (chunks_iter.has_next ()) {
-                    chunks_iter.next ();
-                    ArchivableItem item = chunks_iter.@get ();
+        //              uint8[] data_copy = os.steal_data ();
+        //              data_copy.length = (int) os.get_data_size ();
 
-                    DocumentChunk chunk = yield DocumentChunk.new_from_data (item.data, this);
-                    chunks.add (chunk);
-                }
+        //              string entry_path = entry.pathname ();
+        //              string entry_name = GLib.Path.get_basename (entry_path);
+        //              string group_name = GLib.Path.get_dirname (entry_path);
+        //              if (entry.filetype () == Archive.FileType.IFREG) {
+        //                  switch (entry_name) {
+        //                      case "manifest.json":
+        //                          from_json (data_copy);
+        //                      break;
+        //                      case "settings.json":
+        //                          settings = new DocumentSettings.from_data (data_copy);
+        //                      break;
+        //                      default:
+        //                          // Everything else cached for later parsing
+        //                          entries_cache.add (
+        //                              new ArchivableItem.with_props (entry_name, group_name, data_copy)
+        //                          );
+        //                      break;
+        //                  }
+        //              }
+        //          } else {
+        //              warning ("Archive entry %s ignored due to null size", entry.gname ());
+        //          }
+        //      }
 
-                while (resources_iter.has_next ()) {
-                    resources_iter.next ();
-                    ArchivableItem resource = resources_iter.@get ();
-                    if (resource.name.has_suffix (".text")) {
-                        // SCENARIO: this is a gtk.sourcebuffer for some text chunk, find it and append it
-                        var target_chunk_uuid = resource.name.substring (0, resource.name.index_of (".text"));
-                        chunks.@foreach ((chunk) => {
-                            if (chunk != null && chunk.uuid == target_chunk_uuid) {
-                                ((TextChunk) chunk).store_raw_data (resource.data);
-                                return false;
-                            } else {
-                                return true;
-                            }
-                        });
-                    } else if (
-                        resource.name.has_suffix (".png") ||
-                        resource.name.has_suffix (".jpeg") ||
-                        resource.name.has_suffix (".jpg")
-                    ) {
-                        // SCENARIO: this is a cover image for some cover chunk
-                        var target_chunk_uuid = resource.name.substring (0, resource.name.index_of (".png"));
-                        chunks.@foreach ((chunk) => {
-                            if (chunk != null && chunk.uuid == target_chunk_uuid) {
-                                //  debug (chunk.uuid);
-                                CoverChunk cover_chunk = chunk as CoverChunk;
-                                cover_chunk.load_cover_from_stream.begin (
-                                    new MemoryInputStream.from_data (resource.data)
-                                );
-                                return false;
-                            } else {
-                                return true;
-                            }
-                        });
-                    }
-                }
-            }
-        }
+        //      if (last_read_result != Archive.Result.EOF) {
+        //          warning ("Error: %s (%d)", archive.error_string (), archive.errno ());
+        //          throw new DocumentError.READ (archive.error_string ());
+        //      } else {
+        //          if (archive.close () != Archive.Result.OK) {
+        //              warning ("Error: %s (%d)", archive.error_string (), archive.errno ());
+        //              throw new DocumentError.READ (archive.error_string ());
+        //          }
+
+        //          var chunks_iter = entries_cache.filter ((e) => {
+        //              return e.group != "Resource";
+        //          });
+
+        //          var resources_iter = entries_cache.filter ((e) => {
+        //              return e.group == "Resource";
+        //          });
+
+        //          while (chunks_iter.has_next ()) {
+        //              chunks_iter.next ();
+        //              ArchivableItem item = chunks_iter.@get ();
+
+        //              DocumentChunk chunk = DocumentChunk.new_from_data (item.data, this);
+        //              chunks.add (chunk);
+        //          }
+
+        //          while (resources_iter.has_next ()) {
+        //              resources_iter.next ();
+        //              ArchivableItem resource = resources_iter.@get ();
+        //              if (resource.name.has_suffix (".text")) {
+        //                  // SCENARIO: this is a gtk.sourcebuffer for some text chunk, find it and append it
+        //                  var target_chunk_uuid = resource.name.substring (0, resource.name.index_of (".text"));
+        //                  chunks.@foreach ((chunk) => {
+        //                      if (chunk != null && chunk.uuid == target_chunk_uuid) {
+        //                          ((TextChunk) chunk).store_raw_data (resource.data);
+        //                          return false;
+        //                      } else {
+        //                          return true;
+        //                      }
+        //                  });
+        //              } else if (
+        //                  resource.name.has_suffix (".png") ||
+        //                  resource.name.has_suffix (".jpeg") ||
+        //                  resource.name.has_suffix (".jpg")
+        //              ) {
+        //                  // SCENARIO: this is a cover image for some cover chunk
+        //                  var target_chunk_uuid = resource.name.substring (0, resource.name.index_of (".png"));
+        //                  chunks.@foreach ((chunk) => {
+        //                      if (chunk != null && chunk.uuid == target_chunk_uuid) {
+        //                          //  debug (chunk.uuid);
+        //                          CoverChunk cover_chunk = chunk as CoverChunk;
+        //                          cover_chunk.load_cover_from_stream.begin (
+        //                              new MemoryInputStream.from_data (resource.data)
+        //                          );
+        //                          return false;
+        //                      } else {
+        //                          return true;
+        //                      }
+        //                  });
+        //              }
+        //          }
+        //      }
+        //  }
 
         /**
          * Adds a chunk to the collection, making it active by default
@@ -628,6 +682,19 @@ namespace Manuscript.Models {
                 backup_file.copy (file_ref, GLib.FileCopyFlags.OVERWRITE);
             }
         }
+
+        //  public Document clone () {
+        //      Document clone = new Document.empty ();
+        //      clone.title = this.title;
+        //      clone.uuid = this.uuid;
+        //      clone.version = this.version;
+
+        //      foreach (var chunk in this.chunks) {
+        //          clone.add_chunk (chunk.clone ());
+        //      }
+
+        //      return clone;
+        //  }
 
         private void make_backup_file_with_original (string original_path) {
             if (original_path.substring (0, 1) != "~") {

@@ -62,6 +62,8 @@ namespace Manuscript.Models {
             }
         }
 
+        //  public abstract DocumentChunk clone ();
+
         public static DocumentChunk new_for_document (Document document, ChunkType kind) {
             DocumentChunk new_chunk;
             switch (kind) {
@@ -125,7 +127,7 @@ namespace Manuscript.Models {
             return chunk;
         }
 
-        public static async DocumentChunk new_from_data (uint8[] data, Document parent)
+        public static DocumentChunk new_from_data (uint8[] data, Document parent)
         throws DocumentError {
             var parser = new Json.Parser ();
             try {
