@@ -110,7 +110,9 @@ namespace Manuscript {
             }
 
             granite_settings.notify["prefers-color-scheme"].connect (() => {
-                settings.prefer_dark_style = granite_settings.prefers_color_scheme == Granite.Settings.ColorScheme.DARK;
+                if (settings.theme == "System") {
+                    settings.prefer_dark_style = granite_settings.prefers_color_scheme == Granite.Settings.ColorScheme.DARK;
+                }
             });
 
             Globals.application = this;

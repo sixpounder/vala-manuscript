@@ -75,7 +75,7 @@ namespace Manuscript {
             // In case the theme has never been set, rely on gtk.settings
             if (settings.theme == "System") {
                 settings.prefer_dark_style = Gtk.Settings.get_default ().gtk_application_prefer_dark_theme;
-                settings.theme = settings.prefer_dark_style ? "Dark" : "Light";
+                //  settings.theme = settings.prefer_dark_style ? "Dark" : "Light";
             } else {
                 settings.prefer_dark_style = settings.theme == "Dark";
             }

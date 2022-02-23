@@ -20,7 +20,9 @@
 namespace Manuscript.Widgets {
     public class SettingsPopover : Gtk.Popover {
         protected Gtk.Grid layout;
-        protected Gtk.Box theme_layout;
+        public Gtk.RadioButton color_button_system { get; private set; }
+        public Gtk.RadioButton color_button_white { get; private set; }
+        public Gtk.RadioButton color_button_dark { get; private set; }
         public Gtk.Application application { get; construct; }
         public Gtk.Switch focus_mode_switch { get; private set; }
         public Gtk.Switch autosave_switch { get; private set; }
@@ -86,7 +88,23 @@ namespace Manuscript.Widgets {
             font_size_grid.add (zoom_default_button);
             font_size_grid.add (zoom_in_button);
 
-            var color_button_white = new Gtk.RadioButton (null);
+            color_button_system = new Gtk.RadioButton (null);
+            color_button_system.active = settings.theme == "System";
+            color_button_system.halign = Gtk.Align.CENTER;
+            color_button_system.tooltip_text = _("System");
+            color_button_system.toggled.connect (() => {
+                if (color_button_system.active) {
+                    settings.theme = "System";
+                    settings.prefer_dark_style =
+                        Granite.Settings.get_default ().prefers_color_scheme == Granite.Settings.ColorScheme.DARK;
+                }
+            });
+
+            var color_button_system_context = color_button_system.get_style_context ();
+            color_button_system_context.add_class (Granite.STYLE_CLASS_COLOR_BUTTON);
+            color_button_system_context.add_class ("color-system");
+
+            color_button_white = new Gtk.RadioButton.from_widget (color_button_system);
             color_button_white.active = settings.theme == "Light";
             color_button_white.halign = Gtk.Align.CENTER;
             color_button_white.tooltip_text = _("Light");
@@ -101,7 +119,7 @@ namespace Manuscript.Widgets {
             color_button_white_context.add_class (Granite.STYLE_CLASS_COLOR_BUTTON);
             color_button_white_context.add_class ("color-white");
 
-            var color_button_dark = new Gtk.RadioButton (null);
+            color_button_dark = new Gtk.RadioButton.from_widget (color_button_system);
             color_button_dark.set_group (color_button_white.get_group ());
             color_button_dark.active = settings.theme == "Dark" || settings.prefer_dark_style;
             color_button_dark.halign = Gtk.Align.CENTER;
@@ -122,7 +140,8 @@ namespace Manuscript.Widgets {
             theme_switcher_grid.column_homogeneous = true;
             theme_switcher_grid.column_spacing = 40;
             theme_switcher_grid.halign = Gtk.Align.CENTER;
-            theme_switcher_grid.attach_next_to (color_button_white, null, Gtk.PositionType.LEFT);
+            theme_switcher_grid.attach_next_to (color_button_system, null, Gtk.PositionType.LEFT);
+            theme_switcher_grid.attach_next_to (color_button_white, color_button_system, Gtk.PositionType.RIGHT);
             theme_switcher_grid.attach_next_to (color_button_dark, color_button_white, Gtk.PositionType.RIGHT);
 
             Gtk.Label use_document_typography_label = new Gtk.Label (_("Use document typography"));
@@ -201,6 +220,18 @@ namespace Manuscript.Widgets {
             autosave_switch.active = settings.autosave;
             use_document_typography_switch.active = settings.use_document_typography;
             zoom_default_button.label = font_scale_to_zoom (settings.text_scale_factor);
+            switch (settings.theme) {
+                case "System":
+                default:
+                    color_button_system.active = true;
+                break;
+                case "Light":
+                    color_button_white.active = true;
+                break;
+                case "Dark":
+                    color_button_dark.active = true;
+                break;
+            }
         }
 
         protected void update_settings () {
