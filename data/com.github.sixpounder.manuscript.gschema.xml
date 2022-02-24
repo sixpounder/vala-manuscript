@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2021 Andrea Coronese <sixpounder@protonmail.com> -->
+<!-- Copyright 2022 Andrea Coronese <sixpounder@protonmail.com> -->
 <schemalist>
     <enum id="com.github.sixpounder.manuscript.themes">
         <value nick="System" value="0" />

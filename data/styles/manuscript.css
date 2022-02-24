@@ -84,7 +84,7 @@ textview {
 }
 
 .color-system radio {
-    background-image: linear-gradient(to top right, #ffffff 49%, #000000 50%);
+    background-image: linear-gradient(to top right, #ffffff 40%, #000000 60%);
     background-repeat: no-repeat;
     background-position: center;
     color: #000;
