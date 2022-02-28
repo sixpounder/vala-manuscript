@@ -125,7 +125,7 @@ namespace Manuscript.Models {
 
             diconnect_events ();
 
-            size_t prelude_size = sizeof (TextBufferPrelude);
+            size_t prelude_size = 18;
 
             InputStream @is = new MemoryInputStream.from_data (raw_content);
             DataInputStream dis = new DataInputStream (@is);
@@ -143,7 +143,7 @@ namespace Manuscript.Models {
             // A raw_content to be deserialized must be at least the size of its prelude
             if (raw_content.length < prelude_size) {
                 warning (
-                    "Raw content length (%i) is less than prelude size (%l). This might indicate a malformed chunk",
+                    "Raw content length (%i) is less than prelude size (%lu). This might indicate a malformed chunk",
                     raw_content.length,
                     prelude_size
                 );
@@ -160,7 +160,9 @@ namespace Manuscript.Models {
             dis.close ();
 
             Lib.RichTextParser parser = new Lib.RichTextParser (this);
-            parser.parse ((string) data.get_data ());
+            string str = (string) data.get_data ();
+            str = str.slice (0, data.length);
+            parser.parse (str);
 
             dirty = false;
 

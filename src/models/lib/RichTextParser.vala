@@ -160,14 +160,20 @@ namespace Manuscript.Models.Lib {
         private void flush_tokens () {
             // Remember that tokens are bytes composing the string, NOT the actual chars (utf8 stuff)
             string tokens = (string) parse_tokens.data;
+            int bytes_count = parse_tokens.data.length;
             int start_offset = buf_index;
-            int end_offset = buf_index + tokens.char_count (tokens.length);
-            int char_count = tokens.char_count (tokens.length);
+            int char_count = tokens.char_count ();
+            int end_offset = buf_index + char_count;
 
             Gtk.TextIter cursor;
             buffer.get_end_iter (out cursor);
 
-            buffer.insert (ref cursor, tokens, tokens.length);
+            char* last_valid_char_in_string;
+            if (tokens.validate (-1, out last_valid_char_in_string)) {
+                buffer.insert (ref cursor, tokens, bytes_count);
+            } else {
+                buffer.insert (ref cursor, tokens.make_valid (), bytes_count);
+            }
 
             if (tag_stack.length () > 0) {
                 Gtk.TextIter tag_apply_start, tag_apply_end;
