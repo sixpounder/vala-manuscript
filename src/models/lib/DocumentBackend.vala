@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
- 
+
 namespace Manuscript.Models.Backend {
     public interface Backend {
         public abstract ulong save (Document document, OutputStream @out) throws DocumentError;
@@ -272,6 +272,7 @@ namespace Manuscript.Models.Backend {
                     // Each chunk may yield multiple archivable entities
                     var entries = chunk.to_archivable_entries ();
 
+                    debug ("Writing entries count: %lu", entries.size);
                     @out.write_ulong (entries.size, out bytes_written);
                     bytes_written_all += bytes_written;
 
@@ -279,10 +280,12 @@ namespace Manuscript.Models.Backend {
                     foreach (var entry in entries) {
                         size_t entry_bytes_written;
 
+                        debug ("Writing entry size: %lu", entry.data.length);
                         @out.write_ulong (entry.data.length, out entry_bytes_written);
                         chunks_bytes_written += entry_bytes_written;
                         bytes_written_all += entry_bytes_written;
 
+                        debug ("Writing entry data");
                         @out.write_all (entry.data, out entry_bytes_written, null);
                         chunks_bytes_written += entry_bytes_written;
                         bytes_written_all += entry_bytes_written;
@@ -321,33 +324,42 @@ namespace Manuscript.Models.Backend {
 
                 int chunks_counter = prelude.chunks_n;
 
-                while (chunks_counter > 0) {
+                while (chunks_counter > 0 && !@in.is_closed ()) {
                     var next_chunk_entries_count = @in.read_ulong ();
-
-                    // First entry is always the chunk itself
-                    var next_entry_size = @in.read_ulong ();
-                    uint8[] chunk_data = @in.read_bytes (next_entry_size).get_data ();
-                    var chunk = DocumentChunk.new_from_data (chunk_data, document);
-
-                    // For certain kind of chunks there are additional entries that must be processed
-                    if (next_chunk_entries_count > 1) {
-                        var next_subentry_size = @in.read_ulong ();
-
-                        uint8[] subentry_buffer = new uint8[next_subentry_size];
-                        size_t bytes_read;
-                        @in.read_all (subentry_buffer, out bytes_read);
-
-                        if (chunk.kind == ChunkType.CHAPTER || chunk.kind == ChunkType.NOTE) {
-                            // For these kind of chunks this entry is the text buffer
-                            if (subentry_buffer != null) {
-                                ((TextChunk) chunk).set_raw (subentry_buffer);
-                            } else {
-                                warning ("Tried to set text chunk raw buffer but had null value");
+                    if (next_chunk_entries_count != 0) {
+                        debug ("Must read %lu entries for this chunk", next_chunk_entries_count);
+    
+                        // First entry is always the chunk itself
+                        var next_entry_size = @in.read_ulong ();
+                        debug ("Next entry size should be %lu", next_entry_size);
+                        uint8[] chunk_data = @in.read_bytes (next_entry_size).get_data ();
+                        var chunk = DocumentChunk.new_from_data (chunk_data, document);
+    
+                        // For certain kind of chunks there are additional entries that must be processed
+                        if (next_chunk_entries_count > 1) {
+                            var next_subentry_size = @in.read_ulong ();
+                            debug ("Next (sub)entry size should be %lu", next_subentry_size);
+    
+                            uint8[] subentry_buffer = new uint8[next_subentry_size];
+                            size_t bytes_read;
+                            @in.read_all (subentry_buffer, out bytes_read);
+    
+                            if (chunk.kind == ChunkType.CHAPTER || chunk.kind == ChunkType.NOTE) {
+                                // For these kind of chunks this entry is the text buffer
+                                if (subentry_buffer != null) {
+                                    ((TextChunk) chunk).set_raw (subentry_buffer);
+                                } else {
+                                    warning ("Tried to set text chunk raw buffer but had null value");
+                                }
                             }
                         }
+                        document.add_chunk (chunk);
+                        chunks_counter --;
                     }
-                    document.add_chunk (chunk);
-                    chunks_counter --;
+                }
+
+                if (chunks_counter != 0) {
+                    warning ("Document prelude declared %lu chunks, but %lu chunks remained unread. This could mean a malformed file.", prelude.chunks_n, chunks_counter);
                 }
 
                 return document;
@@ -376,8 +388,18 @@ namespace Manuscript.Models.Backend {
         }
 
         public ulong read_ulong () throws Error {
+            // sizeof (ulong) is 8
+            //  Bytes long_bytes = inner.read_bytes (sizeof (ulong));
+            //  return ulong.parse ((string) long_bytes.get_data ());
             uint8* long_bytes = inner.read_bytes (sizeof (ulong)).get_data ();
-            return (ulong) *long_bytes;
+            if (*long_bytes == '\0') {
+                this.close ();
+                return 0;
+            } else {
+                ulong* long_raw = (ulong*) long_bytes;
+                ulong long_value = ulong.from_little_endian (*long_raw);
+                return long_value;
+            }
         }
 
         public uint8[] read_until (char marker) throws Error {
@@ -411,9 +433,12 @@ namespace Manuscript.Models.Backend {
             out size_t bytes_written,
             GLib.Cancellable? cancellable = null
         ) throws Error {
-            uint8[] value_pointer = (uint8[]) value;
-            value_pointer.length = (int) sizeof (ulong);
-            inner.write_all (value_pointer, out bytes_written, cancellable);
+            ulong encoded_value = value;
+            uint8[] value_buffer = (uint8[]) encoded_value;
+            value_buffer.length = (int) sizeof (ulong);
+            //  assert (value_buffer.length == 8);
+            inner.write_all (value_buffer, out bytes_written, cancellable);
+            assert (bytes_written == 8);
 
             return bytes_written;
         }

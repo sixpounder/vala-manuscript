@@ -53,8 +53,6 @@ namespace Manuscript.Models {
         uint64 size_of_artifacts_buffer;
     }
 
-    const uint8 NULL_TERMINATOR = '\0';
-
     public class TextBuffer : Gtk.SourceBuffer {
         private Gdk.Atom serialize_atom;
         private Gdk.Atom deserialize_atom;
@@ -134,8 +132,8 @@ namespace Manuscript.Models {
             TextBufferPrelude prelude = TextBufferPrelude () {
                 major_version = dis.read_byte (),
                 minor_version = dis.read_byte (),
-                size_of_text_buffer = dis.read_int64 (),
-                size_of_artifacts_buffer = dis.read_int64 ()
+                size_of_text_buffer = dis.read_uint64 (),
+                size_of_artifacts_buffer = dis.read_uint64 ()
             };
 
             debug ("Buffer version: %i.%i", prelude.major_version, prelude.minor_version);
@@ -151,11 +149,10 @@ namespace Manuscript.Models {
                 );
             }
 
-            //  var data = Manuscript.Utils.Streams.read_until (dis, NULL_TERMINATOR);
             var data = dis.read_bytes ((size_t) prelude.size_of_text_buffer);
 
             // One null terminators after text buffer
-            dis.read_bytes (1);
+            //  dis.read_bytes (1);
 
             // Additional stuff...
 

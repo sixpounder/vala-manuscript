@@ -18,13 +18,12 @@
  */
 
 namespace Manuscript.Models.Lib {
-    const uint8 NULL_TERMINATOR = '\0';
 
     public class TextBufferSerializer : Object {
         public uint8[] serialize (Models.TextBuffer buffer) throws IOError {
             StringBuilder serialized_buffer = new StringBuilder ();
             Gee.ArrayList<Gee.ArrayList<uint8>> serialized_artifacts = new Gee.ArrayList<Gee.ArrayList<uint8>> ();
-            uint64 artifacts_buffer_size = 0;
+            int artifacts_buffer_size = 0;
             Gee.ArrayList<Models.SerializableTextTag> tag_stack = new Gee.ArrayList<Models.SerializableTextTag> ();
 
             Gtk.TextIter cursor;
@@ -66,39 +65,38 @@ namespace Manuscript.Models.Lib {
             // Handle any remaining closing tags
             serialize_check_closing_tags (counter, serialized_buffer, cursor, tag_stack);
 
-            MemoryOutputStream os = new MemoryOutputStream (null, GLib.realloc, GLib.free);
+            MemoryOutputStream os = new MemoryOutputStream (null);
             DataOutputStream dos = new DataOutputStream (os);
             size_t bytes_written;
 
             // Write table of contents
+            uint8 major_version = 1;
+            uint8 minor_version = 0;
             Models.TextBufferPrelude ? prelude = Models.TextBufferPrelude () {
-                major_version = 1,
-                minor_version = 0,
-                size_of_text_buffer = (uint64) serialized_buffer.str.length,
+                major_version = major_version,
+                minor_version = minor_version,
+                size_of_text_buffer = serialized_buffer.str.data.length,
                 size_of_artifacts_buffer = artifacts_buffer_size
             };
-
-            var expected_length = sizeof (uint8) * 2 + sizeof (uint64) * 2;
-            bytes_written = Utils.Streams.write_struct (os, prelude, expected_length);
+            Utils.Streams.write_prelude (dos, prelude);
 
             // Write the actual content of the buffer
             if (serialized_buffer.len > 0) {
                 dos.write_all (serialized_buffer.data, out bytes_written);
             }
 
-            dos.put_byte (NULL_TERMINATOR);
-
             // Write artifacts
             for (var i = 0; i < serialized_artifacts.size; i++) {
                 var item = serialized_artifacts.@get (i);
                 dos.write_all (item.to_array (), out bytes_written);
-                dos.put_byte (NULL_TERMINATOR);
             }
 
             dos.close ();
 
             uint8[] data = os.steal_data ();
             data.length = (int) os.get_data_size ();
+            debug ("Serialized data lenght in bytes: %lu", data.length);
+
             return data;
         }
 

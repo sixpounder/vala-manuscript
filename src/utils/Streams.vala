@@ -64,16 +64,27 @@ namespace Manuscript.Utils.Streams {
         return data;
     }
 
-    public size_t write_struct<T> (OutputStream os, T data, size_t len) throws IOError {
-        size_t bytes_written;
-        uint8* ptr = data;
-        uint8[] bytes = new uint8[len];
-        for (ulong i = 0; i < len; i++) {
-            bytes[i] = *ptr;
-            ptr ++;
+    //  public size_t write_struct<T> (OutputStream os, T data, size_t len) throws IOError {
+    //      size_t bytes_written;
+    //      uint8* ptr = data;
+    //      uint8[] bytes = new uint8[len];
+    //      for (ulong i = 0; i < len; i++) {
+    //          bytes[i] = *ptr;
+    //          ptr ++;
+    //      }
+    //      os.write_all (bytes, out bytes_written);
+    //      return bytes_written;
+    //  }
+
+    public string to_hex (void* ptr, size_t size) {
+        string hex = "";
+        uint8* value = ptr;
+        for (ulong i = 0; i < size; i++) {
+            hex += hex.printf ("%02X", *value);
+            value += sizeof(uint8);
         }
-        os.write_all (bytes, out bytes_written);
-        return bytes_written;
+
+        return hex;
     }
 
     public void write_prelude (DataOutputStream os, Models.TextBufferPrelude prelude) throws IOError {

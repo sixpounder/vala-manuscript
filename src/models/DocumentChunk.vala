@@ -135,7 +135,7 @@ namespace Manuscript.Models {
                 var root_object = parser.get_root ().get_object ();
                 return Models.chunk_from_json_object (root_object, parent);
             } catch (Error error) {
-                throw new DocumentError.PARSE (@"Cannot parse manuscript file: $(error.message)");
+                throw new DocumentError.PARSE (@"Cannot parse chunk from data: $(error.message)");
             }
         }
 
