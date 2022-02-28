@@ -328,22 +328,22 @@ namespace Manuscript.Models.Backend {
                     var next_chunk_entries_count = @in.read_ulong ();
                     if (next_chunk_entries_count != 0) {
                         debug ("Must read %lu entries for this chunk", next_chunk_entries_count);
-    
+
                         // First entry is always the chunk itself
                         var next_entry_size = @in.read_ulong ();
                         debug ("Next entry size should be %lu", next_entry_size);
                         uint8[] chunk_data = @in.read_bytes (next_entry_size).get_data ();
                         var chunk = DocumentChunk.new_from_data (chunk_data, document);
-    
+
                         // For certain kind of chunks there are additional entries that must be processed
                         if (next_chunk_entries_count > 1) {
                             var next_subentry_size = @in.read_ulong ();
                             debug ("Next (sub)entry size should be %lu", next_subentry_size);
-    
+
                             uint8[] subentry_buffer = new uint8[next_subentry_size];
                             size_t bytes_read;
                             @in.read_all (subentry_buffer, out bytes_read);
-    
+
                             if (chunk.kind == ChunkType.CHAPTER || chunk.kind == ChunkType.NOTE) {
                                 // For these kind of chunks this entry is the text buffer
                                 if (subentry_buffer != null) {
@@ -359,7 +359,7 @@ namespace Manuscript.Models.Backend {
                 }
 
                 if (chunks_counter != 0) {
-                    warning ("Document prelude declared %lu chunks, but %lu chunks remained unread. This could mean a malformed file.", prelude.chunks_n, chunks_counter);
+                    warning ("Document prelude declared %lu chunks, but %lu chunks remained unread. This could mean a malformed file.", prelude.chunks_n, chunks_counter); // vala-lint=line-length
                 }
 
                 return document;

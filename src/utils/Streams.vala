@@ -81,7 +81,7 @@ namespace Manuscript.Utils.Streams {
         uint8* value = ptr;
         for (ulong i = 0; i < size; i++) {
             hex += hex.printf ("%02X", *value);
-            value += sizeof(uint8);
+            value += sizeof (uint8);
         }
 
         return hex;
