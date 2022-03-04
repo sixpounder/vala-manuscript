@@ -149,19 +149,19 @@ namespace Manuscript.Models {
                 );
             }
 
-            var data = dis.read_bytes ((size_t) prelude.size_of_text_buffer);
+            var text_buffer_data = dis.read_bytes ((size_t) prelude.size_of_text_buffer);
+            var artifacts_data = dis.read_bytes ((size_t) prelude.size_of_artifacts_buffer);
 
-            // One null terminators after text buffer
-            //  dis.read_bytes (1);
+            uint8[] artifacts_data_bytes = new uint8[prelude.size_of_artifacts_buffer];
+            artifacts_data_bytes = artifacts_data.get_data ();
 
-            // Additional stuff...
 
             // Close the stream
             dis.close ();
 
             Lib.RichTextParser parser = new Lib.RichTextParser (this);
-            string str = (string) data.get_data ();
-            str = str.slice (0, data.length);
+            string str = (string) text_buffer_data.get_data ();
+            str = str.slice (0, text_buffer_data.length);
             parser.parse (str);
 
             dirty = false;

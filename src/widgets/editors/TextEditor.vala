@@ -73,6 +73,7 @@ namespace Manuscript.Widgets {
             settings.change.connect (on_setting_change);
             destroy.connect (on_destroy);
             populate_popup.connect (populate_context_menu);
+            buffer.notify["cursor-position"].connect (on_cursor_position_change);
             //  buffer.mark_set.connect (on_mark_set);
         }
 
@@ -146,7 +147,7 @@ namespace Manuscript.Widgets {
             if (buffer != null) {
                 if (settings.focus_mode) {
                     focus_mode_update_highlight ();
-                    buffer.notify["cursor-position"].connect (on_cursor_position_change);
+                    //  buffer.notify["cursor-position"].connect (on_cursor_position_change);
                 } else {
                     Gtk.TextIter start, end;
                     string focused_tag;
@@ -161,7 +162,7 @@ namespace Manuscript.Widgets {
                     buffer.get_bounds (out start, out end);
                     buffer.remove_tag (buffer.tag_table.lookup (focused_tag), start, end);
                     buffer.remove_tag (buffer.tag_table.lookup (dimmed_tag), start, end);
-                    buffer.notify["cursor-position"].disconnect (on_cursor_position_change);
+                    //  buffer.notify["cursor-position"].disconnect (on_cursor_position_change);
                 }
             } else {
                 warning ("Settings not updated, current buffer is null");
@@ -191,45 +192,47 @@ namespace Manuscript.Widgets {
          * Updates text iters to highlight the current sentence and dim other parts.
          */
         protected void focus_mode_update_highlight () {
-            Gtk.TextIter cursor_iter;
-            Gtk.TextIter start, end;
-
-            buffer.get_bounds (out start, out end);
-
-            var cursor = this.buffer.get_insert ();
-            buffer.get_iter_at_mark (out cursor_iter, cursor);
-
-            if (cursor != null) {
-                Gtk.TextIter sentence_start = cursor_iter;
-                Gtk.TextIter sentence_end = cursor_iter;
-
-                if (cursor_iter != start) {
-                    if (!sentence_start.starts_sentence ()) {
-                        sentence_start.backward_sentence_start ();
+            if (settings.focus_mode) {
+                Gtk.TextIter cursor_iter;
+                Gtk.TextIter start, end;
+    
+                buffer.get_bounds (out start, out end);
+    
+                var cursor = this.buffer.get_insert ();
+                buffer.get_iter_at_mark (out cursor_iter, cursor);
+    
+                if (cursor != null) {
+                    Gtk.TextIter sentence_start = cursor_iter;
+                    Gtk.TextIter sentence_end = cursor_iter;
+    
+                    if (cursor_iter != start) {
+                        if (!sentence_start.starts_sentence ()) {
+                            sentence_start.backward_sentence_start ();
+                        }
                     }
-                }
-
-                if (cursor_iter != end) {
-                    if (!sentence_end.ends_sentence ()) {
-                        sentence_end.forward_sentence_end ();
+    
+                    if (cursor_iter != end) {
+                        if (!sentence_end.ends_sentence ()) {
+                            sentence_end.forward_sentence_end ();
+                        }
                     }
+    
+                    string focused_tag;
+                    string dimmed_tag;
+                    if (settings.prefer_dark_style) {
+                        focused_tag = "dark-focused";
+                        dimmed_tag = "dark-dimmed";
+                    } else {
+                        focused_tag = "theme-light-focused";
+                        dimmed_tag = "theme-light-dimmed";
+                    }
+    
+                    buffer.remove_tag (buffer.tag_table.lookup (focused_tag), start, end);
+                    buffer.apply_tag (buffer.tag_table.lookup (dimmed_tag), start, end);
+                    buffer.apply_tag (buffer.tag_table.lookup (focused_tag), sentence_start, sentence_end);
+    
+                    scroll_to_cursor ();
                 }
-
-                string focused_tag;
-                string dimmed_tag;
-                if (settings.prefer_dark_style) {
-                    focused_tag = "dark-focused";
-                    dimmed_tag = "dark-dimmed";
-                } else {
-                    focused_tag = "theme-light-focused";
-                    dimmed_tag = "theme-light-dimmed";
-                }
-
-                buffer.remove_tag (buffer.tag_table.lookup (focused_tag), start, end);
-                buffer.apply_tag (buffer.tag_table.lookup (dimmed_tag), start, end);
-                buffer.apply_tag (buffer.tag_table.lookup (focused_tag), sentence_start, sentence_end);
-
-                scroll_to_cursor ();
             }
         }
 
