@@ -24,7 +24,6 @@ namespace Manuscript.Widgets {
         private weak Models.TextChunk _chunk;
         private Gtk.CssProvider font_style_provider;
         private Services.AppSettings settings = Services.AppSettings.get_default ();
-
         public signal void mark_set (Gtk.TextIter location, Gtk.TextMark mark);
 
         public weak Models.TextChunk chunk {
@@ -57,24 +56,48 @@ namespace Manuscript.Widgets {
             }
         }
 
-        //  ~ TextEditor () {
-        //      chunk.parent_document.saved.disconnect (on_document_saved);
-        //      buffer.changed.disconnect (on_document_change);
-        //      buffer.apply_tag.disconnect (on_document_change);
-        //      settings.change.disconnect (on_setting_change);
-        //      destroy.disconnect (on_destroy);
-        //      populate_popup.disconnect (populate_context_menu);
-        //  }
+        ~ TextEditor () {
+            chunk.parent_document.saved.disconnect (on_document_saved);
+            buffer.changed.disconnect (on_document_change);
+            buffer.apply_tag.disconnect (on_document_change);
+            settings.change.disconnect (on_setting_change);
+            destroy.disconnect (on_destroy);
+            populate_popup.disconnect (populate_context_menu);
+        }
 
         private void connect_events () {
             chunk.parent_document.saved.connect (on_document_saved);
             buffer.changed.connect (on_document_change);
             buffer.apply_tag.connect (on_document_change);
+            if (buffer != null && buffer is Models.TextBuffer) {
+                ((Models.TextBuffer) buffer).add_artifact.connect (on_artifact_added);
+                ((Models.TextBuffer) buffer).remove_artifact.connect (on_artifact_removed);
+            }
             settings.change.connect (on_setting_change);
             destroy.connect (on_destroy);
             populate_popup.connect (populate_context_menu);
             buffer.notify["cursor-position"].connect (on_cursor_position_change);
             //  buffer.mark_set.connect (on_mark_set);
+        }
+
+        private void on_artifact_added (Models.TextChunkArtifact artifact) {
+            Gtk.TextChildAnchor anchor = buffer.create_child_anchor (artifact.end_iter);
+            artifact.anchor = anchor;
+
+            if (artifact is Models.FootNote) {
+                var note = (Models.FootNote) artifact;
+                var footnote_indicator = new FootNoteIndicator (note);
+                add_child_at_anchor (footnote_indicator, anchor);
+                footnote_indicator.popup ();
+            }
+        }
+
+        private void on_artifact_removed (Models.TextChunkArtifact artifact) {
+            if (artifact.anchor != null) {
+                Gtk.TextIter iter;
+                buffer.get_iter_at_child_anchor (out iter, artifact.anchor);
+                buffer.delete_range (iter, iter);
+            }
         }
 
         private void on_selection_changed () {
@@ -258,21 +281,9 @@ namespace Manuscript.Widgets {
         public void insert_empty_note_at_selection () {
             Gtk.TextIter selection_start, selection_end;
             buffer.get_selection_bounds (out selection_start, out selection_end);
-            Gtk.TextIter target_iter;
-            if (selection_start == selection_end) {
-                target_iter = selection_start;
-            } else {
-                target_iter = selection_end;
-            }
 
-            var note = new Models.FootNote (chunk, selection_start.get_offset (), selection_end.get_offset ());
-            chunk.add_artifact (note);
-
-            Gtk.TextChildAnchor anchor = buffer.create_child_anchor (target_iter);
-
-            var footnote_indicator = new FootNoteIndicator (note);
-            add_child_at_anchor (footnote_indicator, anchor);
-            footnote_indicator.popup ();
+            var note = new Models.FootNote (chunk.buffer, selection_start.get_offset (), selection_end.get_offset ());
+            chunk.buffer.add_artifact (note);
         }
 
         /** Simple cubic eased scrolling for the editor view */
@@ -300,7 +311,9 @@ namespace Manuscript.Widgets {
         }
 
         public void scroll_to_cursor () {
-            scroll_to_mark (buffer.get_insert (), 0.0, true, 0.0, 0.5);
+            if (buffer != null) {
+                scroll_to_mark (buffer.get_insert (), 0.0, true, 0.0, 0.5);
+            }
         }
 
         public void update_text_settings () {

@@ -91,7 +91,8 @@ namespace Manuscript.Widgets {
             color_button_system = new Gtk.RadioButton (null);
             color_button_system.active = settings.theme == "System";
             color_button_system.halign = Gtk.Align.CENTER;
-            color_button_system.tooltip_text = _("System");
+            color_button_system.get_accessible ().set_name ("Follow system theme");
+            color_button_system.tooltip_text = _("Follow system theme");
             color_button_system.toggled.connect (() => {
                 if (color_button_system.active) {
                     settings.theme = "System";

@@ -59,15 +59,25 @@ namespace Manuscript.Models {
         private bool dirty = false;
         private uint8[] raw_content;
 
+        public Gee.ArrayList<Models.TextChunkArtifact> artifacts { get; set; }
+
         public TextBuffer () {
             Object (
                 tag_table: new XManuscriptTagTable ()
             );
         }
 
+        public TextBuffer.from_source_buffer (Gtk.SourceBuffer source_buffer) {
+            Object (
+                tag_table: new XManuscriptTagTable (),
+                text: source_buffer.text
+            );
+        }
+
         construct {
             serialize_atom = register_serialize_tagset ("x-manuscript");
             deserialize_atom = register_deserialize_tagset ("x-manuscript");
+            artifacts = new Gee.ArrayList<Models.TextChunkArtifact> ();
 
             connect_events ();
         }
@@ -82,6 +92,24 @@ namespace Manuscript.Models {
             changed.disconnect (on_buffer_changed);
             apply_tag.disconnect (on_buffer_changed);
             remove_tag.disconnect (on_buffer_changed);
+        }
+
+        public virtual signal void add_artifact (Models.TextChunkArtifact artifact) {
+            artifacts.add (artifact);
+        }
+
+        public virtual signal void remove_artifact (Models.TextChunkArtifact artifact) {
+            artifacts.remove (artifact);
+        }
+
+        public Gee.Iterator<TextChunkArtifact> iter_artifacts () {
+            return artifacts.iterator ();
+        }
+
+        public Gee.Iterator<TextChunkArtifact> iter_foot_notes () {
+            return artifacts.iterator ().filter ((a) => {
+                return a is FootNote;
+            });
         }
 
         public Gdk.Atom get_manuscript_serialize_format () {
@@ -149,20 +177,23 @@ namespace Manuscript.Models {
                 );
             }
 
-            var text_buffer_data = dis.read_bytes ((size_t) prelude.size_of_text_buffer);
-            var artifacts_data = dis.read_bytes ((size_t) prelude.size_of_artifacts_buffer);
+            if (prelude.size_of_text_buffer != 0) {
+                var text_buffer_data = dis.read_bytes ((size_t) prelude.size_of_text_buffer);
+                Lib.RichTextParser parser = new Lib.RichTextParser (this);
+                string str = (string) text_buffer_data.get_data ();
+                str = str.slice (0, text_buffer_data.length);
+                parser.parse (str);
+            }
 
-            uint8[] artifacts_data_bytes = new uint8[prelude.size_of_artifacts_buffer];
-            artifacts_data_bytes = artifacts_data.get_data ();
-
+            if (prelude.size_of_artifacts_buffer != 0) {
+                var artifacts_data = dis.read_bytes ((size_t) prelude.size_of_artifacts_buffer);
+                uint8[] artifacts_data_bytes = new uint8[prelude.size_of_artifacts_buffer];
+                artifacts_data_bytes = artifacts_data.get_data ();
+                add_artifact (TextChunkArtifact.from_data (this, artifacts_data_bytes));
+            }
 
             // Close the stream
             dis.close ();
-
-            Lib.RichTextParser parser = new Lib.RichTextParser (this);
-            string str = (string) text_buffer_data.get_data ();
-            str = str.slice (0, text_buffer_data.length);
-            parser.parse (str);
 
             dirty = false;
 

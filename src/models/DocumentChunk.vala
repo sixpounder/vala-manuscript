@@ -170,8 +170,27 @@ namespace Manuscript.Models {
     public abstract class TextChunkArtifact : Object {
         public abstract string name { get; }
 
+        public weak TextBuffer parent_buffer { get; construct; }
+
+        public weak Gtk.TextChildAnchor? anchor { get; set; }
+
+        public abstract uint8[] serialize () throws IOError;
+
+        public static TextChunkArtifact from_data (TextBuffer parent_buffer, uint8[] data) throws IOError {
+            MemoryInputStream min = new MemoryInputStream.from_data (data);
+            DataInputStream @in = new DataInputStream (min);
+            var name = (string) Utils.Streams.read_until (@in, '\0');
+            @in.close ();
+
+            switch (name) {
+                case "foot_note":
+                default:
+                    return new FootNote.from_data (parent_buffer, data);
+            }
+        }
+
         // The chunk this note belongs to
-        public weak Models.TextChunk parent_chunk { get; construct; }
+        //  public weak Models.TextChunk parent_chunk { get; construct; }
 
         // The start iter in the parent chunk's buffer at which this note begins
         public int start_iter_offset { get; construct set; }
@@ -183,9 +202,9 @@ namespace Manuscript.Models {
         // The start iter in the parent chunk's buffer at which this note begins
         public Gtk.TextIter? start_iter {
             get {
-                if (parent_chunk != null) {
+                if (parent_buffer != null) {
                     Gtk.TextIter out_iter;
-                    parent_chunk.buffer.get_iter_at_offset (out out_iter, start_iter_offset);
+                    parent_buffer.get_iter_at_offset (out out_iter, start_iter_offset);
                     return out_iter;
                 } else {
                     return null;
@@ -197,9 +216,9 @@ namespace Manuscript.Models {
         // indicating that the note belongs to a specific cursor point and not a text section
         public Gtk.TextIter? end_iter {
             get {
-                if (parent_chunk != null && end_iter_offset != -1) {
+                if (parent_buffer != null && end_iter_offset != -1) {
                     Gtk.TextIter out_iter;
-                    parent_chunk.buffer.get_iter_at_offset (out out_iter, end_iter_offset);
+                    parent_buffer.get_iter_at_offset (out out_iter, end_iter_offset);
                     return out_iter;
                 } else {
                     return null;
@@ -211,10 +230,6 @@ namespace Manuscript.Models {
             get {
                 return start_iter_offset != -1 && end_iter_offset != -1;
             }
-        }
-
-        public uint8[] serialize () {
-            return {};
         }
     }
 
@@ -234,11 +249,11 @@ namespace Manuscript.Models {
 
         public virtual Models.TextBuffer? buffer { get; protected set; }
 
-        public Gee.ArrayList<Models.TextChunkArtifact> artifacts { get; set; }
+        //  public Gee.ArrayList<Models.TextChunkArtifact> artifacts { get; set; }
 
-        construct {
-            artifacts = new Gee.ArrayList<Models.TextChunkArtifact> ();
-        }
+        //  construct {
+        //      artifacts = new Gee.ArrayList<Models.TextChunkArtifact> ();
+        //  }
 
         public uchar[] get_raw () {
             return raw_content;
@@ -254,23 +269,21 @@ namespace Manuscript.Models {
             return node;
         }
 
-        public virtual signal bool add_artifact (Models.TextChunkArtifact artifact) {
-            return artifacts.add (artifact);
-        }
+        //  public virtual signal bool add_artifact (Models.TextChunkArtifact artifact) {
+        //      return buffer.artifacts.add (artifact);
+        //  }
 
-        public virtual signal bool remove_artifact (Models.TextChunkArtifact artifact) {
-            return artifacts.remove (artifact);
-        }
+        //  public virtual signal bool remove_artifact (Models.TextChunkArtifact artifact) {
+        //      return buffer.artifacts.remove (artifact);
+        //  }
 
-        public Gee.Iterator<TextChunkArtifact> iter_artifacts () {
-            return artifacts.iterator ();
-        }
+        //  public Gee.Iterator<TextChunkArtifact> iter_artifacts () {
+        //      return buffer.iter_artifacts ();
+        //  }
 
-        public Gee.Iterator<TextChunkArtifact> iter_foot_notes () {
-            return artifacts.iterator ().filter ((a) => {
-                return a is FootNote;
-            });
-        }
+        //  public Gee.Iterator<TextChunkArtifact> iter_foot_notes () {
+        //      return buffer.iter_foot_notes ();
+        //  }
 
         public override Gee.Collection<ArchivableItem> to_archivable_entries () throws DocumentError {
 

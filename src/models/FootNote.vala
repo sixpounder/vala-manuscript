@@ -28,9 +28,9 @@ namespace Manuscript.Models {
 
         public Gtk.TextBuffer content_buffer;
 
-        public FootNote (Models.TextChunk parent_chunk, int start_offset, int end_offset = -1) {
+        public FootNote (Models.TextBuffer parent_buffer, int start_offset, int end_offset = -1) {
             Object (
-                parent_chunk: parent_chunk,
+                parent_buffer: parent_buffer,
                 start_iter_offset: start_offset,
                 end_iter_offset: end_offset
             );
@@ -38,6 +38,47 @@ namespace Manuscript.Models {
 
         construct {
             content_buffer = new Gtk.TextBuffer (new Manuscript.Models.XManuscriptTagTable ());
+        }
+
+        public override uint8[] serialize () throws IOError {
+            var len = (sizeof (int) * 2) + name.data.length + content_buffer.text.data.length + 2;
+            uint8[] buf = new uint8[1];
+            buf.length = (int) len;
+            MemoryOutputStream mos = new MemoryOutputStream (buf);
+            DataOutputStream os = new DataOutputStream (mos);
+            os.put_string (name);
+            os.put_byte ('\0');
+            os.put_int32 (start_iter_offset);
+            os.put_int32 (end_iter_offset);
+            size_t bytes_written;
+            os.write_all (content_buffer.text.data, out bytes_written);
+            os.put_byte ('\0');
+            os.close ();
+            var data = mos.steal_data ();
+            data.length = (int) mos.get_data_size ();
+            return data;
+        }
+
+        public FootNote.from_data (TextBuffer parent_buffer, uint8[] data) throws IOError {
+            MemoryInputStream min = new MemoryInputStream.from_data (data);
+            DataInputStream @in = new DataInputStream (min);
+            var name = Utils.Streams.read_until (@in, '\0');
+            assert((string) name == "foot_note");
+
+            var start_offset = @in.read_int32 ();
+            var end_offset = @in.read_int32 ();
+
+            //  var count = data.length - (int) (sizeof (int) * 2);
+            //  uint8[] text_data = new uint8[count];
+            //  //  text_data.length = data.length - (int) (sizeof (int) * 2);
+            //  @in.read_all (text_data, out bytes_read);
+            var text_data = Utils.Streams.read_until (@in, '\0');
+            @in.close ();
+
+            this (parent_buffer, start_offset, end_offset);
+            content_buffer.set_text ((string) text_data, text_data.length);
+            //  FootNote item = new FootNote (parent_chunk, start_offset, end_offset);
+            //  item.content_buffer.set_text ((string) text_data, text_data.length);
         }
     }
 }

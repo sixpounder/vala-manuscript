@@ -18,11 +18,11 @@
  */
 
 namespace Manuscript.Utils.Streams {
-    public uint8[] read_until (InputStream stream, uint8 marker = '\0') throws Error {
+    public uint8[] read_until (InputStream stream, uint8 marker = '\0') throws IOError {
         return read_until_sequence (stream, { marker });
     }
 
-    public uint8[] read_until_sequence (InputStream stream, uint8[] pattern = { '\0' }) throws Error {
+    public uint8[] read_until_sequence (InputStream stream, uint8[] pattern = { '\0' }) throws IOError {
         Gee.ArrayList<uint8> pattern_stack = new Gee.ArrayList<uint8> ();
 
         MemoryOutputStream content_buffer = new MemoryOutputStream.resizable ();
