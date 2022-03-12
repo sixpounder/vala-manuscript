@@ -55,6 +55,7 @@
             get_style_context ().add_class (Gtk.STYLE_CLASS_FLAT);
 
             format_bold = new Gtk.ToggleButton ();
+            format_bold.focus_on_click = false;
             format_bold.can_focus = false;
             format_bold.halign = Gtk.Align.START;
             format_bold.valign = Gtk.Align.FILL;
@@ -71,6 +72,7 @@
 #endif
 
             format_italic = new Gtk.ToggleButton ();
+            format_italic.focus_on_click = false;
             format_italic.can_focus = false;
             format_italic.halign = Gtk.Align.START;
             format_italic.valign = Gtk.Align.FILL;
@@ -87,6 +89,7 @@
 #endif
 
             format_underline = new Gtk.ToggleButton ();
+            format_underline.focus_on_click = false;
             format_underline.can_focus = false;
             format_underline.halign = Gtk.Align.START;
             format_underline.valign = Gtk.Align.FILL;

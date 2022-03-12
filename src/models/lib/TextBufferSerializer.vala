@@ -32,16 +32,6 @@ namespace Manuscript.Models.Lib {
 
             // Scan the buffer and build tags lists and plain text buffer
             while (!cursor.is_end ()) {
-                //  if (cursor.get_child_anchor () != null) {
-                //      var child = cursor.get_child_anchor ();
-                //      if (child is Protocols.TextChunkArtifactWrapper) {
-                //          var artifact = ((Protocols.TextChunkArtifactWrapper) child).get_artifact ();
-                //          var serialized = artifact.serialize ();
-                //          artifacts_buffer_size += serialized.length;
-                //          serialized_artifacts.add (new Gee.ArrayList<uint8>.wrap (serialized));
-                //      }
-                //      cursor.forward_char ();
-                //  }
                 if (cursor.starts_tag (null)) {
                     cursor.get_toggled_tags (true).@foreach (i => {
                         // Only serialize non-anonymous tags, and only tags that can be found in this
@@ -62,15 +52,15 @@ namespace Manuscript.Models.Lib {
                 counter ++;
             }
 
+            // Handle any remaining closing tags
+            serialize_check_closing_tags (counter, serialized_buffer, cursor, tag_stack);
+
             // Serialize artifacts
             foreach (var artifact in buffer.artifacts) {
                 var serialized = artifact.serialize ();
                 debug (serialized.length.to_string ());
                 serialized_artifacts.add (new Gee.ArrayList<uint8>.wrap (serialized));
             }
-
-            // Handle any remaining closing tags
-            serialize_check_closing_tags (counter, serialized_buffer, cursor, tag_stack);
 
             MemoryOutputStream os = new MemoryOutputStream (null);
             DataOutputStream dos = new DataOutputStream (os);

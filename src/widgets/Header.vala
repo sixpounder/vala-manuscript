@@ -32,6 +32,16 @@ namespace Manuscript.Widgets {
         protected Widgets.MenuButton export_button;
         protected Widgets.MenuButton document_settings_button;
 
+        protected Gtk.ModelButton new_window_button;
+        protected Gtk.ModelButton open_button;
+        protected Gtk.ModelButton save_as_button;
+        protected Gtk.ModelButton save_button;
+        protected Gtk.ModelButton document_settings_menu_button;
+        protected Gtk.ModelButton document_close_button;
+        protected Gtk.ModelButton hints_button;
+        protected Gtk.ModelButton quit_button;
+
+
         protected Widgets.SettingsPopover settings_popover;
         protected Widgets.ExportPopover export_popover;
         protected weak Services.DocumentManager document_manager;
@@ -79,7 +89,7 @@ namespace Manuscript.Widgets {
             menu_button = new Widgets.MenuButton.with_properties ("folder", "Menu");
             menu_button.popover = build_main_menu_popover ();
             menu_button.popover.width_request = 350;
-            menu_button.sensitive = document_manager.has_document;
+            menu_button.sensitive = true;
 
             add_element_button = new Widgets.MenuButton.with_properties ("insert-object", "Insert");
             add_element_button.sensitive = document_manager.has_document;
@@ -128,49 +138,49 @@ namespace Manuscript.Widgets {
             grid.width_request = 240;
             grid.name = "main";
 
-            var new_window_button = create_model_button (
+            new_window_button = create_model_button (
                 _("New window"),
                 "document-new-symbolic",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_NEW_WINDOW)"
             );
 
-            var open_button = create_model_button (
+            open_button = create_model_button (
                 _("Open"),
                 "document-open-symbolic",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_OPEN)"
             );
 
-            var save_button = create_model_button (
+            save_button = create_model_button (
                 _("Save"),
                 "document-save-symbolic",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_SAVE)"
             );
 
-            var save_as_button = create_model_button (
+            save_as_button = create_model_button (
                 _("Save as"),
                 "document-save-as-symbolic",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_SAVE_AS)"
             );
 
-            var document_settings_button = create_model_button (
+            document_settings_menu_button = create_model_button (
                 _("Document settings"),
                 "document-settings-symbolic",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_DOCUMENT_SETTINGS)"
             );
 
-            var document_close_button = create_model_button (
+            document_close_button = create_model_button (
                 _("Close document"),
                 "folder-symbolic",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_CLOSE_DOCUMENT)"
             );
 
-            var hints_button = create_model_button (
+            hints_button = create_model_button (
                 _("Hints & shortcuts"),
                 "help-contents-symbolic",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_HINTS)"
             );
 
-            var quit_button = create_model_button (
+            quit_button = create_model_button (
                 _("Quit"),
                 "application-exit-symbolic",
                 @"$(Services.ActionManager.ACTION_PREFIX)$(Services.ActionManager.ACTION_QUIT)"
@@ -181,7 +191,7 @@ namespace Manuscript.Widgets {
             grid.add (save_button);
             grid.add (save_as_button);
             grid.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
-            grid.add (document_settings_button);
+            grid.add (document_settings_menu_button);
             grid.add (document_close_button);
             grid.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
             grid.add (hints_button);
@@ -288,7 +298,18 @@ namespace Manuscript.Widgets {
         protected void update_ui () {
             subtitle = document_manager.has_document ? document_manager.document.title : null;
             document_settings_button.sensitive = document_manager.has_document;
-            menu_button.sensitive = document_manager.has_document;
+            menu_button.sensitive = true;
+
+            new_window_button.sensitive = document_manager.has_document;
+            open_button.sensitive = true;
+            save_as_button.sensitive = document_manager.has_document;
+            save_button.sensitive = document_manager.has_document;
+            document_settings_menu_button.sensitive = document_manager.has_document;
+            document_close_button.sensitive = document_manager.has_document;
+            hints_button.sensitive = true;
+            quit_button.sensitive = true;
+
+
             add_element_button.sensitive = document_manager.has_document;
             export_button.sensitive = document_manager.has_document;
         }
