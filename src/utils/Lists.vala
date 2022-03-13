@@ -17,16 +17,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
- namespace Manuscript.Utils.Lists {
-     public GLib.SList<weak G> intersect<G> (GLib.SList<weak G> a, GLib.SList<weak G> b) {
-        GLib.SList<weak G> c = new GLib.SList<weak G> ();
-         a.@foreach(an => {
-            if (b.index (an) != -1) {
-                c.append(an);
-            }
-         });
+namespace Manuscript.Utils.Lists {
+    public GLib.SList<weak G> intersect<G> (GLib.SList<weak G> a, GLib.SList<weak G> b) {
+       GLib.SList<weak G> c = new GLib.SList<weak G> ();
+        a.@foreach (an => {
+           if (b.index (an) != -1) {
+               c.append (an);
+           }
+        });
 
-         return c.copy ();
-     }
- }
- 
+        return c.copy ();
+    }
+}

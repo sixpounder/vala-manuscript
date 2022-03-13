@@ -45,10 +45,10 @@ namespace Manuscript.Models {
             light_focused = new Gtk.TextTag ("theme-light-focused");
             light_focused.foreground = "#333";
 
-            dark_dimmed = new Gtk.TextTag ("dark-dimmed");
+            dark_dimmed = new Gtk.TextTag ("theme-dark-dimmed");
             dark_dimmed.foreground = "#666666";
 
-            dark_focused = new Gtk.TextTag ("dark-focused");
+            dark_focused = new Gtk.TextTag ("theme-dark-focused");
             dark_focused.foreground = "#fafafa";
 
             italic = new Gtk.TextTag (TAG_NAME_ITALIC);

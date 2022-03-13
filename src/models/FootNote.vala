@@ -63,7 +63,7 @@ namespace Manuscript.Models {
             MemoryInputStream min = new MemoryInputStream.from_data (data);
             DataInputStream @in = new DataInputStream (min);
             var name = Utils.Streams.read_until (@in, '\0');
-            assert((string) name == "foot_note");
+            assert ((string) name == "foot_note");
 
             var start_offset = @in.read_int32 ();
             var end_offset = @in.read_int32 ();

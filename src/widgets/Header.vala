@@ -298,18 +298,10 @@ namespace Manuscript.Widgets {
         protected void update_ui () {
             subtitle = document_manager.has_document ? document_manager.document.title : null;
             document_settings_button.sensitive = document_manager.has_document;
-            menu_button.sensitive = true;
-
-            new_window_button.sensitive = document_manager.has_document;
-            open_button.sensitive = true;
             save_as_button.sensitive = document_manager.has_document;
             save_button.sensitive = document_manager.has_document;
             document_settings_menu_button.sensitive = document_manager.has_document;
             document_close_button.sensitive = document_manager.has_document;
-            hints_button.sensitive = true;
-            quit_button.sensitive = true;
-
-
             add_element_button.sensitive = document_manager.has_document;
             export_button.sensitive = document_manager.has_document;
         }
