@@ -22,6 +22,14 @@ namespace Manuscript.Models {
     public const string TAG_NAME_ITALIC = "i";
     public const string TAG_NAME_UNDERLINE = "u";
     public const string TAG_NAME_STRIKETHROUGH = "s";
+    public const string TAG_NAME_JUSTIFY_LEFT = "justify-left";
+    public const string TAG_NAME_JUSTIFY_RIGHT = "justify-right";
+    public const string TAG_NAME_JUSTIFY_CENTER = "justify-center";
+    public const string TAG_NAME_JUSTIFY_FILL = "justify-fill";
+    public const string THEME_TAG_NAME_LIGHT_DIMMED = "theme-light-dimmed";
+    public const string THEME_TAG_NAME_LIGHT_FOCUSED = "theme-light-focused";
+    public const string THEME_TAG_NAME_DARK_DIMMED = "theme-dark-dimmed";
+    public const string THEME_TAG_NAME_DARK_FOCUSED = "theme-dark-focused";
 
     public class XManuscriptTagTable : Gtk.TextTagTable {
 
@@ -39,16 +47,16 @@ namespace Manuscript.Models {
         public Gtk.TextTag search_match;
 
         construct {
-            light_dimmed = new Gtk.TextTag ("theme-light-dimmed");
+            light_dimmed = new Gtk.TextTag (THEME_TAG_NAME_LIGHT_DIMMED);
             light_dimmed.foreground = "#ccc";
 
-            light_focused = new Gtk.TextTag ("theme-light-focused");
+            light_focused = new Gtk.TextTag (THEME_TAG_NAME_LIGHT_FOCUSED);
             light_focused.foreground = "#333";
 
-            dark_dimmed = new Gtk.TextTag ("theme-dark-dimmed");
+            dark_dimmed = new Gtk.TextTag (THEME_TAG_NAME_DARK_DIMMED);
             dark_dimmed.foreground = "#666666";
 
-            dark_focused = new Gtk.TextTag ("theme-dark-focused");
+            dark_focused = new Gtk.TextTag (THEME_TAG_NAME_DARK_FOCUSED);
             dark_focused.foreground = "#fafafa";
 
             italic = new Gtk.TextTag (TAG_NAME_ITALIC);
@@ -60,16 +68,16 @@ namespace Manuscript.Models {
             underline = new Gtk.TextTag (TAG_NAME_UNDERLINE);
             underline.underline = Pango.Underline.SINGLE;
 
-            justify_left = new Gtk.TextTag ("justify-left");
+            justify_left = new Gtk.TextTag (TAG_NAME_JUSTIFY_LEFT);
             justify_left.justification = Gtk.Justification.LEFT;
 
-            justify_right = new Gtk.TextTag ("justify-right");
+            justify_right = new Gtk.TextTag (TAG_NAME_JUSTIFY_RIGHT);
             justify_right.justification = Gtk.Justification.RIGHT;
 
-            justify_center = new Gtk.TextTag ("justify-center");
+            justify_center = new Gtk.TextTag (TAG_NAME_JUSTIFY_CENTER);
             justify_center.justification = Gtk.Justification.CENTER;
 
-            justify_fill = new Gtk.TextTag ("justify-fill");
+            justify_fill = new Gtk.TextTag (TAG_NAME_JUSTIFY_FILL);
             justify_fill.justification = Gtk.Justification.FILL;
 
             add (light_dimmed);

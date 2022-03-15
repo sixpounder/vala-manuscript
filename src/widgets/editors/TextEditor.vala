@@ -176,11 +176,11 @@ namespace Manuscript.Widgets {
                     string focused_tag;
                     string dimmed_tag;
                     if (settings.prefer_dark_style) {
-                        focused_tag = "theme-dark-focused";
-                        dimmed_tag = "theme-dark-dimmed";
+                        focused_tag = Models.THEME_TAG_NAME_DARK_FOCUSED;
+                        dimmed_tag = Models.THEME_TAG_NAME_DARK_DIMMED;
                     } else {
-                        focused_tag = "theme-light-focused";
-                        dimmed_tag = "theme-light-dimmed";
+                        focused_tag = Models.THEME_TAG_NAME_LIGHT_FOCUSED;
+                        dimmed_tag = Models.THEME_TAG_NAME_LIGHT_DIMMED;
                     }
                     buffer.get_bounds (out start, out end);
                     buffer.remove_tag (buffer.tag_table.lookup (focused_tag), start, end);
